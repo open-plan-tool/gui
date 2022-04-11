@@ -8,7 +8,7 @@ from dashboard.helpers import KPIFinder
 
 PARAMETERS = {}
 if os.path.exists(staticfiles_storage.path("MVS_parameters_list.csv")) is True:
-    with open(staticfiles_storage.path("MVS_parameters_list.csv")) as csvfile:
+    with open(staticfiles_storage.path("MVS_parameters_list.csv"), encoding='utf-8') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         for i, row in enumerate(csvreader):
             if i == 0:
