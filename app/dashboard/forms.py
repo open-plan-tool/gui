@@ -132,6 +132,16 @@ class StackedCapacitiesGraphForm(forms.Form):
             self.fields["y"].choices = tuple(choices)
 
 
+class SankeyGraphForm(forms.Form):
+    energy_vector = forms.MultipleChoiceField(
+        label=_("Energy vector"), choices=ENERGY_VECTOR, initial=ENERGY_VECTOR[1][0]
+    )
+
+    def __init__(self, *args, **kwargs):
+        scen_ids = kwargs.pop("scenario_ids", None)
+        super().__init__(*args, **kwargs)
+
+
 class SensitivityAnalysisGraphForm(ModelForm):
     def __init__(self, *args, **kwargs):
         proj_id = kwargs.pop("proj_id", None)
@@ -167,6 +177,8 @@ def graph_parameters_form_factory(report_type, *args, **kwargs):
     # GRAPH_PIE,
     # GRAPH_LOAD_DURATION,
     # GRAPH_SANKEY,
+    if report_type == GRAPH_SANKEY:
+        answer = SankeyGraphForm(*args, **kwargs)
     if report_type == GRAPH_SENSITIVITY_ANALYSIS:
         answer = SensitivityAnalysisGraphForm(*args, **kwargs)
     return answer

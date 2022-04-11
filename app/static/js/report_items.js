@@ -164,6 +164,18 @@ function addCapacitiyGraph(graphId, parameters){
     Plotly.newPlot(graphId, data, layout);
 };
 
+function addSankeyDiagram(graphId, parameters){
+
+
+    console.log(parameters)
+    // prepare graph layout in plotly format
+    const layout= {
+        title: parameters.title,
+    }
+    // create plot
+    Plotly.newPlot(graphId, parameters.data.data, layout);
+};
+
 
 function addSensitivityAnalysisGraph(graphId, parameters){
     // prepare graph layout in plotly format
@@ -188,6 +200,7 @@ const graph_type_mapping={
     timeseries_stacked: addStackedTimeseriesGraph,
     capacities: addCapacitiyGraph,
     sensitivity_analysis: addSensitivityAnalysisGraph,
+    sankey: addSankeyDiagram
 }
 // # GRAPH_TIMESERIES = "timeseries"
 // # GRAPH_TIMESERIES_STACKED = "timeseries_stacked"

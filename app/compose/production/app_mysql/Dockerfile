@@ -6,9 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN mkdir ${CONFIG_ROOT}
-COPY requirements.txt ${CONFIG_ROOT}/requirements.txt
+COPY requirements/mysql.txt ${CONFIG_ROOT}/requirements.txt
 
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev openssl-dev python3-dev cargo\
+RUN apk update \
+    && apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev openssl-dev python3-dev cargo\
     && apk add libxml2-dev libxslt-dev \
     && apk add --no-cache mariadb-dev \
     && pip install --upgrade pip \

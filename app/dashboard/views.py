@@ -47,6 +47,7 @@ import xlsxwriter
 import json
 import datetime
 import logging
+import traceback
 import ast
 
 logger = logging.getLogger(__name__)
@@ -91,7 +92,7 @@ def scenario_available_results(request, scen_id):
         return JsonResponse(response_json, status=200, content_type="application/json")
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": "Could not retrieve asset names and categories."},
@@ -170,7 +171,7 @@ def scenario_request_results(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"Error": "Could not retrieve timeseries data."},
@@ -740,7 +741,7 @@ def scenario_economic_results(request, scen_id=None):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -798,7 +799,7 @@ def scenario_visualize_timeseries(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -871,7 +872,7 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -925,7 +926,7 @@ def scenario_visualize_stacked_total_flow(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -976,7 +977,7 @@ def scenario_visualize_stacked_capacities(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -986,7 +987,7 @@ def scenario_visualize_stacked_capacities(request, scen_id):
         )
 
 
-# TODO: push optimizedAddCap for DSO to KPI as "Spitzenlast"/ "Peak Demand"
+# TODO: push optimized_add_cap for DSO to KPI as "Spitzenlast"/ "Peak Demand"
 # TODO: Make a note appear if all components have optimized_capacity = False because no figure will be shown
 # TODO: Change "if results_dict = json.loads(Scenario.objects.first().simulation.results)"
 def scenario_visualize_stacked_optimized_capacities(request, scen_id):
@@ -1016,7 +1017,7 @@ def scenario_visualize_stacked_optimized_capacities(request, scen_id):
                 "values": [
                     {
                         "x": ["Optimierte Kapazität"],
-                        "y": [kpi_scalar_matrix[asset]["optimizedAddCap"]],
+                        "y": [kpi_scalar_matrix[asset]["optimized_add_cap"]],
                         "name": asset.replace("_", " ").upper()
                         + " in "
                         + kpi_scalar_matrix[asset]["unit"]
@@ -1038,7 +1039,7 @@ def scenario_visualize_stacked_optimized_capacities(request, scen_id):
         )
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {e}"
+            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
             {"error": f"Could not retrieve kpi cost data."},
@@ -1080,7 +1081,7 @@ def download_scalar_results(request, scen_id):
         output.seek(0)
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: Could not generate KPI Scalars download file with Scenario Id: {scen_id}. Thrown Exception: {e}"
+            f"Dashboard ERROR: Could not generate KPI Scalars download file with Scenario Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
         )
         raise Http404()
 
@@ -1125,7 +1126,7 @@ def download_cost_results(request, scen_id):
         output.seek(0)
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: Could not generate KPI Costs download file with Scenario Id: {scen_id}. Thrown Exception: {e}"
+            f"Dashboard ERROR: Could not generate KPI Costs download file with Scenario Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
         )
         raise Http404()
 
@@ -1235,7 +1236,7 @@ def download_timeseries_results(request, scen_id):
         return response
     except Exception as e:
         logger.error(
-            f"Dashboard ERROR: Could not generate Timeseries Results file for the Scenario with Id: {scen_id}. Thrown Exception: {e}"
+            f"Dashboard ERROR: Could not generate Timeseries Results file for the Scenario with Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
         )
         raise Http404()
 

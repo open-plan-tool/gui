@@ -4,35 +4,41 @@ services:
   db:
     image: mysql:5.7
     container_name: open_planDB
-    ports:
-      - "3306:3306"
-    restart: always
-    environment:
-      MYSQL_DATABASE: "open_plan-app-db"
-      MYSQL_ROOT_PASSWORD: "4kFDg@G@*G,#)Fa"
-    volumes:
-      - db_data:/var/lib/mysql/
-  app:
-    build: ./app
-    container_name: django-open_plan
+    expose:
+      - 3306
     restart: always
     env_file:
-      - app/epa.env
+      - .envs/db.mysql
+    volumes:
+      - db_data_mysql:/var/lib/mysql/
+    networks:
+      - open_plan_network
+  app:
+    build:
+      context: ./app
+      dockerfile: ./compose/production/app_mysql/Dockerfile
+    container_name: django-open_plan_mysql
+    restart: always
+    env_file:
+      - .envs/epa.mysql
     expose:
-      - 8000  # use expose insted of port to expose ports internal between containers and not to the host maschine
+      - 8000
     volumes:
       - ./src/cdn_static_root:/src/cdn_static_root
     command: "gunicorn --workers=2 --bind=0.0.0.0:8000 epa.wsgi:application"
     depends_on:
       - db
-    links:
-      - db:db
+    networks:
+      - open_plan_network
+
   djangoq:
-    build: ./app
+    build:
+      context: ./app
+      dockerfile: ./compose/production/app_mysql/Dockerfile
     container_name: django-q-open_plan
     restart: always
     env_file:
-      - app/epa.env
+      - .envs/epa.mysql
     command: python manage.py qcluster
     volumes:
       - .:/code
@@ -41,22 +47,25 @@ services:
     depends_on:
       - db
       - app
-    links:
-      - db:db
+    networks:
+      - open_plan_network
   nginx:
     image: nginx:1.17
     container_name: ngx
     restart: always
     ports:
-      - "80:80"
+      - "8090:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./src/cdn_static_root:/static
     depends_on:
       - app
+    networks:
+      - open_plan_network
 volumes:
-  db_data:
+  db_data_mysql:
 # need to execute 'docker-compose run app python manage.py makemigrations'
 # and 'docker-compose run app python manage.py migrate'
 
-# Based on: https://github.com/wiamsuri/django-gunicorn-nginx-docker
+networks:
+  open_plan_network:

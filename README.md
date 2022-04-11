@@ -15,24 +15,32 @@ This repository contains the code for the user interface. The simulations are pe
 
 ## Deploy locally using and using our open plan MVS server
 
-Prior to be able to develop locally, you might need to install mysql, simply google `install mysql` followed by your os name (`linux/mac/windows`)
-You can also try the next step and only install mysql if you see an error message talking about mysql.
+Prior to be able to develop locally, you might need to install postgres, simply google `install postgres` followed by your os name (`linux/mac/windows`)
 
 1. Create a virtual environment
 2. Activate your virtual environment
-3. Install the dependencies with `pip install -r app/requirements.txt`
+3. Install the dependencies with `pip install -r app/requirements/postgres.txt`
 4. Install extra local development dependencies with `pip install -r app/dev_requirements.txt`
 5. Move to the `app` folder with `cd app`
-6. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
-7. Start the local server with `python manage.py runserver`
-8. You can login with `testUser` and `ASas12,.` or create your own account
+6. Create environment variables (only replace content surrounded by `<>`)
+```
+SQL_ENGINE=django.db.backends.postgresql
+SQL_DATABASE=<your db name>
+SQL_USER=<your user name>
+SQL_PASSWORD=<your password>
+SQL_PORT=5432
+DATABASE=postgres
+```
+8. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
+9. Start the local server with `python manage.py runserver`
+10. You can then login with `testUser` and `ASas12,.` or create your own account
 
 ## Deploy using Docker Compose - use of MVS web API
 The following commands should get everything up and running, utilzing the web based version of the MVS API.
 1. `git clone --single-branch --branch main https://github.com/open-plan-tool/gui.git`
 2. cd inside the created folder
-4. `docker-compose up -d --build`
-5. `docker-compose exec app sh setup.sh` (this will also load a default testUser account with sample scenario).
+4. `docker-compose --file=docker-compose-postgres.yml up -d --build` (you can replace `postgres` by `mysql` if you want to use mysql)
+5. `docker-compose exec app_pg sh setup.sh` (this will also load a default testUser account with sample scenario).
 6. Open browser and navigate to http://localhost:80.
 
 >**_NOTE:_** If you use a proxy you will need to introduce modifications to app/epa.env to fit your needs.
@@ -47,7 +55,7 @@ The following commands should get everything up and running, utilzing the web ba
 
 ## Tear down
 > To remove the application (including relevant images, volumes etc.), one can use the following commands in cmd:
-- `docker-compose down --volumes --rmi local`, or
+- `docker-compose down --file=docker-compose-postgres.yml --volumes --rmi local`, or
 - `docker-compose -f docker-compose_with_mvs.yml down --volumes --rmi local` if docker-compose_with_mvs.yml configuration was utilized.
 <hr>
 

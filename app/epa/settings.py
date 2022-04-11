@@ -104,29 +104,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "epa.wsgi.application"
 
-
+DB_CHOICE = os.environ.get("DATABASE", "postgres")
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-USE_MYSQL_CONTAINER = ast.literal_eval(os.getenv("MYSQL_DB_CONTAINER", "False"))
+# By default the database is postgres, if you want to use mysql make sure you pip install the mysql requirement file
 DATABASES = {
-    # ELAND dockerized mysql container
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "open_plan-app-db",
-        "USER": "root",
-        "PASSWORD": "4kFDg@G@*G,#)Fa",
-        "HOST": "db",
-        "PORT": 3306,
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
-    if USE_MYSQL_CONTAINER
-    else (
-        # local with sqlite
-        {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-        }
-    )
+    if DB_CHOICE == "postgres"
+    else {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "3306"),
+    }
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -241,7 +240,8 @@ LOGGING = {
             "handlers": ["info_file", "warnings_file", "console"],
             "level": "DEBUG",
             "propagate": True,
-        }
+        },
+        "asyncio": {"level": "WARNING"},
     },
 }
 

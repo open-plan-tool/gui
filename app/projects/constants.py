@@ -288,6 +288,12 @@ ASSET_CATEGORY = [
     ("energy_consumption", "energy_consumption"),
 ]
 
+INPUT_POWER = "input_power"
+OUTPUT_POWER = "output_power"
+CAPACITY = "capacity"
+
+STORAGE_SUB_CATEGORIES = (INPUT_POWER, OUTPUT_POWER, CAPACITY)
+
 VALUE_TYPE = (
     ("", "Choose..."),
     ("name", "name"),

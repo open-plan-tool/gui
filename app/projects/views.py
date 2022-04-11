@@ -697,15 +697,15 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
         "net_zero_energy": _("Net zero energy system"),
     }
     constraints_forms = {
-        "minimal_degree_of_autonomy": MinRenewableConstraintForm,
-        "minimal_renewable_factor": MinDOAConstraintForm,
+        "minimal_degree_of_autonomy": MinDOAConstraintForm,
+        "minimal_renewable_factor": MinRenewableConstraintForm,
         "maximum_emissions": MaxEmissionConstraintForm,
         "net_zero_energy": NZEConstraintForm,
     }
 
     constraints_models = {
-        "minimal_degree_of_autonomy": MinRenewableConstraint,
-        "minimal_renewable_factor": MinDOAConstraint,
+        "minimal_degree_of_autonomy": MinDOAConstraint,
+        "minimal_renewable_factor": MinRenewableConstraint,
         "maximum_emissions": MaxEmissionConstraint,
         "net_zero_energy": NZEConstraint,
     }
@@ -1219,11 +1219,11 @@ def view_mvs_data_input(request, scen_id=0):
             content_type="application/json",
         )
     # Load scenario
-    scenario = Scenario.objects.get(pk=scen_id)
+    scenario = Scenario.objects.get(id=scen_id)
 
     if scenario.project.user != request.user:
         logger.warning(
-            f"Unauthorized user tried to delete project scenario with db id = {scen_id}."
+            f"Unauthorized user tried to access scenario with db id = {scen_id}."
         )
         raise PermissionDenied
 

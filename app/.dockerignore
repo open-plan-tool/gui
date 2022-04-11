@@ -2,9 +2,8 @@
 **/__pycache__/
 **/*.py[cod]
 *.sqlite3
-**/migrations/
-!migrations/__init__.py
 *.log
+compose/*
 node_modules/
 static_src/
 Dockerfile

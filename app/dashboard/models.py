@@ -3,6 +3,9 @@ import json
 import jsonschema
 import traceback
 import logging
+import numpy as np
+import plotly.graph_objects as go
+
 
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
@@ -25,10 +28,16 @@ from dashboard.helpers import (
     simulation_timeseries_to_json,
     report_item_render_to_json,
     sensitivity_analysis_graph_render_to_json,
+    format_storage_subasset_name,
 )
 
-from projects.models import Simulation, SensitivityAnalysis
-from projects.constants import MAP_EPA_MVS
+from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink
+from projects.constants import (
+    MAP_EPA_MVS,
+    STORAGE_SUB_CATEGORIES,
+    INPUT_POWER,
+    OUTPUT_POWER,
+)
 from projects.models import Simulation, Scenario
 
 logger = logging.getLogger(__name__)
@@ -179,17 +188,21 @@ class AssetsResults(models.Model):
             for category in asset_dict:
                 for asset in asset_dict[category]:
                     if category == "energy_storage":
-                        for sub_cat in ("input_power", "output_power", "capacity"):
+                        for sub_cat in STORAGE_SUB_CATEGORIES:
                             storage_subasset = asset.get(sub_cat)
                             if storage_subasset is None:
                                 storage_subasset = asset.get(
                                     MAP_EPA_MVS.get(sub_cat, sub_cat)
                                 )
                             if storage_subasset is not None:
-                                storage_subasset["category"] = category + "_" + sub_cat
+                                storage_subasset[
+                                    "category"
+                                ] = format_storage_subasset_name(category, sub_cat)
                                 storage_subasset["type_oemof"] = asset["type_oemof"]
                                 self.__available_timeseries[
-                                    asset["label"] + "_" + sub_cat
+                                    format_storage_subasset_name(
+                                        asset["label"], sub_cat
+                                    )
                                 ] = storage_subasset
                     else:
                         if (
@@ -220,7 +233,9 @@ class AssetsResults(models.Model):
             for asset in asset_dict[category]:
                 if category == "energy_storage":
                     for sub_cat in ("input_power", "output_power", "capacity"):
-                        if asset_name == asset["label"] + "_" + sub_cat:
+                        if asset_name == format_storage_subasset_name(
+                            asset["label"], sub_cat
+                        ):
                             storage_subasset = asset.get(sub_cat)
                             if storage_subasset is None:
                                 storage_subasset = asset.get(
@@ -229,7 +244,9 @@ class AssetsResults(models.Model):
                             if storage_subasset is not None:
                                 if answer is None:
                                     answer = storage_subasset
-                                    answer["category"] = category + "_" + sub_cat
+                                    answer["category"] = format_storage_subasset_name(
+                                        category, sub_cat
+                                    )
                                     break
                                 else:
                                     raise ValueError(
@@ -462,12 +479,12 @@ class ReportItem(models.Model):
                         )
                         if y_var in kpi_scalar_matrix:
                             optimized_capacity_dict["capacity"].append(
-                                kpi_scalar_matrix[y_var]["optimizedAddCap"]
+                                kpi_scalar_matrix[y_var]["optimized_add_cap"]
                             )
                         else:
-                            if "optimizedAddCap" in asset:
+                            if "optimized_add_cap" in asset:
                                 optimized_capacity_dict["capacity"].append(
-                                    asset["optimizedAddCap"]["value"]
+                                    asset["optimized_add_cap"]["value"]
                                 )
                             else:
                                 optimized_capacity_dict["capacity"].append(0)
@@ -484,6 +501,116 @@ class ReportItem(models.Model):
                         )
                     )
                 return simulations_results
+
+        if self.report_type == GRAPH_SANKEY:
+            energy_vector = parameters.get("energy_vector", None)
+            if isinstance(energy_vector, list) is False:
+                energy_vector = [energy_vector]
+            if energy_vector is not None:
+                labels = []
+                sources = []
+                targets = []
+                values = []
+                colors = []
+
+                sim = self.simulations.get()
+                ar = AssetsResults.objects.get(simulation=sim)
+                results_ts = ar.available_timeseries
+                qs = ConnectionLink.objects.filter(scenario__simulation=sim)
+
+                for bus in Bus.objects.filter(
+                    scenario__simulation=sim, type__in=energy_vector
+                ):
+                    bus_label = bus.name
+                    labels.append(bus_label)
+                    colors.append("blue")
+                    # from asset to bus
+                    bus_inputs = qs.filter(flow_direction="A2B", bus=bus)
+                    asset_to_bus_names = []
+                    bus_to_asset_names = []
+
+                    for component in bus_inputs:
+                        # special case of providers which are bus input and output at the same time
+                        if component.asset.is_provider is True:
+                            asset_to_bus_names.append(
+                                component.asset.name + "_consumption"
+                            )
+                            bus_to_asset_names.append(component.asset.name + "_feedin")
+                        elif component.asset.is_storage is True:
+                            asset_to_bus_names.append(
+                                format_storage_subasset_name(
+                                    component.asset.name, OUTPUT_POWER
+                                )
+                            )
+                        else:
+                            asset_to_bus_names.append(component.asset.name)
+
+                    bus_outputs = qs.filter(flow_direction="B2A", bus=bus)
+                    for component in bus_outputs:
+                        if component.asset.is_storage is True:
+                            bus_to_asset_names.append(
+                                format_storage_subasset_name(
+                                    component.asset.name, INPUT_POWER
+                                )
+                            )
+                        else:
+                            bus_to_asset_names.append(component.asset.name)
+
+                    for component_label in asset_to_bus_names:
+                        # draw link from the component to the bus
+                        if component_label not in labels:
+                            labels.append(component_label)
+                            colors.append("green")
+
+                        sources.append(labels.index(component_label))
+                        targets.append(labels.index(bus_label))
+
+                        val = np.sum(results_ts[component_label]["flow"]["value"])
+                        if val == 0:
+                            val = 1
+                        values.append(val)
+
+                    for component_label in bus_to_asset_names:
+                        # draw link from the bus to the component
+                        if component_label not in labels:
+                            labels.append(component_label)
+                            colors.append("red")
+
+                        sources.append(labels.index(bus_label))
+                        targets.append(labels.index(component_label))
+
+                        val = np.sum(results_ts[component_label]["flow"]["value"])
+
+                        if val == 0:
+                            val = 1
+                        values.append(val)
+
+                # TODO display the installed capacity, max capacity and optimized_add_capacity on the nodes if applicable
+                fig = go.Figure(
+                    data=[
+                        go.Sankey(
+                            node=dict(
+                                pad=15,
+                                thickness=20,
+                                line=dict(color="black", width=0.5),
+                                label=labels,
+                                hovertemplate="Node has total value %{value}<extra></extra>",
+                                color=colors,
+                            ),
+                            link=dict(
+                                source=sources,  # indices correspond to labels
+                                target=targets,
+                                value=values,
+                                hovertemplate="Link from node %{source.label}<br />"
+                                + "to node%{target.label}<br />has value %{value}"
+                                + "<br />and data <extra></extra>",
+                            ),
+                        )
+                    ]
+                )
+
+                fig.update_layout(font_size=10)
+                return fig.to_dict()
 
     @property
     def render_json(self):

@@ -104,6 +104,10 @@ def storage_asset_to_list(assets_results_json):
                     assets_results_json["energy_storage"].append(subasset)
 
 
+def format_storage_subasset_name(asset_name, subasset_name):
+    return f"{asset_name}_{subasset_name}"
+
+
 def update_selected_scenarios_in_cache(request, proj_id, scen_id):
     """Update the cache which contains the selected scenarios per project"""
     proj_id = str(proj_id)
@@ -500,5 +504,12 @@ GRAPH_PARAMETERS_SCHEMAS = {
     GRAPH_BAR: {},
     GRAPH_PIE: {},
     GRAPH_LOAD_DURATION: {},
-    GRAPH_SANKEY: {},
+    GRAPH_SANKEY: {
+        "type": "object",
+        "required": ["energy_vector"],
+        "properties": {
+            "energy_vector": {"oneOf": [{"type": "array", "items": {"type": "string"}}]}
+        },
+        "additionalProperties": False,
+    },
 }
