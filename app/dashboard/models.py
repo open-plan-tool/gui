@@ -369,7 +369,6 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                         single_ts_json["fill"] = "none"
                     else:
                         single_ts_json["fill"] = "tonexty"
-                    print(single_ts_json["fill"])
                     y_values.append(single_ts_json)
         simulations_results.append(
             simulation_timeseries_to_json(

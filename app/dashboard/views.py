@@ -183,6 +183,21 @@ def scenario_request_results(request, scen_id):
 
 
 @login_required
+@require_http_methods(["POST"])
+def result_change_project(request):
+    proj_id = int(request.POST.get("proj_id"))
+    if request.session[COMPARE_VIEW] is False:
+        answer = HttpResponseRedirect(
+            reverse("project_visualize_results", args=[proj_id])
+        )
+    else:
+        answer = HttpResponseRedirect(
+            reverse("project_compare_results", args=[proj_id])
+        )
+    return answer
+
+
+@login_required
 @require_http_methods(["POST", "GET"])
 def scenario_visualize_results(request, proj_id=None, scen_id=None):
     request.session[COMPARE_VIEW] = False

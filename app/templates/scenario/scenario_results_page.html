@@ -112,7 +112,7 @@
                     {% translate "Project" %}
                 </div>
                 <div class="project-name">
-                    <form action="{{ request.get_full_path }}" method="POST">
+                    <form action="{% url 'result_change_project' %}" method="POST">
                         {% csrf_token %}
                         <select name="proj_id" class="form-select" aria-label="Default select example" onchange="this.form.submit()">
                         {% for project in project_list %}

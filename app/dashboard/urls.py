@@ -27,6 +27,7 @@ urlpatterns = [
         project_compare_results,
         name="project_compare_results",
     ),
+    path("result-change-project", result_change_project, name="result_change_project"),
     path(
         "project/<int:proj_id>/scenario/results/sensitivity-analysis",
         project_sensitivity_analysis,
