@@ -710,6 +710,7 @@ def request_kpi_table(request, proj_id=None, table_style=None):
                         2,
                     )
                 ]
+                param["description"] = KPI_helper.get_doc_definition(param["id"])
                 if "currency" in param["unit"]:
                     param["unit"] = param["unit"].replace(
                         "currency", scenario.get_currency()

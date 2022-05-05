@@ -333,7 +333,7 @@ class KPIFinder:
                 answer.append(self.get_doc_definition(p_name))
         else:
             if param_name in self.kpi_info_dict:
-                answer = self.kpi_info_dict[param_name][":Definition:"]
+                answer = self.kpi_info_dict[param_name]["definition"]
             else:
                 answer = None
         return answer
