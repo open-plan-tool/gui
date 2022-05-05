@@ -379,14 +379,15 @@ function update_kpi_table_style(target){
                 tableSubSectionTitleRow.appendChild(document.createElement('td'));
             }
 
-            tableBody.appendChild(tableSubSectionTitle);
+            //tableBody.appendChild(tableSubSectionTitle);
 
             /* add subtable lines for each parameter */
             // (param should be a json object) with keys name (type str), unit type (str) and scen_values
             table_data[subBody].map(param =>{
                 var tableSubSectionParamRow = document.createElement('tr');
                 var cell = tableSubSectionParamRow.insertCell(0);
-                cell.innerHTML = `{% blocktranslate %}` + param.name +`{% endblocktranslate %}`;
+                cell.innerHTML = `{% blocktranslate %}` + param.name +`{% endblocktranslate %}<a data-bs-toggle="tooltip" title="" data-bs-original-title="${param.description}" data-bs-placement="right"><img style="height: 1.2rem;margin-left:.5rem" alt="info icon" src="{% static 'assets/icons/i_info.svg'%}"></a>`;
+                //cell.setAttribute("title", param.description)
                 //cell.append(" just to see");
                 // todo for loop over scenario values
                 for(i=0;i<param.scen_values.length;++i){
@@ -399,7 +400,7 @@ function update_kpi_table_style(target){
 
             parentDiv.appendChild(tableBody);
         }
-
+        $('[data-bs-toggle="tooltip"]').tooltip()
 
         },
         error: function (xhr, errmsg) {

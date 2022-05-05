@@ -35,3 +35,8 @@ background-color: #F4F7F9 ;
 pointer-events: none;
 opacity: 0.6;
 }
+
+.info__icon{
+height: 1.2rem;
+margin-left: .5rem;
+}

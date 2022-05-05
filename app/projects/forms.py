@@ -165,7 +165,7 @@ class ProjectCreateForm(OpenPlanForm):
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Name...",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _("A self explanatory name for the project."),
             }
         ),
@@ -175,7 +175,7 @@ class ProjectCreateForm(OpenPlanForm):
         widget=forms.Textarea(
             attrs={
                 "placeholder": "More detailed description here...",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "A description of what this project objectives or test cases."
                 ),
@@ -187,7 +187,7 @@ class ProjectCreateForm(OpenPlanForm):
         choices=COUNTRY,
         widget=forms.Select(
             attrs={
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _("Name of the country where the project is being deployed"),
             }
         ),
@@ -198,7 +198,7 @@ class ProjectCreateForm(OpenPlanForm):
             attrs={
                 "placeholder": "click on the map",
                 "readonly": "",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "Longitude coordinate of the project's geographical location."
                 ),
@@ -211,7 +211,7 @@ class ProjectCreateForm(OpenPlanForm):
             attrs={
                 "placeholder": "click on the map",
                 "readonly": "",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "Latitude coordinate of the project's geographical location."
                 ),
@@ -226,7 +226,7 @@ class ProjectCreateForm(OpenPlanForm):
                 "min": "0",
                 "max": "100",
                 "step": "1",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "The number of years the project is intended to be operational. The project duration also sets the installation time of the assets used in the simulation. After the project ends these assets are 'sold' and the refund is charged against the initial investment costs."
                 ),
@@ -238,7 +238,7 @@ class ProjectCreateForm(OpenPlanForm):
         choices=CURRENCY,
         widget=forms.Select(
             attrs={
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "The currency of the country where the project is implemented."
                 ),
@@ -253,7 +253,7 @@ class ProjectCreateForm(OpenPlanForm):
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _(
                     "Discount factor is the factor which accounts for the depreciation in the value of money in the future, compared to the current value of the same money. The common method is to calculate the weighted average cost of capital (WACC) and use it as the discount rate."
                 ),
@@ -268,7 +268,7 @@ class ProjectCreateForm(OpenPlanForm):
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-toggle": "tooltip",
+                "data-bs-toggle": "tooltip",
                 "title": _("Tax factor"),
             }
         ),
@@ -371,7 +371,7 @@ scenario_widgets = {
             "min": "1",
             "max": "600",
             "step": "1",
-            "data-toggle": "tooltip",
+            "data-bs-toggle": "tooltip",
             "title": _("Length of the time-steps."),
         },
         choices=((60, "60 min"),),
@@ -381,7 +381,7 @@ scenario_widgets = {
             "placeholder": "eg. 10 days",
             "min": "1",
             "step": "1",
-            "data-toggle": "tooltip",
+            "data-bs-toggle": "tooltip",
             "title": _("The number of days simulated with the energy system model."),
         }
     ),
@@ -389,7 +389,7 @@ scenario_widgets = {
         attrs={
             "placeholder": "e.g. 10000€",
             "min": "0",
-            "data-toggle": "tooltip",
+            "data-bs-toggle": "tooltip",
             "title": _(
                 "A fixed cost to implement the asset, eg. planning costs which do not depend on the (optimized) asset capacity."
             ),
@@ -559,7 +559,7 @@ class BusForm(OpenPlanModelForm):
             "type": forms.Select(
                 choices=ENERGY_VECTOR,
                 attrs={
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("The energy Vector of the connected assets."),
                     "style": "font-weight:400; font-size:13px;",
                 },
@@ -709,7 +709,7 @@ class AssetCreateForm(OpenPlanModelForm):
             "optimize_cap": forms.Select(
                 choices=BOOL_CHOICES,
                 attrs={
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "True if the user wants to perform capacity optimization for various components as part of the simulation."
                     ),
@@ -720,7 +720,7 @@ class AssetCreateForm(OpenPlanModelForm):
             "renewable_asset": forms.Select(
                 choices=TRUE_FALSE_CHOICES,
                 attrs={
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("Indicate if the asset is renewable or not."),
                     "style": "font-weight:400; font-size:13px;",
                 },
@@ -736,7 +736,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 10000",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         " A fixed cost to implement the asset, eg. planning costs which do not depend on the (optimized) asset capacity."
                     ),
@@ -748,7 +748,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 4000",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         " Actual CAPEX of the asset, i.e., specific investment costs."
                     ),
@@ -760,7 +760,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 0",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "Actual OPEX of the asset, i.e., specific operational and maintenance costs."
                     ),
@@ -772,7 +772,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "Currency",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "Variable cost associated with a flow through/from the asset."
                     ),
@@ -784,7 +784,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 10 years",
                     "min": "0",
                     "step": "1",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "Number of operational years of the asset until it has to be replaced."
                     ),
@@ -805,7 +805,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "min": "0.0",
                     "max": "1.0",
                     "step": ".0001",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "C-rate is the rate at which the storage can charge or discharge relative to the nominal capacity of the storage. A c-rate of 1 implies that the battery can discharge or charge completely in a single timestep."
                     ),
@@ -815,7 +815,7 @@ class AssetCreateForm(OpenPlanModelForm):
             "efficiency": forms.NumberInput(
                 attrs={
                     "placeholder": "e.g. 0.99",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("Ratio of energy output/energy input."),
                     "style": "font-weight:400; font-size:13px;",
                     "min": "0.0",
@@ -829,7 +829,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "min": "0.0",
                     "max": "1.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "The maximum permissible level of charge in the battery (generally, it is when the battery is filled to its nominal capacity), represented by the value 1.0. Users can  also specify a certain value as a factor of the actual capacity."
                     ),
@@ -842,7 +842,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "min": "0.0",
                     "max": "1.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "The minimum permissible level of charge in the battery as a factor of the nominal capacity of the battery."
                     ),
@@ -854,7 +854,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 1000",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("The maximum installable capacity."),
                     "style": "font-weight:400; font-size:13px;",
                 }
@@ -864,7 +864,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 0.1",
                     "min": "0.0",
                     "step": ".0001",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("Price of electricity sourced from the utility grid."),
                     "style": "font-weight:400; font-size:13px;",
                 }
@@ -874,7 +874,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 0.0",
                     "min": "0.0",
                     "step": ".0001",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("Price received for feeding electricity into the grid."),
                     "style": "font-weight:400; font-size:13px;",
                 }
@@ -883,7 +883,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 attrs={
                     "placeholder": "e.g. 0.0",
                     "min": "0.0",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _("Capping the feedin capacity of a DSO."),
                     "style": "font-weight:400; font-size:13px;",
                 }
@@ -893,7 +893,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 60",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "Price to be paid additionally for energy-consumption based on the peak demand of a period."
                     ),
@@ -903,7 +903,7 @@ class AssetCreateForm(OpenPlanModelForm):
             "peak_demand_pricing_period": forms.NumberInput(
                 attrs={
                     "placeholder": "times per year, e.g. 2",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "Number of reference periods in one year for the peak demand pricing. Only one of the following are acceptable values: 1 (yearly), 2, 3 ,4, 6, 12 (monthly)."
                     ),
@@ -919,7 +919,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "min": "0.0",
                     "max": "1.0",
                     "step": ".0001",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": "The share of renewables in the generation mix of the energy supplied by the DSO (utility).",
                     "style": "font-weight:400; font-size:13px;",
                 }
@@ -929,7 +929,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 50",
                     "min": "0.0",
                     "step": ".01",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "The already existing installed capacity in-place, which will also be replaced after its lifetime."
                     ),
@@ -941,7 +941,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "placeholder": "e.g. 10",
                     "min": "0.0",
                     "step": "1",
-                    "data-toggle": "tooltip",
+                    "data-bs-toggle": "tooltip",
                     "title": _(
                         "The number of years the asset has already been in operation."
                     ),

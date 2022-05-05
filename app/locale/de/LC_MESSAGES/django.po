@@ -1297,3 +1297,18 @@ msgstr "Lagerung"
 
 msgid "demand"
 msgstr "Bedarf"
+
+msgid "Degree of Autonomy"
+msgstr "Autarkiegrad"
+
+msgid "Onsite energy fraction"
+msgstr "Eigenverbrauchsquote"
+
+msgid "Renewable factor"
+msgstr "EE-Anteil"
+
+msgid "Renewable share of local generation"
+msgstr "EE-Anteil lokale Erzeugung"
+
+msgid "Levelized costs of electricity equivalent"
+msgstr "Stromgestehungskosten"

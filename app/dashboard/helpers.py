@@ -17,10 +17,10 @@ ECONOMIC_CAT = "economic"
 TECHNICAL_CAT = "technical"
 ENVIRONEMENTAL_CAT = "environemental"
 TABLES = {
-    MANAGEMENT_CAT: {},
-    ECONOMIC_CAT: {},
-    TECHNICAL_CAT: {},
-    ENVIRONEMENTAL_CAT: {},
+    MANAGEMENT_CAT: {"General": []},
+    # ECONOMIC_CAT: {},
+    # TECHNICAL_CAT: {},
+    # ENVIRONEMENTAL_CAT: {},
 }
 EMPTY_SUBCAT = "none"
 
@@ -44,22 +44,35 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 unit = row[unit_idx]
                 KPIS[label] = {k: v for k, v in zip(hdr, row)}
 
-                cat = row[cat_idx]
-                subcat = row[subcat_idx]
-                if subcat == MANAGEMENT_CAT:
-                    # reverse the category and the subcategory for this special table (management is not a parameter type, whereas all other table are also parameter types)
-                    subcat = cat
-                    cat = MANAGEMENT_CAT
-
-                if subcat != EMPTY_SUBCAT:
-                    if cat in TABLES:
-                        if subcat not in TABLES[cat]:
-                            TABLES[cat][subcat] = []
-                        if label not in TABLES[cat][subcat]:
-                            # the _() make the text translatable if it is mentionned in the django.po file
-                            TABLES[cat][subcat].append(
-                                {"name": _(verbose), "id": label, "unit": _(unit)}
-                            )
+                # cat = row[cat_idx]
+                # subcat = row[subcat_idx]
+                # if subcat == MANAGEMENT_CAT:
+                #     # reverse the category and the subcategory for this special table (management is not a parameter type, whereas all other table are also parameter types)
+                #     subcat = cat
+                #     cat = MANAGEMENT_CAT
+                if label in (
+                    "degree_of_autonomy",
+                    "onsite_energy_fraction",
+                    "renewable_factor",
+                    "renewable_share_of_local_generation",
+                    "levelized_costs_of_electricity_equivalent",
+                ):
+                    TABLES[MANAGEMENT_CAT]["General"].append(
+                        {
+                            "name": _(verbose),
+                            "id": label,
+                            "unit": _(unit) if unit != "Factor" else "",
+                        }
+                    )
+                # if subcat != EMPTY_SUBCAT:
+                #     if cat in TABLES:
+                #         if subcat not in TABLES[cat]:
+                #             TABLES[cat][subcat] = []
+                #         if label not in TABLES[cat][subcat]:
+                #             # the _() make the text translatable if it is mentionned in the django.po file
+                #             TABLES[cat][subcat].append(
+                #                 {"name": _(verbose), "id": label, "unit": _(unit)}
+                #             )
 
     with open(staticfiles_storage.path("MVS_kpis_list.csv")) as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')

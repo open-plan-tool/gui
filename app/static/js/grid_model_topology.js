@@ -158,6 +158,7 @@ document.addEventListener("dblclick", function (e) {
 
 
             guiModal.show()
+            $('[data-bs-toggle="tooltip"]').tooltip()
 
         })
         .catch(err => alert("Modal get form JS Error: " + err));
