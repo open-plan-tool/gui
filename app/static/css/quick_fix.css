@@ -30,3 +30,8 @@ background-color: #F4F7F9 ;
     flex-direction: column !important;
     align-items: flex-start !important;
 }
+
+.greyed_out{
+pointer-events: none;
+opacity: 0.6;
+}

@@ -10,6 +10,7 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <!--<script src="{% static 'js/plotly.min.js' %}"></script>-->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{% static 'css/quick_fix.css' %}"/>
 {% endblock head_block %}
 
 
@@ -160,6 +161,10 @@
     </script>
 
 <script defer>
+$(document).ready(function () {
+    disabled_assets = ["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
+    disabled_assets.forEach(asset_name => {document.querySelector(`[data-node='${asset_name}']`).classList.add("greyed_out"); document.querySelector(`[data-node='${asset_name}']`).setAttribute("title", "This is disabled")});
+})
         function clearGridModel() {
             Swal.fire({
                 title: "Are you sure?",
