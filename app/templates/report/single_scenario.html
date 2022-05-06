@@ -21,7 +21,7 @@
         <div>
             <div class="row">
                 <div class="dashboard__scenarios">
-                    <h2>My scenarios</h2>
+                    <h2>{% translate "My scenarios" %}</h2>
                     <div class="scenario-select">
                         {% for scenario in scenario_list %}
                         {% if scenario.id|stringformat:'s' in request|get_selected_scenarios:proj_id %}
@@ -44,7 +44,7 @@
                 <div class="col">
                   <button class="btn btn--medium" onclick="javascript:showCreateReportItemModal(event)">
                     <span class="icon icon-add"></span>
-                    Create graph
+                    {% translate "Create graph" %}
                   </button>
                 </div>
             </div>
@@ -53,14 +53,14 @@
                     <div class="chart">
                         <div class="chart__header">
                             <div style="display: flex;gap: 10px;align-items: center;">
-                                <span class="title">Choose KPI table display</span>
+                                <span class="title">{% translate "Choose KPI table display" %}</span>
                                 <span><select id="kpi-table-style" name="kpi-table-style" class="form-select" aria-label="Default select example" onchange="update_kpi_table_style(this)">
                                     {% for style in table_styles %}
                                     <option value="{{ style }}"> {{ style }}  </option>
                                     {% endfor %}
                                 </select></span>
                                 <span class="view" data-bs-toggle="modal" data-bs-target="#KPIModal">
-                                    <span class="icon icon-i_arrow_right"></span> View KPIs
+                                    <span class="icon icon-i_arrow_right"></span> {% translate "View KPIs" %}
                                 </span>
                             </div>
                             <div class="dropdown">
@@ -68,8 +68,8 @@
                                     <span class="icon icon-more"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuKPI">
-                                    <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">Export as .xls</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">Export as PDF</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as .xls" %}</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as PDF" %}</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -82,8 +82,8 @@
 
             <div class="row">
                 <div class="col" id="report_items">
-                {% include "report/graph_template.html" with id="all_timeseries" title="All time series" %}
-                {% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked time series by sector" %}
+                {% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
+                {% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
                 {% include "report/graph_template.html" with id="sankey" title="Sankey diagram" %}
                 {% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
                 </div>

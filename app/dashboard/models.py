@@ -401,15 +401,15 @@ def graph_capacities(simulations, y_variables):
         # TODO link unit to unit in asset["installed_capacity"]["unit"] or asset["optimized_add_cap"]["unit"]
         installed_capacity_dict = {
             "capacity": [],
-            "name": "Installed Capacity (kW)"
+            "name": _("Installed Capacity") + " (kW)"
             if multi_scenario is False
-            else f"Inst. Cap. {simulation.scenario.name} (kW)",
+            else _("Inst. Cap.") + f"{simulation.scenario.name} (kW)",
         }
         optimized_capacity_dict = {
             "capacity": [],
-            "name": "Optimized Capacity (kW)"
+            "name": _("Optimized Capacity") + " (kW)"
             if multi_scenario is False
-            else f"Opt. Cap. {simulation.scenario.name} (kW)",
+            else _("Opt. Cap.") + f"{simulation.scenario.name} (kW)",
         }
         for y_var in y_variables:
 

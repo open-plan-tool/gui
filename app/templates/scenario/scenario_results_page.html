@@ -153,7 +153,7 @@
         <div>
             <div class="row">
                 <div class="dashboard__scenarios">
-                    <h2>My scenarios</h2>
+                    <h2>{% translate "My scenarios" %}</h2>
                     <div class="scenario-select">
                         {% for scenario in scenario_list %}
                         {% if scenario.id|stringformat:'s' in request|get_selected_scenarios:proj_id %}
@@ -176,7 +176,7 @@
                 <div class="col">
                   <button class="btn btn--medium" onclick="javascript:showCreateReportItemModal(event)">
                     <span class="icon icon-add"></span>
-                    Create graph
+                    {% translate "Create graph" %}
                   </button>
                 </div>
             </div>
@@ -353,13 +353,13 @@ function update_kpi_table_style(target){
 
         /* create KPI table headers */
         const tableHead = document.createElement('thead');
-        const table_headers = ["Indicator", "Scen1 Value"]; // todo add dynamically more scenarios here
+        const table_headers = ["Indicator", "Scen Value"]; // todo add dynamically more scenarios here
         const table_length = table_headers.length;
         const tableHeadContent = document.createElement('tr');
         table_headers.map(hdr =>
             {
                 var tableHdr = document.createElement('th');
-                tableHdr.innerHTML = hdr;
+                tableHdr.innerHTML = `{% blocktranslate %}` + hdr + `{% endblocktranslate %}`;
                 tableHeadContent.appendChild(tableHdr);
             }
         );

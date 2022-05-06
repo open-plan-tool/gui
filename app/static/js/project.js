@@ -19,11 +19,11 @@ projectWrap.addEventListener('click', function() {
   const collapsedScenariosBoxes = document.querySelectorAll('.btn.btn--action[aria-expanded="false"] .js-toggle-scenario-name');
 
   collapsedScenariosBoxesExpanded.forEach(function(item) {
-    item.innerHTML = "Hide scenarios";
+    item.innerHTML = `{% blocktranslate %}` + "Hide scenarios" + `{% endblocktranslate %}`;
   });
 
   collapsedScenariosBoxes.forEach(function(item) {
-    item.innerHTML = "Show scenarios";
+    item.innerHTML = `{% blocktranslate %}` + "Show scenarios" + `{% endblocktranslate %}`;
   });
 })
 

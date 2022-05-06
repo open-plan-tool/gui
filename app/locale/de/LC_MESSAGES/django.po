@@ -42,7 +42,7 @@ msgstr "Entladeleistung"
 
 #: op_templates/asset/storage_asset_create_form.html:47
 msgid "Capacity"
-msgstr "Kapazität"
+msgstr "Leistung"
 
 #: op_templates/base.html:79 op_templates/navbar.html:47
 #: op_templates/navbar.html:116
@@ -582,7 +582,7 @@ msgstr ""
 
 #: op_templates/scenario/scenario_visualize_results.html:104
 msgid "Download Timeseries"
-msgstr ""
+msgstr "Zeitreihen speichern"
 
 #: projects/forms.py:141
 msgid "eg. 0.1"
@@ -1312,3 +1312,123 @@ msgstr "EE-Anteil lokale Erzeugung"
 
 msgid "Levelized costs of electricity equivalent"
 msgstr "Stromgestehungskosten"
+
+msgid "Single scenarios"
+msgstr "Einzelene Szenarien"
+
+msgid "Compare scenarios"
+msgstr "Szenarien Vergleich"
+
+msgid "Sensitivity Analysis"
+msgstr "Sensivität Analyse"
+
+msgid "My scenarios"
+msgstr "Meine Szenarien"
+
+msgid "Create graph"
+msgstr "Grafik hinzufügen"
+
+msgid "Choose KPI table display"
+msgstr "KPI Tabelledarstellung auswählen"
+
+msgid "View KPIs"
+msgstr "KPIs Zeigen"
+
+msgid "Indicator"
+msgstr "Indikator"
+
+msgid "Scen value"
+msgstr "Szenariowert"
+
+msgid "Energy"
+msgstr "Energie"
+
+msgid "All timeseries"
+msgstr "Alle Zeitreihen"
+
+msgid "Stacked timeseries by sector"
+msgstr "Gestapelte Zeitreihen nach Sektor"
+
+msgid "Sankey diagram"
+msgstr "Sankey Diagramm"
+
+msgid "Installed and optimized capacities"
+msgstr "Installierte und optimierte Leistungen"
+
+msgid "Export as .xls"
+msgstr "Als .xls speichern"
+
+msgid "Export as PDF"
+msgstr "Als PDF speichern"
+
+msgid "To scenario"
+msgstr "Zum Szenario"
+
+msgid "Installed Capacity"
+msgstr "Installierte Leistung"
+
+msgid "Inst. Cap."
+msgstr "Inst. Leis."
+
+msgid "Optimized Capacity"
+msgstr "Optimierte Leistung"
+
+msgid "Opt. Cap."
+msgstr "Opt. Leis."
+
+msgid "Component"
+msgstr "Komponente"
+
+msgid "Simulation successful"
+msgstr "Simulation erfolgreich"
+
+msgid "Your simulation is complete."
+msgstr "Ihre Simulation ist erfolgreich beendet."
+
+msgid "Check results dashboard"
+msgstr "Zum Ergebnisse Dashboard"
+
+msgid "Reset simulation"
+msgstr "Simulation zurücksetzen"
+
+msgid "Go to simulation"
+msgstr "Zum Simulation"
+
+msgid "Export project"
+msgstr "Projekt exportieren"
+
+msgid "Share project"
+msgstr "Projekt teilen"
+
+msgid "Unshare project"
+msgstr "Projektfreigabe aufheben"
+
+msgid "Hide scenarios"
+msgstr "Szenarien ausblenden"
+
+msgid "The following input parameters contain errors"
+msgstr "Die folgenden Eingabeparameter enthalten Fehler"
+
+msgid "Simulation error"
+msgstr "Simulationsfehler"
+
+msgid "Typically 1 year simulation will last a few minutes"
+msgstr "Normalerweise dauert eine 1-Jahres-Simulation nur wenige Minuten"
+
+msgid "The simulation status is checked every 3 seconds"
+msgstr "Der Simulationsstatus wird alle 3 Sekunden überprüft"
+
+msgid "Simulation pending"
+msgstr "Simulation läuft noch"
+
+msgid "Cancel simulation"
+msgstr "Simulation abbrechen"
+
+msgid "No simulation conducted"
+msgstr "Keine Simulation durchgeführt"
+
+msgid "Your energy system is complete"
+msgstr "Ihr Energiesystem ist vollständig"
+
+msgid "Perform a sensitivity analysis"
+msgstr "Durchführung einer Sensitivitätsanalyse"

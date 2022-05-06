@@ -14,7 +14,7 @@
         <div>
             <div class="row">
                 <div class="dashboard__scenarios">
-                    <h2>My scenarios</h2>
+                    <h2>{% translate "My scenarios" %}</h2>
                     <div class="scenario-select">
                         {% for scenario in scenario_list %}
                         {% if scenario.id|stringformat:'s' in request|get_selected_scenarios:proj_id %}
@@ -37,7 +37,7 @@
                     <div class="col">
                       <button class="btn btn--medium" onclick="javascript:showCreateReportItemModal(event)">
                         <span class="icon icon-add"></span>
-                        Create graph
+                        {% translate "Create graph" %}
                       </button>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
             <div class="row">
                 <div class="col" id="report_items">
 
-                {% include "report/graph_template.html" with id="all_timeseries" title="All time series" %}
+                {% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
                 {% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 
                 </div>
