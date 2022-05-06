@@ -1314,13 +1314,13 @@ msgid "Levelized costs of electricity equivalent"
 msgstr "Stromgestehungskosten"
 
 msgid "Single scenarios"
-msgstr "Einzelene Szenarien"
+msgstr "Einzelne Szenarien"
 
 msgid "Compare scenarios"
-msgstr "Szenarien Vergleich"
+msgstr "Szenarienvergleich"
 
 msgid "Sensitivity Analysis"
-msgstr "Sensivität Analyse"
+msgstr "Sensitivitätsanalyse"
 
 msgid "My scenarios"
 msgstr "Meine Szenarien"
