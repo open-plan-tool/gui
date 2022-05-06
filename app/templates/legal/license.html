@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+
+{% block title %} {% translate "License - open_plan" %} {% endblock title%}
+
+<!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
+{% block content %}
+<main>
+    <section class="header">
+        <div>
+            <div class="header__left"></div>
+            <h1 class="header__title">{% translate "License" %}</h1>
+            <div class="header__back"></div>
+        </div>
+    </section>
+    <section class="standard-layout">
+        <div>
+                    <p style="text-align: center;">The source code of this  <a href="https://github.com/open-plan-tool/gui" target="_blank" rel="noreferrer">user interface</a> and of the <a href="https://github.com/open-plan-tool/simulation-server" target="_blank" rel="noreferrer">simulation server</a> are licensed under <a href="https://github.com/open-plan-tool/gui/blob/main/LICENSE.txt" target="_blank" rel="noreferrer">MIT license</a></p>
+        </div>
+    </section>
+</main>
+{% endblock content %}
+

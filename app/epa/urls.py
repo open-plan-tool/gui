@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf.urls import url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from .views import imprint, privacy, about
+from .views import imprint, privacy, about, license
 
 urlpatterns = (
     i18n_patterns(
@@ -31,6 +31,7 @@ urlpatterns = (
         path("imprint/", imprint, name="imprint"),
         path("privacy/", privacy, name="privacy"),
         path("about/", about, name="about"),
+        path("license/", license, name="license"),
     )
     + [url(r"^i18n/", include("django.conf.urls.i18n"))]
     + staticfiles_urlpatterns()

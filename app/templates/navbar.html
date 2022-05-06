@@ -53,7 +53,7 @@
                         <a class="nav-link" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Use cases" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "License" %}</a>
+                        <a class="nav-link" href="{% url 'license' %}">{% translate "License" %}</a>
                     </li>
                 {% endif %}
 
@@ -62,7 +62,7 @@
                         {% csrf_token %}
                         <input name="next" type="hidden" value="{{ redirect_to }}" />
 
-                        <select class="selectpicker " name="language" onchange="this.form.submit()" style="width: auto;border: none;margin: 0 0.05rem;color: #1F567D;background-color: #fff;">
+                        <select class="selectpicker " name="language" onchange="this.form.submit()" style="width: auto;border: none;margin: 0 0.05rem;color: #1F567D;background-color: #fff;padding-top: 0.5rem;">
                             {% get_current_language as LANGUAGE_CODE %}
                             {% get_available_languages as LANGUAGES %}
                             {% get_language_info_list for LANGUAGES as languages %}
@@ -112,7 +112,7 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Use cases" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "License" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'license' %}">{% translate "License" %}</a></li>
                         <li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
                         <li><a class="dropdown-item" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a></li>
                         <li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->

@@ -20,3 +20,8 @@ def privacy(request):
 def about(request):
     excuses_design_under_development(request)
     return render(request, "legal/about.html")
+
+
+@require_http_methods(["GET"])
+def license(request):
+    return render(request, "legal/license.html")
