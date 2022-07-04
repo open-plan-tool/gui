@@ -18,7 +18,6 @@ def privacy(request):
 
 @require_http_methods(["GET"])
 def about(request):
-    excuses_design_under_development(request)
     return render(request, "legal/about.html")
 
 
