@@ -190,12 +190,13 @@ const submitForm = (e) => {
                     nodesToDB.set(topologyNodeId, {uid:jsonRes.asset_id, assetTypeName: assetTypeName });
                 guiModal.hide()
             } else {
-                assetForm.innerHTML = jsonRes.form_html;
+                // assign the content of the form to the form tag of the modal
+                guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
             }
 
         },
         error: function (err) {
-            assetForm.innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
+            guiModalDOM.querySelector('form .modal-body').innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
     })
 }
 
