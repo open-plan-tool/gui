@@ -367,6 +367,10 @@ class Asset(TopologyNode):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
+    # used in the case of transformers with one input and two outputs
+    # or two inputs and one output
+    efficiency_multiple = models.TextField(null=True, blank=False)
+
     soc_max = models.FloatField(
         null=True,
         blank=False,

@@ -603,11 +603,6 @@ class BusForm(OpenPlanModelForm):
         labels = {"name": _("Name"), "type": _("Energy carrier")}
 
 
-
-
-
-
-
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         asset_type_name = kwargs.pop("asset_type", None)
