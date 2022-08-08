@@ -25,7 +25,12 @@ from projects.models import *
 from projects.constants import MAP_EPA_MVS, RENEWABLE_ASSETS
 
 from dashboard.helpers import KPI_PARAMETERS_ASSETS, KPIFinder
-from projects.helpers import parameters_helper, PARAMETERS
+from projects.helpers import (
+    parameters_helper,
+    PARAMETERS,
+    DualNumberField,
+    parse_input_timeseries,
+)
 
 
 def gettext_variables(some_string, lang="de"):
@@ -598,78 +603,9 @@ class BusForm(OpenPlanModelForm):
         labels = {"name": _("Name"), "type": _("Energy carrier")}
 
 
-def parse_csv_timeseries(file_str):
-    io_string = io.StringIO(file_str)
-    delimiter = ","
-    if file_str.count(";") > 0:
-        delimiter = ";"
-
-    # check if the number of , is an integer time the number of line return
-    # if not, the , is probably not a column separator and a decimal separator indeed
-    if file_str.count(",") % (file_str.count("\n") + 1) != 0:
-        delimiter = ";"
-
-    reader = csv.reader(io_string, delimiter=delimiter)
-    timeseries_values = []
-    for row in reader:
-        if len(row) == 1:
-            value = row[0]
-        else:
-            # assumes the first row is timestamps and read the second one, ignore any other row
-            value = row[1]
-        # convert potential comma used as decimal point to decimal point
-        timeseries_values.append(float(value.replace(",", ".")))
-    return timeseries_values
 
 
-def parse_input_timeseries(timeseries_file):
-    if timeseries_file.name.endswith("xls") or timeseries_file.name.endswith("xlsx"):
-        wb = load_workbook(filename=timeseries_file)
-        worksheet = wb.active
-        timeseries_values = []
-        n_col = worksheet.max_column
 
-        col_idx = 0
-
-        if n_col > 1:
-            col_idx = 1
-
-        for j in range(0, worksheet.max_row):
-            try:
-                timeseries_values.append(
-                    float(worksheet.cell(row=j + 1, column=col_idx + 1).value)
-                )
-            except ValueError:
-                pass
-
-    else:
-        timeseries_file_str = timeseries_file.read().decode("utf-8")
-
-        if timeseries_file_str != "":
-            if timeseries_file.name.endswith("json"):
-                timeseries_values = json.loads(timeseries_file_str)
-            elif timeseries_file.name.endswith("csv"):
-                timeseries_values = parse_csv_timeseries(timeseries_file_str)
-
-            elif timeseries_file.name.endswith("txt"):
-                nlines = timeseries_file_str.count("\n") + 1
-                if nlines == 1:
-                    timeseries_values = json.loads(timeseries_file_str)
-                else:
-                    timeseries_values = parse_csv_timeseries(timeseries_file_str)
-            else:
-                raise TypeError(
-                    _(
-                        f'Input timeseries file type of "{timeseries_file.name}" is not supported. The supported formats are "json", "csv", "txt", "xls" and "xlsx"'
-                    )
-                )
-        else:
-            raise ValidationError(
-                _('Input timeseries file "%(fname)s" is empty'),
-                code="empty_file",
-                params={"fname": timeseries_file.name},
-            )
-    return timeseries_values
 
 
 class AssetCreateForm(OpenPlanModelForm):

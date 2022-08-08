@@ -69,6 +69,57 @@ function makePlotly( x, y, plot_id="",userLayout=null){
 
 var PLOT_ID = "";
 
+/* Plot update of textinput field of DualInput field */
+function plotDualInputTrace(obj, plot_id=""){
+
+    // TODO get the timeseries timestamps (if exists) from a hidden safejs div with the django tag method
+    jsObj = JSON.parse(obj);
+    var graphDOM = document.getElementById(plot_id);
+    if(Array.isArray(jsObj)){
+        myarray = []
+        jsObj.forEach(el => myarray.push([el]))
+
+        PLOT_ID = plot_id;
+        processData(myarray);
+        graphDOM.style.display = "block";
+    }
+    else{
+     graphDOM.style.display = "none";
+    };
+
+}
+
+
+function uploadDualInputTrace(obj, param_name="") {
+
+    // Check for the various File API support.
+    if (window.FileReader) {
+        var array = [];
+        var flist = obj;
+
+        var myfile = flist[0];
+        if (myfile) {
+            if(myfile.name.includes(".csv") || myfile.name.includes(".txt")){
+                Promise.resolve(getAsText(myfile, plot=false)).then(async (array) => {updateScalarInput(array);});
+            }
+            else if (myfile.name.includes(".xls")){
+                Promise.resolve(getAsExcel(myfile, plot=false)).then(async (array) => {updateScalarInput(array);});
+            }
+        }
+        function updateScalarInput(array){
+            // write the array as json inside the scalar input field and trigger the change event
+            var scalarID = "id_" + param_name + "_0";
+            var scalar_input = document.getElementById(scalarID);
+            scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
+            scalar_input.dispatchEvent(new Event("change"));
+        }
+
+    } else {
+      alert('FileReader are not supported in this browser.');
+    }
+
+
+}
 
 function plot_file_trace(obj, plot_id="") {
     // Check for the various File API support.
@@ -90,26 +141,25 @@ function plot_file_trace(obj, plot_id="") {
       alert('FileReader are not supported in this browser.');
     }
 }
-function getAsExcel(fileToRead){
+function getAsExcel(fileToRead, plot=true){
     var reader = new FileReader();
 
-    reader.readAsBinaryString(fileToRead);
-
-    reader.onload = function(e) {
-          var data = e.target.result;
-          var wb = XLSX.read(data, {
-            type: 'binary'
+    if(plot == false){
+        // return a Promise of the file parsed as a d3 csv array
+        return new Promise((resolve, reject) => {
+            reader.onloadend = () => {
+              resolve(parseExcelData(reader.result));
+            };
+            // Read file into memory as UTF-8
+            reader.readAsBinaryString(fileToRead);
           });
-           var ws = wb.Sheets[wb.SheetNames[0]];
-           const nsheets = wb.SheetNames.length;
-           if (nsheets > 1){
-             alert("Your file has more than one sheet, only the sheet " + wb.SheetNames[0] + " will be parsed." );
-           }
-           var XL_row_object = XLSX.utils.sheet_to_row_object_array(ws);
-           // TODO support column names (now it is ignored, info is in Object.keys)
-           processData(XL_row_object.map(row => Object.values(row)));
-
+      }
+      else{
+        reader.onload = function(e) {
+            processData(parseExcelData(e.target.result));
         };
+        reader.readAsBinaryString(fileToRead);
+      }
 
     reader.onerror = function(ex) {
       console.log(ex);
@@ -119,16 +169,48 @@ function getAsExcel(fileToRead){
 
   };
 
+/* given the output of FileReader.result parse the data */
+function parseExcelData(data){
+    var wb = XLSX.read(data, {
+    type: 'binary'
+  });
+   var ws = wb.Sheets[wb.SheetNames[0]];
+   const nsheets = wb.SheetNames.length;
+   if (nsheets > 1){
+     alert("Your file has more than one sheet, only the sheet " + wb.SheetNames[0] + " will be parsed." );
+   }
+   var XL_row_object = XLSX.utils.sheet_to_row_object_array(ws);
+   // TODO support column names (now it is ignored, info is in Object.keys)
+
+   return XL_row_object.map(row => Object.values(row))
+}
+
+
 
 // taken from https://github.com/MounirMesselmeni/html-fileapi
- function getAsText(fileToRead) {
+ function getAsText(fileToRead, plot=true) {
       var reader = new FileReader();
-      // Read file into memory as UTF-8
-      reader.readAsText(fileToRead);
+
       // Handle errors load
-      reader.onload = loadHandler;
       reader.onerror = errorHandler;
-    }
+
+      if(plot == false){
+        // return a Promise of the file parsed as a d3 csv array
+        return new Promise((resolve, reject) => {
+            reader.onloadend = () => {
+              resolve(d3.csvParseRows(reader.result));
+            };
+            // Read file into memory as UTF-8
+            reader.readAsText(fileToRead);
+          });
+      }
+      else{
+
+        reader.onload = loadHandler;
+        // Read file into memory as UTF-8
+        reader.readAsText(fileToRead);
+      }
+
 
     function loadHandler(event) {
       var csv = event.target.result;
@@ -142,6 +224,7 @@ function getAsExcel(fileToRead){
           alert("Cannot read file !");
       }
     }
+}
 
 
 function processData(array_2D) {
