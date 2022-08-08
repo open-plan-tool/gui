@@ -146,7 +146,7 @@
 
 <script defer>
 $(document).ready(function () {
-    disabled_assets = ["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
+    disabled_assets = [];//["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
     disabled_assets.forEach(asset_name => {document.querySelector(`[data-node='${asset_name}']`).classList.add("greyed_out"); document.querySelector(`[data-node='${asset_name}']`).setAttribute("title", "This is disabled")});
 })
         function clearGridModel() {
