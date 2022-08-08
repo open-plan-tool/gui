@@ -165,13 +165,13 @@ class DualInputWidget(forms.MultiWidget):
         widgets = {
             "scalar": forms.TextInput(
                 attrs={
-                    "class": "form_control",
-                    "onchange": f"plotDualInputTrace(obj=this.value, plot_id='{self.param_name}_trace')",
+                    "class": "form-control",
+                    "onchange": f"plotDualInputTrace(obj=this.value, param_name='{self.param_name}')",
                 }
             ),
             "file": forms.FileInput(
                 attrs={
-                    "class": "form_control",
+                    "class": "form-control",
                     "onchange": f"uploadDualInputTrace(obj=this.files, param_name='{self.param_name}')",
                 }
             ),

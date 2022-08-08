@@ -70,7 +70,7 @@ function makePlotly( x, y, plot_id="",userLayout=null){
 var PLOT_ID = "";
 
 /* Plot update of textinput field of DualInput field */
-function plotDualInputTrace(obj, plot_id=""){
+function plotDualInputTrace(obj, param_name=""){
 
     // TODO get the timeseries timestamps (if exists) from a hidden safejs div with the django tag method
     jsObj = JSON.parse(obj);
@@ -79,12 +79,18 @@ function plotDualInputTrace(obj, plot_id=""){
         myarray = []
         jsObj.forEach(el => myarray.push([el]))
 
-        PLOT_ID = plot_id;
+        // this refers to div id in the html template asset/dual_input.html
+        PLOT_ID = param_name + "_trace";
+
         processData(myarray);
         graphDOM.style.display = "block";
     }
     else{
      graphDOM.style.display = "none";
+     // reset file in memory if the user inputs a scalar after uploading a file
+     var fileID = "id_" + param_name + "e_1";
+     var file_input = document.getElementById(fileID);
+     file_input.value = "";
     };
 
 }
