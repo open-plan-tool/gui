@@ -227,16 +227,31 @@ class DualNumberField(forms.MultiValueField):
                 self.set_widget_error()
                 raise ValidationError(
                     _(
-                        "Please provide either a number between %(minimum) f and %(maximum) f or upload a timeseries from a file"
+                        "Please provide either a number within %(boundaries) s or upload a timeseries from a file"
                     ),
                     code="required",
-                    params={"minimum": self.min, "maximum": self.max},
+                    params={"boundaries": self.boundaries},
                 )
-
         self.check_boundaries(answer)
         return answer
 
+    @property
+    def boundaries(self):
+        if self.min is not None:
+            min_val = self.min
+        else:
+            min_val = "-inf"
+
+        if self.max is not None:
+            max_val = self.max
+        else:
+            max_val = "inf"
+
+        return f"[{min_val}, {max_val}]"
+
     def check_boundaries(self, value):
+
+        boundaries = self.boundaries
         if isinstance(value, list):
             for v in value:
                 try:
@@ -245,10 +260,10 @@ class DualNumberField(forms.MultiValueField):
                     self.set_widget_error()
                     raise ValidationError(
                         _(
-                            "Some values in the uploaded timeseries do not lie within [%(minimum) f, %(maximum) f], please check your file."
+                            "Some values in the timeseries do not lie within %(boundaries) s, please check your input again."
                         ),
                         code="invalid",
-                        params={"minimum": self.min, "maximum": self.max},
+                        params={"boundaries": boundaries},
                     )
 
         else:
@@ -256,18 +271,18 @@ class DualNumberField(forms.MultiValueField):
                 if value < self.min:
                     self.set_widget_error()
                     raise ValidationError(
-                        _("Please enter a value between %(minimum) f and %(maximum) f"),
+                        _("Please enter a value within %(boundaries) s"),
                         code="invalid",
-                        params={"minimum": self.min, "maximum": self.max},
+                        params={"boundaries": boundaries},
                     )
 
             if self.max is not None:
                 if value > self.max:
                     self.set_widget_error()
                     raise ValidationError(
-                        _("Please enter a value between %(minimum) f and %(maximum) f"),
+                        _("Please enter a value within %(boundaries) s"),
                         code="invalid",
-                        params={"minimum": self.min, "maximum": self.max},
+                        params={"boundaries": boundaries},
                     )
 
     def set_widget_error(self):
