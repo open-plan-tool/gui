@@ -616,7 +616,7 @@ class AssetCreateForm(OpenPlanModelForm):
         [
             self.fields.pop(field)
             for field in list(self.fields)
-            if field not in asset_type.asset_fields
+            if field not in asset_type.visible_fields
         ]
 
         """ DrawFlow specific configuration, add a special attribute to 
