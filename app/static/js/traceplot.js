@@ -74,13 +74,16 @@ function plotDualInputTrace(obj, param_name=""){
 
     // TODO get the timeseries timestamps (if exists) from a hidden safejs div with the django tag method
     jsObj = JSON.parse(obj);
-    var graphDOM = document.getElementById(plot_id);
+
+    // this refers to div id in the html template asset/dual_input.html
+    PLOT_ID = param_name + "_trace";
+
+    var graphDOM = document.getElementById(PLOT_ID);
     if(Array.isArray(jsObj)){
         myarray = []
         jsObj.forEach(el => myarray.push([el]))
 
-        // this refers to div id in the html template asset/dual_input.html
-        PLOT_ID = param_name + "_trace";
+
 
         processData(myarray);
         graphDOM.style.display = "block";

@@ -213,6 +213,10 @@ $("#guiModal").on('shown.bs.modal', function (event) {
             Plotly.relayout(plotDiv, {width: plotDiv.clientWidth});
          }
      }
+     const evt = new Event("change");
+	 // look only for the form with the provided class to be extra safe
+	 document.querySelectorAll("input[name$='_scalar']").forEach(node => { node.dispatchEvent(evt); });
+
  })
 
 /* Triggered before the modal opens */
