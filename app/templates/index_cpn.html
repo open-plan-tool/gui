@@ -9,13 +9,22 @@
       <div>
         <div class="hero__text">
           <h1>
+            {% translate "Model your local energy demand" %}
+          </h1>
+          <span>
+                    {% translate "Use the GUI to model your local energy demand based on community characteristics and needs" %}
+                  </span>
+          <a href="{% url 'not_implemented' %}" class="btn btn--medium">
+            {% translate "Try RAMP" %}
+          </a>
+          <h1>
             {% translate "Model your local energy system" %}
           </h1>
           <span>
                     {% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}
                   </span>
           <a href="{% url 'signup' %}" class="btn btn--medium">
-            {% translate "Try out" %}
+            {% translate "Try open_plan" %}
           </a>
         </div>
         <div class="hero__image">
