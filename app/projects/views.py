@@ -66,6 +66,14 @@ def home(request):
         return render(request, "index.html")
 
 
+@require_http_methods(["GET"])
+def home_cpn(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("project_search_cpn"))
+    else:
+        return render(request, "index_cpn.html")
+
+
 @login_required
 @require_http_methods(["POST"])
 def scenario_upload(request, proj_id):

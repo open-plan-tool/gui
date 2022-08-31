@@ -3,10 +3,12 @@ from .views import *
 
 urlpatterns = [
     path("", home, name="home"),
+    path("cpn", home_cpn, name="home_cpn"),
     # Project
     path("project/create/", project_create, name="project_create"),
     path("notimplementedyet/", not_implemented, name="not_implemented"),
     path("project/search/", project_search, name="project_search"),
+    path("project_cpn/search/", project_search, name="project_search_cpn"),
     path("project/search/<int:proj_id>", project_search, name="project_search"),
     path(
         "project/search/<int:proj_id>/scenario/<int:scen_id>",
