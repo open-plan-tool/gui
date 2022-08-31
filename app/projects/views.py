@@ -384,7 +384,7 @@ def project_search(request, proj_id=None, scen_id=None):
     # project_list = Project.objects.filter(user=request.user)
     # shared_project_list = Project.objects.filter(viewers=request.user)
     combined_projects_list = Project.objects.filter(
-        Q(user=request.user) | Q(viewers__user=request.user)
+        (Q(user=request.user) | Q(viewers__user=request.user)) & Q(country="NIGERIA")
     ).distinct()
 
     scenario_upload_form = UploadFileForm(
