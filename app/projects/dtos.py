@@ -383,17 +383,28 @@ def convert_to_dto(scenario: Scenario):
         # Find all connections to asset
         input_connection = ConnectionLink.objects.filter(
             asset=asset, flow_direction="B2A"
-        ).first()
+        )
         output_connection = ConnectionLink.objects.filter(
             asset=asset, flow_direction="A2B"
-        ).first()
+        )
 
-        input_bus_name = (
-            input_connection.bus.name if input_connection is not None else None
-        )
-        output_bus_name = (
-            output_connection.bus.name if output_connection is not None else None
-        )
+        input_bus_name = None
+        num_inputs = input_connection.count()
+        if num_inputs == 1:
+            input_bus_name = input_connection.first().bus.name
+        elif num_inputs > 1:
+            input_bus_name = [
+                n for n in input_connection.values_list("bus__name", flat=True)
+            ]
+
+        output_bus_name = None
+        num_outputs = output_connection.count()
+        if num_outputs == 1:
+            output_bus_name = output_connection.first().bus.name
+        elif num_outputs > 1:
+            output_bus_name = [
+                n for n in output_connection.values_list("bus__name", flat=True)
+            ]
 
         asset_dto = AssetDto(
             asset.asset_type.asset_type,
@@ -497,7 +508,11 @@ def to_value_type(model_obj, field_name):
     value_type = ValueType.objects.filter(type=field_name).first()
     unit = value_type.unit if value_type is not None else None
     value = getattr(model_obj, field_name)
+
     if value is not None:
+        # make sure the value is not a str if the unit is "factor"
+        if unit == "factor" and isinstance(value, str):
+            value = json.loads(value)
         return ValueTypeDto(unit, value)
     else:
         return None
