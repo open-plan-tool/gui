@@ -10,6 +10,8 @@
 
 {% block export-results %}
 <a type="button" class="btn btn-small" href="{% url 'redirect_download_timeseries_results' proj_id %}"><span class="icon icon-export"></span>{% translate "Download Timeseries" %}</a>
+<a type="button" class="btn btn-small" href="{% url 'download_scalar_results' scen_id %}"><span class="icon icon-export"></span>{% translate "Download KPIs" %}</a>
+<a type="button" class="btn btn-small" href="{% url 'download_cost_results' scen_id %}"><span class="icon icon-export"></span>{% translate "Download Component Costs" %}</a>
 {% endblock export-results %}
 
 
