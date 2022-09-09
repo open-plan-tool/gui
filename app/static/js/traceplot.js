@@ -91,7 +91,7 @@ function plotDualInputTrace(obj, param_name=""){
     else{
      graphDOM.style.display = "none";
      // reset file in memory if the user inputs a scalar after uploading a file
-     var fileID = "id_" + param_name + "e_1";
+     var fileID = "id_" + param_name + "_1";
      var file_input = document.getElementById(fileID);
      file_input.value = "";
     };
