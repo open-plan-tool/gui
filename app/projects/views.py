@@ -692,11 +692,11 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "solar_thermal_plant": _("Solar Thermal Plant"),
         },
         "conversion": {
-            # "transformer_station_in": _("Transformer Station (in)"),
-            # "transformer_station_out": _("Transformer Station (out)"),
-            # "storage_charge_controller_in": _("Storage Charge Controller (in)"),
-            # "storage_charge_controller_out": _("Storage Charge Controller (out)"),
-            # "solar_inverter": _("Solar Inverter"),
+            "transformer_station_in": _("Transformer Station (in)"),  #
+            "transformer_station_out": _("Transformer Station (out)"),  #
+            "storage_charge_controller_in": _("Storage Charge Controller (in)"),  #
+            "storage_charge_controller_out": _("Storage Charge Controller (out)"),  #
+            "solar_inverter": _("Solar Inverter"),  #
             "diesel_generator": _("Diesel Generator"),
             "fuel_cell": _(" Fuel Cell"),
             "gas_boiler": _("Gas Boiler"),
