@@ -1,0 +1,42 @@
+{% extends 'cp_nigeria/steps/step_progression.html' %}
+{% load i18n %}
+
+
+{% block progression_content %}
+
+ <main class="simulation simulation--error">
+      <div>
+        <div class="simulation__heading" aria-hidden="true">
+        </div>
+        <div class="simulation__content">
+          <h2>{% translate "Simulation error" %}</h2>
+          <div class="simulation__id">
+            <a href="{{ MVS_GET_URL }}{{ mvs_token }}">{{ mvs_token }}</a>
+          </div>
+          <div class="simulation__feedback">
+            <div class="item item--error">
+               <p>{% translate "The following input parameters contain errors" %}:</p>
+               <div>{{ simulation_error_msg }}</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+{% endblock progression_content %}
+
+
+{% block footer %}
+<footer class="step-footer">
+  <div>
+    <div class="step-footer__left"></div>
+    <div class="step-footer__center">
+
+       <a class="btn btn--medium" href="{% url 'simulation_cancel' scen_id %}" onclick="return confirm('Are you sure?')">{% translate "Reset simulation" %}</a>
+        <a class="btn btn--medium btn--hollow" href="{% url 'view_mvs_data_input' scen_id %}" >{% translate "Proof parameters JSON file" %} </a>
+        <a class="btn btn--medium btn--hollow btb--disabled" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}" >{% translate "Link to send bug report automatically" %} </a>
+    </div>
+    <div class="step-footer__right"></div>
+  </div>
+</footer>
+{% endblock footer %}

@@ -1,0 +1,44 @@
+{% extends 'cp_nigeria/steps/step_progression.html' %}
+{% load i18n %}
+
+
+
+{% block progression_content %}
+
+ <main class="simulation simulation--ns">
+      <div>
+        <div class="simulation__heading" aria-hidden="true">
+        </div>
+        <div class="simulation__content">
+          <h2>{% translate "No simulation conducted" %}</h2>
+          <div class="simulation__feedback">
+            <div class="item item--successful">
+              <p>{% translate "Your energy system is complete" %}.</p>
+            </div>
+            <div class="item item--successful">
+              <p>{% translate "Typically 1 year simulation will last a few minutes" %}.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+
+{% endblock progression_content %}
+
+{% block footer %}
+    <footer class="simulation-footer">
+      <div>
+              <form method="post" action="{% url 'request_mvs_simulation' scen_id %}">
+            {% csrf_token %}
+
+            <button class="btn btn--medium" type="submit" > {% translate "Run simulation" %}</button>
+            <input type="checkbox" name="output_lp_file"> Include LP file (advanced users) </input>
+        </form>
+
+
+        <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:-1 %}" aria-disabled="true">{% translate "Previous" %}</a>
+        <a class="btn btn--medium btn--hollow" href="{% url 'sensitivity_analysis_create' scen_id %}" aria-disabled="true">{% translate "Perform a sensitivity analysis" %}</a>
+      </div>
+    </footer>
+{% endblock footer %}

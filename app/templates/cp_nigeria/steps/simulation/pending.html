@@ -1,0 +1,47 @@
+{% extends 'cp_nigeria/steps/step_progression.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{% block progression_content %}
+
+    <main class="simulation simulation--pending">
+      <div>
+        <div class="simulation__heading">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">{% translate "Simulating..." %}</span>
+          </div>
+        </div>
+        <div class="simulation__content">
+          <h2>{% translate "Simulation pending" %}</h2>
+          <div class="simulation__id">
+            <a href="{{ MVS_GET_URL }}{{ mvs_token }}">{{ mvs_token }}</a>
+          </div>
+          <div class="simulation__feedback">
+            <div class="item item--successful">
+              <p>{% translate "The simulation status is checked every 3 seconds" %}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+{% endblock progression_content %}
+
+{% block footer %}
+    <footer class="simulation-footer">
+
+      <div>
+        <a class="btn btn--medium btn--hollow" href="{% url 'simulation_cancel' scen_id %}" onclick="return confirm('Are you sure?')">{% translate "Cancel simulation" %}</a>
+      </div>
+    </footer>
+{% endblock footer %}
+
+{% block end_body_scripts %}
+{% if simulation_status == "PENDING" %}
+<script>
+    const checkSimulationUrl = `{% url 'fetch_simulation_results' sim_id %}`;
+</script>
+<script src="{% static 'js/simulation_requests.js' %}"></script>
+{% endif %}
+
+{% endblock end_body_scripts %}
