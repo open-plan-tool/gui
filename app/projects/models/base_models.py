@@ -309,6 +309,12 @@ class AssetType(models.Model):
             temp.append(field_name)
             self.asset_fields = "[" + ",".join(temp) + "]"
 
+    def remove_field(self, field_name):
+        temp = self.visible_fields
+        if field_name in temp:
+            temp.pop(temp.index(field_name))
+            self.asset_fields = "[" + ",".join(temp) + "]"
+
 
 class TopologyNode(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False)
