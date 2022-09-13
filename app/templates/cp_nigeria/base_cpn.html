@@ -1,0 +1,120 @@
+{% load static %}
+{% load i18n %}
+{% load custom_template_tags %}
+
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'assets/favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'assets/favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+    <!--<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'node_modules/aos/dist/aos.css' %}">-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
+
+    <title>{% block title %} open_plan {% endblock title %}</title>
+
+
+
+    {% block head_block %}
+    {% endblock head_block %}
+    {% if DEBUG == True %}
+        {% include "scss.html" %}
+    {% else %}
+        <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
+    {% endif %}
+
+	  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+</head>
+
+
+
+
+
+
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!--<script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-modal/2.2.6/js/bootstrap-modalmanager.min.js" integrity="sha512-/HL24m2nmyI2+ccX+dSHphAHqLw60Oj5sK8jf59VWtFWZi9vx7jzoxbZmcBeeTeCUc7z1mTs3LfyXGuBU32t+w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% block start_body_scripts %}{% endblock %}
+
+{% setvar "https://open-plan.readthedocs.io/en/feature-new_documentation/" as documentation_url %}
+
+{% block navbar %}
+    {% include "cp_nigeria/navbar_cpn.html" with user=user documentation_url=documentation_url %}
+{% endblock navbar %}
+
+{% block topology %}{% endblock %}
+
+
+{% block index %}
+
+{% endblock index %}
+
+
+<!-- modal to show debug messages -->
+<div class="modal fade" id="messagesModal" tabindex="-1" role="dialog" aria-labelledby="messagesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+       {% include 'messages.html' %}
+  </div>
+</div>
+
+{% block content %}
+{% endblock %}
+
+
+{% block footer %}
+<footer class="footer">
+
+
+    <div>
+        <div class="footer__logo">
+            <img src="" alt="CP-Nigeria logo">
+        </div>
+        <div class="footer__links">
+            <ul>
+                <li><a href="{% url 'about' %}">{% translate "Contact" %}</a></li>
+                <li><a href="{{ documentation_url}}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a></li>
+                <li><a href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a></li>
+                <li><a href="{% url 'license' %}">{% translate "License" %}</a></li>
+                <li><a href="{% url 'imprint' %}">{% translate "Imprint" %}</a></li>
+                <li><a href="{% url 'privacy' %}">{% translate "Privacy" %}</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+    {% endblock footer %}
+
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% block end_body_scripts %}{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'node_modules/aos/dist/aos.js' %}"></script>
+<script src="{% static 'js/project.js' %}"></script>
+
+
+{% if messages %}
+<script>
+    $(document).ready(function(){
+        var messagesModal = new bootstrap.Modal(document.getElementById('messagesModal'))
+        messagesModal.show();
+    });
+
+</script>
+{% endif %}
+
+</body>
+</html>
