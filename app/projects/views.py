@@ -66,10 +66,6 @@ def home(request):
         return render(request, "index.html")
 
 
-
-
-
-
 @login_required
 @require_http_methods(["POST"])
 def scenario_upload(request, proj_id):

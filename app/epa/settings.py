@@ -168,7 +168,7 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "project_search"
-LOGOUT_REDIRECT_URL = "home_cpn"
+LOGOUT_REDIRECT_URL = "home"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 

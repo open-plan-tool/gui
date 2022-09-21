@@ -1,4 +1,5 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
+# from bootstrap_modal_forms.generic import BSModalCreateView
 from django.contrib.auth.decorators import login_required
 import json
 import logging
@@ -17,26 +18,50 @@ from users.models import CustomUser
 from django.db.models import Q
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
 from .forms import *
-
+from projects.requests import (
+    mvs_simulation_request,
+    fetch_mvs_simulation_results,
+    mvs_sensitivity_analysis_request,
+    fetch_mvs_sa_results,
+)
+from projects.models import *
+from projects.scenario_topology_helpers import (
+    handle_storage_unit_form_post,
+    handle_bus_form_post,
+    handle_asset_form_post,
+    load_scenario_topology_from_db,
+    NodeObject,
+    update_deleted_objects_from_database,
+    duplicate_scenario_objects,
+    duplicate_scenario_connections,
+    load_scenario_from_dict,
+    load_project_from_dict,
+)
+from projects.helpers import format_scenario_for_mvs
+from projects.constants import DONE, PENDING, ERROR, MODIFIED
+from projects.services import (
+    create_or_delete_simulation_scheduler,
+    excuses_design_under_development,
+    send_feedback_email,
+    get_selected_scenarios_in_cache,
+)
+import traceback
 
 logger = logging.getLogger(__name__)
 
 
 CPN_STEP_LIST = [
+    _("Choose location"),
     _("Demand load profile selection"),
     _("Possible scenarios selection"),
-    _("Simulation constraints"),
+    _("Selected scenario parameters"),
     _("Simulation"),
 ]
 
 
 @require_http_methods(["GET"])
 def home_cpn(request):
-    if request.user.is_authenticated:
-        return render(request, "cp_nigeria/landing_page.html")
-
-    else:
-        return render(request, "cp_nigeria/index_cpn.html")
+    return render(request, "cp_nigeria/landing_page.html")
 
 # TODO for later create those views instead of simply serving the html templates
 # CPN_STEPS = [
@@ -58,6 +83,31 @@ def cpn_steps(request, proj_id, step_id=None, scen_id=None):
         else:
             return HttpResponseRedirect(reverse("cpn_review", args=[proj_id, 1]))
         # return CPN_STEPS[step_id - 1](request, proj_id, scen_id, step_id)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def cpn_scenario_create(request, proj_id, step_id=1):
+    if request.POST:
+        form = CPNCreateForm(request.POST)
+        if form.is_valid():
+            logger.info(f"Creating new project.")
+
+            project = Project.objects.create(
+                name=form.cleaned_data["name"],
+                description=form.cleaned_data["description"],
+                longitude=form.cleaned_data["longitude"],
+                latitude=form.cleaned_data["latitude"],
+                user=request.user,
+            )
+            return HttpResponseRedirect(reverse("cpn_review", args=[project.id]))
+    else:
+        form = CPNCreateForm()
+    return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
+                  {"form": form,
+                   "proj_id": proj_id,
+                   "step_id": step_id,
+                   "step_list": CPN_STEP_LIST})
 
 
 @login_required
