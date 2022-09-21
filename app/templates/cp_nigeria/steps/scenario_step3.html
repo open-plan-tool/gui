@@ -5,25 +5,66 @@
 {% load i18n %}
 
 
+{% block head_block %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<!--<script src="{% static 'js/plotly.min.js' %}"></script>-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="{% static 'css/quick_fix.css' %}"/>
+{% endblock head_block %}
+
+
+{% block start_body_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js" integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.1.1/d3.min.js" integrity="sha512-COTaPOlz12cG4fSfcBsxZsjauBAyldqp+8FQUM/dZHm+ts/jR4AFoJhCqxy8K10Jrf3pojfsbq7fAPTb1XaVkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'js/traceplot.js' %}"></script>
+
+<!--
+<link rel="stylesheet" type="text/css" href="{% static 'css/beautiful1.css' %}"/>
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}"/>
+-->
+{% endblock start_body_scripts %}
+
+
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
 {% block progression_content %}
 
 
-
 <main>
-
     <section class="scenario-create">
-		<div>Here we can see and select different simulation constraints, such as minimum renewable share, cap on maximum emissions</div>
+			<div>
+				Here we see a dropdown/checklist or a form where we can choose different scenarios we would like to simulate
+			  <p>Possibly we also provide some economic data such as interest rate, tax factor, currency, location (for weather data)
+				<ul>
+				<b>In:</b>
+				<li>Custom load profile (from step 1 or own profile)</li>
+				<li>Predefined scenarios</li>
+				<ul>
+					<li>Diesel</li>
+					<li>PV+Battery</li>
+					<li>PV+Diesel</li>
+					<li>PV+Diesel+Battery</li>
+				</ul>
+				<li>Component properties</li>
+				<li>Economic data (also WTP parameters?)</li>
+				</ul>
+			  </p>
+			</div>
 
     </section>
-
-
 </main>
-
-
 
 {% endblock progression_content %}
 
 
 {% block end_body_scripts %}
 {% endblock end_body_scripts %}
+
+
+
+
+
+
+
