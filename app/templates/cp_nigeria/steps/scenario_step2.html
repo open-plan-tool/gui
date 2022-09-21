@@ -6,48 +6,46 @@
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
 {% block progression_content %}
 <main>
-    <section class="scenario-create">
+    <div class="text">
+        <span>
+            {% translate "Fill in the following parameters:" %}
+        </span>
+    </div>
+    <section class="project-setup two-columns">
+       <div class="left">
+		   <div>
+                    <form method="post">
+                        {% csrf_token %}
 
-       <div>
-				 Here we can select which typical load profile we want to have and how many people it concerns
-				 <p>We could also have a mix of different load profiles associated with a number of people and we compile the aggregation
-				 	profile_1 *n_users1 + profile_2*n_users2 + ...
-					 <ul>
-		   <b>In:</b>
-		   <li>Number of households</li>
-		   <li>Additional commercial loads</li>
-		   <li>Standardized load profiles</li>
-		   <li>...</li>
-		   </ul>
-		   <ul>
-		   <b>Out:</b>
-		   <li>Custom demand load</li>
-	   </ul>
+                        <div class="input-item">
+                            {{ form.households| as_crispy_field }}
+                        </div>
+                        <div class="input-item optional">
+                            {{ form.tier| as_crispy_field }}
+                        </div>
+                        <div class="input-item optional">
+                            {{ form.curve| as_crispy_field }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+	<div class="right">
+		   <div>
+                    <form method="post">
+                        {% csrf_token %}
 
-				 </p>
-			 </div>
-
-		<form>
-						{% csrf_token %}
-						<select name="proj_id" class="form-select" aria-label="Default select example">
-
-							<option value="1"> opt 1  </option>
-							<option value="2"> opt 2  </option>
-							<option value="3"> opt 3  </option>
-
-						</select>
-						<input type="number">
-			<select name="proj_iddff" class="form-select" aria-label="Default select example">
-
-							<option value="1"> opt 1  </option>
-							<option value="2"> opt 2  </option>
-							<option value="3"> opt 3  </option>
-
-						</select>
-						<input type="number">
-					</form>
-
-
+                        <div class="input-item">
+                            {{ form2.households| as_crispy_field }}
+                        </div>
+                        <div class="input-item optional">
+                            {{ form2.tier| as_crispy_field }}
+                        </div>
+                        <div class="input-item optional">
+                            {{ form2.curve| as_crispy_field }}
+                        </div>
+                    </form>
+                </div>
+            </div>
     </section>
 </main>
 

@@ -89,22 +89,38 @@ def cpn_steps(request, proj_id, step_id=None, scen_id=None):
 @require_http_methods(["GET", "POST"])
 def cpn_scenario_create(request, proj_id, step_id=1):
     if request.POST:
-        form = CPNCreateForm(request.POST)
+        form = CPNLocationForm(request.POST)
         if form.is_valid():
             logger.info(f"Creating new project.")
 
             project = Project.objects.create(
                 name=form.cleaned_data["name"],
-                description=form.cleaned_data["description"],
                 longitude=form.cleaned_data["longitude"],
                 latitude=form.cleaned_data["latitude"],
                 user=request.user,
             )
             return HttpResponseRedirect(reverse("cpn_review", args=[project.id]))
     else:
-        form = CPNCreateForm()
+        form = CPNLocationForm()
     return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
                   {"form": form,
+                   "proj_id": proj_id,
+                   "step_id": step_id,
+                   "step_list": CPN_STEP_LIST})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def cpn_demand_params(request, proj_id, step_id=2):
+    if request.POST:
+        form = CPNLoadProfileForm(request.POST)
+        form2 = CPNLoadProfileForm(request.POST)
+    else:
+        form = CPNLoadProfileForm()
+        form2 = CPNLoadProfileForm(request.POST)
+    return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
+                  {"form": form,
+                   "form2": form2,
                    "proj_id": proj_id,
                    "step_id": step_id,
                    "step_list": CPN_STEP_LIST})
