@@ -621,13 +621,9 @@ class AssetCreateForm(OpenPlanModelForm):
 
         if asset_type_name == "heat_pump":
             self.fields["efficiency"] = DualNumberField(
-                default=1, min=0, param_name="efficiency"
+                default=1, min=1, param_name="efficiency"
             )
             self.fields["efficiency"].label = "COP1"
-            self.fields["efficiency_multiple"] = DualNumberField(
-                default=1, max=3, param_name="efficiency_multiple"
-            )
-            self.fields["efficiency_multiple"].label = "COP2"
 
         """ DrawFlow specific configuration, add a special attribute to 
             every field in order for the framework to be able to export

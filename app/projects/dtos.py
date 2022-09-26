@@ -1,6 +1,7 @@
 import json
 from typing import List
 from django.db.models import Q
+import numpy as np
 from numpy.core import long
 from datetime import date, datetime, time
 
@@ -406,6 +407,17 @@ def convert_to_dto(scenario: Scenario):
                 n for n in output_connection.values_list("bus__name", flat=True)
             ]
 
+        asset_efficiency = to_value_type(asset, "efficiency")
+        if asset.asset_type.asset_type == "heat_pump":
+            cop = asset_efficiency.value
+            # TODO: make sure the first one is always el_bus and second one always el_th
+            # TODO: make sure the length is equal to the number of timesteps
+            if isinstance(cop, list):
+                cop = np.array(cop)
+                asset_efficiency.value = [(1 / cop).tolist(), (1 - 1 / cop).tolist()]
+            else:
+                asset_efficiency.value = [(1 / cop), (1 - 1 / cop)]
+
         asset_dto = AssetDto(
             asset.asset_type.asset_type,
             asset.name,
@@ -421,7 +433,7 @@ def convert_to_dto(scenario: Scenario):
             to_value_type(asset, "soc_min"),
             to_value_type(asset, "capex_fix"),
             to_value_type(asset, "opex_var"),
-            to_value_type(asset, "efficiency"),
+            asset_efficiency,
             to_value_type(asset, "installed_capacity"),
             to_value_type(asset, "lifetime"),
             to_value_type(asset, "maximum_capacity"),

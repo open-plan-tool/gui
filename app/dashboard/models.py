@@ -488,6 +488,7 @@ def graph_sankey(simulation, energy_vector):
                         format_storage_subasset_name(component.asset.name, INPUT_POWER)
                     )
                 else:
+
                     bus_to_asset_names.append(component.asset.name)
 
             for component_label in asset_to_bus_names:
@@ -502,6 +503,7 @@ def graph_sankey(simulation, energy_vector):
                 val = np.sum(results_ts[component_label]["flow"]["value"])
                 if val == 0:
                     val = 1
+
                 values.append(val)
 
             for component_label in bus_to_asset_names:
@@ -521,12 +523,21 @@ def graph_sankey(simulation, energy_vector):
                     if isinstance(input_busses, list):
 
                         bus_index = input_busses.index(bus_label)
-                        val = (
-                            val
-                            * results_ts[component_label]["efficiency"]["value"][
-                                bus_index
-                            ]
-                        )
+                        efficiency = results_ts[component_label]["efficiency"]["value"][
+                            bus_index
+                        ]
+                        if isinstance(efficiency, list):
+                            flow = np.array(
+                                results_ts[component_label]["flow"]["value"]
+                            ) * np.array(efficiency)
+                            val = np.sum(flow)
+                        else:
+                            val = (
+                                val
+                                * results_ts[component_label]["efficiency"]["value"][
+                                    bus_index
+                                ]
+                            )
 
                 if val == 0:
                     val = 1
