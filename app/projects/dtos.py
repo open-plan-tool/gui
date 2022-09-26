@@ -80,8 +80,8 @@ class AssetDto:
         unique_id: str,
         type_oemof: str,
         energy_vector: str,
-        input_bus_name: str,
-        output_bus_name: str,
+        inflow_direction: str,
+        outflow_direction: str,
         dispatchable: bool,
         age_installed: ValueTypeDto,
         c_rate: ValueTypeDto,
@@ -111,8 +111,8 @@ class AssetDto:
         self.unique_id = unique_id
         self.type_oemof = type_oemof
         self.energy_vector = energy_vector
-        self.input_bus_name = input_bus_name
-        self.output_bus_name = output_bus_name
+        self.inflow_direction = inflow_direction
+        self.outflow_direction = outflow_direction
         self.dispatchable = dispatchable
         self.age_installed = age_installed
         self.c_rate = c_rate
@@ -145,8 +145,8 @@ class EssDto:
         label: str,
         type_oemof: str,
         energy_vector: str,
-        input_bus_name: str,
-        output_bus_name: str,
+        inflow_direction: str,
+        outflow_direction: str,
         input_power: AssetDto,
         output_power: AssetDto,
         capacity: AssetDto,
@@ -155,8 +155,8 @@ class EssDto:
         self.label = label
         self.type_oemof = type_oemof
         self.energy_vector = energy_vector
-        self.input_bus_name = input_bus_name
-        self.output_bus_name = output_bus_name
+        self.inflow_direction = inflow_direction
+        self.outflow_direction = outflow_direction
         self.input_power = input_power
         self.output_power = output_power
         self.capacity = capacity
@@ -319,10 +319,10 @@ def convert_to_dto(scenario: Scenario):
             asset=ess, flow_direction="A2B"
         ).first()
 
-        input_bus_name = (
+        inflow_direction = (
             input_connection.bus.name if input_connection is not None else None
         )
-        output_bus_name = (
+        outflow_direction = (
             output_connection.bus.name if output_connection is not None else None
         )
 
@@ -369,8 +369,8 @@ def convert_to_dto(scenario: Scenario):
             ess.name,
             ess.asset_type.mvs_type,
             ess.asset_type.energy_vector,
-            input_bus_name,
-            output_bus_name,
+            inflow_direction,
+            outflow_direction,
             ess_sub_assets["charging_power"],
             ess_sub_assets["discharging_power"],
             ess_sub_assets["capacity"],
@@ -388,21 +388,21 @@ def convert_to_dto(scenario: Scenario):
             asset=asset, flow_direction="A2B"
         )
 
-        input_bus_name = None
+        inflow_direction = None
         num_inputs = input_connection.count()
         if num_inputs == 1:
-            input_bus_name = input_connection.first().bus.name
+            inflow_direction = input_connection.first().bus.name
         elif num_inputs > 1:
-            input_bus_name = [
+            inflow_direction = [
                 n for n in input_connection.values_list("bus__name", flat=True)
             ]
 
-        output_bus_name = None
+        outflow_direction = None
         num_outputs = output_connection.count()
         if num_outputs == 1:
-            output_bus_name = output_connection.first().bus.name
+            outflow_direction = output_connection.first().bus.name
         elif num_outputs > 1:
-            output_bus_name = [
+            outflow_direction = [
                 n for n in output_connection.values_list("bus__name", flat=True)
             ]
 
@@ -412,8 +412,8 @@ def convert_to_dto(scenario: Scenario):
             asset.unique_id,
             asset.asset_type.mvs_type,
             asset.asset_type.energy_vector,
-            input_bus_name,
-            output_bus_name,
+            inflow_direction,
+            outflow_direction,
             asset.dispatchable,
             to_value_type(asset, "age_installed"),
             to_value_type(asset, "crate"),
