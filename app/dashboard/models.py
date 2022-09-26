@@ -515,6 +515,19 @@ def graph_sankey(simulation, energy_vector):
 
                 val = np.sum(results_ts[component_label]["flow"]["value"])
 
+                # If the asset has multiple inputs, multiply the output flow by the efficiency
+                input_busses = results_ts[component_label].get("inflow_direction")
+                if input_busses is not None:
+                    if isinstance(input_busses, list):
+
+                        bus_index = input_busses.index(bus_label)
+                        val = (
+                            val
+                            * results_ts[component_label]["efficiency"]["value"][
+                                bus_index
+                            ]
+                        )
+
                 if val == 0:
                     val = 1
                 values.append(val)
