@@ -408,15 +408,47 @@ def convert_to_dto(scenario: Scenario):
             ]
 
         asset_efficiency = to_value_type(asset, "efficiency")
+
         if asset.asset_type.asset_type == "heat_pump":
             cop = asset_efficiency.value
-            # TODO: make sure the first one is always el_bus and second one always el_th
+            input_mapping = [
+                ev for ev in input_connection.values_list("bus__type", flat=True)
+            ]
+
+            efficiencies = []
+            inflow_direction = []
             # TODO: make sure the length is equal to the number of timesteps
-            if isinstance(cop, list):
-                cop = np.array(cop)
-                asset_efficiency.value = [(1 / cop).tolist(), (1 - 1 / cop).tolist()]
-            else:
-                asset_efficiency.value = [(1 / cop), (1 - 1 / cop)]
+            for energy_vector in ["Electricity", "Heat"]:
+                if energy_vector in input_mapping:
+                    # TODO get the case where get fails
+                    inflow_direction.append(
+                        input_connection.get(bus__type=energy_vector).bus.name
+                    )
+                    if isinstance(cop, list):
+                        cop = np.array(cop)
+                        efficiency = (
+                            (1 / cop).tolist()
+                            if energy_vector == "Electricity"
+                            else (1 - 1 / cop).tolist()
+                        )
+                    else:
+                        efficiency = (
+                            (1 / cop)
+                            if energy_vector == "Electricity"
+                            else (1 - 1 / cop)
+                        )
+
+                    efficiencies.append(efficiency)
+
+            if len(efficiencies) == 0:
+                print("ERROR, a heat pump should at least have one electrical input!")
+                import pdb
+
+                pdb.set_trace()
+            elif len(efficiencies) == 1:
+                efficiencies = efficiencies[0]
+
+            asset_efficiency.value = efficiencies
 
         asset_dto = AssetDto(
             asset.asset_type.asset_type,
