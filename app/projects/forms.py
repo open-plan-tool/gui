@@ -605,13 +605,15 @@ class BusForm(OpenPlanModelForm):
 
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
-        asset_type_name = kwargs.pop("asset_type", None)
+        self.asset_type_name = kwargs.pop("asset_type", None)
         view_only = kwargs.pop("view_only", False)
         self.existing_asset = kwargs.get("instance", None)
+        # get the connections with busses
+        self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
         super().__init__(*args, **kwargs)
         # which fields exists in the form are decided upon AssetType saved in the db
-        asset_type = AssetType.objects.get(asset_type=asset_type_name)
+        asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
 
         [
             self.fields.pop(field)
@@ -619,7 +621,9 @@ class AssetCreateForm(OpenPlanModelForm):
             if field not in asset_type.visible_fields
         ]
 
-        if asset_type_name == "heat_pump":
+        self.fields["inputs"] = forms.CharField(widget=forms.HiddenInput())
+
+        if self.asset_type_name == "heat_pump":
             self.fields["efficiency"] = DualNumberField(
                 default=1, min=1, param_name="efficiency"
             )
@@ -631,7 +635,7 @@ class AssetCreateForm(OpenPlanModelForm):
             !! This addition doesn't affect the previous behavior !!
         """
         for field in self.fields:
-            if field == "renewable_asset" and asset_type_name in RENEWABLE_ASSETS:
+            if field == "renewable_asset" and self.asset_type_name in RENEWABLE_ASSETS:
                 self.fields[field].initial = True
             self.fields[field].widget.attrs.update({f"df-{field}": ""})
             if field == "input_timeseries":

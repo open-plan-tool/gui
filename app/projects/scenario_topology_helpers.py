@@ -55,7 +55,18 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
 def handle_storage_unit_form_post(
     request, scen_id=0, asset_type_name="", asset_uuid=None
 ):
-    form = StorageForm(request.POST, request.FILES, asset_type=asset_type_name)
+
+    input_output_mapping = {
+        "inputs": request.POST.get("inputs", "").split(","),
+        "outputs": request.POST.get("outputs", "").split(","),
+    }
+
+    form = StorageForm(
+        request.POST,
+        request.FILES,
+        asset_type=asset_type_name,
+        input_output_mapping=input_output_mapping,
+    )
     scenario = get_object_or_404(Scenario, id=scen_id)
 
     if form.is_valid():
@@ -138,6 +149,13 @@ def handle_storage_unit_form_post(
 
 
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
+
+    # collect the information about the connected nodes in the GUI
+    input_output_mapping = {
+        "inputs": json.loads(request.POST.get("inputs", "[]")),
+        "outputs": json.loads(request.POST.get("outputs", "[]")),
+    }
+
     if asset_uuid:
         existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
         form = AssetCreateForm(
@@ -145,9 +163,15 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
             request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
+            input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(request.POST, request.FILES, asset_type=asset_type_name)
+        form = AssetCreateForm(
+            request.POST,
+            request.FILES,
+            asset_type=asset_type_name,
+            input_output_mapping=input_output_mapping,
+        )
 
     asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
     scenario = get_object_or_404(Scenario, pk=scen_id)

@@ -1188,6 +1188,12 @@ def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
 def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     scenario = Scenario.objects.get(id=scen_id)
 
+    # collect the information about the connected nodes in the GUI
+    input_output_mapping = {
+        "inputs": json.loads(request.POST.get("inputs", "[]")),
+        "outputs": json.loads(request.POST.get("outputs", "[]")),
+    }
+
     if asset_type_name == "bus":
         if asset_uuid:
             existing_bus = get_object_or_404(Bus, pk=asset_uuid)
@@ -1233,15 +1239,22 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                     "soc_max": ess_capacity_asset.soc_max,
                     "soc_min": ess_capacity_asset.soc_min,
                 },
+                input_output_mapping=input_output_mapping,
             )
         else:
-            form = StorageForm(asset_type=asset_type_name)
+            form = StorageForm(
+                asset_type=asset_type_name, input_output_mapping=input_output_mapping
+            )
         return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
 
         if asset_uuid:
             existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            form = AssetCreateForm(asset_type=asset_type_name, instance=existing_asset)
+            form = AssetCreateForm(
+                asset_type=asset_type_name,
+                instance=existing_asset,
+                input_output_mapping=input_output_mapping,
+            )
             input_timeseries_data = (
                 existing_asset.input_timeseries
                 if existing_asset.input_timeseries
@@ -1254,7 +1267,9 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             n_asset = len(asset_list)
             default_name = f"{asset_type_name}-{n_asset}"
             form = AssetCreateForm(
-                asset_type=asset_type_name, initial={"name": default_name}
+                asset_type=asset_type_name,
+                initial={"name": default_name},
+                input_output_mapping=input_output_mapping,
             )
             input_timeseries_data = ""
 
@@ -1272,7 +1287,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 @login_required
 @require_http_methods(["POST"])
 def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=None):
-
     if asset_type_name == "bus":
         answer = handle_bus_form_post(request, scen_id, asset_type_name, asset_uuid)
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:

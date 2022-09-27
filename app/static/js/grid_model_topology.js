@@ -102,6 +102,17 @@ function updateInputTimeseries(){
     }
 }
 
+// find out the name of the other nodes the given node is connected to
+function getInputOutputMapping(nodeId){
+    var input_output_mapping = {"inputs": {}, "outputs": {}};
+    editor.getNodeFromId(nodeId).inputs.input_1.connections.map(c => {const nodeIn = editor.getNodeFromId(parseInt(c.node)); input_output_mapping["inputs"][nodeIn.data.bustype] = nodeIn.data.name;});
+    editor.getNodeFromId(nodeId).outputs.output_1.connections.map(c => {const nodeOut = editor.getNodeFromId(parseInt(c.node)); input_output_mapping["outputs"][nodeOut.data.bustype] = nodeOut.data.name;});
+    input_output_mapping["inputs"] = JSON.stringify(input_output_mapping["inputs"]);
+    input_output_mapping["outputs"] = JSON.stringify(input_output_mapping["outputs"]);
+
+    return input_output_mapping;
+}
+
 // one needs to add this function as event with eventListener (<some jquery div>.addEventListener("dblclick", dblClick))
 const dblClick = (e) => {
 
@@ -110,32 +121,35 @@ const dblClick = (e) => {
 
     if (closestNode) {
         const topologyNodeId = closestNode.id;
+
+        const nodeId = parseInt(topologyNodeId.split("-").pop());
+        const input_output_mapping = getInputOutputMapping(nodeId);
         // formGetUrl is defined in scenario_step2.html
         const getUrl = formGetUrl + nodeType +
             (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
         // get the form of the asset of the type "nodeType" (projects/views.py::get_asset_create_form)
-        fetch(getUrl)
-        .then(formContent=>formContent.text())
-        .then(formContent=> {
+         $.ajax({
+            //headers: {'X-CSRFToken': csrfToken },
+            type: "GET",
+            url: getUrl,
+            data: input_output_mapping,
+            success: function (formContent) {
+                // assign the content of the form to the form tag of the modal
+                guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
 
-            // assign the content of the form to the form tag of the modal
-            guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
+                // set parameters which uniquely identify the asset
+                guiModalDOM.setAttribute("data-node-type", nodeType);
+                guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
+                guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
+                editor.editor_mode = "fixed";
 
-            // set parameters which uniquely identify the asset
-            guiModalDOM.setAttribute("data-node-type", nodeType);
-            guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
-            guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
-            editor.editor_mode = "fixed";
+                updateInputTimeseries()
 
-            updateInputTimeseries()
-
-            guiModal.show()
-            $('[data-bs-toggle="tooltip"]').tooltip()
-
-        })
-        //.catch(err => alert("Modal get form JS Error: " + err));
-
+                guiModal.show()
+                $('[data-bs-toggle="tooltip"]').tooltip()
+            },
+         })
     }
 };
 // endregion
@@ -169,6 +183,12 @@ const submitForm = (e) => {
         const nodeOutputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].outputs).length
         formData.set('input_ports', nodeInputs);
         formData.set('output_ports', nodeOutputs);
+    }
+    else{
+        const nodeId = parseInt(topologyNodeId.split("-").pop());
+        const input_output_mapping = getInputOutputMapping(nodeId);
+        formData.set("inputs", input_output_mapping.inputs);
+        formData.set("outputs", input_output_mapping.outputs);
     }
 
     // formPostUrl is defined in scenario_step2.html
