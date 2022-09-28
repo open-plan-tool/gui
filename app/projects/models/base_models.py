@@ -7,7 +7,6 @@ from datetime import timedelta
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-import pandas as pd
 
 
 from users.models import CustomUser
@@ -551,10 +550,12 @@ def calc_cops(
         List of Coefficients of Performance (COPs)
     """
     # Check if input arguments have proper type and length
-    if not isinstance(temp_low, (list, pd.Series)):
+    # if not isinstance(temp_low, (list, pd.Series)):
+    if not isinstance(temp_low, list):
         raise TypeError("Argument 'temp_low' is not of type list or pd.Series!")
 
-    if not isinstance(temp_high, (list, pd.Series)):
+    # if not isinstance(temp_high, (list, pd.Series)):
+    if not isinstance(temp_high, list):
         raise TypeError("Argument 'temp_high' is not of " "type list or pd.Series!")
 
     if len(temp_high) != len(temp_low):
