@@ -34,6 +34,7 @@
 
 
 <!-- Modal -->
+
 <div class="modal fade modal--gui" id="guiModal" tabindex="-1" role="dialog" aria-labelledby="guiModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -43,13 +44,30 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-                         <form>
-                             {% csrf_token %}
-            <div class="modal-body">
+					<div class="container">
+						<div class="row align-item-start">
+							<div class="col">
+								<form id="assetForm">
+									{% csrf_token %}
+									<div class="modal-body">
+									</div>
+					 			</form>
+							</div>
+							<div class="col collapse modal-body" id="form-computeCOP">
+								<button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
+
+							 <form id="copForm">
+								{% csrf_token %}
+								<div class="modal-addendum">
+								</div>
+							 </form>
+							</div>
+
+						</div>
+
+					</div>
 
 
-            </div>
-                             </form>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
                 {% if scenario.project.user == request.user %}

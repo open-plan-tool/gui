@@ -1,3 +1,4 @@
+
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load custom_filters %}
@@ -37,7 +38,6 @@
             {% if field.name|is_economical_parameter %}
               <div class="form-group{% if field.errors %} invalid{% endif %}">
                 {{ field|as_crispy_field }}
-
               </div>
             {% endif %}
           {% endfor %}
@@ -51,7 +51,12 @@
               {% if field.name != "input_timeseries" %}
                 <div class="form-group{% if field.errors %} invalid{% endif %}">
                   {{ field|as_crispy_field }}
+									{% if asset_type_name == "heat_pump" and field.name == "efficiency" %}
+										<input type="hidden" name="copId" id="id_copId">
+										<a onclick="javascript:toggle_cop_modal(event)" class="btn btn--medium" href="#form-computeCOP" data-bs-toggle="collapse" aria-expanded="false" aria-controls="form-computeCOP" >{% translate "Calculate COP from temperature" %}</a>
+									{% endif %}
                 </div>
+
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -85,4 +90,3 @@
     </div>
 
 </div>
-
