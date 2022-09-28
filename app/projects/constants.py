@@ -271,6 +271,9 @@ ENERGY_VECTOR = (
     # ('Diesel', 'Diesel'),
 )
 
+COP_MODES = (("Heat pump", "heat_pump"), ("Chiller", "chiller"))
+
+
 MVS_TYPE = (
     ("", "Choose..."),
     ("source", "source"),

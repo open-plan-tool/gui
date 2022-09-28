@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 
 from users.models import CustomUser
 from projects.constants import (
@@ -15,6 +16,7 @@ from projects.constants import (
     COUNTRY,
     CURRENCY,
     ENERGY_VECTOR,
+    COP_MODES,
     FLOW_DIRECTION,
     MVS_TYPE,
     SIMULATION_STATUS,
@@ -500,6 +502,67 @@ class Asset(TopologyNode):
 
     def is_input_timeseries_empty(self):
         return self.input_timeseries == ""
+
+
+class COPCalculator(models.Model):
+
+    scenario = models.ForeignKey(
+        Scenario, on_delete=models.CASCADE, null=False, blank=False
+    )
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=True, blank=True)
+
+    temperature_high = models.TextField(null=False, blank=False)
+    temperature_low = models.TextField(null=False, blank=False)
+
+    temp_threshold_icing = quality_grade = models.FloatField(
+        null=True, default=2, validators=[MinValueValidator(-273.15)]
+    )
+
+    quality_grade = models.FloatField(
+        null=True,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    factor_icing = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    mode = models.CharField(max_length=20, choices=COP_MODES)
+
+    @property
+    def temp_high(self):
+        try:
+            answer = json.loads(self.temperature_high)
+        except json.decoder.JSONDecodeError:
+            answer = []
+        if isinstance(answer, float):
+            answer = [answer]
+        return answer
+
+    @property
+    def temp_low(self):
+        try:
+            answer = json.loads(self.temperature_low)
+        except json.decoder.JSONDecodeError:
+            answer = []
+        if isinstance(answer, float):
+            answer = [answer]
+        return answer
+
+    def calc_cops(self):
+        cops = cmpr_hp_chiller.calc_cops(
+            temp_high=self.temp_high,
+            temp_low=self.temp_low,
+            mode=self.mode,
+            quality_grade=self.quality_grade,
+            factor_icing=self.factor_icing,
+            temp_threshold_icing=self.temp_threshold_icing,
+        )
+        if len(cops) == 1:
+            cops = cops[0]
+        return cops
 
 
 class Bus(TopologyNode):
