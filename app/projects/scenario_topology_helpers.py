@@ -9,6 +9,7 @@ from projects.models import (
     Asset,
     Project,
     EconomicData,
+    COPCalculator,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -187,6 +188,14 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
                 f"Failed to set positioning for asset {asset.name} in scenario: {scen_id}."
             )
         asset.save()
+
+        # will apply for he
+        cop_calculator_id = request.POST.get("copId", "")
+        if asset_type_name == "heat_pump" and cop_calculator_id is not "":
+            existing_cop = get_object_or_404(COPCalculator, id=cop_calculator_id)
+            existing_cop.asset = asset
+            existing_cop.save()
+
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
     logger.warning(f"The submitted asset has erroneous field values.")
 
