@@ -8,7 +8,17 @@ var guiModalDOM = document.getElementById("guiModal");
 var guiModal = new bootstrap.Modal(guiModalDOM);
 
 var copCollapseDOM = document.getElementById('form-computeCOP');
-var copCollapse = new bootstrap.Collapse(copCollapseDOM);
+if(copCollapseDOM){
+    var copCollapse = new bootstrap.Collapse(copCollapseDOM);
+    // refresh the field of the projects/forms.py::COPCalculatorForm to plot the data if any
+    copCollapseDOM.addEventListener('shown.bs.collapse', function () {
+    tHighDOM = guiModalDOM.querySelector('input[name="temperature_high_scalar"]');
+    if(tHighDOM){tHighDOM.dispatchEvent(new Event('change'));}
+    tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
+    if(tLowDOM){tLowDOM.dispatchEvent(new Event('change'));}
+})
+}
+
 
 
 // Initialize Drawflow
@@ -227,7 +237,9 @@ const dblClick = (e) => {
                 updateInputTimeseries()
 
                 guiModal.show();
-                copCollapse.hide();
+                if(copCollapseDOM){
+                    copCollapse.hide();
+                }
                 $('[data-bs-toggle="tooltip"]').tooltip()
             },
          })
@@ -291,7 +303,9 @@ const submitForm = (e) => {
                     nodesToDB.set(topologyNodeId, {uid:jsonRes.asset_id, assetTypeName: assetTypeName });
 
                 guiModal.hide();
-                copCollapse.hide();
+                if(copCollapseDOM){
+                    copCollapse.hide();
+                }
 
             } else {
                 // assign the content of the form to the form tag of the modal
@@ -304,13 +318,6 @@ const submitForm = (e) => {
     })
 }
 
-// refresh the field of the projects/forms.py::COPCalculatorForm to plot the data if any
-copCollapseDOM.addEventListener('shown.bs.collapse', function () {
-    tHighDOM = guiModalDOM.querySelector('input[name="temperature_high_scalar"]');
-    if(tHighDOM){tHighDOM.dispatchEvent(new Event('change'));}
-    tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
-    if(tLowDOM){tLowDOM.dispatchEvent(new Event('change'));}
-})
 
 
 $("#guiModal").on('shown.bs.modal', function (event) {
