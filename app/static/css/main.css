@@ -1250,6 +1250,9 @@ form .btn {
 .modal .modal-body {
   padding: 3rem; }
 
+.modal .modal-addendum {
+  padding: 3rem; }
+
 .system-design-error .modal-body {
   display: flex;
   flex-direction: column;
