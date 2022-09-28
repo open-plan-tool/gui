@@ -571,6 +571,21 @@ class SensitivityAnalysisForm(ModelForm):
         return data_js
 
 
+class COPCalculatorForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["temperature_high"] = DualNumberField(
+            default=60, min=-273, param_name="temperature_high"
+        )
+        self.fields["temperature_low"] = DualNumberField(
+            default=40, min=-273, param_name="temperature_low"
+        )
+
+    class Meta:
+        model = COPCalculator
+        exclude = ["id", "scenario", "asset", "mode"]
+
+
 class BusForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         bus_type_name = kwargs.pop("asset_type", None)  # always = bus
