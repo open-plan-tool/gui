@@ -7,7 +7,8 @@ from datetime import timedelta
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
+import pandas as pd
+
 
 from users.models import CustomUser
 from projects.constants import (
@@ -504,6 +505,108 @@ class Asset(TopologyNode):
         return self.input_timeseries == ""
 
 
+# from oemof.thermal
+def calc_cops(
+    mode, temp_high, temp_low, quality_grade, temp_threshold_icing=2, factor_icing=None
+):
+
+    r"""
+    Calculates the Coefficient of Performance (COP) of heat pumps and chillers
+    based on the Carnot efficiency (ideal process) and a scale-down factor.
+    Note
+    ----
+    Applications of air-source heat pumps should consider icing
+    at the heat exchanger at air-temperatures around :math:`2^\circ C` .
+    Icing causes a reduction of the efficiency.
+    .. calc_cops-equations:
+        mode='heat_pump'
+        :math:`COP = \eta \cdot \frac{T_\mathrm{high}}{T_\mathrm{high}
+        - T_\mathrm{low}}`
+        :math:`COP = f_\mathrm{icing} \cdot\eta
+        \cdot\frac{T_\mathrm{high}}{T_\mathrm{high} - T_\mathrm{low}}`
+        mode='chiller'
+        :math:`COP = \eta \cdot \frac{T_\mathrm{low}}{T_\mathrm{high}
+        - T_\mathrm{low}}`
+    Parameters
+    ----------
+    temp_high : list or pandas.Series of numerical values
+        Temperature of the high temperature reservoir in :math:`^\circ C`
+    temp_low : list or pandas.Series of numerical values
+        Temperature of the low temperature reservoir in :math:`^\circ C`
+    quality_grade : numerical value
+        Factor that scales down the efficiency of the real heat pump
+        (or chiller) process from the ideal process (Carnot efficiency), where
+         a factor of 1 means teh real process is equal to the ideal one.
+    factor_icing: numerical value
+        Sets the relative COP drop caused by icing, where 1 stands for no
+        efficiency-drop.
+    mode : string
+        Two possible modes: "heat_pump" or "chiller" (default 'None')
+    t_threshold:
+        Temperature in :math:`^\circ C` below which icing at heat exchanger
+        occurs (default 2)
+    Returns
+    -------
+    cops : list of numerical values
+        List of Coefficients of Performance (COPs)
+    """
+    # Check if input arguments have proper type and length
+    if not isinstance(temp_low, (list, pd.Series)):
+        raise TypeError("Argument 'temp_low' is not of type list or pd.Series!")
+
+    if not isinstance(temp_high, (list, pd.Series)):
+        raise TypeError("Argument 'temp_high' is not of " "type list or pd.Series!")
+
+    if len(temp_high) != len(temp_low):
+        if (len(temp_high) != 1) and ((len(temp_low) != 1)):
+            raise IndexError(
+                "Arguments 'temp_low' and 'temp_high' "
+                "have to be of same length or one has "
+                "to be of length 1 !"
+            )
+
+    # Make temp_low and temp_high have the same length and
+    # convert unit to Kelvin.
+    length = max([len(temp_high), len(temp_low)])
+    if len(temp_high) == 1:
+        list_temp_high_K = [temp_high[0] + 273.15] * length
+    elif len(temp_high) == length:
+        list_temp_high_K = [t + 273.15 for t in temp_high]
+    if len(temp_low) == 1:
+        list_temp_low_K = [temp_low[0] + 273.15] * length
+    elif len(temp_low) == length:
+        list_temp_low_K = [t + 273.15 for t in temp_low]
+
+    # Calculate COPs depending on selected mode (without icing).
+    if factor_icing is None:
+        if mode == "heat_pump":
+            cops = [
+                quality_grade * t_h / (t_h - t_l)
+                for t_h, t_l in zip(list_temp_high_K, list_temp_low_K)
+            ]
+        elif mode == "chiller":
+            cops = [
+                quality_grade * t_l / (t_h - t_l)
+                for t_h, t_l in zip(list_temp_high_K, list_temp_low_K)
+            ]
+
+    # Calculate COPs of a heat pump and lower COP when icing occurs.
+    elif factor_icing is not None:
+        if mode == "heat_pump":
+            cops = []
+            for t_h, t_l in zip(list_temp_high_K, list_temp_low_K):
+                if t_l < temp_threshold_icing + 273.15:
+                    f_icing = factor_icing
+                    cops = cops + [f_icing * quality_grade * t_h / (t_h - t_l)]
+                if t_l >= temp_threshold_icing + 273.15:
+                    cops = cops + [quality_grade * t_h / (t_h - t_l)]
+        elif mode == "chiller":
+            raise ValueError(
+                "Argument 'factor_icing' has " "to be None for mode='chiller'!"
+            )
+    return cops
+
+
 class COPCalculator(models.Model):
 
     scenario = models.ForeignKey(
@@ -552,7 +655,7 @@ class COPCalculator(models.Model):
         return answer
 
     def calc_cops(self):
-        cops = cmpr_hp_chiller.calc_cops(
+        cops = calc_cops(
             temp_high=self.temp_high,
             temp_low=self.temp_low,
             mode=self.mode,
