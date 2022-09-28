@@ -49,7 +49,6 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-
 CPN_STEP_LIST = [
     _("Choose location"),
     _("Demand load profile selection"),
@@ -63,31 +62,10 @@ CPN_STEP_LIST = [
 def home_cpn(request):
     return render(request, "cp_nigeria/landing_page.html")
 
-# TODO for later create those views instead of simply serving the html templates
-# CPN_STEPS = [
-#     scenario_create_parameters,
-#     scenario_create_topology,
-#     scenario_create_constraints,
-#     scenario_review,
-# ]
-
-
-@login_required
-@require_http_methods(["GET"])
-def cpn_steps(request, proj_id, step_id=None, scen_id=None):
-    if request.method == "GET":
-        if step_id is None:
-            return HttpResponseRedirect(reverse("scenario_steps", args=[proj_id, 1]))
-        if step_id < len(CPN_STEP_LIST):
-            return render(request,f"cp_nigeria/steps/scenario_step{step_id}.html", {"proj_id": proj_id, "scen_id": 1, "step_list": CPN_STEP_LIST, "step_id": step_id, "max_step":1+len(CPN_STEP_LIST)+1})
-        else:
-            return HttpResponseRedirect(reverse("cpn_review", args=[proj_id, 1]))
-        # return CPN_STEPS[step_id - 1](request, proj_id, scen_id, step_id)
-
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def cpn_scenario_create(request, proj_id, step_id=1):
+def cpn_scenario_create(request, proj_id, scen_id=None, step_id=1):
     if request.POST:
         form = CPNLocationForm(request.POST)
         if form.is_valid():
@@ -106,34 +84,55 @@ def cpn_scenario_create(request, proj_id, step_id=1):
                   {"form": form,
                    "proj_id": proj_id,
                    "step_id": step_id,
+                   "scen_id": scen_id,
                    "step_list": CPN_STEP_LIST})
 
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def cpn_demand_params(request, proj_id, step_id=2):
+def cpn_demand_params(request, proj_id, scen_id=None, step_id=2):
     if request.POST:
         form = CPNLoadProfileForm(request.POST)
         form2 = CPNLoadProfileForm(request.POST)
     else:
         form = CPNLoadProfileForm()
-        form2 = CPNLoadProfileForm(request.POST)
+        form2 = CPNLoadProfileForm()
     return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
                   {"form": form,
                    "form2": form2,
                    "proj_id": proj_id,
                    "step_id": step_id,
+                   "scen_id": scen_id,
                    "step_list": CPN_STEP_LIST})
 
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def cpn_review(request, proj_id, scen_id, step_id=4, max_step=5):
+def cpn_scenario(request, proj_id, scen_id, step_id=3):
+    return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
+                  {"proj_id": proj_id,
+                   "step_id": step_id,
+                   "scen_id": scen_id,
+                   "step_list": CPN_STEP_LIST})
 
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def cpn_constraints(request, proj_id, scen_id, step_id=4):
+    return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
+                  {"proj_id": proj_id,
+                   "step_id": step_id,
+                   "scen_id": scen_id,
+                   "step_list": CPN_STEP_LIST})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def cpn_review(request, proj_id, scen_id, step_id=5):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+            request.user not in scenario.project.viewers.all()
     ):
         raise PermissionDenied
 
@@ -142,11 +141,10 @@ def cpn_review(request, proj_id, scen_id, step_id=4, max_step=5):
         context = {
             "scenario": scenario,
             "scen_id": scen_id,
-            "proj_id": scenario.project.id,
+            "proj_id": proj_id,
             "proj_name": scenario.project.name,
             "step_id": step_id,
             "step_list": CPN_STEP_LIST,
-            "max_step": max_step,
             "MVS_GET_URL": MVS_GET_URL,
             "MVS_LP_FILE_URL": MVS_LP_FILE_URL,
         }
@@ -183,3 +181,21 @@ def cpn_review(request, proj_id, scen_id, step_id=4, max_step=5):
         return render(request, html_template, context)
 
 
+# TODO for later create those views instead of simply serving the html templates
+CPN_STEPS = [
+    cpn_scenario_create,
+    cpn_demand_params,
+    cpn_scenario,
+    cpn_constraints,
+    cpn_review,
+]
+
+
+@login_required
+@require_http_methods(["GET"])
+def cpn_steps(request, proj_id, step_id=None, scen_id=None):
+    if request.method == "GET":
+        if step_id is None:
+            return HttpResponseRedirect(reverse("cpn_steps", args=[proj_id, 1]))
+
+        return CPN_STEPS[step_id - 1](request, proj_id, scen_id, step_id)

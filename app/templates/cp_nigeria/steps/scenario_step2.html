@@ -6,47 +6,82 @@
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
 {% block progression_content %}
 <main>
-    <div class="text">
-        <span>
-            {% translate "Fill in the following parameters:" %}
-        </span>
+    <script>
+    function displayForm(form_id) {
+          const elem = document.getElementById(form_id);
+          elem.style.display = 'block';
+    }
+    function setImage(select, curve_name){
+      var image = document.getElementsByName(curve_name)[0];
+      image.src = select.options[select.selectedIndex].value;
+    }
+    $( "button" ).click(function() {
+    $( this ).toggleClass( "hidden" );
+    });
+    </script>
+
+    <div class="grid-container">
+        <div class="text">{% translate "Fill in the following parameters:" %}</div>
+        <button class="btn btn--medium btn--short" type="button" onclick="displayForm('demand_2');">Add Household Group 2</button>
+        <button class="btn btn--medium btn--short" type="button" onclick="displayForm('demand_3');">Add Household Group 3</button>
     </div>
-    <section class="project-setup two-columns">
-       <div class="left">
-		   <div>
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="input-item">
-                            {{ form.households| as_crispy_field }}
-                        </div>
-                        <div class="input-item optional">
-                            {{ form.tier| as_crispy_field }}
-                        </div>
-                        <div class="input-item optional">
-                            {{ form.curve| as_crispy_field }}
-                        </div>
-                    </form>
-                </div>
-            </div>
-	<div class="right">
-		   <div>
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="input-item">
-                            {{ form2.households| as_crispy_field }}
-                        </div>
-                        <div class="input-item optional">
-                            {{ form2.tier| as_crispy_field }}
-                        </div>
-                        <div class="input-item optional">
-                            {{ form2.curve| as_crispy_field }}
-                        </div>
-                    </form>
-                </div>
-            </div>
-    </section>
+    <div class="grid-container">
+        <div id="demand_1">
+            <form method="post">
+                <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
+                <input type="number" class="textinput textInput form-control" id="households" name="households"><br>
+                <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
+                <select id="tier" class="textinput textInput form-control">
+                    <option value="Tier1">Tier 1</option>
+                    <option value="Tier2">Tier 2</option>
+                    <option value="Tier3">Tier 3</option>
+                </select>
+                <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
+                <select class="textinput textInput form-control" id="curve" onchange="setImage(curve, 'curveImage');">
+                    <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
+                    <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
+                </select>
+            </form>
+            <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage" />
+        </div>
+    <div id="demand_2" style="display:none">
+        <form method="post">
+            <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
+            <input type="number" class="textinput textInput form-control" id="households_2" name="households"><br>
+            <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
+            <select id="tier_2" class="textinput textInput form-control">
+                <option value="Tier1">Tier 1</option>
+                <option value="Tier2">Tier 2</option>
+                <option value="Tier3">Tier 3</option>
+            </select>
+            <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
+            <select class="textinput textInput form-control" id="curve_2" onchange="setImage(curve_2, 'curveImage_2');">
+                <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
+                <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
+            </select>
+        </form>
+        <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_2" />
+    </div>
+    <div id="demand_3" style="display:none">
+        <form method="post">
+            <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
+            <input type="number" class="textinput textInput form-control" id="households_3" name="households"><br>
+            <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
+            <select id="tier_3" class="textinput textInput form-control">
+                <option value="Tier1">Tier 1</option>
+                <option value="Tier2">Tier 2</option>
+                <option value="Tier3">Tier 3</option>
+            </select>
+            <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
+            <select class="textinput textInput form-control" id="curve_3" onchange="setImage(curve_3, 'curveImage_3');">
+                <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
+                <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
+            </select>
+        </form>
+        <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_3" />
+    </div>
+    </div>
+    <center><button class="btn btn--medium" type="button">{% translate "Generate demand profile" %}</button></center>
 </main>
 
 {% endblock progression_content %}
