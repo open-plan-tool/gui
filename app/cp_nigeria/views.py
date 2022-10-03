@@ -52,8 +52,8 @@ logger = logging.getLogger(__name__)
 CPN_STEP_LIST = [
     _("Choose location"),
     _("Demand load profile selection"),
-    _("Possible scenarios selection"),
-    _("Selected scenario parameters"),
+    _("Scenario setup"),
+    _("Economic parameters"),
     _("Simulation"),
 ]
 
@@ -128,7 +128,7 @@ def cpn_constraints(request, proj_id, scen_id, step_id=4):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def cpn_review(request, proj_id, scen_id, step_id=5):
+def cpn_review(request, proj_id, scen_id=1, step_id=5):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
@@ -193,7 +193,7 @@ CPN_STEPS = [
 
 @login_required
 @require_http_methods(["GET"])
-def cpn_steps(request, proj_id, step_id=None, scen_id=None):
+def cpn_steps(request, proj_id, step_id=None, scen_id=1):
     if request.method == "GET":
         if step_id is None:
             return HttpResponseRedirect(reverse("cpn_steps", args=[proj_id, 1]))

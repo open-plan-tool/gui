@@ -33,7 +33,17 @@
 
 
 <main>
-    <section class="scenario-create">
+	<script>
+    function displayForm(form_id) {
+          const elem = document.getElementById(form_id);
+          if (elem.style.visibility == 'hidden') {
+          	elem.style.visibility = 'visible';
+          } else {
+          	elem.style.visibility = 'hidden';
+          }
+    }
+    </script>
+ <!--   <section class="scenario-create">
 			<div>
 				Here we see a dropdown/checklist or a form where we can choose different scenarios we would like to simulate
 			  <p>Possibly we also provide some economic data such as interest rate, tax factor, currency, location (for weather data)
@@ -43,32 +53,112 @@
 				<li>Predefined scenarios</li>
 				<ul>
 					<li>Diesel</li>
-					<li>PV+Battery</li>
+					<li>PV+storage</li>
 					<li>PV+Diesel</li>
-					<li>PV+Diesel+Battery</li>
+					<li>PV+Diesel+storage</li>
 				</ul>
 				<li>Component properties</li>
 				</ul>
 			  </p>
 			</div>
-			<div id="diesel" style="display:none;">
-				Here we see a dropdown/checklist or a form where we can choose different scenarios we would like to simulate
-			  <p>Possibly we also provide some economic data such as interest rate, tax factor, currency, location (for weather data)
-				<ul>
-				<b>In:</b>
-				<li>Custom load profile (from step 1 or own profile)</li>
-				<li>Predefined scenarios</li>
-				<ul>
-					<li>Diesel</li>
-					<li>PV+Battery</li>
-					<li>PV+Diesel</li>
-					<li>PV+Diesel+Battery</li>
-				</ul>
-				<li>Component properties</li>
-				</ul>
-			  </p>
-			</div>
-    </section>
+	-->
+    <div class="grid-container">
+        <form method="post">
+            <input class="form-check-input" type="checkbox" id="diesel" value="Diesel" onclick="displayForm('diesel_params');">
+            <label class="form-check-label" for="diesel">Diesel</label>
+        </form>
+        <form method="post">
+            <input class="form-check-input" type="checkbox" id="pv" value="PV" onclick="displayForm('pv_params');">
+            <label class="form-check-label" for="diesel">PV-Plant</label>
+        </form>
+        <form method="post">
+            <input class="form-check-input" type="checkbox" id="storage" value="storage" onclick="displayForm('storage_params');">
+            <label class="form-check-label" for="diesel">Storage</label>
+        </form>
+    </div>
+    <div class="grid-container">
+        <div id="diesel_params" style="visibility:hidden">
+            <form method="post">
+                <label class="col-form-label requiredField" for="diesel_development_costs">Development costs</label><br>
+                <input type="number" class="textInput form-control" id="diesel_development_costs" name="diesel_development_costs"><br>
+                <label class="col-form-label requiredField" for="diesel_specific_costs">Specific costs</label><br>
+                <input type="number" class="textInput form-control" id="diesel_specific_costs" name="diesel_specific_costs"><br>
+                <label class="col-form-label requiredField" for="diesel_specific_OM_costs">Specific OM costs</label><br>
+                <input type="number" class="textInput form-control" id="diesel_specific_OM_costs" name="diesel_specific_OM_costs"><br>
+                <label class="col-form-label requiredField" for="diesel_dispatch_price">Dispatch price</label><br>
+                <input type="number" class="textInput form-control" id="diesel_dispatch_price" name="diesel_dispatch_price"><br>
+                <label class="col-form-label requiredField" for="diesel_asset_lifetime">Asset Lifetime</label><br>
+                <input type="number" class="textInput form-control" id="diesel_asset_lifetime" name="diesel_asset_lifetime"><br>
+                <label class="col-form-label requiredField" for="diesel_installed_capacity">Installed Capacity (kW)</label><br>
+                <input type="number" class="textInput form-control" id="diesel_installed_capacity" name="diesel_installed_capacity"><br>
+                <label class="col-form-label requiredField" for="diesel_age_installed">Age Installed (Years)</label><br>
+                <input type="number" class="textInput form-control" id="diesel_age_installed" name="diesel_age_installed"><br>
+                <label class="col-form-label requiredField" for="diesel_efficiency">Efficiency (%)</label><br>
+                <input type="number" class="textInput form-control" id="diesel_efficiency" name="diesel_efficiency"><br>
+                <label class="col-form-label requiredField" for="diesel_optimize">Optimize Capacity</label><br>
+                <select id="diesel_optimize" class="textInput form-control">
+                    <option value="TRUE">Yes</option>
+                    <option value="FALSE">No</option>
+                </select>
+            </form>
+        </div>
+                <div id="pv_params" style="visibility:hidden">
+                    <form method="post">
+                        <label class="col-form-label requiredField" for="development_costs">Development costs</label><br>
+                        <input type="number" class="textInput form-control" id="development_costs" name="development_costs"><br>
+                        <label class="col-form-label requiredField" for="specific_costs">Specific costs</label><br>
+                        <input type="number" class="textInput form-control" id="specific_costs" name="specific_costs"><br>
+                        <label class="col-form-label requiredField" for="specific_OM_costs">Specific OM costs</label><br>
+                        <input type="number" class="textInput form-control" id="specific_OM_costs" name="specific_OM_costs"><br>
+                        <label class="col-form-label requiredField" for="dispatch_price">Dispatch price</label><br>
+                        <input type="number" class="textInput form-control" id="dispatch_price" name="dispatch_price"><br>
+                        <label class="col-form-label requiredField" for="asset_lifetime">Asset Lifetime</label><br>
+                        <input type="number" class="textInput form-control" id="asset_lifetime" name="asset_lifetime"><br>
+                        <label class="col-form-label requiredField" for="installed_capacity">Installed Capacity (kW)</label><br>
+                        <input type="number" class="textInput form-control" id="installed_capacity" name="installed_capacity"><br>
+                        <label class="col-form-label requiredField" for="age_installed">Age Installed (Years)</label><br>
+                        <input type="number" class="textInput form-control" id="age_installed" name="age_installed"><br>
+                        <label class="col-form-label requiredField" for="optimize_pv">Optimize Capacity</label><br>
+                        <select id="optimize_pv" class="textInput form-control">
+                            <option value="TRUE">Yes</option>
+                            <option value="FALSE">No</option>
+                        </select>
+                    </form>
+                </div>
+                <div id="storage_params" style="visibility:hidden">
+                    <form method="post">
+                        <label class="col-form-label requiredField" for="storage_development_costs">Development costs</label><br>
+                        <input type="number" class="textInput form-control" id="storage_development_costs" name="storage_development_costs"><br>
+                        <label class="col-form-label requiredField" for="storage_specific_costs">Specific costs</label><br>
+                        <input type="number" class="textInput form-control" id="storage_specific_costs" name="storage_specific_costs"><br>
+                        <label class="col-form-label requiredField" for="storage_specific_OM_costs">Specific OM costs</label><br>
+                        <input type="number" class="textInput form-control" id="storage_specific_OM_costs" name="storage_specific_OM_costs"><br>
+                        <label class="col-form-label requiredField" for="storage_dispatch_price">Dispatch price</label><br>
+                        <input type="number" class="textInput form-control" id="storage_dispatch_price" name="storage_dispatch_price"><br>
+                        <label class="col-form-label requiredField" for="storage_asset_lifetime">Asset Lifetime</label><br>
+                        <input type="number" class="textInput form-control" id="storage_asset_lifetime" name="storage_asset_lifetime"><br>
+                        <label class="col-form-label requiredField" for="storage_installed_capacity">Installed Capacity (kW)</label><br>
+                        <input type="number" class="textInput form-control" id="storage_installed_capacity" name="storage_installed_capacity"><br>
+                        <label class="col-form-label requiredField" for="storage_age_installed">Age Installed (Years)</label><br>
+                        <input type="number" class="textInput form-control" id="storage_age_installed" name="storage_age_installed"><br>
+                        <label class="col-form-label requiredField" for="storage_efficiency">Efficiency (%)</label><br>
+                        <input type="number" class="textInput form-control" id="storage_efficiency" name="storage_efficiency"><br>
+                        <label class="col-form-label requiredField" for="storage_min_SoC">Min. SoC (%)</label><br>
+                        <input type="number" class="textInput form-control" id="storage_min_SoC" name="storage_min_SoC"><br>
+                        <label class="col-form-label requiredField" for="storage_max_SoC">Max. SoC (%)</label><br>
+                        <input type="number" class="textInput form-control" id="storage_max_SoC" name="storage_max_SoC"><br>
+                        <label class="col-form-label requiredField" for="storage_optimize">Optimize Capacity</label><br>
+                        <select id="storage_optimize" class="textInput form-control">
+                            <option value="TRUE">Yes</option>
+                            <option value="FALSE">No</option>
+                        </select>
+                    </form>
+                </div>
+    </div>
+                <center>
+                    <button class="btn btn--medium" type="button">{% translate "Create Scenario" %}</button>
+                </center>
+                </section>
 </main>
 
 {% endblock progression_content %}

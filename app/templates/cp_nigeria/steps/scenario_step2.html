@@ -28,7 +28,7 @@
     <div class="grid-container">
         <div id="demand_1">
             <form method="post">
-                <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
+                <label class="col-form-label col-lg-8 requiredField" for="households">Number of households</label><br>
                 <input type="number" class="textinput textInput form-control" id="households" name="households"><br>
                 <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
                 <select id="tier" class="textinput textInput form-control">
@@ -44,44 +44,47 @@
             </form>
             <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage" />
         </div>
-    <div id="demand_2" style="display:none">
-        <form method="post">
-            <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
-            <input type="number" class="textinput textInput form-control" id="households_2" name="households"><br>
-            <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
-            <select id="tier_2" class="textinput textInput form-control">
-                <option value="Tier1">Tier 1</option>
-                <option value="Tier2">Tier 2</option>
-                <option value="Tier3">Tier 3</option>
-            </select>
-            <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
-            <select class="textinput textInput form-control" id="curve_2" onchange="setImage(curve_2, 'curveImage_2');">
-                <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
-                <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
-            </select>
-        </form>
-        <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_2" />
+        <div id="demand_2" style="display:none">
+            <form method="post">
+                <label class="col-form-label col-lg-8 requiredField" for="households">Number of households</label><br>
+                <input type="number" class="textinput textInput form-control" id="households_2" name="households"><br>
+                <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
+                <select id="tier_2" class="textinput textInput form-control">
+                    <option value="Tier1">Tier 1</option>
+                    <option value="Tier2">Tier 2</option>
+                    <option value="Tier3">Tier 3</option>
+                </select>
+                <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
+                <select class="textinput textInput form-control" id="curve_2" onchange="setImage(curve_2, 'curveImage_2');">
+                    <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
+                    <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
+                </select>
+            </form>
+            <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_2" />
+        </div>
+        <div id="demand_3" style="display:none">
+            <form method="post">
+                <label class="col-form-label col-lg-8 requiredField" for="households">Number of households</label><br>
+                <input type="number" class="textinput textInput form-control" id="households_3" name="households"><br>
+                <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
+                <select id="tier_3" class="textinput textInput form-control">
+                    <option value="Tier1">Tier 1</option>
+                    <option value="Tier2">Tier 2</option>
+                    <option value="Tier3">Tier 3</option>
+                </select>
+                <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
+                <select class="textinput textInput form-control" id="curve_3" onchange="setImage(curve_3, 'curveImage_3');">
+                    <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
+                    <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
+                </select>
+            </form>
+            <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_3" />
+        </div>
     </div>
-    <div id="demand_3" style="display:none">
-        <form method="post">
-            <label class="col-form-label col-lg-8 requiredField col-lg-8 requiredField" for="households">Number of households</label><br>
-            <input type="number" class="textinput textInput form-control" id="households_3" name="households"><br>
-            <label class="col-form-label col-lg-8 requiredField" for="tier">Energy Demand Tier</label><br>
-            <select id="tier_3" class="textinput textInput form-control">
-                <option value="Tier1">Tier 1</option>
-                <option value="Tier2">Tier 2</option>
-                <option value="Tier3">Tier 3</option>
-            </select>
-            <br><label class="col-form-label col-lg-8 requiredField" for="curve">Load Curve</label><br>
-            <select class="textinput textInput form-control" id="curve_3" onchange="setImage(curve_3, 'curveImage_3');">
-                <option value="/static/assets/cp_nigeria/SPT_evening_peak.png">Evening Peak</option>
-                <option value="/static/assets/cp_nigeria/SPT_midday_peak.png">Midday Peak</option>
-            </select>
-        </form>
-        <img src="/static/assets/cp_nigeria/SPT_evening_peak.png" max-width="100%" height="auto" name="curveImage_3" />
-    </div>
-    </div>
-    <center><button class="btn btn--medium" type="button">{% translate "Generate demand profile" %}</button></center>
+    <center>
+        <button class="btn btn--medium" type="button">{% translate "Generate load profile" %}</button>
+        <button class="btn btn--medium" type="button">{% translate "Upload load profile" %}</button>
+    </center>
 </main>
 
 {% endblock progression_content %}

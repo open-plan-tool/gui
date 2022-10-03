@@ -1,10 +1,13 @@
 .dummy_column {
   float: left;
-  width: 30%;
+  width: 33.3%;
   padding-left: 2rem;
   padding-right: 1rem;
 }
 
+.form-stretch {
+   padding: 0.375rem 10.75rem;
+}
 /* Clear floats after the columns */
 .row:after {
   content: "";
