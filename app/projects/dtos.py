@@ -447,6 +447,7 @@ def convert_to_dto(scenario: Scenario):
                 pdb.set_trace()
             elif len(efficiencies) == 1:
                 efficiencies = efficiencies[0]
+                inflow_direction = inflow_direction[0]
 
             asset_efficiency.value = efficiencies
 
