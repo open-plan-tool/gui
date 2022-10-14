@@ -137,6 +137,7 @@ class AssetDto:
         self.specific_costs_om = specific_costs_om
         self.input_timeseries = input_timeseries
         self.unit = unit
+        self.beta = beta
 
 
 class EssDto:
@@ -409,6 +410,47 @@ def convert_to_dto(scenario: Scenario):
 
         asset_efficiency = to_value_type(asset, "efficiency")
 
+        optional_parameters = {}
+        if asset.asset_type.asset_type == "chp":
+
+            optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
+            efficiency_el_wo_heat_extraction = asset_efficiency.value
+            efficiency_th_max_heat_extraction = to_value_type(
+                asset, "efficiency_multiple"
+            ).value
+
+            output_mapping = [
+                ev for ev in output_connection.values_list("bus__type", flat=True)
+            ]
+
+            efficiencies = []
+            outflow_direction = []
+            # TODO: make sure the length is equal to the number of timesteps
+            for energy_vector in ["Electricity", "Heat"]:
+                if energy_vector in output_mapping:
+                    # TODO get the case where get fails --> projects.models.base_models.ConnectionLink.DoesNotExist: ConnectionLink matching query does not exist
+                    outflow_direction.append(
+                        output_connection.get(bus__type=energy_vector).bus.name
+                    )
+
+                    efficiency = (
+                        efficiency_el_wo_heat_extraction
+                        if energy_vector == "Electricity"
+                        else efficiency_th_max_heat_extraction
+                    )
+
+                    efficiencies.append(efficiency)
+
+            if len(efficiencies) != 2:
+                print(
+                    "ERROR, a chp should have 1 electrical input and one heat output, thus 2 efficiencies!"
+                )
+                import pdb
+
+                pdb.set_trace()
+
+            asset_efficiency.value = efficiencies
+
         if asset.asset_type.asset_type == "heat_pump":
             cop = asset_efficiency.value
             input_mapping = [
@@ -482,6 +524,7 @@ def convert_to_dto(scenario: Scenario):
             to_value_type(asset, "opex_fix"),
             to_timeseries_data(asset, "input_timeseries"),
             asset.asset_type.unit,
+            **optional_parameters
         )
 
         # map_to_dto(asset, asset_dto)

@@ -642,7 +642,28 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"] = DualNumberField(
                 default=1, min=1, param_name="efficiency"
             )
-            self.fields["efficiency"].label = "COP1"
+            self.fields["efficiency"].label = "COP"
+
+        if self.asset_type_name == "chp":
+            self.fields["efficiency"] = DualNumberField(
+                default=1, min=0, max=1, param_name="efficiency"
+            )
+            self.fields["efficiency"].label = _(
+                "Electrical efficiency with no heat extraction"
+            )
+
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
+
+            self.fields["efficiency_multiple"] = DualNumberField(
+                default=1, min=0, max=1, param_name="efficiency_multiple"
+            )
+            self.fields["efficiency_multiple"].label = _(
+                "Thermal efficiency with maximal heat extraction"
+            )
+
+            self.fields["thermal_loss_rate"].label = _("Stromverlustkenzahl")
 
         """ DrawFlow specific configuration, add a special attribute to 
             every field in order for the framework to be able to export
@@ -974,12 +995,18 @@ class StorageForm(AssetCreateForm):
     def __init__(self, *args, **kwargs):
         asset_type_name = kwargs.pop("asset_type", None)
         super(StorageForm, self).__init__(*args, asset_type="capacity", **kwargs)
-
         self.fields["crate"].widget = forms.HiddenInput()
         self.fields["crate"].initial = 1
         self.fields["dispatchable"].widget = forms.HiddenInput()
         self.fields["dispatchable"].initial = True
         self.fields["installed_capacity"].label = _("Installed capacity (kWh)")
+        if asset_type_name == "hess":
+            self.fields["fixed_thermal_losses_relative"].widget = forms.HiddenInput()
+            self.fields["fixed_thermal_losses_relative"].initial = 0
+            self.fields["fixed_thermal_losses_absolute"].widget = forms.HiddenInput()
+            self.fields["fixed_thermal_losses_absolute"].initial = 0
+            self.fields["thermal_loss_rate"].widget = forms.HiddenInput()
+            self.fields["thermal_loss_rate"].initial = 0
 
     field_order = [
         "name",
