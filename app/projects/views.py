@@ -702,6 +702,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "gas_boiler": _("Gas Boiler"),
             "electrolyzer": _("Electrolyzer"),
             "heat_pump": _("Heat Pump"),
+            "chp": _("Combined Heat and Power"),
         },
         "storage": {
             "bess": _("Electricity Storage"),

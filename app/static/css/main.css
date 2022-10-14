@@ -2203,6 +2203,18 @@ nav.navbar {
       background-size: contain;
       height: 3rem;
       width: 3rem; }
+    .system-design .drawflow .drawflow-node.conversion {
+      border-bottom-color: #7BF1A8; }
+    .system-design .drawflow .drawflow-node.chp .img::before {
+      content: '';
+      position: absolute;
+      top: calc(4.5rem / 2);
+      right: calc((4.5rem - 3rem) / 2);
+      transform: translateY(-50%);
+      background-image: url("/static/assets/gui/chp.svg");
+      background-size: contain;
+      height: 3rem;
+      width: 3rem; }
     .system-design .drawflow .drawflow-node.storage {
       border-bottom-color: #90F1EF; }
     .system-design .drawflow .drawflow-node.bess .img::before {
