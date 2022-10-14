@@ -106,6 +106,10 @@ class AssetDto:
         specific_costs_om: ValueTypeDto,
         input_timeseries: TimeseriesDataDto,
         unit: str,
+        thermal_loss_rate: ValueTypeDto = None,
+        fixed_thermal_losses_relative: ValueTypeDto = None,
+        fixed_thermal_losses_absolute: ValueTypeDto = None,
+        beta: ValueTypeDto = None,
     ):
         self.asset_type = asset_type
         self.label = label
@@ -137,6 +141,9 @@ class AssetDto:
         self.specific_costs_om = specific_costs_om
         self.input_timeseries = input_timeseries
         self.unit = unit
+        self.thermal_loss_rate = thermal_loss_rate
+        self.fixed_thermal_losses_relative = fixed_thermal_losses_relative
+        self.fixed_thermal_losses_absolute = fixed_thermal_losses_absolute
         self.beta = beta
 
 
@@ -363,7 +370,17 @@ def convert_to_dto(scenario: Scenario):
                 to_timeseries_data(asset, "input_timeseries"),
                 asset.asset_type.unit,
             )
-
+            if (
+                ess.asset_type.asset_type == "hess"
+                and asset.asset_type.asset_type == "capacity"
+            ):
+                asset_dto.thermal_loss_rate = to_value_type(asset, "thermal_loss_rate")
+                asset_dto.fixed_thermal_losses_relative = to_value_type(
+                    asset, "fixed_thermal_losses_relative"
+                )
+                asset_dto.fixed_thermal_losses_absolute = to_value_type(
+                    asset, "fixed_thermal_losses_absolute"
+                )
             ess_sub_assets.update({asset.asset_type.asset_type: asset_dto})
 
         ess_dto = EssDto(
