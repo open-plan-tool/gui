@@ -246,8 +246,16 @@ class AssetsResults(models.Model):
                             and "_consumption_period" not in asset["label"]
                         ):
                             asset["category"] = category
+                            qs = ConnectionLink.objects.filter(
+                                asset__name=asset["label"],
+                                scenario=self.simulation.scenario,
+                                flow_direction="A2B",
+                            ).values_list("bus__name", "bus__type")
+                            if qs.exists():
+                                asset["output_busses"] = {c[0]: c[1] for c in qs}
                             self.__available_timeseries[asset["label"]] = asset
-
+        else:
+            print("\n\nNOT reloading __available_timeseries\n\n")
         return self.__available_timeseries
 
     @property
