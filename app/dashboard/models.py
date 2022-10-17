@@ -157,6 +157,7 @@ class AssetsResults(models.Model):
     __asset_names = None
     __available_timeseries = None
     __asset_categories = None
+    __busses_energy_vector = None
 
     @property
     def assets_dict(self):
@@ -175,6 +176,37 @@ class AssetsResults(models.Model):
                 for asset in asset_dict[category]:
                     self.__asset_names.append(asset["label"])
         return self.__asset_names
+
+    @property
+    def busses_energy_vector(self):
+        if self.__busses_energy_vector is None:
+            self.__busses_energy_vector = {
+                b.name: b.type
+                for b in Bus.objects.filter(scenario=self.simulation.scenario.id)
+            }
+
+        return self.__busses_energy_vector
+
+    def energy_vector_busses(self, energy_vector=None):
+        reverse_mapping = {}
+        for k, v in self.busses_energy_vector.items():
+            if v not in reverse_mapping:
+                reverse_mapping[v] = k
+            else:
+                if isinstance(reverse_mapping[v], list) is False:
+                    reverse_mapping[v] = [reverse_mapping[v]]
+                reverse_mapping[v].append(k)
+        if energy_vector is None:
+            answer = reverse_mapping
+        elif energy_vector in reverse_mapping:
+            answer = reverse_mapping[energy_vector]
+        else:
+            raise KeyError(
+                f"The energy vector {energy_vector} is not present in any of the busses of the system of scenario"
+                f" '{self.simulation.scenario.name}' (scenario id: {self.simulation.scenario.id})"
+            )
+
+        return answer
 
     @property
     def available_timeseries(self):
