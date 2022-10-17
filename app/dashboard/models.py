@@ -266,47 +266,53 @@ class AssetsResults(models.Model):
 
     def single_asset_results(self, asset_name, asset_category=None):
         """Provided the name of an asset, return the results linked to this asset"""
-        asset_dict = self.assets_dict
-        answer = None
-        if asset_category is not None:
-            categories = [asset_category]
-        else:
-            categories = self.asset_categories
 
-        for category in categories:
-            for asset in asset_dict[category]:
-                if category == "energy_storage":
-                    for sub_cat in ("input_power", "output_power", "capacity"):
-                        if asset_name == format_storage_subasset_name(
-                            asset["label"], sub_cat
-                        ):
-                            storage_subasset = asset.get(sub_cat)
-                            if storage_subasset is None:
-                                storage_subasset = asset.get(
-                                    MAP_EPA_MVS.get(sub_cat, sub_cat)
+        if self.__available_timeseries is None:
+            asset_dict = self.assets_dict
+            answer = None
+            if asset_category is not None:
+                categories = [asset_category]
+            else:
+                categories = self.asset_categories
+
+            for category in categories:
+                for asset in asset_dict[category]:
+                    if category == "energy_storage":
+                        for sub_cat in ("input_power", "output_power", "capacity"):
+                            if asset_name == format_storage_subasset_name(
+                                asset["label"], sub_cat
+                            ):
+                                storage_subasset = asset.get(sub_cat)
+                                if storage_subasset is None:
+                                    storage_subasset = asset.get(
+                                        MAP_EPA_MVS.get(sub_cat, sub_cat)
+                                    )
+                                if storage_subasset is not None:
+                                    if answer is None:
+                                        answer = storage_subasset
+                                        answer[
+                                            "category"
+                                        ] = format_storage_subasset_name(
+                                            category, sub_cat
+                                        )
+                                        answer["energy_vector"] = asset["energy_vector"]
+                                        break
+                                    else:
+                                        raise ValueError(
+                                            f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
+                                        )
+                    else:
+                        if asset_name == asset["label"]:
+                            if answer is None:
+                                answer = asset
+                                answer["category"] = category
+                                break
+                            else:
+                                raise ValueError(
+                                    f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
                                 )
-                            if storage_subasset is not None:
-                                if answer is None:
-                                    answer = storage_subasset
-                                    answer["category"] = format_storage_subasset_name(
-                                        category, sub_cat
-                                    )
-                                    answer["energy_vector"] = asset["energy_vector"]
-                                    break
-                                else:
-                                    raise ValueError(
-                                        f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
-                                    )
-                else:
-                    if asset_name == asset["label"]:
-                        if answer is None:
-                            answer = asset
-                            answer["category"] = category
-                            break
-                        else:
-                            raise ValueError(
-                                f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
-                            )
+        else:
+            answer = self.__available_timeseries.get(asset_name)
         return answer
 
     def single_asset_type_oemof(self, asset_name, asset_category=None):
@@ -327,11 +333,9 @@ class AssetsResults(models.Model):
         self, asset_name, asset_category=None, energy_vector=None
     ):
         """Provided the user name of the asset, return the timeseries linked to this asset"""
-        if self.__available_timeseries is None:
-            asset_results = self.single_asset_results(asset_name, asset_category)
 
-        else:
-            asset_results = self.__available_timeseries.get(asset_name)
+        asset_results = self.single_asset_results(asset_name, asset_category)
+
         answer = None
 
         if "flow" in asset_results:
