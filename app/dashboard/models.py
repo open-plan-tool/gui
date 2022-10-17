@@ -295,8 +295,13 @@ class AssetsResults(models.Model):
         answer = None
 
         if "flow" in asset_results:
+            # #find the energy vector of the bus
+            # if asset_results["type_oemof"] == "extractionTurbineCHP" and energy_vector in ("Heat", "Electricity"):
+            #     flow_value = asset_results["flow"]["value"][energy_vector]
+            # else:
+            flow_value = asset_results["flow"]["value"]
             answer = single_timeseries_to_json(
-                value=asset_results["flow"]["value"],
+                value=flow_value,
                 unit=asset_results["flow"]["unit"],
                 label=asset_name,
                 asset_type=asset_results["type_oemof"],
@@ -337,7 +342,15 @@ def graph_timeseries(simulations, y_variables):
                     single_ts_json["value"] = (
                         -np.array(single_ts_json["value"])
                     ).tolist()
-                y_values.append(single_ts_json)
+                if single_ts_json["asset_type"] == "extractionTurbineCHP":
+                    for bus in single_ts_json["value"]:
+                        new_ts = single_ts_json.copy()
+                        new_ts["value"] = single_ts_json["value"][bus]
+                        new_ts["label"] = single_ts_json["label"] + "_" + bus
+                        y_values.append(new_ts)
+
+                else:
+                    y_values.append(single_ts_json)
         simulations_results.append(
             simulation_timeseries_to_json(
                 scenario_name=sim.scenario.name,
