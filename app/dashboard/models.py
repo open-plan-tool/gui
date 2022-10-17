@@ -31,7 +31,7 @@ from dashboard.helpers import (
     format_storage_subasset_name,
 )
 
-from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink
+from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink, Asset
 from projects.constants import (
     MAP_EPA_MVS,
     STORAGE_SUB_CATEGORIES,
@@ -526,6 +526,14 @@ def graph_sankey(simulation, energy_vector):
         results_ts = ar.available_timeseries
         qs = ConnectionLink.objects.filter(scenario__simulation=sim)
 
+        chp_qs = Asset.objects.filter(
+            scenario=sim.scenario, asset_type__mvs_type="extractionTurbineCHP"
+        )
+        if chp_qs.exists():
+            chp_in_flow = {a.name: {"value": 0, "bus": ""} for a in chp_qs}
+        else:
+            chp_in_flow = {}
+
         for bus in Bus.objects.filter(scenario__simulation=sim, type__in=energy_vector):
             bus_label = bus.name
             labels.append(bus_label)
@@ -566,9 +574,16 @@ def graph_sankey(simulation, energy_vector):
                 sources.append(labels.index(component_label))
                 targets.append(labels.index(bus_label))
 
-                val = np.sum(results_ts[component_label]["flow"]["value"])
+                flow_value = results_ts[component_label]["flow"]["value"]
+                if bus_label in flow_value:
+                    flow_value = flow_value[bus_label]
+
+                val = np.sum(flow_value)
+                if component_label in chp_in_flow:
+                    chp_in_flow[component_label]["value"] += val
+
                 if val == 0:
-                    val = 1
+                    val = 1e-6
 
                 values.append(val)
 
@@ -582,6 +597,9 @@ def graph_sankey(simulation, energy_vector):
                 targets.append(labels.index(component_label))
 
                 val = np.sum(results_ts[component_label]["flow"]["value"])
+
+                if component_label in chp_in_flow:
+                    chp_in_flow[component_label]["bus"] = bus_label
 
                 # If the asset has multiple inputs, multiply the output flow by the efficiency
                 input_busses = results_ts[component_label].get("inflow_direction")
@@ -606,9 +624,13 @@ def graph_sankey(simulation, energy_vector):
                             )
 
                 if val == 0:
-                    val = 1
+                    val = 1e-6
                 values.append(val)
 
+        for component_label in chp_in_flow:
+            sources.append(labels.index(chp_in_flow[component_label]["bus"]))
+            targets.append(labels.index(component_label))
+            values.append(chp_in_flow[component_label]["value"])
         # TODO display the installed capacity, max capacity and optimized_add_capacity on the nodes if applicable
         fig = go.Figure(
             data=[
