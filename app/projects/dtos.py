@@ -428,13 +428,15 @@ def convert_to_dto(scenario: Scenario):
         asset_efficiency = to_value_type(asset, "efficiency")
 
         optional_parameters = {}
-        if asset.asset_type.asset_type == "chp":
+        if asset.asset_type.asset_type in ("chp", "chp_fixed_ratio"):
 
-            optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
-            efficiency_el_wo_heat_extraction = asset_efficiency.value
-            efficiency_th_max_heat_extraction = to_value_type(
-                asset, "efficiency_multiple"
-            ).value
+            if asset.asset_type.asset_type == "chp":
+                optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
+
+            # for chp it corresponds to efficiency_el_wo_heat_extraction
+            e_el = asset_efficiency.value
+            # for chp it corresponds to efficiency_th_max_heat_extraction
+            e_th = to_value_type(asset, "efficiency_multiple").value
 
             output_mapping = [
                 ev for ev in output_connection.values_list("bus__type", flat=True)
@@ -450,11 +452,7 @@ def convert_to_dto(scenario: Scenario):
                         output_connection.get(bus__type=energy_vector).bus.name
                     )
 
-                    efficiency = (
-                        efficiency_el_wo_heat_extraction
-                        if energy_vector == "Electricity"
-                        else efficiency_th_max_heat_extraction
-                    )
+                    efficiency = e_el if energy_vector == "Electricity" else e_th
 
                     efficiencies.append(efficiency)
 

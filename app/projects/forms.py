@@ -665,6 +665,25 @@ class AssetCreateForm(OpenPlanModelForm):
 
             self.fields["thermal_loss_rate"].label = _("Stromverlustkenzahl")
 
+        if self.asset_type_name == "chp_fixed_ratio":
+
+            self.fields["efficiency"].label = _("Efficiency gaz to electricity")
+
+            # TODO
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
+
+            self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                attrs={
+                    "placeholder": _("eg. 0.1"),
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": "0.00001",
+                }
+            )
+            self.fields["efficiency_multiple"].label = _("Efficiency gaz to heat")
+
         """ DrawFlow specific configuration, add a special attribute to 
             every field in order for the framework to be able to export
             the data to json.
@@ -712,6 +731,43 @@ class AssetCreateForm(OpenPlanModelForm):
             raise ValidationError(str(e))
         except Exception as ex:
             raise ValidationError(_("Could not parse a file. Did you upload one?"))
+
+    def clean_efficiency_multiple(self):
+        data = self.cleaned_data["efficiency_multiple"]
+        if self.asset_type_name == "chp_fixed_ratio":
+            try:
+                data = float(data)
+            except ValueError:
+                raise ValidationError("Please enter a float value between 0.0 and 1.0")
+            if 0 <= data <= 1:
+                pass
+            else:
+                raise ValidationError("Please enter a float value between 0.0 and 1.0")
+            data = str(data)
+        return data
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if (
+            cleaned_data["installed_capacity"] == 0.0
+            and cleaned_data["age_installed"] > 0
+        ):
+            self.add_error(
+                "age_installed",
+                _("If you have no installed capacity, age installed should also be 0"),
+            )
+
+        if self.asset_type_name == "chp_fixed_ratio":
+            if (
+                float(cleaned_data["efficiency"])
+                + float(cleaned_data["efficiency_multiple"])
+                > 1
+            ):
+                msg = _("The sum of the efficiencies should not exceed 1")
+                self.add_error("efficiency", msg)
+                self.add_error("efficiency_multiple", msg)
+
+        return cleaned_data
 
     class Meta:
         model = Asset
