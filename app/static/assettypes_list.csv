@@ -29,4 +29,5 @@ bess,energy_storage,Electricity,storage,[name],kW (el)
 gess,energy_storage,Gas,storage,[name],l
 h2ess,energy_storage,H2,storage,[name],kgH2
 hess,energy_storage,Heat,storage,[name],kW (therm)
-chp,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,efficiency_multiple,efficiency,thermal_loss_rate]",kWh
+chp,energy_conversion,Electricity,extractionTurbineCHP,"[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,efficiency_multiple,efficiency,thermal_loss_rate]",kW
+chp_fixed_ratio,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,efficiency_multiple,efficiency]",kW
