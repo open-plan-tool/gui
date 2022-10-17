@@ -339,23 +339,33 @@ class AssetsResults(models.Model):
         answer = None
 
         if "flow" in asset_results:
-            # #find the energy vector of the bus
-            # if asset_results["type_oemof"] == "extractionTurbineCHP" and energy_vector in ("Heat", "Electricity"):
-            #     flow_value = asset_results["flow"]["value"][energy_vector]
-            # else:
+            # find the energy vector of the bus in case of CHP which have multiple outputs
             flow_value = asset_results["flow"]["value"]
-            answer = single_timeseries_to_json(
-                value=flow_value,
-                unit=asset_results["flow"]["unit"],
-                label=asset_name,
-                asset_type=asset_results["type_oemof"],
-                asset_category=asset_results["category"],
-            )
+            if asset_results["type_oemof"] == "extractionTurbineCHP":
+                if energy_vector is not None:
+                    bus_name = self.energy_vector_busses(energy_vector)
+                    if bus_name in flow_value:
+                        flow_value = flow_value[bus_name]
+                    else:
+                        flow_value = None
+
+            if flow_value is not None:
+                answer = single_timeseries_to_json(
+                    value=flow_value,
+                    unit=asset_results["flow"]["unit"],
+                    label=asset_name,
+                    asset_type=asset_results["type_oemof"],
+                    asset_category=asset_results["category"],
+                )
 
         # if an energy_vector is provided return the timeseries only if the energy_vector type of the asset matches
         if energy_vector is not None:
-            if asset_results["energy_vector"] != energy_vector:
+            if (
+                energy_vector not in asset_results.get("output_busses", {}).keys()
+                and asset_results["energy_vector"] != energy_vector
+            ):
                 answer = None
+
         return answer
 
 
@@ -419,7 +429,6 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     y_var, energy_vector=energy_vector
                 )
                 if single_ts_json is not None:
-
                     if single_ts_json["asset_type"] == "sink" or single_ts_json[
                         "asset_category"
                     ] == format_storage_subasset_name("energy_storage", "input_power"):
