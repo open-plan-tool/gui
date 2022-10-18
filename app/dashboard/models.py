@@ -527,7 +527,7 @@ def graph_sankey(simulation, energy_vector):
         qs = ConnectionLink.objects.filter(scenario__simulation=sim)
 
         chp_qs = Asset.objects.filter(
-            scenario=sim.scenario, asset_type__mvs_type="extractionTurbineCHP"
+            scenario=sim.scenario, asset_type__asset_type__in=("chp", "chp_fixed_ratio")
         )
         if chp_qs.exists():
             chp_in_flow = {a.name: {"value": 0, "bus": ""} for a in chp_qs}
