@@ -748,14 +748,17 @@ class AssetCreateForm(OpenPlanModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if (
-            cleaned_data["installed_capacity"] == 0.0
-            and cleaned_data["age_installed"] > 0
-        ):
-            self.add_error(
-                "age_installed",
-                _("If you have no installed capacity, age installed should also be 0"),
-            )
+        if "installed_capacity" in cleaned_data and "age_installed" in cleaned_data:
+            if (
+                cleaned_data["installed_capacity"] == 0.0
+                and cleaned_data["age_installed"] > 0
+            ):
+                self.add_error(
+                    "age_installed",
+                    _(
+                        "If you have no installed capacity, age installed should also be 0"
+                    ),
+                )
 
         if self.asset_type_name == "chp_fixed_ratio":
             if (
