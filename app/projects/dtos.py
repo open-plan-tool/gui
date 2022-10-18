@@ -482,11 +482,10 @@ def convert_to_dto(scenario: Scenario):
                         input_connection.get(bus__type=energy_vector).bus.name
                     )
                     if isinstance(cop, list):
-                        cop = np.array(cop)
                         efficiency = (
-                            (1 / cop).tolist()
+                            (1 / np.array(cop)).tolist()
                             if energy_vector == "Electricity"
-                            else (1 - 1 / cop).tolist()
+                            else (1 - 1 / np.array(cop)).tolist()
                         )
                     else:
                         efficiency = (
