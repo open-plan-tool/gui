@@ -506,6 +506,11 @@ def convert_to_dto(scenario: Scenario):
                 inflow_direction = inflow_direction[0]
 
             asset_efficiency.value = efficiencies
+        dso_energy_price = to_value_type(asset, "energy_price")
+        dso_feedin_tariff = to_value_type(asset, "feedin_tariff")
+        if "dso" in asset.asset_type.asset_type:
+            dso_energy_price.value = json.loads(dso_energy_price.value)
+            dso_feedin_tariff.value = json.loads(dso_feedin_tariff.value)
 
         asset_dto = AssetDto(
             asset.asset_type.asset_type,
@@ -526,8 +531,8 @@ def convert_to_dto(scenario: Scenario):
             to_value_type(asset, "installed_capacity"),
             to_value_type(asset, "lifetime"),
             to_value_type(asset, "maximum_capacity"),
-            to_value_type(asset, "energy_price"),
-            to_value_type(asset, "feedin_tariff"),
+            dso_energy_price,
+            dso_feedin_tariff,
             to_value_type(asset, "feedin_cap"),
             to_value_type(asset, "optimize_cap"),
             to_value_type(asset, "peak_demand_pricing"),

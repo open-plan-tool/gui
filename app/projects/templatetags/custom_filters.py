@@ -70,7 +70,14 @@ def has_technical_parameters(form):
 
 @register.filter
 def is_economical_parameter(param):
-    return param in ["capex_fix", "capex_var", "opex_fix", "opex_var"]
+    return param in [
+        "capex_fix",
+        "capex_var",
+        "opex_fix",
+        "opex_var",
+        "energy_price",
+        "feedin_tariff",
+    ]
 
 
 @register.filter

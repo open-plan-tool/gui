@@ -391,12 +391,8 @@ class Asset(TopologyNode):
     maximum_capacity = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    energy_price = models.FloatField(
-        null=True, blank=False, validators=[MinValueValidator(0.0)]
-    )
-    feedin_tariff = models.FloatField(
-        null=True, blank=False, validators=[MinValueValidator(0.0)]
-    )
+    energy_price = models.TextField(null=True, blank=False)
+    feedin_tariff = models.TextField(null=True, blank=False)
 
     feedin_cap = models.FloatField(
         default=None, null=True, blank=False, validators=[MinValueValidator(0.0)]
