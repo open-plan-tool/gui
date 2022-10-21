@@ -1240,6 +1240,9 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                     "optimize_cap": ess_capacity_asset.optimize_cap,
                     "soc_max": ess_capacity_asset.soc_max,
                     "soc_min": ess_capacity_asset.soc_min,
+                    "thermal_loss_rate": ess_capacity_asset.thermal_loss_rate,
+                    "fixed_thermal_losses_relative": ess_capacity_asset.fixed_thermal_losses_relative,
+                    "fixed_thermal_losses_absolute": ess_capacity_asset.fixed_thermal_losses_absolute,
                 },
                 input_output_mapping=input_output_mapping,
             )
