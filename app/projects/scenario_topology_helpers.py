@@ -120,7 +120,7 @@ def handle_storage_unit_form_post(
 
                 # split efficiency between charge and discharge
                 if param == "efficiency":
-                    value = np.sqrt(value)
+                    value = np.sqrt(float(value))
                 # for the charge and discharge set all costs to 0
                 if param in ["capex_fix", "capex_var", "opex_fix", "opex_var"]:
                     value = 0
