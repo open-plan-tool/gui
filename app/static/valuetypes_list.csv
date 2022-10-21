@@ -1,9 +1,9 @@
 type,unit
 duration,year
-annuity_factor,
+annuity_factor,factor
 discount,factor
 tax,factor
-crf,
+crf,factor
 crate,factor of total capacity (kWh)
 age_installed,year
 soc_max,factor
@@ -29,3 +29,5 @@ renewable_asset,bool
 thermal_loss_rate,factor
 efficiency_multiple,factor
 beta,factor
+fixed_thermal_losses_relative,factor
+fixed_thermal_losses_absolute,kWh

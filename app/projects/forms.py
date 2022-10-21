@@ -631,13 +631,13 @@ class AssetCreateForm(OpenPlanModelForm):
         super().__init__(*args, **kwargs)
         # which fields exists in the form are decided upon AssetType saved in the db
         asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
-
         [
             self.fields.pop(field)
             for field in list(self.fields)
             if field not in asset_type.visible_fields
         ]
 
+        # TODO get the timestamps here for scenario_id
         self.timestamps = None
         if self.existing_asset is not None:
             self.timestamps = self.existing_asset.timestamps
@@ -794,17 +794,22 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.add_error("efficiency_multiple", msg)
 
         if "dso" in self.asset_type_name:
-            feedin_tariff = np.array(cleaned_data["feedin_tariff"])
-            energy_price = np.array(cleaned_data["energy_price"])
+            feedin_tariff = np.array([cleaned_data["feedin_tariff"]])
+            energy_price = np.array([cleaned_data["energy_price"]])
+            diff = feedin_tariff - energy_price
+            if (diff > 0).any() is True:
+                msg = _(
+                    "Feed-in tariff > energy price for some of simulation's timesteps. This would cause an unbound solution and terminate the optimization. Please reconsider your feed-in tariff and energy price."
+                )
+                self.add_error("feedin_tariff", msg)
             self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
-
             self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
         return cleaned_data
 
     def timeseries_same_as_timestamps(self, ts, param):
         if isinstance(ts, np.ndarray):
-            ts = ts.tolist()
+            ts = np.squeeze(ts).tolist()
         if isinstance(ts, float) is False and isinstance(ts, int) is False:
             if len(ts) > 1:
                 if self.timestamps is not None:
@@ -1109,13 +1114,20 @@ class StorageForm(AssetCreateForm):
         self.fields["dispatchable"].widget = forms.HiddenInput()
         self.fields["dispatchable"].initial = True
         self.fields["installed_capacity"].label = _("Installed capacity (kWh)")
-        if asset_type_name == "hess":
+        if asset_type_name != "hess":
             self.fields["fixed_thermal_losses_relative"].widget = forms.HiddenInput()
             self.fields["fixed_thermal_losses_relative"].initial = 0
             self.fields["fixed_thermal_losses_absolute"].widget = forms.HiddenInput()
             self.fields["fixed_thermal_losses_absolute"].initial = 0
             self.fields["thermal_loss_rate"].widget = forms.HiddenInput()
             self.fields["thermal_loss_rate"].initial = 0
+        else:
+            self.fields["fixed_thermal_losses_relative"] = DualNumberField(
+                default=0.1, min=0, max=1, param_name="fixed_thermal_losses_relative"
+            )
+            self.fields["fixed_thermal_losses_absolute"] = DualNumberField(
+                default=0.1, min=0, param_name="fixed_thermal_losses_absolute"
+            )
 
     field_order = [
         "name",

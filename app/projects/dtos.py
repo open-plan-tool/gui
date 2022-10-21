@@ -334,7 +334,6 @@ def convert_to_dto(scenario: Scenario):
         outflow_direction = (
             output_connection.bus.name if output_connection is not None else None
         )
-
         ess_sub_assets = {}
 
         for asset in Asset.objects.filter(parent_asset=ess):
@@ -378,9 +377,13 @@ def convert_to_dto(scenario: Scenario):
                 asset_dto.fixed_thermal_losses_relative = to_value_type(
                     asset, "fixed_thermal_losses_relative"
                 )
-                asset_dto.fixed_thermal_losses_absolute = to_value_type(
+                fixed_thermal_losses_absolute = to_value_type(
                     asset, "fixed_thermal_losses_absolute"
                 )
+                fixed_thermal_losses_absolute.value = float(
+                    fixed_thermal_losses_absolute.value
+                )
+                asset_dto.fixed_thermal_losses_absolute = fixed_thermal_losses_absolute
             ess_sub_assets.update({asset.asset_type.asset_type: asset_dto})
 
         ess_dto = EssDto(

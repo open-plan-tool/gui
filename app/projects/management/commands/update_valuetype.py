@@ -18,7 +18,7 @@ class Command(BaseCommand):
         df = pd.read_csv("static/valuetypes_list.csv")
         valuetypes = df.to_dict(orient="records")
         for vt_params in valuetypes:
-            qs = ValueType.objects.filter(type=valuetypes["type"])
+            qs = ValueType.objects.filter(type=vt_params["type"])
 
             if qs.exists() is False:
                 new_valuetype = ValueType(**vt_params)
