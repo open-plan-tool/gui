@@ -4,6 +4,7 @@ import json
 import io
 import csv
 from openpyxl import load_workbook
+import numpy as np
 
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
 from crispy_forms.helper import FormHelper
@@ -621,6 +622,7 @@ class BusForm(OpenPlanModelForm):
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         self.asset_type_name = kwargs.pop("asset_type", None)
+        scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
         self.existing_asset = kwargs.get("instance", None)
         # get the connections with busses
@@ -635,6 +637,14 @@ class AssetCreateForm(OpenPlanModelForm):
             for field in list(self.fields)
             if field not in asset_type.visible_fields
         ]
+
+        self.timestamps = None
+        if self.existing_asset is not None:
+            self.timestamps = self.existing_asset.timestamps
+        elif scenario_id is not None:
+            qs = Scenario.objects.filter(id=scenario_id)
+            if qs.exists():
+                self.timestamps = qs.get().get_timestamps()
 
         self.fields["inputs"] = forms.CharField(widget=forms.HiddenInput())
 
@@ -769,6 +779,10 @@ class AssetCreateForm(OpenPlanModelForm):
                     ),
                 )
 
+        if self.asset_type_name == "heat_pump":
+            efficiency = cleaned_data["efficiency"]
+            self.timeseries_same_as_timestamps(efficiency, "efficiency")
+
         if self.asset_type_name == "chp_fixed_ratio":
             if (
                 float(cleaned_data["efficiency"])
@@ -779,7 +793,32 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.add_error("efficiency", msg)
                 self.add_error("efficiency_multiple", msg)
 
+        if "dso" in self.asset_type_name:
+            feedin_tariff = np.array(cleaned_data["feedin_tariff"])
+            energy_price = np.array(cleaned_data["energy_price"])
+            self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
+
+            self.timeseries_same_as_timestamps(energy_price, "energy_price")
+
         return cleaned_data
+
+    def timeseries_same_as_timestamps(self, ts, param):
+        if isinstance(ts, float) is False:
+            if len(ts) > 1:
+                if self.timestamps is not None:
+                    if len(ts) != len(self.timestamps):
+                        # TODO look for verbose of param
+                        msg = (
+                            _("The number of values of the parameter ")
+                            + _(param)
+                            + f" ({len(ts)})"
+                            + _(" are not equal to the number of simulation timesteps")
+                            + f" ({len(self.timestamps)})"
+                            + _(
+                                ". You can change the number of timesteps in the first step of scenario creation."
+                            )
+                        )
+                        self.add_error(param, msg)
 
     class Meta:
         model = Asset

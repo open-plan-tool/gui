@@ -603,6 +603,21 @@ def graph_sankey(simulation, energy_vector):
 
                 # If the asset has multiple inputs, multiply the output flow by the efficiency
                 input_busses = results_ts[component_label].get("inflow_direction")
+
+                input_connection = ConnectionLink.objects.filter(
+                    asset__name=component_label,
+                    flow_direction="B2A",
+                    scenario=sim.scenario,
+                )
+
+                inflow_direction = None
+                num_inputs = input_connection.count()
+                if num_inputs == 1:
+                    inflow_direction = input_connection.first().bus.name
+                elif num_inputs > 1:
+                    inflow_direction = [
+                        n for n in input_connection.values_list("bus__name", flat=True)
+                    ]
                 if input_busses is not None:
                     if isinstance(input_busses, list):
 
