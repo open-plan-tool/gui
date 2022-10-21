@@ -803,7 +803,9 @@ class AssetCreateForm(OpenPlanModelForm):
         return cleaned_data
 
     def timeseries_same_as_timestamps(self, ts, param):
-        if isinstance(ts, float) is False:
+        if isinstance(ts, np.ndarray):
+            ts = ts.tolist()
+        if isinstance(ts, float) is False and isinstance(ts, int) is False:
             if len(ts) > 1:
                 if self.timestamps is not None:
                     if len(ts) != len(self.timestamps):
