@@ -697,10 +697,10 @@ class AssetCreateForm(OpenPlanModelForm):
         if "dso" in self.asset_type_name:
 
             self.fields["energy_price"] = DualNumberField(
-                default=0.1, min=0, param_name="energy_price"
+                default=0.1, param_name="energy_price"
             )
             self.fields["feedin_tariff"] = DualNumberField(
-                default=0.1, min=0, param_name="feedin_tariff"
+                default=0.1, param_name="feedin_tariff"
             )
 
         """ DrawFlow specific configuration, add a special attribute to 
