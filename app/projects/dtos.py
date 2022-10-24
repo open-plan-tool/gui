@@ -478,26 +478,36 @@ def convert_to_dto(scenario: Scenario):
             efficiencies = []
             inflow_direction = []
             # TODO: make sure the length is equal to the number of timesteps
-            for energy_vector in ["Electricity", "Heat"]:
-                if energy_vector in input_mapping:
-                    # TODO get the case where get fails
-                    inflow_direction.append(
-                        input_connection.get(bus__type=energy_vector).bus.name
-                    )
-                    if isinstance(cop, list):
-                        efficiency = (
-                            (1 / np.array(cop)).tolist()
-                            if energy_vector == "Electricity"
-                            else (1 - 1 / np.array(cop)).tolist()
+            if len(input_mapping) == 1:
+                # in MVS the coefficient are applied to the output bus and not the input bus
+                # so for one unit electricity there should be "COP" unit of heat
+                if isinstance(cop, list):
+                    efficiency = np.array(cop).tolist()
+                else:
+                    efficiency = cop
+                inflow_direction = input_mapping
+                efficiencies.append(efficiency)
+            else:
+                for energy_vector in ["Electricity", "Heat"]:
+                    if energy_vector in input_mapping:
+                        # TODO get the case where get fails
+                        inflow_direction.append(
+                            input_connection.get(bus__type=energy_vector).bus.name
                         )
-                    else:
-                        efficiency = (
-                            (1 / cop)
-                            if energy_vector == "Electricity"
-                            else (1 - 1 / cop)
-                        )
+                        if isinstance(cop, list):
+                            efficiency = (
+                                (1 / np.array(cop)).tolist()
+                                if energy_vector == "Electricity"
+                                else (1 - 1 / np.array(cop)).tolist()
+                            )
+                        else:
+                            efficiency = (
+                                (1 / cop)
+                                if energy_vector == "Electricity"
+                                else (1 - 1 / cop)
+                            )
 
-                    efficiencies.append(efficiency)
+                        efficiencies.append(efficiency)
 
             if len(efficiencies) == 0:
                 print("ERROR, a heat pump should at least have one electrical input!")
