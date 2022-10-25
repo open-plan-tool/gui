@@ -16,7 +16,6 @@ from django.urls.base import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_http_methods
-
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
 
@@ -28,11 +27,9 @@ UserModel = get_user_model()
 def signup(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
-        # print(form.errors.as_data())
         if form.is_valid():
             user = form.save(commit=False)
-            # user.is_active = False
-            user.is_active = True
+            user.is_active = False
             user.save()
             current_site = get_current_site(request)
             mail_subject = "Activate your account."
@@ -47,8 +44,8 @@ def signup(request):
             )
             to_email = form.cleaned_data.get("email")
             email = EmailMessage(mail_subject, message, to=[to_email])
-            # email.send()
-            # return HttpResponse('Please confirm your email address to complete the registration')
+            email.send()
+            return HttpResponse('Please confirm your email address to complete the registration')
             return HttpResponseRedirect(reverse("login"))
     else:
         form = CustomUserCreationForm()
