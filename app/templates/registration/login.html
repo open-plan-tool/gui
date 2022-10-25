@@ -23,14 +23,6 @@
         <form method="post" class="signup-frame__form">
             {% csrf_token %}
             {{ form|crispy }}
-            <!--<div class="mb-3">
-                <label for="id_username" class="form-label">{% translate "Email address" %}</label>
-                <input type="text" class="form-control form-control-lg" id="id_username" placeholder="name@example.com" required name="username">
-            </div>
-            <div class="mb-3">
-                <label for="id_password" class="form-label">{% translate "Password" %}</label>
-                <input type="password" class="form-control form-control-lg" id="id_password" placeholder="Password with at least 8 characters" required name="password">
-            </div>-->
             <button class="btn btn--large" type="submit" id="loginbutton">{% translate "Login" %}</button>
         </form>
     </div>
