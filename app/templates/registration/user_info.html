@@ -1,55 +1,52 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
 
-<main>
-    <section class="header">
-        <div>
-            <div class="header__left"></div>
-            <h1 class="header__title">Account</h1>
-            <div class="header__back"></div>
-        </div>
-    </section>
-    <section class="standard-layout">
-        <div>
-            <div class="account">
-                <div>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <br>
-                        <div class="row">
-                            <div class="col-sm-4"></div>
-                            <div class="col-sm-4">
-                                <button class="btn btn-primary btn-lg" type="submit">Save Changes
-                                </button>
+    <main>
+        <section class="header">
+            <div>
+                <div class="header__left"></div>
+                <h1 class="header__title">Account</h1>
+                <div class="header__back"></div>
+            </div>
+        </section>
+        <section class="standard-layout">
+            <div>
+                <div class="account">
+                    <div>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-4"></div>
+                                <div class="col-sm-4">
+                                    <button class="btn btn-primary btn-lg"
+                                            type="submit">Save Changes
+                                    </button>
+                                </div>
+                                <div class="col-sm-4"></div>
                             </div>
-                            <div class="col-sm-4"></div>
-                        </div>
-                        <br>
-                    </form>
-                    <!--<form>
-                        <div class="mb-3">
-                            <label for="nameInput" class="form-label">Name</label>
-                            <input type="email" class="form-control" id="nameInput" value="Christian Müller">
-                        </div>
-                        <div class="mb-3">
-                            <label for="emailInput" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="emailInput" value="christian.mueller@gmail.de">
-                        </div>
-                        <div class="mb-3">
-                            <label for="pwInput" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="pwInput" value="*************">
-                        </div>
-                        <div class="account__save">
-                            <button type="submit" class="btn">Save changes</button>
-                        </div>
-                    </form>-->
+                            <br>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-</main>
+        </section>
+        <section class="standard-layout">
+            <div>
+                <div class="account">
+                    <div>
+                        <a href="{% url 'password_reset' %}">
+                            <button class="btn btn-primary btn-lg"
+                                    type="submit">{% trans "Reset Password" %}</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 {% endblock %}

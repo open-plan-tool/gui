@@ -9,24 +9,31 @@
 
 {% block index %}
 
-<main class="signup">
-    <div class="signup-frame">
-        <div class="signup-frame__img">
-            <img src="{% static 'assets/illustrations/open_plan_hero_hexagon.svg' %}" alt="open_plan cells">
+    <main class="signup">
+        <div class="signup-frame">
+            <div class="signup-frame__img">
+                <img src="{% static 'assets/illustrations/open_plan_hero_hexagon.svg' %}"
+                     alt="open_plan cells">
+            </div>
+            <div class="signup-frame__heading">
+                {% translate "Welcome to the open_plan tool" %}
+            </div>
+            <div class="signup-frame__subheading">
+                Do you not have an account yet? <a
+                    href="{% url 'signup' %}">{% translate "Sign up" %}</a>
+            </div>
+            <div class="signup-frame__subheading">
+                {% trans "Forgot your password?" %} <a
+                    href="{% url 'password_reset' %}">{% trans "Reset Password" %}</a>
+            </div>
+            <form method="post" class="signup-frame__form">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button class="btn btn--large" type="submit"
+                        id="loginbutton">{% translate "Login" %}</button>
+            </form>
         </div>
-        <div class="signup-frame__heading">
-            {% translate "Welcome to the open_plan tool" %}
-        </div>
-        <div class="signup-frame__subheading">
-            Do you not have an account yet? <a href="{% url 'signup' %}">{% translate "Sign up" %}</a>
-        </div>
-        <form method="post" class="signup-frame__form">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button class="btn btn--large" type="submit" id="loginbutton">{% translate "Login" %}</button>
-        </form>
-    </div>
-</main>
+    </main>
 
 
 {% endblock index %}

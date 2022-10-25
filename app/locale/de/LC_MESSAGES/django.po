@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 11:29+0000\n"
+"POT-Creation-Date: 2022-10-25 13:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1195,7 +1195,7 @@ msgstr "Abmelden"
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:125 templates/registration/login.html:21
+#: templates/navbar.html:125 templates/registration/login.html:23
 #: templates/registration/signup.html:36
 msgid "Sign up"
 msgstr "Registrieren"
@@ -1335,11 +1335,21 @@ msgstr "Projekt aktualisieren"
 msgid "Log In"
 msgstr "Anmelden"
 
-#: templates/registration/login.html:18 templates/registration/signup.html:22
+#: templates/registration/login.html:19 templates/registration/signup.html:22
 msgid "Welcome to the open_plan tool"
 msgstr "Willkommen im open_plan-Tool"
 
 #: templates/registration/login.html:26
+msgid "Forgot your password?"
+msgstr "Passwort vergessen?"
+
+#: templates/registration/login.html:27
+#: templates/registration/password_reset_form.html:9
+#: templates/registration/user_info.html:45
+msgid "Reset Password"
+msgstr "Passwort Zurücksetzen"
+
+#: templates/registration/login.html:33
 msgid "Login"
 msgstr "Anmeldung"
 
@@ -1372,22 +1382,18 @@ msgid ""
 "We've emailed you instructions for setting your password, if an account "
 "exists with the email you entered. You should receive them shortly."
 msgstr ""
-"Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts geschickt, "
-"diese sollten Sie in Kürze erhalten, insofern ein Konto mit der von Ihnen "
-"eingegebenen E-Mail-Adresse existiert."
+"Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts "
+"geschickt, diese sollten Sie in Kürze erhalten, insofern ein Konto mit der "
+"von Ihnen eingegebenen E-Mail-Adresse existiert."
 
-#: templates/registration/password_reset_done.html:9
+#: templates/registration/password_reset_done.html:10
 msgid ""
 "If you don't receive an email, please make sure you've entered the address "
 "you registered with, and check your spam folder."
 msgstr ""
-"Wenn Sie keine E-Mail erhalten, vergewissern Sie sich bitte, dass Sie die Adresse "
-"eingegeben haben, mit der Sie sich registriert haben, und überprüfen Sie Ihren "
-"Spam-Ordner."
-
-#: templates/registration/password_reset_form.html:9
-msgid "Reset Password"
-msgstr "Passwort Zurücksetzen"
+"Wenn Sie keine E-Mail erhalten, vergewissern Sie sich bitte, dass Sie die "
+"Adresse eingegeben haben, mit der Sie sich registriert haben, und überprüfen "
+"Sie Ihren Spam-Ordner."
 
 #: templates/registration/password_reset_form.html:11
 msgid ""

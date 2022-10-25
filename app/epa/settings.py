@@ -171,7 +171,7 @@ LOGOUT_REDIRECT_URL = "home"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 MAILER_EMAIL_BACKEND = EMAIL_BACKEND
 
 DEFAULT_FROM_EMAIL = "noreply@elandh2020.eu"

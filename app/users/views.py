@@ -1,26 +1,27 @@
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail, BadHeaderError
+from django.db.models import Q
 from django.http import HttpResponse
 from django.http.response import HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
 from django.urls.base import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, UpdateView
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash, get_user_model
-from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, redirect
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .models import CustomUser
 
-from .tokens import account_activation_token
-
+DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
+EMAIL_HOST = settings.EMAIL_HOST
 UserModel = get_user_model()
 
 
@@ -101,3 +102,34 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, "registration/change_password.html", {"form": form})
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = CustomUser.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "registration/password_reset_email.txt"
+                    c = {
+                        "email": user.email,
+                        'domain': EMAIL_HOST,
+                        'site_name': 'open_plan',
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_mail(subject, email, DEFAULT_FROM_EMAIL, [user.email],
+                                  fail_silently=False)
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    return redirect("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="registration/password_reset_form.html",
+                  context={"password_reset_form": password_reset_form})
