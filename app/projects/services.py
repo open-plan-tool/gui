@@ -1,6 +1,12 @@
 import logging
 import os
 import traceback
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import json
+
 from django_q.models import Schedule
 from django.contrib import messages
 from django.urls import reverse
@@ -19,7 +25,6 @@ from exchangelib import (
     Configuration,
 )
 
-
 logger = logging.getLogger(__name__)
 
 # email account which will send the feedback emails
@@ -29,7 +34,6 @@ EXCHANGE_EMAIL = os.getenv("EXCHANGE_EMAIL", "dummy@dummy.com")
 EXCHANGE_SERVER = os.getenv("EXCHANGE_SERVER", "dummy.com")
 # email addresses to which the feedback emails will be sent
 RECIPIENTS = os.getenv("RECIPIENTS", "dummy@dummy.com,dummy2@dummy.com").split(",")
-
 
 r"""Functions meant to be powered by Django-Q.
 
@@ -141,3 +145,59 @@ def get_selected_scenarios_in_cache(request, proj_id):
     selected_scenarios_per_project = request.session.get("selected_scenarios", {})
     selected_scenario = selected_scenarios_per_project.get(proj_id, [])
     return [int(scen_id) for scen_id in selected_scenario]
+
+
+class RenewableNinjas:
+    token = 'f8c619d5a5a227629019fa61c24ce7bcd3c70ab9'
+    api_base = 'https://www.renewables.ninja/api/'
+
+    def __init__(self):
+        self.s = requests.session()
+        # Send token header with each request
+        self.s.headers = {'Authorization': 'Token ' + self.token}
+        self.data = []
+
+    def get_pv_output(self, coordinates):
+        ##
+        # Get PV data
+        ##
+
+        url = self.api_base + 'data/pv'
+
+        args = {
+            'lat': coordinates['lat'],
+            'lon': coordinates['lon'],
+            'date_from': '2019-01-01',
+            'date_to': '2019-12-31',
+            'dataset': 'merra2',
+            'capacity': 1.0,
+            'system_loss': 0.1,
+            'tracking': 0,
+            'tilt': 35,
+            'azim': 180,
+            'format': 'json'
+        }
+
+        r = self.s.get(url, params=args)
+
+        # Parse JSON to get a pandas.DataFrame of data and dict of metadata
+        parsed_response = json.loads(r.text)
+
+        pv_data = pd.read_json(json.dumps(parsed_response['data']), orient='index')
+        metadata = parsed_response['metadata']
+
+        self.data = pv_data
+        return
+
+    def create_pv_graph(self):
+        date_range = pd.Series(pd.date_range('2019-01-01', '2019-12-31'))
+        daily_avg = [np.mean(self.data.loc[day.strftime('%Y-%m-%d')]) for day in date_range]
+        fig = plt.plot(date_range, daily_avg)
+        plt.ylabel('kW')
+        return fig
+
+    """
+    def download_pv_data(self, request):
+        self.data.to_csv('./testoutput.csv', index=False, sep=';')
+        response = HttpResponse()
+"""

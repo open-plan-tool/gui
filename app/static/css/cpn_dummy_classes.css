@@ -6,8 +6,9 @@
 }
 
 .form-stretch {
-   padding: 0.375rem 10.75rem;
+   width: 350px;
 }
+
 /* Clear floats after the columns */
 .row:after {
   content: "";
@@ -38,4 +39,7 @@ img {
     max-width: 100%;
     max-height: 100%;
     height: auto;
+}
+input, select {
+    width: 100%;
 }

@@ -11,41 +11,15 @@ from django.shortcuts import *
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
-from django.contrib import messages
-from jsonview.decorators import json_view
-from datetime import datetime
-from users.models import CustomUser
-from django.db.models import Q
-from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
+from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL
 from .forms import *
 from projects.requests import (
-    mvs_simulation_request,
     fetch_mvs_simulation_results,
-    mvs_sensitivity_analysis_request,
-    fetch_mvs_sa_results,
 )
 from projects.models import *
-from projects.scenario_topology_helpers import (
-    handle_storage_unit_form_post,
-    handle_bus_form_post,
-    handle_asset_form_post,
-    load_scenario_topology_from_db,
-    NodeObject,
-    update_deleted_objects_from_database,
-    duplicate_scenario_objects,
-    duplicate_scenario_connections,
-    load_scenario_from_dict,
-    load_project_from_dict,
-)
-from projects.helpers import format_scenario_for_mvs
+from projects.services import RenewableNinjas
 from projects.constants import DONE, PENDING, ERROR, MODIFIED
-from projects.services import (
-    create_or_delete_simulation_scheduler,
-    excuses_design_under_development,
-    send_feedback_email,
-    get_selected_scenarios_in_cache,
-)
-import traceback
+
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +34,7 @@ CPN_STEP_LIST = [
 
 @require_http_methods(["GET"])
 def home_cpn(request):
-    return render(request, "cp_nigeria/landing_page.html")
+    return render(request, "cp_nigeria/index_cpn.html")
 
 
 @login_required
@@ -77,9 +51,22 @@ def cpn_scenario_create(request, proj_id, scen_id=None, step_id=1):
                 latitude=form.cleaned_data["latitude"],
                 user=request.user,
             )
-            return HttpResponseRedirect(reverse("cpn_review", args=[project.id]))
+
+            location = RenewableNinjas()
+            coordinates = {'lat': form.cleaned_data["latitude"],
+                           'lon': form.cleaned_data["latitude"]}
+            location.get_pv_output(coordinates)
+
+            return HttpResponseRedirect(reverse("cpn_review", args=[project.id])), fig
     else:
         form = CPNLocationForm()
+        project = Project.objects.get(id=proj_id)
+        location = RenewableNinjas()
+        coordinates = {'lat': project.latitude,
+                       'lon': project.longitude}
+        location.get_pv_output(coordinates)
+        fig = location.create_pv_graph()
+
     return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
                   {"form": form,
                    "proj_id": proj_id,
@@ -199,3 +186,15 @@ def cpn_steps(request, proj_id, step_id=None, scen_id=1):
             return HttpResponseRedirect(reverse("cpn_steps", args=[proj_id, 1]))
 
         return CPN_STEPS[step_id - 1](request, proj_id, scen_id, step_id)
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_pv_output(latitude, longitude):
+    coordinates = {'lat': latitude,
+                   'lon': longitude}
+    location = RenewableNinjas()
+    location.get_pv_output(coordinates)
+    fig = location.create_pv_graph()
+    print('something dumb')
+    return fig
