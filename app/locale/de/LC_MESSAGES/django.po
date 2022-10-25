@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 10:46+0000\n"
+"POT-Creation-Date: 2022-10-25 11:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -251,8 +251,7 @@ msgstr "Steuer"
 msgid "Tax factor"
 msgstr "Steuerfaktor"
 
-#: projects/forms.py:304 templates/registration/login.html:27
-#: templates/registration/signup.html:31
+#: projects/forms.py:304
 msgid "Email address"
 msgstr "E-Mail Adresse"
 
@@ -1190,12 +1189,14 @@ msgstr "Konto"
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:121 templates/registration/signup.html:25
+#: templates/navbar.html:121
+#: templates/registration/password_reset_complete.html:10
+#: templates/registration/signup.html:25
 msgid "Log in"
 msgstr "Anmelden"
 
 #: templates/navbar.html:125 templates/registration/login.html:21
-#: templates/registration/signup.html:44
+#: templates/registration/signup.html:36
 msgid "Sign up"
 msgstr "Registrieren"
 
@@ -1338,19 +1339,57 @@ msgstr "Anmelden"
 msgid "Welcome to the open_plan tool"
 msgstr "Willkommen im open_plan-Tool"
 
-#: templates/registration/login.html:31 templates/registration/signup.html:35
-msgid "Password"
-msgstr "Passwort"
-
-#: templates/registration/login.html:34
+#: templates/registration/login.html:26
 msgid "Login"
 msgstr "Anmeldung"
 
-#: templates/registration/password_reset_form.html:10
+#: templates/registration/password_reset_complete.html:7
+msgid "Password reset complete"
+msgstr "Passwortrücksetzung abgeschlossen"
+
+#: templates/registration/password_reset_complete.html:9
+msgid "Your password has been set. You may go ahead and log in now."
+msgstr "Ihr Passwort wurde festgelegt. Sie können sich jetzt einloggen."
+
+#: templates/registration/password_reset_confirm.html:9
+msgid "Password Reset Confirm"
+msgstr "Bestätigung der Passwortzurücksetzung"
+
+#: templates/registration/password_reset_confirm.html:11
+msgid "Please enter your new password."
+msgstr "Bitte geben Sie Ihr neues Passwort ein"
+
+#: templates/registration/password_reset_confirm.html:15
+msgid "Reset password"
+msgstr "Passwort zurücksetzen"
+
+#: templates/registration/password_reset_done.html:7
+msgid "Password reset sent"
+msgstr "Passwortrücksetzung gesendet"
+
+#: templates/registration/password_reset_done.html:9
+msgid ""
+"We've emailed you instructions for setting your password, if an account "
+"exists with the email you entered. You should receive them shortly."
+msgstr ""
+"Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts geschickt, "
+"diese sollten Sie in Kürze erhalten, insofern ein Konto mit der von Ihnen "
+"eingegebenen E-Mail-Adresse existiert."
+
+#: templates/registration/password_reset_done.html:9
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with, and check your spam folder."
+msgstr ""
+"Wenn Sie keine E-Mail erhalten, vergewissern Sie sich bitte, dass Sie die Adresse "
+"eingegeben haben, mit der Sie sich registriert haben, und überprüfen Sie Ihren "
+"Spam-Ordner."
+
+#: templates/registration/password_reset_form.html:9
 msgid "Reset Password"
 msgstr "Passwort Zurücksetzen"
 
-#: templates/registration/password_reset_form.html:12
+#: templates/registration/password_reset_form.html:11
 msgid ""
 "Forgotten your password? Enter your email address below, and we'll email "
 "instructions for setting a new one."
@@ -1358,7 +1397,7 @@ msgstr ""
 "Passwort vergessen? Geben Sie Ihre E-Mail unten ein und wir senden Ihnen "
 "eine E-Mail mit Anweisungen, um ein neues Passwort zu setzen."
 
-#: templates/registration/password_reset_form.html:16
+#: templates/registration/password_reset_form.html:15
 msgid "Send email"
 msgstr "E-Mail senden"
 
@@ -1366,7 +1405,7 @@ msgstr "E-Mail senden"
 msgid "Do you already have an account?"
 msgstr "Besitzen Sie bereits ein Konto?"
 
-#: templates/registration/signup.html:41
+#: templates/registration/signup.html:33
 #, python-format
 msgid ""
 "I have read and accept the <a href=\"%(registration_url)s\">registration</a> "
