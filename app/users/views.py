@@ -108,7 +108,7 @@ def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
         if password_reset_form.is_valid():
-            data = password_reset_form.cleaned_data['email']
+            data = password_reset_form.cleaned_data["email"]
             associated_users = CustomUser.objects.filter(Q(email=data))
             if associated_users.exists():
                 for user in associated_users:
@@ -116,20 +116,28 @@ def password_reset_request(request):
                     email_template_name = "registration/password_reset_email.txt"
                     c = {
                         "email": user.email,
-                        'domain': EMAIL_HOST,
-                        'site_name': 'open_plan',
+                        "domain": EMAIL_HOST,
+                        "site_name": "open_plan",
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
-                        'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
+                        "token": default_token_generator.make_token(user),
+                        "protocol": "http",
                     }
                     email = render_to_string(email_template_name, c)
                     try:
-                        send_mail(subject, email, DEFAULT_FROM_EMAIL, [user.email],
-                                  fail_silently=False)
+                        send_mail(
+                            subject,
+                            email,
+                            DEFAULT_FROM_EMAIL,
+                            [user.email],
+                            fail_silently=False,
+                        )
                     except BadHeaderError:
-                        return HttpResponse('Invalid header found.')
+                        return HttpResponse("Invalid header found.")
                     return redirect("/password_reset/done/")
     password_reset_form = PasswordResetForm()
-    return render(request=request, template_name="registration/password_reset_form.html",
-                  context={"password_reset_form": password_reset_form})
+    return render(
+        request=request,
+        template_name="registration/password_reset_form.html",
+        context={"password_reset_form": password_reset_form},
+    )

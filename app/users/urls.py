@@ -7,5 +7,5 @@ urlpatterns = [
     path("change_password/", change_password, name="change_password"),
     path("user_info/", user_info, name="user_info"),
     path("activate/<uidb64>/<token>/", activate, name="activate"),
-    path("password_reset", password_reset_request, name="password_reset")
+    path("password_reset", password_reset_request, name="password_reset"),
 ]
