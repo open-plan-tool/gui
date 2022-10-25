@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+
+{% for field in form %}
+<div class="form-group{% if field.errors %} invalid{% endif %}">
+  {{ field|as_crispy_field }}
+</div>
+{% endfor %}
+

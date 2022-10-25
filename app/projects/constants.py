@@ -271,6 +271,9 @@ ENERGY_VECTOR = (
     # ('Diesel', 'Diesel'),
 )
 
+COP_MODES = (("Heat pump", "heat_pump"), ("Chiller", "chiller"))
+
+
 MVS_TYPE = (
     ("", "Choose..."),
     ("source", "source"),
@@ -392,8 +395,6 @@ MAP_EPA_MVS = {
     "energy_production": "energyProduction",
     "energy_storage": "energyStorage",
     "project_data": "project_data",
-    "input_bus_name": "inflow_direction",
-    "output_bus_name": "outflow_direction",
     "simulation_settings": "simulation_settings",
     "energy_vector": "energyVector",
     "installed_capacity": "installedCap",

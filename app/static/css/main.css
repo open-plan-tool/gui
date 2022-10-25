@@ -1250,6 +1250,9 @@ form .btn {
 .modal .modal-body {
   padding: 3rem; }
 
+.modal .modal-addendum {
+  padding: 3rem; }
+
 .system-design-error .modal-body {
   display: flex;
   flex-direction: column;
@@ -2197,6 +2200,30 @@ nav.navbar {
       right: calc((4.5rem - 3rem) / 2);
       transform: translateY(-50%);
       background-image: url("/static/assets/gui/heat_pump.svg");
+      background-size: contain;
+      height: 3rem;
+      width: 3rem; }
+    .system-design .drawflow .drawflow-node.conversion {
+      border-bottom-color: #7BF1A8; }
+    .system-design .drawflow .drawflow-node.chp .img::before {
+      content: '';
+      position: absolute;
+      top: calc(4.5rem / 2);
+      right: calc((4.5rem - 3rem) / 2);
+      transform: translateY(-50%);
+      background-image: url("/static/assets/gui/chp.svg");
+      background-size: contain;
+      height: 3rem;
+      width: 3rem; }
+    .system-design .drawflow .drawflow-node.conversion {
+      border-bottom-color: #7BF1A8; }
+    .system-design .drawflow .drawflow-node.chp_fixed_ratio .img::before {
+      content: '';
+      position: absolute;
+      top: calc(4.5rem / 2);
+      right: calc((4.5rem - 3rem) / 2);
+      transform: translateY(-50%);
+      background-image: url("/static/assets/gui/chp_fixed_ratio.svg");
       background-size: contain;
       height: 3rem;
       width: 3rem; }

@@ -692,16 +692,18 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "solar_thermal_plant": _("Solar Thermal Plant"),
         },
         "conversion": {
-            # "transformer_station_in": _("Transformer Station (in)"),
-            # "transformer_station_out": _("Transformer Station (out)"),
-            # "storage_charge_controller_in": _("Storage Charge Controller (in)"),
-            # "storage_charge_controller_out": _("Storage Charge Controller (out)"),
-            # "solar_inverter": _("Solar Inverter"),
+            "transformer_station_in": _("Transformer Station (in)"),  #
+            "transformer_station_out": _("Transformer Station (out)"),  #
+            "storage_charge_controller_in": _("Storage Charge Controller (in)"),  #
+            "storage_charge_controller_out": _("Storage Charge Controller (out)"),  #
+            "solar_inverter": _("Solar Inverter"),  #
             "diesel_generator": _("Diesel Generator"),
             "fuel_cell": _(" Fuel Cell"),
             "gas_boiler": _("Gas Boiler"),
             "electrolyzer": _("Electrolyzer"),
             "heat_pump": _("Heat Pump"),
+            "chp": _("Combined Heat and Power"),
+            "chp_fixed_ratio": _("CHP fixed ratio"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -1188,6 +1190,12 @@ def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
 def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     scenario = Scenario.objects.get(id=scen_id)
 
+    # collect the information about the connected nodes in the GUI
+    input_output_mapping = {
+        "inputs": json.loads(request.POST.get("inputs", "[]")),
+        "outputs": json.loads(request.POST.get("outputs", "[]")),
+    }
+
     if asset_type_name == "bus":
         if asset_uuid:
             existing_bus = get_object_or_404(Bus, pk=asset_uuid)
@@ -1232,16 +1240,26 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                     "optimize_cap": ess_capacity_asset.optimize_cap,
                     "soc_max": ess_capacity_asset.soc_max,
                     "soc_min": ess_capacity_asset.soc_min,
+                    "thermal_loss_rate": ess_capacity_asset.thermal_loss_rate,
+                    "fixed_thermal_losses_relative": ess_capacity_asset.fixed_thermal_losses_relative,
+                    "fixed_thermal_losses_absolute": ess_capacity_asset.fixed_thermal_losses_absolute,
                 },
+                input_output_mapping=input_output_mapping,
             )
         else:
-            form = StorageForm(asset_type=asset_type_name)
+            form = StorageForm(
+                asset_type=asset_type_name, input_output_mapping=input_output_mapping
+            )
         return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
 
         if asset_uuid:
             existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            form = AssetCreateForm(asset_type=asset_type_name, instance=existing_asset)
+            form = AssetCreateForm(
+                asset_type=asset_type_name,
+                instance=existing_asset,
+                input_output_mapping=input_output_mapping,
+            )
             input_timeseries_data = (
                 existing_asset.input_timeseries
                 if existing_asset.input_timeseries
@@ -1254,12 +1272,15 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             n_asset = len(asset_list)
             default_name = f"{asset_type_name}-{n_asset}"
             form = AssetCreateForm(
-                asset_type=asset_type_name, initial={"name": default_name}
+                asset_type=asset_type_name,
+                initial={"name": default_name},
+                input_output_mapping=input_output_mapping,
             )
             input_timeseries_data = ""
 
         context = {
             "form": form,
+            "asset_type_name": asset_type_name,
             "input_timeseries_data": input_timeseries_data,
             "input_timeseries_timestamps": json.dumps(
                 scenario.get_timestamps(json_format=True)
@@ -1272,7 +1293,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 @login_required
 @require_http_methods(["POST"])
 def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=None):
-
     if asset_type_name == "bus":
         answer = handle_bus_form_post(request, scen_id, asset_type_name, asset_uuid)
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
@@ -1282,6 +1302,64 @@ def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=No
     else:  # all assets
         answer = handle_asset_form_post(request, scen_id, asset_type_name, asset_uuid)
     return answer
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
+    opts = {}
+    if asset_uuid:
+        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_cop = COPCalculator.objects.filter(asset=existing_asset)
+        if existing_cop.exists():
+            opts["instance"] = existing_cop.get()
+    context = {"form": COPCalculatorForm(**opts)}
+
+    return render(request, "asset/asset_cops_form.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def asset_cops_create_or_update(
+    request, scen_id=0, asset_type_name="", asset_uuid=None
+):
+    # collect the information about the connected nodes in the GUI
+
+    opts = {}
+    if asset_uuid:
+        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_cop = COPCalculator.objects.filter(asset=existing_asset)
+        if existing_cop.exists():
+            opts["instance"] = existing_cop.get()
+    form = COPCalculatorForm(request.POST, request.FILES, **opts)
+
+    scenario = get_object_or_404(Scenario, id=scen_id)
+    if form.is_valid():
+        cop = form.save(commit=False)
+        cop.scenario = scenario
+        cop.mode = asset_type_name
+        if asset_uuid:
+            cop.asset = existing_asset
+        cop.save()
+
+        try:
+            cops = cop.calc_cops()
+            return JsonResponse(
+                {"success": True, "cop_id": cop.id, "cops": json.dumps(cops)},
+                status=200,
+            )
+        except:
+            return JsonResponse({"success": False, "cop_id": cop.id}, status=422)
+    else:
+        import pdb
+
+        pdb.set_trace()
+    logger.warning(f"The submitted asset has erroneous field values.")
+
+    form_html = get_template("asset/asset_cops_form.html")
+    return JsonResponse(
+        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+    )
 
 
 # endregion Asset

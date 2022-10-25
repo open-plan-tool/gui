@@ -7,7 +7,6 @@ compose/*
 node_modules/
 static_src/
 Dockerfile
-import.sql
 package.json
 package-lock.json
 Pipfile

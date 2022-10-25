@@ -1,0 +1,33 @@
+type,unit
+duration,year
+annuity_factor,factor
+discount,factor
+tax,factor
+crf,factor
+crate,factor of total capacity (kWh)
+age_installed,year
+soc_max,factor
+soc_min,factor
+capex_fix,currency
+opex_var,currency/unit/year
+efficiency,factor
+installed_capacity,unit
+lifetime,year
+maximum_capacity,kW
+energy_price,currency/kWh
+feedin_tariff,currency/kWh
+optimize_cap,bool
+peak_demand_pricing,currency/kW
+peak_demand_pricing_period,"times per year (1,2,3,4,6,12)"
+renewable_share,factor
+capex_var,currency/unit
+opex_fix,currency/year
+specific_costs_om,currency/year
+input_timeseries,kWh
+evaluated_period,days
+renewable_asset,bool
+thermal_loss_rate,factor
+efficiency_multiple,factor
+beta,factor
+fixed_thermal_losses_relative,factor
+fixed_thermal_losses_absolute,kWh

@@ -31,7 +31,7 @@ from dashboard.helpers import (
     format_storage_subasset_name,
 )
 
-from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink
+from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink, Asset
 from projects.constants import (
     MAP_EPA_MVS,
     STORAGE_SUB_CATEGORIES,
@@ -157,6 +157,7 @@ class AssetsResults(models.Model):
     __asset_names = None
     __available_timeseries = None
     __asset_categories = None
+    __busses_energy_vector = None
 
     @property
     def assets_dict(self):
@@ -175,6 +176,37 @@ class AssetsResults(models.Model):
                 for asset in asset_dict[category]:
                     self.__asset_names.append(asset["label"])
         return self.__asset_names
+
+    @property
+    def busses_energy_vector(self):
+        if self.__busses_energy_vector is None:
+            self.__busses_energy_vector = {
+                b.name: b.type
+                for b in Bus.objects.filter(scenario=self.simulation.scenario.id)
+            }
+
+        return self.__busses_energy_vector
+
+    def energy_vector_busses(self, energy_vector=None):
+        reverse_mapping = {}
+        for k, v in self.busses_energy_vector.items():
+            if v not in reverse_mapping:
+                reverse_mapping[v] = k
+            else:
+                if isinstance(reverse_mapping[v], list) is False:
+                    reverse_mapping[v] = [reverse_mapping[v]]
+                reverse_mapping[v].append(k)
+        if energy_vector is None:
+            answer = reverse_mapping
+        elif energy_vector in reverse_mapping:
+            answer = reverse_mapping[energy_vector]
+        else:
+            raise KeyError(
+                f"The energy vector {energy_vector} is not present in any of the busses of the system of scenario"
+                f" '{self.simulation.scenario.name}' (scenario id: {self.simulation.scenario.id})"
+            )
+
+        return answer
 
     @property
     def available_timeseries(self):
@@ -214,8 +246,16 @@ class AssetsResults(models.Model):
                             and "_consumption_period" not in asset["label"]
                         ):
                             asset["category"] = category
+                            qs = ConnectionLink.objects.filter(
+                                asset__name=asset["label"],
+                                scenario=self.simulation.scenario,
+                                flow_direction="A2B",
+                            ).values_list("bus__name", "bus__type")
+                            if qs.exists():
+                                asset["output_busses"] = {c[0]: c[1] for c in qs}
                             self.__available_timeseries[asset["label"]] = asset
-
+        else:
+            print("\n\nNOT reloading __available_timeseries\n\n")
         return self.__available_timeseries
 
     @property
@@ -226,47 +266,53 @@ class AssetsResults(models.Model):
 
     def single_asset_results(self, asset_name, asset_category=None):
         """Provided the name of an asset, return the results linked to this asset"""
-        asset_dict = self.assets_dict
-        answer = None
-        if asset_category is not None:
-            categories = [asset_category]
-        else:
-            categories = self.asset_categories
 
-        for category in categories:
-            for asset in asset_dict[category]:
-                if category == "energy_storage":
-                    for sub_cat in ("input_power", "output_power", "capacity"):
-                        if asset_name == format_storage_subasset_name(
-                            asset["label"], sub_cat
-                        ):
-                            storage_subasset = asset.get(sub_cat)
-                            if storage_subasset is None:
-                                storage_subasset = asset.get(
-                                    MAP_EPA_MVS.get(sub_cat, sub_cat)
+        if self.__available_timeseries is None:
+            asset_dict = self.assets_dict
+            answer = None
+            if asset_category is not None:
+                categories = [asset_category]
+            else:
+                categories = self.asset_categories
+
+            for category in categories:
+                for asset in asset_dict[category]:
+                    if category == "energy_storage":
+                        for sub_cat in ("input_power", "output_power", "capacity"):
+                            if asset_name == format_storage_subasset_name(
+                                asset["label"], sub_cat
+                            ):
+                                storage_subasset = asset.get(sub_cat)
+                                if storage_subasset is None:
+                                    storage_subasset = asset.get(
+                                        MAP_EPA_MVS.get(sub_cat, sub_cat)
+                                    )
+                                if storage_subasset is not None:
+                                    if answer is None:
+                                        answer = storage_subasset
+                                        answer[
+                                            "category"
+                                        ] = format_storage_subasset_name(
+                                            category, sub_cat
+                                        )
+                                        answer["energy_vector"] = asset["energy_vector"]
+                                        break
+                                    else:
+                                        raise ValueError(
+                                            f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
+                                        )
+                    else:
+                        if asset_name == asset["label"]:
+                            if answer is None:
+                                answer = asset
+                                answer["category"] = category
+                                break
+                            else:
+                                raise ValueError(
+                                    f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
                                 )
-                            if storage_subasset is not None:
-                                if answer is None:
-                                    answer = storage_subasset
-                                    answer["category"] = format_storage_subasset_name(
-                                        category, sub_cat
-                                    )
-                                    answer["energy_vector"] = asset["energy_vector"]
-                                    break
-                                else:
-                                    raise ValueError(
-                                        f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
-                                    )
-                else:
-                    if asset_name == asset["label"]:
-                        if answer is None:
-                            answer = asset
-                            answer["category"] = category
-                            break
-                        else:
-                            raise ValueError(
-                                f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
-                            )
+        else:
+            answer = self.__available_timeseries.get(asset_name)
         return answer
 
     def single_asset_type_oemof(self, asset_name, asset_category=None):
@@ -287,26 +333,39 @@ class AssetsResults(models.Model):
         self, asset_name, asset_category=None, energy_vector=None
     ):
         """Provided the user name of the asset, return the timeseries linked to this asset"""
-        if self.__available_timeseries is None:
-            asset_results = self.single_asset_results(asset_name, asset_category)
 
-        else:
-            asset_results = self.__available_timeseries.get(asset_name)
+        asset_results = self.single_asset_results(asset_name, asset_category)
+
         answer = None
 
         if "flow" in asset_results:
-            answer = single_timeseries_to_json(
-                value=asset_results["flow"]["value"],
-                unit=asset_results["flow"]["unit"],
-                label=asset_name,
-                asset_type=asset_results["type_oemof"],
-                asset_category=asset_results["category"],
-            )
+            # find the energy vector of the bus in case of CHP which have multiple outputs
+            flow_value = asset_results["flow"]["value"]
+            if asset_results["type_oemof"] == "extractionTurbineCHP":
+                if energy_vector is not None:
+                    bus_name = self.energy_vector_busses(energy_vector)
+                    if bus_name in flow_value:
+                        flow_value = flow_value[bus_name]
+                    else:
+                        flow_value = None
+
+            if flow_value is not None:
+                answer = single_timeseries_to_json(
+                    value=flow_value,
+                    unit=asset_results["flow"]["unit"],
+                    label=asset_name,
+                    asset_type=asset_results["type_oemof"],
+                    asset_category=asset_results["category"],
+                )
 
         # if an energy_vector is provided return the timeseries only if the energy_vector type of the asset matches
         if energy_vector is not None:
-            if asset_results["energy_vector"] != energy_vector:
+            if (
+                energy_vector not in asset_results.get("output_busses", {}).keys()
+                and asset_results["energy_vector"] != energy_vector
+            ):
                 answer = None
+
         return answer
 
 
@@ -337,7 +396,15 @@ def graph_timeseries(simulations, y_variables):
                     single_ts_json["value"] = (
                         -np.array(single_ts_json["value"])
                     ).tolist()
-                y_values.append(single_ts_json)
+                if single_ts_json["asset_type"] == "extractionTurbineCHP":
+                    for bus in single_ts_json["value"]:
+                        new_ts = single_ts_json.copy()
+                        new_ts["value"] = single_ts_json["value"][bus]
+                        new_ts["label"] = single_ts_json["label"] + "_" + bus
+                        y_values.append(new_ts)
+
+                else:
+                    y_values.append(single_ts_json)
         simulations_results.append(
             simulation_timeseries_to_json(
                 scenario_name=sim.scenario.name,
@@ -362,7 +429,6 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     y_var, energy_vector=energy_vector
                 )
                 if single_ts_json is not None:
-
                     if single_ts_json["asset_type"] == "sink" or single_ts_json[
                         "asset_category"
                     ] == format_storage_subasset_name("energy_storage", "input_power"):
@@ -460,6 +526,14 @@ def graph_sankey(simulation, energy_vector):
         results_ts = ar.available_timeseries
         qs = ConnectionLink.objects.filter(scenario__simulation=sim)
 
+        chp_qs = Asset.objects.filter(
+            scenario=sim.scenario, asset_type__asset_type__in=("chp", "chp_fixed_ratio")
+        )
+        if chp_qs.exists():
+            chp_in_flow = {a.name: {"value": 0, "bus": ""} for a in chp_qs}
+        else:
+            chp_in_flow = {}
+
         for bus in Bus.objects.filter(scenario__simulation=sim, type__in=energy_vector):
             bus_label = bus.name
             labels.append(bus_label)
@@ -488,6 +562,7 @@ def graph_sankey(simulation, energy_vector):
                         format_storage_subasset_name(component.asset.name, INPUT_POWER)
                     )
                 else:
+
                     bus_to_asset_names.append(component.asset.name)
 
             for component_label in asset_to_bus_names:
@@ -499,9 +574,17 @@ def graph_sankey(simulation, energy_vector):
                 sources.append(labels.index(component_label))
                 targets.append(labels.index(bus_label))
 
-                val = np.sum(results_ts[component_label]["flow"]["value"])
+                flow_value = results_ts[component_label]["flow"]["value"]
+                if bus_label in flow_value:
+                    flow_value = flow_value[bus_label]
+
+                val = np.sum(flow_value)
+                if component_label in chp_in_flow:
+                    chp_in_flow[component_label]["value"] += val
+
                 if val == 0:
-                    val = 1
+                    val = 1e-6
+
                 values.append(val)
 
             for component_label in bus_to_asset_names:
@@ -515,10 +598,54 @@ def graph_sankey(simulation, energy_vector):
 
                 val = np.sum(results_ts[component_label]["flow"]["value"])
 
+                if component_label in chp_in_flow:
+                    chp_in_flow[component_label]["bus"] = bus_label
+
+                # If the asset has multiple inputs, multiply the output flow by the efficiency
+                input_busses = results_ts[component_label].get("inflow_direction")
+
+                input_connection = ConnectionLink.objects.filter(
+                    asset__name=component_label,
+                    flow_direction="B2A",
+                    scenario=sim.scenario,
+                )
+
+                inflow_direction = None
+                num_inputs = input_connection.count()
+                if num_inputs == 1:
+                    inflow_direction = input_connection.first().bus.name
+                elif num_inputs > 1:
+                    inflow_direction = [
+                        n for n in input_connection.values_list("bus__name", flat=True)
+                    ]
+                if input_busses is not None:
+                    if isinstance(input_busses, list):
+
+                        bus_index = input_busses.index(bus_label)
+                        efficiency = results_ts[component_label]["efficiency"]["value"][
+                            bus_index
+                        ]
+                        if isinstance(efficiency, list):
+                            flow = np.array(
+                                results_ts[component_label]["flow"]["value"]
+                            ) * np.array(efficiency)
+                            val = np.sum(flow)
+                        else:
+                            val = (
+                                val
+                                * results_ts[component_label]["efficiency"]["value"][
+                                    bus_index
+                                ]
+                            )
+
                 if val == 0:
-                    val = 1
+                    val = 1e-6
                 values.append(val)
 
+        for component_label in chp_in_flow:
+            sources.append(labels.index(chp_in_flow[component_label]["bus"]))
+            targets.append(labels.index(component_label))
+            values.append(chp_in_flow[component_label]["value"])
         # TODO display the installed capacity, max capacity and optimized_add_capacity on the nodes if applicable
         fig = go.Figure(
             data=[

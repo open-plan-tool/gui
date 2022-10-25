@@ -4,6 +4,7 @@ import json
 import io
 import csv
 from openpyxl import load_workbook
+import numpy as np
 
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
 from crispy_forms.helper import FormHelper
@@ -25,7 +26,12 @@ from projects.models import *
 from projects.constants import MAP_EPA_MVS, RENEWABLE_ASSETS
 
 from dashboard.helpers import KPI_PARAMETERS_ASSETS, KPIFinder
-from projects.helpers import parameters_helper, PARAMETERS
+from projects.helpers import (
+    parameters_helper,
+    PARAMETERS,
+    DualNumberField,
+    parse_input_timeseries,
+)
 
 
 def gettext_variables(some_string, lang="de"):
@@ -566,6 +572,21 @@ class SensitivityAnalysisForm(ModelForm):
         return data_js
 
 
+class COPCalculatorForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["temperature_high"] = DualNumberField(
+            default=60, min=-273, param_name="temperature_high"
+        )
+        self.fields["temperature_low"] = DualNumberField(
+            default=40, min=-273, param_name="temperature_low"
+        )
+
+    class Meta:
+        model = COPCalculator
+        exclude = ["id", "scenario", "asset", "mode"]
+
+
 class BusForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         bus_type_name = kwargs.pop("asset_type", None)  # always = bus
@@ -598,95 +619,89 @@ class BusForm(OpenPlanModelForm):
         labels = {"name": _("Name"), "type": _("Energy carrier")}
 
 
-def parse_csv_timeseries(file_str):
-    io_string = io.StringIO(file_str)
-    delimiter = ","
-    if file_str.count(";") > 0:
-        delimiter = ";"
-
-    # check if the number of , is an integer time the number of line return
-    # if not, the , is probably not a column separator and a decimal separator indeed
-    if file_str.count(",") % (file_str.count("\n") + 1) != 0:
-        delimiter = ";"
-
-    reader = csv.reader(io_string, delimiter=delimiter)
-    timeseries_values = []
-    for row in reader:
-        if len(row) == 1:
-            value = row[0]
-        else:
-            # assumes the first row is timestamps and read the second one, ignore any other row
-            value = row[1]
-        # convert potential comma used as decimal point to decimal point
-        timeseries_values.append(float(value.replace(",", ".")))
-    return timeseries_values
-
-
-def parse_input_timeseries(timeseries_file):
-    if timeseries_file.name.endswith("xls") or timeseries_file.name.endswith("xlsx"):
-        wb = load_workbook(filename=timeseries_file)
-        worksheet = wb.active
-        timeseries_values = []
-        n_col = worksheet.max_column
-
-        col_idx = 0
-
-        if n_col > 1:
-            col_idx = 1
-
-        for j in range(0, worksheet.max_row):
-            try:
-                timeseries_values.append(
-                    float(worksheet.cell(row=j + 1, column=col_idx + 1).value)
-                )
-            except ValueError:
-                pass
-
-    else:
-        timeseries_file_str = timeseries_file.read().decode("utf-8")
-
-        if timeseries_file_str != "":
-            if timeseries_file.name.endswith("json"):
-                timeseries_values = json.loads(timeseries_file_str)
-            elif timeseries_file.name.endswith("csv"):
-                timeseries_values = parse_csv_timeseries(timeseries_file_str)
-
-            elif timeseries_file.name.endswith("txt"):
-                nlines = timeseries_file_str.count("\n") + 1
-                if nlines == 1:
-                    timeseries_values = json.loads(timeseries_file_str)
-                else:
-                    timeseries_values = parse_csv_timeseries(timeseries_file_str)
-            else:
-                raise TypeError(
-                    _(
-                        f'Input timeseries file type of "{timeseries_file.name}" is not supported. The supported formats are "json", "csv", "txt", "xls" and "xlsx"'
-                    )
-                )
-        else:
-            raise ValidationError(
-                _('Input timeseries file "%(fname)s" is empty'),
-                code="empty_file",
-                params={"fname": timeseries_file.name},
-            )
-    return timeseries_values
-
-
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
-        asset_type_name = kwargs.pop("asset_type", None)
+        self.asset_type_name = kwargs.pop("asset_type", None)
+        scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
         self.existing_asset = kwargs.get("instance", None)
+        # get the connections with busses
+        self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
         super().__init__(*args, **kwargs)
         # which fields exists in the form are decided upon AssetType saved in the db
-        asset_type = AssetType.objects.get(asset_type=asset_type_name)
-
+        asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
         [
             self.fields.pop(field)
             for field in list(self.fields)
-            if field not in asset_type.asset_fields
+            if field not in asset_type.visible_fields
         ]
+
+        # TODO get the timestamps here for scenario_id
+        self.timestamps = None
+        if self.existing_asset is not None:
+            self.timestamps = self.existing_asset.timestamps
+        elif scenario_id is not None:
+            qs = Scenario.objects.filter(id=scenario_id)
+            if qs.exists():
+                self.timestamps = qs.get().get_timestamps()
+
+        self.fields["inputs"] = forms.CharField(widget=forms.HiddenInput())
+
+        if self.asset_type_name == "heat_pump":
+            self.fields["efficiency"] = DualNumberField(
+                default=1, min=1, param_name="efficiency"
+            )
+            self.fields["efficiency"].label = "COP"
+
+        if self.asset_type_name == "chp":
+            self.fields["efficiency"] = DualNumberField(
+                default=1, min=0, max=1, param_name="efficiency"
+            )
+            self.fields["efficiency"].label = _(
+                "Electrical efficiency with no heat extraction"
+            )
+
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
+
+            self.fields["efficiency_multiple"] = DualNumberField(
+                default=1, min=0, max=1, param_name="efficiency_multiple"
+            )
+            self.fields["efficiency_multiple"].label = _(
+                "Thermal efficiency with maximal heat extraction"
+            )
+
+            self.fields["thermal_loss_rate"].label = _("Stromverlustkenzahl")
+
+        if self.asset_type_name == "chp_fixed_ratio":
+
+            self.fields["efficiency"].label = _("Efficiency gaz to electricity")
+
+            # TODO
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
+
+            self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                attrs={
+                    "placeholder": _("eg. 0.1"),
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": "0.00001",
+                }
+            )
+            self.fields["efficiency_multiple"].label = _("Efficiency gaz to heat")
+
+        if "dso" in self.asset_type_name:
+
+            self.fields["energy_price"] = DualNumberField(
+                default=0.1, param_name="energy_price"
+            )
+            self.fields["feedin_tariff"] = DualNumberField(
+                default=0.1, param_name="feedin_tariff"
+            )
 
         """ DrawFlow specific configuration, add a special attribute to 
             every field in order for the framework to be able to export
@@ -694,7 +709,7 @@ class AssetCreateForm(OpenPlanModelForm):
             !! This addition doesn't affect the previous behavior !!
         """
         for field in self.fields:
-            if field == "renewable_asset" and asset_type_name in RENEWABLE_ASSETS:
+            if field == "renewable_asset" and self.asset_type_name in RENEWABLE_ASSETS:
                 self.fields[field].initial = True
             self.fields[field].widget.attrs.update({f"df-{field}": ""})
             if field == "input_timeseries":
@@ -735,6 +750,82 @@ class AssetCreateForm(OpenPlanModelForm):
             raise ValidationError(str(e))
         except Exception as ex:
             raise ValidationError(_("Could not parse a file. Did you upload one?"))
+
+    def clean_efficiency_multiple(self):
+        data = self.cleaned_data["efficiency_multiple"]
+        if self.asset_type_name == "chp_fixed_ratio":
+            try:
+                data = float(data)
+            except ValueError:
+                raise ValidationError("Please enter a float value between 0.0 and 1.0")
+            if 0 <= data <= 1:
+                pass
+            else:
+                raise ValidationError("Please enter a float value between 0.0 and 1.0")
+            data = str(data)
+        return data
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if "installed_capacity" in cleaned_data and "age_installed" in cleaned_data:
+            if (
+                cleaned_data["installed_capacity"] == 0.0
+                and cleaned_data["age_installed"] > 0
+            ):
+                self.add_error(
+                    "age_installed",
+                    _(
+                        "If you have no installed capacity, age installed should also be 0"
+                    ),
+                )
+
+        if self.asset_type_name == "heat_pump":
+            efficiency = cleaned_data["efficiency"]
+            self.timeseries_same_as_timestamps(efficiency, "efficiency")
+
+        if self.asset_type_name == "chp_fixed_ratio":
+            if (
+                float(cleaned_data["efficiency"])
+                + float(cleaned_data["efficiency_multiple"])
+                > 1
+            ):
+                msg = _("The sum of the efficiencies should not exceed 1")
+                self.add_error("efficiency", msg)
+                self.add_error("efficiency_multiple", msg)
+
+        if "dso" in self.asset_type_name:
+            feedin_tariff = np.array([cleaned_data["feedin_tariff"]])
+            energy_price = np.array([cleaned_data["energy_price"]])
+            diff = feedin_tariff - energy_price
+            if (diff > 0).any() is True:
+                msg = _(
+                    "Feed-in tariff > energy price for some of simulation's timesteps. This would cause an unbound solution and terminate the optimization. Please reconsider your feed-in tariff and energy price."
+                )
+                self.add_error("feedin_tariff", msg)
+            self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
+            self.timeseries_same_as_timestamps(energy_price, "energy_price")
+
+        return cleaned_data
+
+    def timeseries_same_as_timestamps(self, ts, param):
+        if isinstance(ts, np.ndarray):
+            ts = np.squeeze(ts).tolist()
+        if isinstance(ts, float) is False and isinstance(ts, int) is False:
+            if len(ts) > 1:
+                if self.timestamps is not None:
+                    if len(ts) != len(self.timestamps):
+                        # TODO look for verbose of param
+                        msg = (
+                            _("The number of values of the parameter ")
+                            + _(param)
+                            + f" ({len(ts)})"
+                            + _(" are not equal to the number of simulation timesteps")
+                            + f" ({len(self.timestamps)})"
+                            + _(
+                                ". You can change the number of timesteps in the first step of scenario creation."
+                            )
+                        )
+                        self.add_error(param, msg)
 
     class Meta:
         model = Asset
@@ -1018,12 +1109,25 @@ class StorageForm(AssetCreateForm):
     def __init__(self, *args, **kwargs):
         asset_type_name = kwargs.pop("asset_type", None)
         super(StorageForm, self).__init__(*args, asset_type="capacity", **kwargs)
-
         self.fields["crate"].widget = forms.HiddenInput()
         self.fields["crate"].initial = 1
         self.fields["dispatchable"].widget = forms.HiddenInput()
         self.fields["dispatchable"].initial = True
         self.fields["installed_capacity"].label = _("Installed capacity (kWh)")
+        if asset_type_name != "hess":
+            self.fields["fixed_thermal_losses_relative"].widget = forms.HiddenInput()
+            self.fields["fixed_thermal_losses_relative"].initial = 0
+            self.fields["fixed_thermal_losses_absolute"].widget = forms.HiddenInput()
+            self.fields["fixed_thermal_losses_absolute"].initial = 0
+            self.fields["thermal_loss_rate"].widget = forms.HiddenInput()
+            self.fields["thermal_loss_rate"].initial = 0
+        else:
+            self.fields["fixed_thermal_losses_relative"] = DualNumberField(
+                default=0.1, min=0, max=1, param_name="fixed_thermal_losses_relative"
+            )
+            self.fields["fixed_thermal_losses_absolute"] = DualNumberField(
+                default=0.1, min=0, param_name="fixed_thermal_losses_absolute"
+            )
 
     field_order = [
         "name",

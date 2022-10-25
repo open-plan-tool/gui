@@ -9,6 +9,7 @@ from projects.models import (
     Asset,
     Project,
     EconomicData,
+    COPCalculator,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -55,7 +56,18 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
 def handle_storage_unit_form_post(
     request, scen_id=0, asset_type_name="", asset_uuid=None
 ):
-    form = StorageForm(request.POST, request.FILES, asset_type=asset_type_name)
+
+    input_output_mapping = {
+        "inputs": request.POST.get("inputs", "").split(","),
+        "outputs": request.POST.get("outputs", "").split(","),
+    }
+
+    form = StorageForm(
+        request.POST,
+        request.FILES,
+        asset_type=asset_type_name,
+        input_output_mapping=input_output_mapping,
+    )
     scenario = get_object_or_404(Scenario, id=scen_id)
 
     if form.is_valid():
@@ -108,7 +120,7 @@ def handle_storage_unit_form_post(
 
                 # split efficiency between charge and discharge
                 if param == "efficiency":
-                    value = np.sqrt(value)
+                    value = np.sqrt(float(value))
                 # for the charge and discharge set all costs to 0
                 if param in ["capex_fix", "capex_var", "opex_fix", "opex_var"]:
                     value = 0
@@ -138,6 +150,13 @@ def handle_storage_unit_form_post(
 
 
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
+
+    # collect the information about the connected nodes in the GUI
+    input_output_mapping = {
+        "inputs": json.loads(request.POST.get("inputs", "[]")),
+        "outputs": json.loads(request.POST.get("outputs", "[]")),
+    }
+
     if asset_uuid:
         existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
         form = AssetCreateForm(
@@ -145,9 +164,16 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
             request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
+            input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(request.POST, request.FILES, asset_type=asset_type_name)
+        form = AssetCreateForm(
+            request.POST,
+            request.FILES,
+            asset_type=asset_type_name,
+            scenario_id=scen_id,
+            input_output_mapping=input_output_mapping,
+        )
 
     asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
     scenario = get_object_or_404(Scenario, pk=scen_id)
@@ -163,6 +189,14 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
                 f"Failed to set positioning for asset {asset.name} in scenario: {scen_id}."
             )
         asset.save()
+
+        # will apply for he
+        cop_calculator_id = request.POST.get("copId", "")
+        if asset_type_name == "heat_pump" and cop_calculator_id != "":
+            existing_cop = get_object_or_404(COPCalculator, id=cop_calculator_id)
+            existing_cop.asset = asset
+            existing_cop.save()
+
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
     logger.warning(f"The submitted asset has erroneous field values.")
 

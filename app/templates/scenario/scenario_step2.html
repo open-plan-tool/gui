@@ -17,6 +17,7 @@
 {% block start_body_scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js" integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.1.1/d3.min.js" integrity="sha512-COTaPOlz12cG4fSfcBsxZsjauBAyldqp+8FQUM/dZHm+ts/jR4AFoJhCqxy8K10Jrf3pojfsbq7fAPTb1XaVkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script src="{% static 'js/traceplot.js' %}"></script>
 
 <!--
@@ -33,6 +34,7 @@
 
 
 <!-- Modal -->
+
 <div class="modal fade modal--gui" id="guiModal" tabindex="-1" role="dialog" aria-labelledby="guiModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -42,18 +44,36 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-                         <form>
-                             {% csrf_token %}
-            <div class="modal-body">
+					<div class="container">
+						<div class="row align-item-start">
+							<div class="col">
+								<form id="assetForm">
+									{% csrf_token %}
+									<div class="modal-body">
+									</div>
+					 			</form>
+							</div>
+							<div class="col collapse modal-body" id="form-computeCOP">
+								<button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
+
+							 <form id="copForm">
+								{% csrf_token %}
+								<div class="modal-addendum">
+								</div>
+							 </form>
+							</div>
+
+						</div>
+
+					</div>
 
 
-            </div>
-                             </form>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
                 {% if scenario.project.user == request.user %}
                 <button class="btn btn--medium" onclick="submitForm(event)">{% translate "Save" %}</button>
                 {% endif %}
+
             </div>
         </div>
     </div>
@@ -126,10 +146,17 @@
         const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
         const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
         const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
+        const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
+        const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
     </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
+
+
+
+
+
         // activate the double click function provided in grid_model_topology
         document.querySelector('.drawflow').addEventListener("dblclick", dblClick);
 
@@ -141,11 +168,11 @@
                 .then(async () => addLinks(data['links']))
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
         });
-    </script>
+</script>
 
 <script defer>
 $(document).ready(function () {
-    disabled_assets = ["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
+    disabled_assets = [];//["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
     disabled_assets.forEach(asset_name => {document.querySelector(`[data-node='${asset_name}']`).classList.add("greyed_out"); document.querySelector(`[data-node='${asset_name}']`).setAttribute("title", "This is disabled")});
 })
         function clearGridModel() {
@@ -246,7 +273,7 @@ $(document).ready(function () {
         {% if scenario.project.user == request.user %}
         <button class="btn btn--medium btn--transparent" onclick="javascript:save_topology()">{% translate "Save" %}</button>
         {% endif %}
-        <a onclick="javascript:save_topology(move_step=true)" id=next_btn" class="btn btn--medium" >{% translate "Next" %} </a>
+        <a onclick="javascript:save_topology(move_step=true)" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </a>
     </div>
     <div class="step-footer__right">
 

@@ -7,6 +7,18 @@ const nodesToDB = new Map();
 var guiModalDOM = document.getElementById("guiModal");
 var guiModal = new bootstrap.Modal(guiModalDOM);
 
+var copCollapseDOM = document.getElementById('form-computeCOP');
+if(copCollapseDOM){
+    var copCollapse = new bootstrap.Collapse(copCollapseDOM);
+    // refresh the field of the projects/forms.py::COPCalculatorForm to plot the data if any
+    copCollapseDOM.addEventListener('shown.bs.collapse', function () {
+    tHighDOM = guiModalDOM.querySelector('input[name="temperature_high_scalar"]');
+    if(tHighDOM){tHighDOM.dispatchEvent(new Event('change'));}
+    tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
+    if(tLowDOM){tLowDOM.dispatchEvent(new Event('change'));}
+})
+}
+
 
 
 // Initialize Drawflow
@@ -102,6 +114,95 @@ function updateInputTimeseries(){
     }
 }
 
+// find out the name of the other nodes the given node is connected to
+function getInputOutputMapping(nodeId){
+    var input_output_mapping = {"inputs": {}, "outputs": {}};
+    editor.getNodeFromId(nodeId).inputs.input_1.connections.map(c => {const nodeIn = editor.getNodeFromId(parseInt(c.node)); input_output_mapping["inputs"][nodeIn.data.bustype] = nodeIn.data.name;});
+    editor.getNodeFromId(nodeId).outputs.output_1.connections.map(c => {const nodeOut = editor.getNodeFromId(parseInt(c.node)); input_output_mapping["outputs"][nodeOut.data.bustype] = nodeOut.data.name;});
+    input_output_mapping["inputs"] = JSON.stringify(input_output_mapping["inputs"]);
+    input_output_mapping["outputs"] = JSON.stringify(input_output_mapping["outputs"]);
+
+    return input_output_mapping;
+}
+
+
+
+	// COP calculation from temperature
+	function toggle_cop_modal(event){
+
+		// get the parameters which uniquely identify the asset
+		const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+		const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+
+		const getUrl = copGetUrl + assetTypeName +
+			(nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
+
+		$.ajax({
+			type: "GET",
+			url: getUrl,
+			success: function (formContent) {
+					// assign the content of the form to the form tag of the modal
+					guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+					//make this invisible then
+			},
+	 })
+	}
+
+    // function to compute the COP of a heat pump linked with the button of id="btn-computeCOP" in templates/scenario//scenario_step2.html
+	function computeCOP(event){
+
+		// get the parameters which uniquely identify the asset
+		const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+		const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+        const copForm = event.target.closest('.modal-content').querySelector('#copForm');
+        console.log(assetForm)
+        const formData = new FormData(copForm);
+
+	  // copPostUrl is defined in scenario_step2.html
+		const postUrl = copPostUrl + assetTypeName
+				+ (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
+
+		// send the form of the asset to be saved in database (projects/views.py::asset_cops_create_or_update)
+		$.ajax({
+            headers: {'X-CSRFToken': csrfToken },
+            type: "POST",
+            url: postUrl,
+            data: formData,
+            processData: false,  // tells jQuery not to treat the data
+            contentType: false,   // tells jQuery not to define contentType
+            success: function (jsonRes) {
+                if (jsonRes.success) {
+                console.log(jsonRes.cops);
+                console.log(jsonRes.cop_id);
+                    // close the cop area
+                    copCollapse.hide();
+
+                    efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
+                    if(efficiencyDOM){
+                        efficiencyDOM.value = jsonRes.cops;
+                        efficiencyDOM.dispatchEvent(new Event('change'));
+                    }
+                    copDOM = guiModalDOM.querySelector('input[name="copId"]');
+                    if(copDOM){
+                        copDOM.value = jsonRes.cop_id
+                    }
+
+                } else {
+                        // assign the content of the form to the form tag of the modal
+                        guiModalDOM.querySelector('form .modal-addendum').innerHTML = jsonRes.form_html;
+                }
+
+            },
+            error: function (err) {
+                    guiModalDOM.querySelector('form .modal-body').innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
+		})
+	}
+
+
+
+
 // one needs to add this function as event with eventListener (<some jquery div>.addEventListener("dblclick", dblClick))
 const dblClick = (e) => {
 
@@ -110,32 +211,38 @@ const dblClick = (e) => {
 
     if (closestNode) {
         const topologyNodeId = closestNode.id;
+
+        const nodeId = parseInt(topologyNodeId.split("-").pop());
+        const input_output_mapping = getInputOutputMapping(nodeId);
         // formGetUrl is defined in scenario_step2.html
         const getUrl = formGetUrl + nodeType +
             (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
         // get the form of the asset of the type "nodeType" (projects/views.py::get_asset_create_form)
-        fetch(getUrl)
-        .then(formContent=>formContent.text())
-        .then(formContent=> {
+         $.ajax({
+            //headers: {'X-CSRFToken': csrfToken },
+            type: "GET",
+            url: getUrl,
+            data: input_output_mapping,
+            success: function (formContent) {
+                // assign the content of the form to the form tag of the modal
+                guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
 
-            // assign the content of the form to the form tag of the modal
-            guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
+                // set parameters which uniquely identify the asset
+                guiModalDOM.setAttribute("data-node-type", nodeType);
+                guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
+                guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
+                editor.editor_mode = "fixed";
 
-            // set parameters which uniquely identify the asset
-            guiModalDOM.setAttribute("data-node-type", nodeType);
-            guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
-            guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
-            editor.editor_mode = "fixed";
+                updateInputTimeseries()
 
-            updateInputTimeseries()
-
-            guiModal.show()
-            $('[data-bs-toggle="tooltip"]').tooltip()
-
-        })
-        //.catch(err => alert("Modal get form JS Error: " + err));
-
+                guiModal.show();
+                if(copCollapseDOM){
+                    copCollapse.hide();
+                }
+                $('[data-bs-toggle="tooltip"]').tooltip()
+            },
+         })
     }
 };
 // endregion
@@ -170,6 +277,12 @@ const submitForm = (e) => {
         formData.set('input_ports', nodeInputs);
         formData.set('output_ports', nodeOutputs);
     }
+    else{
+        const nodeId = parseInt(topologyNodeId.split("-").pop());
+        const input_output_mapping = getInputOutputMapping(nodeId);
+        formData.set("inputs", input_output_mapping.inputs);
+        formData.set("outputs", input_output_mapping.outputs);
+    }
 
     // formPostUrl is defined in scenario_step2.html
     const postUrl = formPostUrl + assetTypeName
@@ -188,16 +301,23 @@ const submitForm = (e) => {
                 // add the node id to the nodesToDB mapping
                 if (nodesToDB.has(topologyNodeId) === false)
                     nodesToDB.set(topologyNodeId, {uid:jsonRes.asset_id, assetTypeName: assetTypeName });
-                guiModal.hide()
+
+                guiModal.hide();
+                if(copCollapseDOM){
+                    copCollapse.hide();
+                }
+
             } else {
-                assetForm.innerHTML = jsonRes.form_html;
+                // assign the content of the form to the form tag of the modal
+                guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
             }
 
         },
         error: function (err) {
-            assetForm.innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
+            guiModalDOM.querySelector('form .modal-body').innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
     })
 }
+
 
 
 $("#guiModal").on('shown.bs.modal', function (event) {
@@ -212,6 +332,10 @@ $("#guiModal").on('shown.bs.modal', function (event) {
             Plotly.relayout(plotDiv, {width: plotDiv.clientWidth});
          }
      }
+     const evt = new Event("change");
+	 // look only for the form with the provided class to be extra safe
+	 document.querySelectorAll("input[name$='_scalar']").forEach(node => { node.dispatchEvent(evt); });
+
  })
 
 /* Triggered before the modal opens */

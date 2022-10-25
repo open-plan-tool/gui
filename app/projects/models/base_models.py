@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 
 from users.models import CustomUser
 from projects.constants import (
@@ -15,6 +16,7 @@ from projects.constants import (
     COUNTRY,
     CURRENCY,
     ENERGY_VECTOR,
+    COP_MODES,
     FLOW_DIRECTION,
     MVS_TYPE,
     SIMULATION_STATUS,
@@ -309,6 +311,12 @@ class AssetType(models.Model):
             temp.append(field_name)
             self.asset_fields = "[" + ",".join(temp) + "]"
 
+    def remove_field(self, field_name):
+        temp = self.visible_fields
+        if field_name in temp:
+            temp.pop(temp.index(field_name))
+            self.asset_fields = "[" + ",".join(temp) + "]"
+
 
 class TopologyNode(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False)
@@ -362,11 +370,11 @@ class Asset(TopologyNode):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    efficiency = models.FloatField(
-        null=True,
-        blank=False,
-        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
-    )
+    efficiency = models.TextField(null=True, blank=False)
+    # used in the case of transformers with one input and two outputs
+    # or two inputs and one output
+    efficiency_multiple = models.TextField(null=True, blank=False)
+
     soc_max = models.FloatField(
         null=True,
         blank=False,
@@ -383,12 +391,8 @@ class Asset(TopologyNode):
     maximum_capacity = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    energy_price = models.FloatField(
-        null=True, blank=False, validators=[MinValueValidator(0.0)]
-    )
-    feedin_tariff = models.FloatField(
-        null=True, blank=False, validators=[MinValueValidator(0.0)]
-    )
+    energy_price = models.TextField(null=True, blank=False)
+    feedin_tariff = models.TextField(null=True, blank=False)
 
     feedin_cap = models.FloatField(
         default=None, null=True, blank=False, validators=[MinValueValidator(0.0)]
@@ -420,6 +424,12 @@ class Asset(TopologyNode):
     age_installed = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
+
+    thermal_loss_rate = models.FloatField(
+        null=True, blank=False, validators=[MinValueValidator(0.0)]
+    )
+    fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
+    fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
 
     @property
     def fields(self):
@@ -494,6 +504,67 @@ class Asset(TopologyNode):
 
     def is_input_timeseries_empty(self):
         return self.input_timeseries == ""
+
+
+class COPCalculator(models.Model):
+
+    scenario = models.ForeignKey(
+        Scenario, on_delete=models.CASCADE, null=False, blank=False
+    )
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=True, blank=True)
+
+    temperature_high = models.TextField(null=False, blank=False)
+    temperature_low = models.TextField(null=False, blank=False)
+
+    temp_threshold_icing = quality_grade = models.FloatField(
+        null=True, default=2, validators=[MinValueValidator(-273.15)]
+    )
+
+    quality_grade = models.FloatField(
+        null=True,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    factor_icing = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    mode = models.CharField(max_length=20, choices=COP_MODES)
+
+    @property
+    def temp_high(self):
+        try:
+            answer = json.loads(self.temperature_high)
+        except json.decoder.JSONDecodeError:
+            answer = []
+        if isinstance(answer, float):
+            answer = [answer]
+        return answer
+
+    @property
+    def temp_low(self):
+        try:
+            answer = json.loads(self.temperature_low)
+        except json.decoder.JSONDecodeError:
+            answer = []
+        if isinstance(answer, float):
+            answer = [answer]
+        return answer
+
+    def calc_cops(self):
+        cops = cmpr_hp_chiller.calc_cops(
+            temp_high=self.temp_high,
+            temp_low=self.temp_low,
+            mode=self.mode,
+            quality_grade=self.quality_grade,
+            factor_icing=self.factor_icing,
+            temp_threshold_icing=self.temp_threshold_icing,
+        )
+        if len(cops) == 1:
+            cops = cops[0]
+        return cops
 
 
 class Bus(TopologyNode):
