@@ -43,25 +43,9 @@
           }
     }
     </script>
- <!--   <section class="scenario-create">
-			<div>
-				Here we see a dropdown/checklist or a form where we can choose different scenarios we would like to simulate
-			  <p>Possibly we also provide some economic data such as interest rate, tax factor, currency, location (for weather data)
-				<ul>
-				<b>In:</b>
-				<li>Custom load profile (from step 1 or own profile)</li>
-				<li>Predefined scenarios</li>
-				<ul>
-					<li>Diesel</li>
-					<li>PV+storage</li>
-					<li>PV+Diesel</li>
-					<li>PV+Diesel+storage</li>
-				</ul>
-				<li>Component properties</li>
-				</ul>
-			  </p>
-			</div>
-	-->
+    <div class="grid-container text">{% translate "Select your energy system components:" %}
+
+    </div>
     <div class="grid-container">
         <form method="post">
             <input class="form-check-input" type="checkbox" id="diesel" value="Diesel" onclick="displayForm('diesel_params');">
@@ -77,7 +61,7 @@
         </form>
     </div>
     <div class="grid-container">
-        <div id="diesel_params" style="visibility:hidden">
+        <div class="form-stretch" id="diesel_params" style="visibility:hidden">
             <form method="post">
                 <label class="col-form-label requiredField" for="diesel_development_costs">Development costs</label><br>
                 <input type="number" class="textInput form-control" id="diesel_development_costs" name="diesel_development_costs"><br>
@@ -102,7 +86,7 @@
                 </select>
             </form>
         </div>
-                <div id="pv_params" style="visibility:hidden">
+                <div class="form-stretch" id="pv_params" style="visibility:hidden">
                     <form method="post">
                         <label class="col-form-label requiredField" for="development_costs">Development costs</label><br>
                         <input type="number" class="textInput form-control" id="development_costs" name="development_costs"><br>
@@ -125,7 +109,7 @@
                         </select>
                     </form>
                 </div>
-                <div id="storage_params" style="visibility:hidden">
+                <div class="form-stretch" id="storage_params" style="visibility:hidden">
                     <form method="post">
                         <label class="col-form-label requiredField" for="storage_development_costs">Development costs</label><br>
                         <input type="number" class="textInput form-control" id="storage_development_costs" name="storage_development_costs"><br>
