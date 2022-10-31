@@ -188,16 +188,11 @@ class RenewableNinjas:
 
         self.data = pv_data
         return
-
+"""
     def create_pv_graph(self):
         date_range = pd.Series(pd.date_range('2019-01-01', '2019-12-31'))
         daily_avg = [np.mean(self.data.loc[day.strftime('%Y-%m-%d')]) for day in date_range]
         fig = plt.plot(date_range, daily_avg)
         plt.ylabel('kW')
         return fig
-
-    """
-    def download_pv_data(self, request):
-        self.data.to_csv('./testoutput.csv', index=False, sep=';')
-        response = HttpResponse()
 """

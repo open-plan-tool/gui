@@ -20,7 +20,6 @@ from projects.models import *
 from projects.services import RenewableNinjas
 from projects.constants import DONE, PENDING, ERROR, MODIFIED
 
-
 logger = logging.getLogger(__name__)
 
 CPN_STEP_LIST = [
@@ -179,10 +178,17 @@ def cpn_steps(request, proj_id, step_id=None, scen_id=1):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+# TODO: make this view work with dynamic coordinates (from map)
 def get_pv_output(request, proj_id):
-    coordinates = {'lat': 10.194696,
-                   'lon': 7.371826}
+    project = Project.objects.get(id=proj_id)
+    coordinates = {'lat': project.latitude,
+                   'lon': project.longitude}
     location = RenewableNinjas()
     location.get_pv_output(coordinates)
-    fig = location.create_pv_graph()
-    return HttpResponseRedirect(reverse("cpn_scenario_create", args=[proj_id]))
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="pv_output.csv"'},
+    )
+    location.data.to_csv(response, index=False, sep=';')
+
+    return response
