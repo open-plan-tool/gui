@@ -38,7 +38,7 @@
                         <div class="input-item">
                             {{ form.longitude|as_crispy_field }}
                         </div>
-						<a class="btn btn--medium" type="button">{% translate "Fetch weather data from location" %}</a>
+						<a class="btn btn--medium" href="{% url 'get_pv_output' proj_id %}" type="button">{% translate "Fetch weather data from location" %}</a>
 						<a class="btn btn--medium" type="button">
 								{% translate "Upload weather data" %}
 						</a>

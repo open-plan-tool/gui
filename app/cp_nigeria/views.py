@@ -52,20 +52,9 @@ def cpn_scenario_create(request, proj_id, scen_id=None, step_id=1):
                 user=request.user,
             )
 
-            location = RenewableNinjas()
-            coordinates = {'lat': form.cleaned_data["latitude"],
-                           'lon': form.cleaned_data["latitude"]}
-            location.get_pv_output(coordinates)
-
-            return HttpResponseRedirect(reverse("cpn_review", args=[project.id])), fig
+            return HttpResponseRedirect(reverse("cpn_review", args=[project.id]))
     else:
         form = CPNLocationForm()
-        project = Project.objects.get(id=proj_id)
-        location = RenewableNinjas()
-        coordinates = {'lat': project.latitude,
-                       'lon': project.longitude}
-        location.get_pv_output(coordinates)
-        fig = location.create_pv_graph()
 
     return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
                   {"form": form,
@@ -189,12 +178,11 @@ def cpn_steps(request, proj_id, step_id=None, scen_id=1):
 
 
 @login_required
-@require_http_methods(["GET"])
-def get_pv_output(latitude, longitude):
-    coordinates = {'lat': latitude,
-                   'lon': longitude}
+@require_http_methods(["GET", "POST"])
+def get_pv_output(request, proj_id):
+    coordinates = {'lat': 10.194696,
+                   'lon': 7.371826}
     location = RenewableNinjas()
     location.get_pv_output(coordinates)
     fig = location.create_pv_graph()
-    print('something dumb')
-    return fig
+    return HttpResponseRedirect(reverse("cpn_scenario_create", args=[proj_id]))
