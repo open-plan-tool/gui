@@ -172,18 +172,18 @@ nav.navbar {
     ul {
       @include ul-horizontal;
     }
-  
+
     li {
       display: inline-block;
       color: $primary-gray-color-3;
       position: relative;
       font-weight: 700;
       font-size: $font-size-small;
-  
+
       &:not(:last-of-type) {
         padding-right: 2rem;
       }
-  
+
       &::before {
         font-size: $font-size-small;
         font-weight: 700;
@@ -194,16 +194,16 @@ nav.navbar {
         width: 2rem;
         border-radius: 100px;
       }
-  
+
       @for $i from 1 through 4 {
         &:nth-child(#{$i})::before {
           content: "#{$i}";
         }
       }
-  
+
       &.active {
         color: $primary-color-1;
-  
+
         &::before {
           background-color: $primary-color-1;
         }

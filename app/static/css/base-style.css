@@ -42,7 +42,7 @@ body {
 #userr {
   color: #5a6268 !important;
   opacity: 0.7;
-  
+
 }
 
 .navbar-brand p {
@@ -159,7 +159,7 @@ input[type="checkbox"] {
 .navbar-inverse .navbar-nav > .open > a:hover {
   background-color: transparent !important;
   color: #5a6268 !important;
- 
+
 }
 
 .logoo {
@@ -989,10 +989,10 @@ path.surface {
   background-color: #15a4fa;
   color:#1c1c1c;
   box-shadow: 3px 3px 8px #15a2fabb;
- 
+
 }
 .anim500{
-  
+
   width: 220px;
   height: 220px;
   top:-200px;
@@ -1013,14 +1013,14 @@ path.surface {
 }
 
 @media (max-width: 992px) {
-  
+
   .errorheading{
       text-align: center;
       font-weight: 800;
       font-size:150px;
       color:#15a4fa;
   }
-  
+
   .anim{
       top: -130px !important;
   }
@@ -1035,17 +1035,17 @@ path.surface {
       font-size: 18px;
       margin-top:-45%;
   }
-  
+
   .errorredirect{
       margin-left:30%;
   }
-  
+
   .errorredirect:hover{
       padding: 1.1rem;
       background-color: #15a4fa;
       color:#1c1c1c;
       box-shadow: 3px 3px 8px #15a2fabb;
-     
+
   }
 }
 @media (max-width: 768px) {
@@ -1081,7 +1081,7 @@ path.surface {
   .errorredirect{
       margin-left:27%;
   }
-  
+
 }
 
 @media (max-width: 350px) {
@@ -1105,7 +1105,7 @@ path.surface {
   }
   .anim500{
       top: -220px;
-      
+
   }
 }
 

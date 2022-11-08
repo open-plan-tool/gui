@@ -305,10 +305,10 @@ span.accordsubtitle{
 .drawflow-node.diesel_generator, .drawflow-node.fuel_cell, .drawflow-node.gas_boiler,
 .drawflow-node.electrolyzer, .drawflow-node.heat_pump, .drawflow-node.gas_demand,
 .drawflow-node.h2_demand, .drawflow-node.heat_demand,
-.drawflow-node.bess, .drawflow-node.gess, .drawflow-node.h2ess, .drawflow-node.hess, .drawflow-node.transformer_station_in, 
+.drawflow-node.bess, .drawflow-node.gess, .drawflow-node.h2ess, .drawflow-node.hess, .drawflow-node.transformer_station_in,
 .drawflow-node.transformer_station_out, .drawflow-node.storage_charge_controller_in, .drawflow-node.storage_charge_controller_out,
 .drawflow-node.solar_inverter, .drawflow-node.charging_power, .drawflow-node.discharging_power, .drawflow-node.capacity
-{   
+{
     border-bottom: 50px solid transparent;
     border-left: 25px solid transparent;
     border-right: 25px solid transparent;
@@ -335,10 +335,10 @@ span.accordsubtitle{
 
 .gas_dso:before {
     background: url("/static/images/gasprovv1.png") no-repeat;
-} 
+}
 .h2_dso:before{
     background: url("/static/images/h2dso1.png") no-repeat;
-} 
+}
 .heat_dso:before  {
     background: url("/static/images/heatprovvv1.png") no-repeat;
 }
@@ -357,34 +357,34 @@ span.accordsubtitle{
 }
 .biogas_plant:before{
     background: url("/static/images/biogasprod1.png") no-repeat;
-} 
+}
 .geothermal_conversion:before{
     background: url("/static/images/geothermalprodd1.png") no-repeat;
-} 
+}
 .solar_thermal_plant:before{
     background: url("/static/images/solarprodd1.png") no-repeat;
 }
 .diesel_generator:before{
     background: url("/static/images/dieselconv1.png") no-repeat;
-} 
+}
 .fuel_cell:before{
     background: url("/static/images/fuelconv21.png") no-repeat;
-} 
+}
 .gas_boiler:before{
     background: url("/static/images/gasconvv1.png") no-repeat;
 }
 .electrolyzer:before{
     background: url("/static/images/electrolyzerconv1.png") no-repeat;
-} 
+}
 .heat_pump:before{
     background: url("/static/images/heatconvv1.png") no-repeat;
-} 
+}
 .gas_demand:before{
     background: url("/static/images/gascons1.png") no-repeat;
 }
 .h2_demand:before{
     background: url("/static/images/h2cons1.png") no-repeat;
-} 
+}
 .heat_demand:before  {
     background: url("/static/images/heatcons1.png") no-repeat;
 }
@@ -429,13 +429,13 @@ span.accordsubtitle{
 .drawflow-node.diesel_generator .input, .drawflow-node.fuel_cell .input, .drawflow-node.gas_boiler .input,
 .drawflow-node.electrolyzer .input, .drawflow-node.heat_pump .input,
 .drawflow-node.gess .input, .drawflow-node.bess .input, .drawflow-node.hess .input, .drawflow-node.h2ess .input,
-.drawflow-node.charging_power .input, .drawflow-node.discharging_power .input, .drawflow-node.capacity .input 
+.drawflow-node.charging_power .input, .drawflow-node.discharging_power .input, .drawflow-node.capacity .input
 .drawflow-node.discharging_power .input, .drawflow-node.ess .input {
     background: green;
     position: absolute;
     left: -10px;
     top: -60px;
-   
+
 }
 .drawflow-node.gess .input, .drawflow-node.bess .input, .drawflow-node.hess .input, .drawflow-node.h2ess .input, .drawflow-node.transformer_station_out .input, .drawflow-node.storage_charge_controller_out .input{
     left: 85px;
@@ -502,7 +502,7 @@ span.accordsubtitle{
     text-align: center;
     left: -50px;
     font-weight:700;
-    
+
     word-break: break-all;
     white-space:normal;
     padding:0.5rem;
@@ -518,7 +518,7 @@ span.accordsubtitle{
     display: none;
 }
 
-.drawflow-node.dso .output, .drawflow-node.dso_consumption .output, .drawflow-node.pv_plant .output, .drawflow-node.wind_plant .output, 
+.drawflow-node.dso .output, .drawflow-node.dso_consumption .output, .drawflow-node.pv_plant .output, .drawflow-node.wind_plant .output,
 .drawflow-node.gas_dso .output, .drawflow-node.h2_dso .output, .drawflow-node.heat_dso .output,
 .drawflow-node.biogas_plant .output, .drawflow-node.geothermal_conversion .output, .drawflow-node.solar_thermal_plant .output,
 .drawflow-node.diesel_generator .output, .drawflow-node.fuel_cell .output, .drawflow-node.gas_boiler .output,
@@ -543,9 +543,9 @@ span.accordsubtitle{
 .drawflow-node.electrolyzer.selected, .drawflow-node.heat_pump.selected, .drawflow-node.gas_demand.selected,
 .drawflow-node.h2_demand.selected, .drawflow-node.heat_demand.selected
 .drawflow-node.gess.selected, .drawflow-node.bess.selected, .drawflow-node.hess.selected, .drawflow-node.h2ess.selected,
-.drawflow-node.transformer_station_in.selected, .drawflow-node.transformer_station_out.selected, .drawflow-node.storage_charge_controller_in.selected, .drawflow-node.storage_charge_controller_out.selected, .drawflow-node.solar_inverter.selected,.drawflow-node.charging_power.selected, 
+.drawflow-node.transformer_station_in.selected, .drawflow-node.transformer_station_out.selected, .drawflow-node.storage_charge_controller_in.selected, .drawflow-node.storage_charge_controller_out.selected, .drawflow-node.solar_inverter.selected,.drawflow-node.charging_power.selected,
 .drawflow-node.discharging_power.selected, .drawflow-node.capacity.selected {
-    
+
     border-top: 50px solid transparent;
     border-left: 25px solid transparent;
     border-right: 25px solid transparent;
@@ -678,7 +678,7 @@ span.accordsubtitle{
     color: transparent;
     background: url("/static/images/buus1.png") no-repeat;
     background-size: 100%;
-   
+
 }
 
 .drawflow-node.bus .input,.drawflow-node.bus .output {
