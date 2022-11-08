@@ -751,7 +751,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.fields[field_name].help_text = help_text
                 self.fields[field_name].label = label
 
-        """ DrawFlow specific configuration, add a special attribute to 
+        """ DrawFlow specific configuration, add a special attribute to
             every field in order for the framework to be able to export
             the data to json.
             !! This addition doesn't affect the previous behavior !!

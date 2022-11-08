@@ -114,11 +114,11 @@ $component-border-color--storage: #90F1EF;
 $component-border-color--demand: #FFD6E0;
 $component-border-color--bus: #F4CC9E;
 $component-categories: (
-  'providers': $component-border-color--providers, 
-  'production': $component-border-color--production, 
-  'conversion': $component-border-color--conversion, 
-  'storage': $component-border-color--storage, 
-  'demand': $component-border-color--demand, 
+  'providers': $component-border-color--providers,
+  'production': $component-border-color--production,
+  'conversion': $component-border-color--conversion,
+  'storage': $component-border-color--storage,
+  'demand': $component-border-color--demand,
   'bus': $component-border-color--bus
 );
 

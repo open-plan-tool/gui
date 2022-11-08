@@ -134,7 +134,7 @@ class BasicOperationsTest(TestCase):
         self.assertEqual(self.project.viewers.filter(user__email=test_email).count(), 0)
 
     def test_remove_project_viewer_via_post_raises_permission_error_if_not_project_owner(
-        self
+        self,
     ):
         pass
 

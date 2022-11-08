@@ -41,7 +41,7 @@ input:focus,  textarea:focus{
 
     </style>
     <br>
-    
+
     <br>
     <br>
     <div class="row">
@@ -57,19 +57,19 @@ input:focus,  textarea:focus{
                     <div class=col-md-6>
                         <img src="{% static 'images/feedback.png' %}" class="feedbackimg"/>
                     </div>
-                    
-                </div> 
+
+                </div>
                 <div class="row">
                     <div class="col-md-3"></div>
                     <div class=col-md-7>
                         <h3 class="textt">{% translate "Should you face any issue, let us know or share your feedback with us!" %}</h3>
                     </div>
-                </div> 
+                </div>
                 <br>
                 <br>
                 <form method="POST">
                     {% csrf_token %}
-                
+
                 <div class="row justify-content-center text-center py-4 px-0">
                     <div class="col-10">
                       <p class="mx-auto">
@@ -115,7 +115,7 @@ input:focus,  textarea:focus{
                                     <path d="M115.8 246.1a38.5 38.5 0 0 0 38.7 38.6 38.5 38.5 0 0 0 38.6-38.6 38.6 38.6 0 1 0-77.3 0z" fill="#3e4347"/>
                                     <path d="M131.6 241.1c3.2 3.2 9.9 1.7 14.9-3.2 4.8-4.8 6.2-11.5 3-14.7-3.3-3.4-10-2-14.9 2.9-4.9 5-6.4 11.7-3 15z" fill="#fff"/>
                                   </svg>
-                                   
+
                                   <svg class="rating-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                     <circle cx="256" cy="256" r="256" fill="#ffd93b"/>
                                     <path d="M512 256A256 256 0 0 1 56.7 416.7a256 256 0 0 0 360-360c58.1 47 95.3 118.8 95.3 199.3z" fill="#f4c534"/>
@@ -170,15 +170,15 @@ input:focus,  textarea:focus{
                                     <path d="M381.7 374.1c-30.2 35.9-75.3 64.4-125.7 64.4s-95.4-28.5-125.8-64.2a17.6 17.6 0 0 1 16.5-28.7 627.7 627.7 0 0 0 218.7-.1c16.2-2.7 27 16.1 16.3 28.6z" fill="#3e4347"/>
                                     <path d="M256 438.5c25.7 0 50-7.5 71.7-19.5-9-33.7-40.7-43.3-62.6-31.7-29.7 15.8-62.8-4.7-75.6 34.3 20.3 10.4 42.8 17 66.5 17z" fill="#e24b4b"/>
                                   </svg>
-                                   
+
                                   </div>
                                 </div>
                               </div>
                             </div>
-                         
+
                     </div>
                   </div>
-                
+
                     <div id="FormGroup" class="form-group">
                         {% for field in form %}
                         <div class="form-row" style="margin-left: -15px;">
@@ -193,8 +193,8 @@ input:focus,  textarea:focus{
 
                     <label class="col-form-label col-lg-8 requiredField" for="subject">{% translate "Subject" %}</label>
                     <input type="text"  placeholder="Subject...">
-                
-                
+
+
                     <label class="col-form-label col-lg-8 requiredField" for="feedback">{% translate "Feedback" %}</label>
                     <textarea placeholder="Share your thoughts..." style="height:200px"></textarea> {% endcomment %}
                     <div class="row">
@@ -207,15 +207,15 @@ input:focus,  textarea:focus{
                         <div class="col-sm-2"></div>
                     </div>
                   </form>
-                  
-                
+
+
                 <div class="col-sm-2"></div>
-               
+
             </div>
         </div>
     </div>
     <br>
     <br>
 
- 
+
 {% endblock content %}

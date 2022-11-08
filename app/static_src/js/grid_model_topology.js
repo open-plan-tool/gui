@@ -174,9 +174,9 @@ const submitForm = (e) => {
     const drawflowNodeId = topologyNodeId.split("-").pop();
     const postUrl = formPostUrl + assetTypeName
         + (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
-    
+
     const formData = new FormData(assetForm);
-    
+
     const nodePosX = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_x
     const nodePosY = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_y
     formData.set('pos_x', nodePosX);
@@ -192,7 +192,7 @@ const submitForm = (e) => {
         method: "POST",
         headers: {
             // 'Content-Type': 'multipart/form-data', //'application/json', // if enabled then read json.loads(request.body) in the backend
-            "X-CSRFToken": csrfToken 
+            "X-CSRFToken": csrfToken
         },
         body: formData,
     })
@@ -207,7 +207,7 @@ const submitForm = (e) => {
         }
     })
     .catch(err => console.log("Modal form JS Error: " + err));
-} 
+}
 
 // On Esc button press, close modal
 document.addEventListener('keydown', function (e) {
