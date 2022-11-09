@@ -704,7 +704,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 default=0.1, param_name="feedin_tariff"
             )
 
-        """ DrawFlow specific configuration, add a special attribute to 
+        """ DrawFlow specific configuration, add a special attribute to
             every field in order for the framework to be able to export
             the data to json.
             !! This addition doesn't affect the previous behavior !!
