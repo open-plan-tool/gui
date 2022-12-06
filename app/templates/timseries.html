@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<form method="post" action="{% url 'timeseries_test_form_submit' %}">
+  {{ form_html_banana|crispy }}
+	<button class="btn btn--medium" type="submit">{% translate "Save project" %}</button>
+  {% csrf_token %}
+</form>

@@ -69,6 +69,16 @@ urlpatterns = [
         name="scenario_steps",
     ),
     path(
+        "timeseries_test_get_form",
+        timeseries_test_get_form,
+        name="timeseries_test_get_form",
+    ),
+    path(
+        "timeseries_test_get_form_submit",
+        timeseries_test_get_form,
+        name="timeseries_test_form_submit",
+    ),
+    path(
         "project/<int:proj_id>/scenario/<int:scen_id>/edit/step/<int:step_id>",
         scenario_steps,
         name="scenario_steps_edit",

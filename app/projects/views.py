@@ -171,6 +171,29 @@ def project_share(request, proj_id):
 
     return HttpResponseRedirect(reverse("project_search", args=[proj_id]))
 
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_test_get_form(request):
+    if request.method == "GET":
+        form = TimeseriesForm(initial={"start_time":"2022-12-06", "end_time":"2022-12-31", "name":"sjsisi", "units": "kWh"})
+        return render(
+            request,
+            "timseries.html",
+            context={"form_html_banana": form},
+        )
+    elif request.method == "POST":
+        form = TimeseriesForm(request.POST)
+        import pdb;
+        pdb.set_trace()
+        if form.is_valid():
+            form.save()
+            messages.success(request, "alles gut")
+        else:
+            messages.error(request, "nicht geklappt :( ")
+
+    return HttpResponseRedirect(reverse("project_search"))
+
+
 
 @login_required
 @json_view
@@ -344,6 +367,10 @@ def project_upload(request):
 @login_required
 @require_http_methods(["GET", "POST"])
 def project_from_usecase(request, usecase_id=None):
+
+    import pdb;pdb.set_trace()
+
+
     if request.method == "POST":
         usecase_id = request.POST.get("usecase", None)
     if usecase_id is not None:
@@ -405,9 +432,10 @@ def project_search(request, proj_id=None, scen_id=None):
     )
     project_share_form = ProjectShareForm()
     project_revoke_form = ProjectRevokeForm(proj_id=proj_id)
-    usecase_form = UseCaseForm(
-        usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
-    )
+    # usecase_form = UseCaseForm(
+    #     usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
+    # )
+    usecase_form = TimeseriesForm()
 
     return render(
         request,

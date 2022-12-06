@@ -53,6 +53,12 @@ class Viewer(models.Model):
     def __str__(self):
         return f"{self.user.email} [{self.share_rights}]"
 
+class TimeseriesModel(models.Model):
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    units = models.CharField(max_length=50, choices=(("kWh", "kWh"), ("MWh", "MWh")))
+    name = models.CharField(max_length=120)
+
 
 class Project(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)

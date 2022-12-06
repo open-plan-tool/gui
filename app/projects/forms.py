@@ -344,6 +344,11 @@ class UploadFileForm(forms.Form):
             for field in labels:
                 self.fields[field].label = _(labels[field])
 
+class TimeseriesForm(ModelForm):
+    class Meta:
+        model = TimeseriesModel
+        exclude = ["id", "project"]
+
 
 class UseCaseForm(forms.Form):
     usecase = forms.ChoiceField()
@@ -652,17 +657,17 @@ class AssetCreateForm(OpenPlanModelForm):
         self.fields["inputs"] = forms.CharField(widget=forms.HiddenInput())
 
         if self.asset_type_name == "heat_pump":
-            self.fields["efficiency"] = DualNumberField(
-                default=1, min=1, param_name="efficiency"
-            )
+            # self.fields["efficiency"] = DualNumberField(
+            #     default=1, min=1, param_name="efficiency"
+            # )
             self.fields["efficiency"].label = "COP"
 
             value = self.fields.pop("efficiency")
             self.fields["efficiency"] = value
         if self.asset_type_name == "chp":
-            self.fields["efficiency"] = DualNumberField(
-                default=1, min=0, max=1, param_name="efficiency"
-            )
+            # self.fields["efficiency"] = DualNumberField(
+            #     default=1, min=0, max=1, param_name="efficiency"
+            # )
             self.fields["efficiency"].label = _(
                 "Electrical efficiency with no heat extraction"
             )
@@ -858,7 +863,7 @@ class AssetCreateForm(OpenPlanModelForm):
         model = Asset
         exclude = ["scenario"]
         widgets = {
-            "optimize_cap": forms.Select(choices=BOOL_CHOICES),
+            #"optimize_cap": forms.Select(choices=BOOL_CHOICES),
             "dispatchable": forms.Select(choices=TRUE_FALSE_CHOICES),
             "renewable_asset": forms.Select(choices=TRUE_FALSE_CHOICES),
             "name": forms.TextInput(
