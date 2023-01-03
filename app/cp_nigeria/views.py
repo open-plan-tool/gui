@@ -1,5 +1,3 @@
-# from bootstrap_modal_forms.generic import BSModalCreateView
-# from bootstrap_modal_forms.generic import BSModalCreateView
 from django.contrib.auth.decorators import login_required
 import json
 import logging
@@ -40,20 +38,15 @@ def home_cpn(request):
 @require_http_methods(["GET", "POST"])
 def cpn_scenario_create(request, proj_id, scen_id=None, step_id=1):
     if request.POST:
-        form = CPNLocationForm(request.POST)
+        form = ProjectForm(request.POST)
         if form.is_valid():
             logger.info(f"Creating new project.")
 
-            project = Project.objects.create(
-                name=form.cleaned_data["name"],
-                longitude=form.cleaned_data["longitude"],
-                latitude=form.cleaned_data["latitude"],
-                user=request.user,
-            )
+            # TODO Process input data
 
-            return HttpResponseRedirect(reverse("cpn_review", args=[project.id]))
+            return HttpResponseRedirect(reverse("cpn_scenario_create", args=[proj_id]))
     else:
-        form = CPNLocationForm()
+        form = ProjectForm()
 
     return render(request, f"cp_nigeria/steps/scenario_step{step_id}.html",
                   {"form": form,
@@ -190,5 +183,6 @@ def get_pv_output(request, proj_id):
         headers={'Content-Disposition': 'attachment; filename="pv_output.csv"'},
     )
     location.data.to_csv(response, index=False, sep=';')
-
+    plot_div = location.create_pv_graph()
+    #HttpResponseRedirect(reverse("home_cpn", args=[project.id]))
     return response

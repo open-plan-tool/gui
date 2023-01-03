@@ -26,28 +26,27 @@
                     {% translate "Fill in the following parameters:" %}
                   </span>
                     </div>
-                    <form method="post">
+                    <form method="post" action="submit">
                         {% csrf_token %}
-
                         <div class="input-item">
-                            {{ form.name| as_crispy_field }}
+                        {{ form.name | as_crispy_field }}
+                        </div>
+                        <div class="input-item optional">
+                        {{ form.description | as_crispy_field }}
                         </div>
                         <div class="input-item">
-                            {{ form.latitude|as_crispy_field }}
+                        {{ form.latitude | as_crispy_field }}
                         </div>
                         <div class="input-item">
-                            {{ form.longitude|as_crispy_field }}
-                        </div>
-						<a class="btn btn--medium" href="{% url 'get_pv_output' proj_id %}" type="button">{% translate "Fetch weather data from location" %}</a>
-						<a class="btn btn--medium" type="button">
-								{% translate "Upload weather data" %}
-						</a>
-                        <div class="input-item">
-                            {{ form.duration|as_crispy_field }}
+                        {{ form.longitude | as_crispy_field }}
                         </div>
                         <div class="input-item">
-                            {{ fig | safe }}
+                        {{ form.date_start | as_crispy_field }}
                         </div>
+                        <div class="input-item">
+                        {{ form.date_end | as_crispy_field }}
+                        </div>
+                        <button class="btn btn--medium" type="submit">{% translate "Save project" %}</button>
                     </form>
                 </div>
             </div>

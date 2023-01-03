@@ -1,5 +1,7 @@
+from django import forms
 from django.utils.translation import ugettext_lazy as _
-from projects.forms import *
+from projects.forms import OpenPlanModelForm, ProjectCreateForm
+from .models import Project
 
 CURVES = (("Evening Peak", "Evening Peak"),
           ("Midday Peak", "Midday Peak"))
@@ -7,6 +9,12 @@ CURVES = (("Evening Peak", "Evening Peak"),
 TIERS = (("Tier 1", "Tier 1"),
          ("Tier 2", "Tier 2"),
          ("Tier 3", "Tier 3"))
+
+
+class ProjectForm(OpenPlanModelForm):
+    class Meta:
+        model = Project
+        fields = "__all__"
 
 
 class CPNLocationForm(ProjectCreateForm):
