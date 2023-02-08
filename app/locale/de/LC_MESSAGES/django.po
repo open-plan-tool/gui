@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-16 14:25+0100\n"
+"POT-Creation-Date: 2023-02-08 13:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -175,7 +175,7 @@ msgstr "Gas"
 msgid "H2"
 msgstr "H2"
 
-#: projects/forms.py:150 projects/forms.py:696
+#: projects/forms.py:150 projects/forms.py:701
 msgid "eg. 0.1"
 msgstr "z. B. 0.1"
 
@@ -343,41 +343,41 @@ msgstr "Startdatum"
 msgid "Development costs"
 msgstr "Entwicklungskosten"
 
-#: projects/forms.py:618
+#: projects/forms.py:623
 msgid "The energy Vector of the connected assets."
 msgstr "Der Energievektor der angeschlossenen Anlagen."
 
-#: projects/forms.py:623 templates/scenario/scenario_results_page.html:65
+#: projects/forms.py:628 templates/scenario/scenario_results_page.html:65
 msgid "Name"
 msgstr "Name"
 
-#: projects/forms.py:623
+#: projects/forms.py:628
 msgid "Energy carrier"
 msgstr "Energieträger"
 
-#: projects/forms.py:669
+#: projects/forms.py:674
 msgid "Electrical efficiency with no heat extraction"
 msgstr "Elektrischer Wirkungsgrad ohne Wärmeauskopplung"
 
-#: projects/forms.py:680
+#: projects/forms.py:685
 msgid "Thermal efficiency with maximal heat extraction"
 msgstr "Thermischer Wirkungsgrad mit maximalem Wärmeentzug"
 
-#: projects/forms.py:683
+#: projects/forms.py:688
 msgid "Stromverlustkenzahl"
 msgstr "Stromverlustkenzahl"
 
-#: projects/forms.py:687
+#: projects/forms.py:692
 msgid "Efficiency gaz to electricity"
 msgstr "Wirkungsgrad gaz auf Strom"
 
-#: projects/forms.py:702
+#: projects/forms.py:707
 #, fuzzy
 #| msgid "Efficiency gas to heat"
 msgid "Efficiency gaz to heat"
 msgstr "Wirkungsgrad gaz-Wärme"
 
-#: projects/forms.py:771
+#: projects/forms.py:776
 msgid ""
 "File not properly formatted. Please ensure you upload a comma separated "
 "array of values. E.g. [1,2,0.32]"
@@ -385,21 +385,21 @@ msgstr ""
 "Datei nicht korrekt formatiert. Bitte stellen Sie sicher, dass Sie ein "
 "kommagetrenntes Array von Werten hochladen, z. B. [1,2,0.32]"
 
-#: projects/forms.py:777
+#: projects/forms.py:782
 msgid "Could not parse a file. Did you upload one?"
 msgstr "Konnte keine Datei einlesen. Haben Sie eine hochgeladen?"
 
-#: projects/forms.py:803
+#: projects/forms.py:808
 msgid "If you have no installed capacity, age installed should also be 0"
 msgstr ""
 "Wenn Sie keine installierte Leistung haben, sollte auch das installierte "
 "Alter 0 sein"
 
-#: projects/forms.py:819
+#: projects/forms.py:824
 msgid "The sum of the efficiencies should not exceed 1"
 msgstr "Die Summe der Wirkungsgrade sollte 1 nicht überschreiten"
 
-#: projects/forms.py:831
+#: projects/forms.py:836
 msgid ""
 "Feed-in tariff > energy price for some of simulation's timesteps. This would "
 "cause an unbound solution and terminate the optimization. Please reconsider "
@@ -409,15 +409,15 @@ msgstr ""
 "würde eine ungebundene Lösung verursachen und die Optimierung beenden. Bitte "
 "überdenken Sie Ihre Einspeisevergütung und Ihren Energiepreis."
 
-#: projects/forms.py:848
+#: projects/forms.py:853
 msgid "The number of values of the parameter "
 msgstr "Die Anzahl der Werte des Parameters ist in der Tabelle angegeben."
 
-#: projects/forms.py:851
+#: projects/forms.py:856
 msgid " are not equal to the number of simulation timesteps"
 msgstr " ist nicht gleich der Anzahl der Simulationszeitschritte"
 
-#: projects/forms.py:854
+#: projects/forms.py:859
 msgid ""
 ". You can change the number of timesteps in the first step of scenario "
 "creation."
@@ -425,11 +425,11 @@ msgstr ""
 ". Sie können die Anzahl der Zeitschritte im ersten Schritt der "
 "Szenarienerstellung ändern."
 
-#: projects/forms.py:965
+#: projects/forms.py:970
 msgid "Timeseries vector"
 msgstr "Zeitreihenvektor"
 
-#: projects/forms.py:968
+#: projects/forms.py:973
 msgid ""
 "You can upload your timeseries as xls(x), csv or json format. Either there "
 "is one column with the values of the timeseries matching the scenario "
@@ -449,7 +449,7 @@ msgstr ""
 "berücksichtigt. Die Zeitreihe im csv-Format wird in kommagetrennten Werten "
 "mit Punkt als Dezimaltrennzeichen."
 
-#: projects/forms.py:979
+#: projects/forms.py:984
 msgid "Installed capacity (kWh)"
 msgstr "installierte Leistung (kW)"
 
@@ -567,8 +567,8 @@ msgstr ""
 msgid ""
 "The user(s) you selected seems to not be registered in the open-plan-tool"
 msgstr ""
-"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im "
-"open-plan-tool registriert zu sein."
+"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im open-"
+"plan-tool registriert zu sein."
 
 #: projects/models/simulation_models.py:49
 msgid ""
@@ -771,11 +771,11 @@ msgstr "Bus"
 
 #: projects/views.py:796
 msgid "Minimal degree of autonomy"
-msgstr "Kleinster Autarkiegrad"
+msgstr "Minimal Autarkiegrad"
 
 #: projects/views.py:797
 msgid "Minimal share of renewables"
-msgstr "Kleinster Anteil Erneuerbarer Energien"
+msgstr "Minimal Anteil Erneuerbarer Energien"
 
 #: projects/views.py:798
 msgid "Maximal CO2 emissions"
@@ -1104,7 +1104,7 @@ msgstr ""
 msgid "License - open_plan"
 msgstr "Lizenz - open_plan"
 
-#: templates/legal/privacy.html:5
+#: templates/legal/privacy.html:5 templates/legal/privacy_DE.html:5
 msgid "Privacy - open_plan"
 msgstr "Datenschutz - open_plan"
 
@@ -2291,7 +2291,7 @@ msgstr ""
 msgid "Log In"
 msgstr "Anmelden"
 
-#: templates/registration/login.html:19 templates/registration/signup.html:22
+#: templates/registration/login.html:19 templates/registration/signup.html:20
 msgid "Welcome to the open-plan-tool"
 msgstr "Willkommen im open-plan-tool"
 
@@ -3189,6 +3189,32 @@ msgstr "Das Mindestmaß an Autonomie, das durch die Optimierung erreicht werden 
 
 msgid "The minimum share of energy supplied by renewable generation that needs to be met by the optimization"
 msgstr "Der Mindestanteil an Energie aus erneuerbarer Erzeugung, der durch die Optimierung erfüllt werden muss"
+
+
+msgid ""
+"This constraint defines a lower bound on the "
+"<a href='https://open-plan-documentation.readthedocs.io/en/latest/model/simulation_outputs.html#degree-of-autonomy'>"
+"degree of autonomy</a> of the energy system. Note that constraint is applied to the the whole,"
+" sector-coupled energy system, but not to specific sectors individually."
+msgstr ""
+"Diese Einschränkung definiert eine Untergrenze für den "
+"<a href='https://open-plan-documentation.readthedocs.io/en/latest/model/simulation_outputs.html#degree-of-autonomy'>"
+"Autonomiegrad</a> des Energiesystems. Es ist zu beachten, dass die Beschränkung auf das gesamte,"
+" sektorgekoppelte Energiesystem angewendet wird, nicht aber auf einzelne Sektoren."
+
+msgid ""
+"This constraint defines a lower bound on the "
+"<a href='https://open-plan-documentation.readthedocs.io/en/latest/model/simulation_outputs.html#renewable-factor'>"
+"renewable share</a> of the system, which takes into account both local generation as well as the "
+"renewable share of energy providers. Note that constraint is applied to the renewable share of the "
+"whole, sector-coupled energy system, but not to specific sectors individually."
+msgstr ""
+"Diese Bedingung definiert eine Untergrenze für den "
+"<a href='https://open-plan-documentation.readthedocs.io/en/latest/model/simulation_outputs.html#renewable-factor'>"
+"erneuerbaren Anteil</a> des Systems, die sowohl die lokale Erzeugung als auch den erneuerbaren Anteil "
+"der Energieversorger berücksichtigt. Es ist zu beachten, dass diese Bedingung auf den Anteil "
+"der erneuerbaren Energien des gesamten, sektorgekoppelten Energiesystems angewendet wird, nicht aber "
+"auf einzelne Sektoren."
 
 msgid "Specifies whether optimization needs to result into a net zero energy system (True) or not (False)"
 msgstr "Gibt an, ob die Optimierung zu einem Netto-Nullenergie-System führen muss (True) oder nicht (False)"

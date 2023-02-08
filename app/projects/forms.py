@@ -500,25 +500,35 @@ class ScenarioUpdateForm(OpenPlanModelForm):
 # endregion Scenario
 
 
-class MinRenewableConstraintForm(OpenPlanModelForm):
+class ConstraintForm(OpenPlanModelForm):
+    """Introduces a way to carry i18n strings into template for help texts"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["help_text"] = forms.CharField(
+            widget=forms.HiddenInput(), required=False
+        )
+
+
+class MinRenewableConstraintForm(ConstraintForm):
     class Meta:
         model = MinRenewableConstraint
         exclude = ["scenario"]
 
 
-class MaxEmissionConstraintForm(OpenPlanModelForm):
+class MaxEmissionConstraintForm(ConstraintForm):
     class Meta:
         model = MaxEmissionConstraint
         exclude = ["scenario"]
 
 
-class MinDOAConstraintForm(OpenPlanModelForm):
+class MinDOAConstraintForm(ConstraintForm):
     class Meta:
         model = MinDOAConstraint
         exclude = ["scenario"]
 
 
-class NZEConstraintForm(OpenPlanModelForm):
+class NZEConstraintForm(ConstraintForm):
     class Meta:
         model = NZEConstraint
         exclude = ["scenario", "value"]
