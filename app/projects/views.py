@@ -838,8 +838,8 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
                 )
             else:
                 unbound_forms[constraint_type] = constraint_form(prefix=constraint_type)
-            unbound_forms[constraint_type].fields["activated"].help_text = _(
-                PARAMETERS[constraint_type][":Definition_Short:"]
+            unbound_forms[constraint_type].fields["help_text"].help_text = _(
+                PARAMETERS[constraint_type][":Definition_Long:"]
             )
 
         return render(
