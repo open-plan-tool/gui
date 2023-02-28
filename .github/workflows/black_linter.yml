@@ -23,8 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black==19.3b pytest
-        pip install click==8.0.2
+        pip install -r app/requirements/testing.txt
         pip install -r app/requirements/postgres.txt
     - name: Analysing the code with pylint
       run: |
