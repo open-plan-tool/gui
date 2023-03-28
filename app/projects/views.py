@@ -927,6 +927,9 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=5):
                     "secondsElapsed": simulation.elapsed_seconds,
                     "rating": simulation.user_rating,
                     "mvs_token": simulation.mvs_token,
+                    "mvs_version": simulation.mvs_version
+                    if simulation.mvs_version
+                    else "undefined",
                 }
             )
 

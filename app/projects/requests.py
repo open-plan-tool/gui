@@ -96,6 +96,7 @@ def fetch_mvs_simulation_results(simulation):
                 if simulation.status == DONE
                 else None
             )
+            simulation.mvs_version = response["mvs_version"]
             logger.info(f"The simulation {simulation.id} is finished")
         except:
             simulation.status = ERROR

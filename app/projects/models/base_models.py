@@ -666,6 +666,7 @@ class AbstractSimulation(models.Model):
     end_date = models.DateTimeField(null=True)
     elapsed_seconds = models.FloatField(null=True)
     mvs_token = models.CharField(max_length=200, null=True)
+    mvs_version = models.CharField(max_length=15, null=True)
     status = models.CharField(
         max_length=20, choices=SIMULATION_STATUS, null=False, default=PENDING
     )
