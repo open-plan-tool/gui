@@ -22,8 +22,10 @@ from .requests import (
     fetch_mvs_simulation_results,
     mvs_sensitivity_analysis_request,
     fetch_mvs_sa_results,
+    parse_mvs_results,
 )
 from projects.models import *
+from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
     handle_storage_unit_form_post,
     handle_bus_form_post,
@@ -870,10 +872,11 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
                     if len(qs) == 1:
                         constraint_instance = qs[0]
                         for name, value in form.cleaned_data.items():
-                            if getattr(constraint_instance, name) != value:
-                                setattr(constraint_instance, name, value)
-                                if qs_sim.exists():
-                                    qs_sim.update(status=MODIFIED)
+                            if name != "help_text":
+                                if getattr(constraint_instance, name) != value:
+                                    setattr(constraint_instance, name, value)
+                                    if qs_sim.exists():
+                                        qs_sim.update(status=MODIFIED)
 
                 else:
                     constraint_instance = form.save(commit=False)
@@ -932,14 +935,26 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=5):
                     else "undefined",
                 }
             )
+            if simulation.status == DONE:
+                html_template = "scenario/simulation/success.html"
+                # Look for back compatibility of simulation results with the result view
+                qs = FancyResults.objects.filter(simulation=simulation)
+                if not qs.exists():
+                    # If no updated results exist, try to generate them from simulation results
+                    parse_mvs_results(simulation, simulation.results)
+                    qs = FancyResults.objects.filter(simulation=simulation)
+                    # inform the user about the problem if the updated results could not be parsed from the existing simulation
+                    if not qs.exists():
+                        simulation.status = ERROR
+                        simulation.errors = _(
+                            "The simulation was performed with an older MVS version which is not compatible with the result view anymore, please reset and rerun the simulation"
+                        )
 
             if simulation.status == ERROR:
                 context.update({"simulation_error_msg": simulation.errors})
                 html_template = "scenario/simulation/error.html"
             elif simulation.status == PENDING:
                 html_template = "scenario/simulation/pending.html"
-            elif simulation.status == DONE:
-                html_template = "scenario/simulation/success.html"
 
         else:
             print("no simulation existing")

@@ -1,6 +1,7 @@
 from datetime import datetime
 import httpx as requests
 import json
+import numpy as np
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
@@ -11,6 +12,7 @@ from epa.settings import (
     MVS_SA_GET_URL,
 )
 from dashboard.models import (
+    FancyResults,
     AssetsResults,
     KPICostsMatrixResults,
     KPIScalarResults,
@@ -123,28 +125,6 @@ def fetch_mvs_sa_results(simulation):
     return simulation.status != PENDING
 
 
-def get_mvs_simulation_results(simulation):
-    # TODO do not repeat if the simulation is not on the server anymore, or if the results are already loaded
-    if simulation.status == DONE:
-        response = mvs_simulation_check_status(token=simulation.mvs_token)
-        simulation.status = response["status"]
-        simulation.errors = (
-            json.dumps(response["results"][ERROR])
-            if simulation.status == ERROR
-            else None
-        )
-        simulation.results = (
-            parse_mvs_results(simulation, response["results"])
-            if simulation.status == DONE
-            else None
-        )
-        logger.info(f"The simulation {simulation.id} is finished")
-
-        simulation.save()
-    else:
-        fetch_mvs_simulation_results(simulation)
-
-
 def parse_mvs_results(simulation, response_results):
     data = json.loads(response_results)
     asset_key_list = [
@@ -191,15 +171,39 @@ def parse_mvs_results(simulation, response_results):
         AssetsResults.objects.create(
             assets_list=json.dumps(data_subdict), simulation=simulation
         )
-    qs = FlowResults.objects.filter(simulation=simulation)
+
+    qs = FancyResults.objects.filter(simulation=simulation)
     if qs.exists():
-        asset_results = qs.first()
-        # TODO add safety here with json schema
-        asset_results.flow_data = data["raw_results"]
-        asset_results.save()
+        raise ValueError("Already existing FancyResults")
     else:
         # TODO add safety here with json schema
-        FlowResults.objects.create(flow_data=data["raw_results"], simulation=simulation)
+        # Raw results is a panda dataframe which was saved to json using "split"
+        if "raw_results" in data:
+            results = data["raw_results"]
+            js = json.loads(results)
+            js_data = np.array(js["data"])
+
+            hdrs = [
+                "bus",
+                "energy_vector",
+                "direction",
+                "asset",
+                "asset_type",
+                "oemof_type",
+                "flow_data",
+                "optimized_capacity",
+            ]
+
+            # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
+            # we append those values here
+            for i, col in enumerate(js["columns"]):
+                col.append(js_data[:-1, i].tolist())
+                col.append(js_data[-1, i])
+
+                kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
+                kwargs["simulation"] = simulation
+                fr = FancyResults(**kwargs)
+                fr.save()
 
     return response_results
 
