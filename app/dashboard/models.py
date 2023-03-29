@@ -38,6 +38,9 @@ from projects.constants import (
     STORAGE_SUB_CATEGORIES,
     INPUT_POWER,
     OUTPUT_POWER,
+    ASSET_TYPE,
+    ENERGY_VECTOR,
+    MVS_TYPE,
 )
 from projects.models import Simulation, Scenario
 
@@ -200,6 +203,25 @@ class OemofBusResults(pd.DataFrame):  # real results
         if len(optimized_capacity) == 1:
             optimized_capacity = optimized_capacity[0]
         return optimized_capacity
+
+
+class FancyResults(models.Model):
+    bus = models.CharField(max_length=60)
+    energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
+    direction = models.CharField(max_length=3, default="in", blank=False)
+    asset = models.CharField(
+        max_length=60
+    )  # models.ForeignKey(Asset, on_delete=models.CASCADE)
+    asset_type = models.CharField(max_length=60, choices=ASSET_TYPE)
+    oemof_type = models.CharField(max_length=60, choices=MVS_TYPE, default=None)
+    flow_data = models.TextField()
+    total_flow = models.FloatField(null=True, blank=False)
+    optimized_capacity = models.FloatField(null=True, blank=False)
+    simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE, default=None)
+
+    def save(self, *args, **kwargs):
+        self.total_flow = np.array(self.flow_data).sum()
+        super().save(*args, **kwargs)
 
 
 class FlowResults(models.Model):
