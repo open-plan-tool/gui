@@ -37,12 +37,18 @@
 </div>
 <section class="dashboard">
 	<div>
+		{% if scenario_list %}
+
+		<!-- KPI table start -->
+		{% include "report/kpis_template.html" with table_styles=table_styles %}
+		<!-- KPI table end -->
 		<div class="row">
 			<div class="col" id="report_items">
 				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 			</div>
 		</div>
+		{% endif %}
 	</div>
 </section>
 
@@ -55,7 +61,7 @@ $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
     // update the kpi table
-    //update_kpi_table_style(document.getElementById("kpi-table-style"));
+    update_kpi_table_style();
     if(fetchSelectedScenarios().length > 0 ){
     	scenario_visualize_timeseries();
     	scenario_visualize_capacities();
@@ -77,7 +83,7 @@ function update_selected_multi_scenarios(target){
                 //call functions which update graphs below
 
                 /* Update the kpi table */
-                //update_kpi_table_style(document.getElementById("kpi-table-style"));
+                update_kpi_table_style();
                 if(scen_ids.length > 0){
                 	scenario_visualize_timeseries();
                 	scenario_visualize_capacities();

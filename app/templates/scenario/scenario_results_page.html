@@ -221,15 +221,20 @@ const deleteReportItem = (event) => {
 <script src="{% static 'js/report_items.js' %}"></script>
 
 
-
+{% if multiple_scenario_selection %}
+<script> const multipleScenarioSelection = true;  </script>
+{% else %}
+<script>const multipleScenarioSelection = false;</script>
+{% endif %}
 
 
 
 <script>
 
-function update_kpi_table_style(target){
+function update_kpi_table_style(scen_id=""){
+
     $.ajax({
-        url: "{% url 'request_kpi_table' proj_id=proj_id %}" + target.value, // TODO add scenarios in the arguments to provide answers
+        url: "{% url 'request_kpi_table' proj_id=proj_id %}" + "?compare_scenario=" + scen_id,
         type: "GET",
         success: async (table_data) => {
 
@@ -239,7 +244,7 @@ function update_kpi_table_style(target){
 
         /* create KPI table headers */
         const tableHead = document.createElement('thead');
-        const table_headers = ["Indicator", "Scen Value"]; // todo add dynamically more scenarios here
+        const table_headers = table_data.hdrs; // todo add dynamically more scenarios here
         const table_length = table_headers.length;
         const tableHeadContent = document.createElement('tr');
         table_headers.map(hdr =>
@@ -253,7 +258,7 @@ function update_kpi_table_style(target){
         parentDiv.appendChild(tableHead);
 
 
-        for(subBody in table_data) {
+        for(subBody in table_data.data) {
             var tableBody = document.createElement('tbody');
             tableBody.id = subBody;
             /* add subtable title */
@@ -269,7 +274,7 @@ function update_kpi_table_style(target){
 
             /* add subtable lines for each parameter */
             // (param should be a json object) with keys name (type str), unit type (str) and scen_values
-            table_data[subBody].map(param =>{
+            table_data.data[subBody].map(param =>{
                 var tableSubSectionParamRow = document.createElement('tr');
                 var cell = tableSubSectionParamRow.insertCell(0);
                 cell.innerHTML = `{% blocktranslate %}` + param.name +`{% endblocktranslate %}<a data-bs-toggle="tooltip" title="" data-bs-original-title="${param.description}" data-bs-placement="right"><img style="height: 1.2rem;margin-left:.5rem" alt="info icon" src="{% static 'assets/icons/i_info.svg'%}"></a>`;
@@ -289,12 +294,12 @@ function update_kpi_table_style(target){
         $('[data-bs-toggle="tooltip"]').tooltip()
 
         },
-        error: function (xhr, errmsg) {
+        /*error: function (xhr, errmsg) {
             console.log("backend_error!")
             //Show the error message
             $('#message-div').html("<div class='alert-error'>" +
                 "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
-        }
+        }*/
     });
 
 };
@@ -366,11 +371,7 @@ function scenario_visualize_capacities(scen_id=""){
 
 </script>
 
-{% if multiple_scenario_selection %}
-<script> const multipleScenarioSelection = true;  </script>
-{% else %}
-<script>const multipleScenarioSelection = false;</script>
-{% endif %}
+
 <script src="{% static 'js/modal_utils.js' %}"></script>
 
 <script>

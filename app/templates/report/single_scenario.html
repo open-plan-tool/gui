@@ -81,44 +81,7 @@ parameters specific to this graph type only, other parameters are available in t
 	<div>
 		{% if scenario_list %}
 		<!-- KPI table start -->
-		<div class="row">
-			<div class="col col-md-12">
-				<div class="chart">
-					<div class="chart__header">
-						<!-- style="display: flex;gap: 10px;align-items: center;" -->
-						<div>
-							<span class="title">{% translate "Choose KPI table display" %}</span>
-							<span><select id="kpi-table-style" name="kpi-table-style" class="form-select" aria-label="Default select example" onchange="update_kpi_table_style(this)">
-																		{% for style in table_styles %}
-																		<option value="{{ style }}"> {{ style }}  </option>
-																		{% endfor %}
-																</select></span>
-							<span class="view" data-bs-toggle="modal" data-bs-target="#KPIModal">
-								<span class="icon icon-add"></span> <span class="table-add__text">{% translate "View KPIs" %}</span>
-							</span>
-						</div>
-						<div class="dropdown">
-							<button class="btn dropdown-toggle btn--transparent" type="button" id="dropdownMenuKPI" data-bs-toggle="dropdown" aria-expanded="false">
-								<span class="icon icon-more"></span>
-							</button>
-							<ul class="dropdown-menu" aria-labelledby="dropdownMenuKPI">
-								<li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as .xls" %}</a></li>
-								<li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as PDF" %}</a></li>
-							</ul>
-						</div>
-					</div>
-					<div class="chart__plot">
-						<table class="table" id="selectedKPITable"></table>
-						<div class="table-add">
-							<span class="icon icon-add"></span>
-							<span class="table-add__text">
-								{% translate "Add KPI" %}
-              </span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		{% include "report/kpis_template.html" with table_styles=table_styles %}
 		<!-- KPI table end -->
 		<!-- ES design start -->
 		<div class="chart" style="height: fit-content;">
@@ -173,10 +136,10 @@ var dropdownElement = new Choices('#results-scenarios', {
 $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
-    // update the kpi table
-    update_kpi_table_style(document.getElementById("kpi-table-style"));
     const scen_id = "{{ scen_id }}";
     const proj_id = "{{ proj_id }}";
+    // update the kpi table
+    update_kpi_table_style(scen_id);
     scenario_visualize_timeseries(scen_id);
     scenario_visualize_stacked_timeseries(scen_id);
     scenario_visualize_sankey(scen_id);
@@ -198,10 +161,9 @@ function update_selected_single_scenario(target){
             url: "{% url 'update_selected_single_scenario' proj_id %}" + scen_id,
             type: "GET",
             success: async (data) => {
-                //TODO: call functions which update graphs below
 
                 /* Update the kpi table */
-                //update_kpi_table_style(document.getElementById("kpi-table-style"));
+                update_kpi_table_style(scen_id);
 
                 scenario_visualize_timeseries(scen_id);
                 scenario_visualize_stacked_timeseries(scen_id);

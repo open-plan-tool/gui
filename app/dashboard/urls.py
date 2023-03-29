@@ -63,8 +63,8 @@ urlpatterns = [
         view_asset_parameters,
         name="view_asset_parameters",
     ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request_kpi_table/(?P<table_style>\w+)?$",
+    path(
+        "project/<int:proj_id>/scenario/results/request_kpi_table",
         request_kpi_table,
         name="request_kpi_table",
     ),

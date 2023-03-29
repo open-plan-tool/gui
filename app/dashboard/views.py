@@ -268,10 +268,12 @@ def project_compare_results(request, proj_id):
         request,
         "report/compare_scenario.html",
         {
+            "scen_id": None,
             "proj_id": proj_id,
             "project_list": user_projects,
             "scenario_list": user_scenarios,
             "selected_scenarios": selected_scenarios,
+            "multiple_scenario_selection": len(selected_scenarios) > 1,
             "report_items_data": report_items_data,
             "kpi_list": KPI_PARAMETERS,
             "table_styles": TABLES,
@@ -612,21 +614,32 @@ def update_selected_multi_scenarios(request, proj_id):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-def request_kpi_table(request, proj_id=None, table_style=None):
+def request_kpi_table(request, proj_id=None):
 
-    # TODO fetch selected scenarios values here
+    compare_scen = request.GET.get("compare_scenario")
+    if compare_scen != "":
+        compare_scen = int(compare_scen)
+    else:
+        compare_scen = None
+
     selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
 
-    scen_id = selected_scenarios[0]  # TODO: fetch multiple scenarios results
-    scenario = get_object_or_404(Scenario, pk=scen_id)
+    if compare_scen is not None:
+        selected_scenarios = [compare_scen]
+    kpis = {}
+    scen_names = []
+    for scenario_id in selected_scenarios:
+        scenario = get_object_or_404(Scenario, pk=scenario_id)
+        scen_names.append(scenario.name)
+        kpi_scalar_results_obj = KPIScalarResults.objects.get(
+            simulation=scenario.simulation
+        )
+        kpi_scalar_results_dict = json.loads(kpi_scalar_results_obj.scalar_values)
+        kpis[scenario_id] = kpi_scalar_results_dict
 
-    kpi_scalar_results_obj = KPIScalarResults.objects.get(
-        simulation=scenario.simulation
-    )
-    kpi_scalar_results_dict = json.loads(kpi_scalar_results_obj.scalar_values)
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Faktor": "%"}
-    table = TABLES.get(table_style, None)
+    table = TABLES.get("management", None)
 
     # do some unit substitution
     for l in table.values():
@@ -638,19 +651,22 @@ def request_kpi_table(request, proj_id=None, table_style=None):
     if table is not None:
         for subtable_title, subtable_content in table.items():
             for param in subtable_content:
-                # TODO: provide multiple scenarios results
                 param["scen_values"] = [
                     round_only_numbers(
-                        kpi_scalar_results_dict.get(param["id"], "not implemented yet"),
-                        2,
+                        kpis[scen_id].get(param["id"], "not implemented yet"), 2
                     )
+                    for scen_id in selected_scenarios
                 ]
                 param["description"] = KPI_helper.get_doc_definition(param["id"])
                 if "currency" in param["unit"]:
                     param["unit"] = param["unit"].replace(
                         "currency", scenario.get_currency()
                     )
-        answer = JsonResponse(table, status=200, content_type="application/json")
+        answer = JsonResponse(
+            {"data": table, "hdrs": ["Indicator"] + scen_names},
+            status=200,
+            content_type="application/json",
+        )
 
     else:
         allowed_styles = ", ".join(TABLES.keys())

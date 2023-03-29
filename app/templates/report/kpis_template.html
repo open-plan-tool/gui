@@ -1,0 +1,54 @@
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% comment %}
+Template for kpi table on the results page
+
+Here is a list of the parameters one can provide to this template
+
+table_styles:
+    the id of the modal (should be unique to the modal within same html template
+{% endcomment %}
+
+
+
+		<div class="row">
+			<div class="col col-md-12">
+				<div class="chart">
+					<div class="chart__header">
+						<!-- style="display: flex;gap: 10px;align-items: center;" -->
+						<div>
+							<span class="title">{% translate "KPI table" %}</span>
+							<span style="display:none;"><select id="kpi-table-style" name="kpi-table-style" class="form-select" aria-label="Default select example" onchange="update_kpi_table_style(this)">
+																		{% for style in table_styles %}
+																		<option value="{{ style }}"> {{ style }}  </option>
+																		{% endfor %}
+																</select>
+							</span>
+							<span style="display:none;" class="view" data-bs-toggle="modal" data-bs-target="#KPIModal">
+								<span class="icon icon-add"></span> <span class="table-add__text">{% translate "View KPIs" %}</span>
+							</span>
+						</div>
+						<div class="dropdown">
+							<button class="btn dropdown-toggle btn--transparent" type="button" id="dropdownMenuKPI" data-bs-toggle="dropdown" aria-expanded="false">
+								<span class="icon icon-more"></span>
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenuKPI">
+								<li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as .xls" %}</a></li>
+								<li><a class="dropdown-item" href="{% url 'not_implemented' %}?url={{ request.get_full_path }}">{% translate "Export as PDF" %}</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="chart__plot">
+						<table class="table" id="selectedKPITable"></table>
+						<!--<div class="table-add">
+							<span class="icon icon-add"></span>
+							<span class="table-add__text">
+								{% translate "Add KPI" %}
+              </span>
+						</div>-->
+					</div>
+				</div>
+			</div>
+		</div>
