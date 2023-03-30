@@ -94,7 +94,7 @@ function format_trace_name(scenario_name, label, unit, compare=false){
 
 
 function addTimeseriesGraph(graphId, parameters){
-    // prepare traces in ploty format
+    // prepare traces in plotly format
     var data = []
 
     var compare = true;
@@ -105,9 +105,12 @@ function addTimeseriesGraph(graphId, parameters){
 
     parameters.data.forEach(scenario => {
         scenario.timeseries.forEach(timeseries => {
-            // todo provide a function to format the name of the timeseries
+            var y_vals = timeseries.value;
+            if(typeof y_vals === "string"){
+                y_vals = JSON.parse(y_vals)
+            }
             var trace = {x: scenario.timestamps,
-                y: timeseries.value,
+                y: y_vals,
                 name:"",
                 type: 'scatter',
                 line: {shape: 'hv'},
@@ -125,15 +128,15 @@ function addTimeseriesGraph(graphId, parameters){
         yaxis:{
             title: parameters.y_label,
         },
-        showlegend: true
+        showlegend: true,
+        hovermode:'x unified'
     }
     // create plot
     Plotly.newPlot(graphId, data, layout);
 };
 
-
 function addStackedTimeseriesGraph(graphId, parameters){
-    // prepare traces in ploty format
+    // prepare stacked traces in plotly format
     var data = []
 
     if(parameters.data.length == 1){
@@ -149,8 +152,9 @@ function addStackedTimeseriesGraph(graphId, parameters){
                 name: '',
                 type: 'scatter',
                 line: {shape: 'hv'},
-                stackgroup: timeseries.asset_type,
-                fill: timeseries.fill
+                stackgroup: timeseries.group,
+                fill: timeseries.fill,
+                mode: timeseries.mode
             };
             trace.name = format_trace_name(scenario.scenario_name, timeseries.label, timeseries.unit, compare=compare);
             data.push(trace);
@@ -164,7 +168,8 @@ function addStackedTimeseriesGraph(graphId, parameters){
         },
         yaxis:{
             title: parameters.y_label,
-        }
+        },
+        hovermode:'x unified'
     }
     // create plot
     Plotly.newPlot(graphId, data, layout);

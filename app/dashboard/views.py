@@ -39,6 +39,7 @@ from projects.forms import BusForm, AssetCreateForm, StorageForm
 from projects.constants import COMPARE_VIEW
 from dashboard.models import (
     ReportItem,
+    FancyResults,
     SensitivityAnalysisGraph,
     get_project_reportitems,
     get_project_sensitivity_analysis_graphs,
@@ -686,7 +687,6 @@ def request_kpi_table(request, proj_id=None):
 def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
     """Return a template to view the input parameters and results, if any"""
     scenario = Scenario.objects.get(id=scen_id)
-
     if asset_type_name == "bus":
         template = "asset/bus_create_form.html"
         existing_bus = get_object_or_404(Bus, pk=asset_uuid)
@@ -989,14 +989,9 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
             raise PermissionDenied
         simulations.append(scenario.simulation)
 
-    assets_results = AssetsResults.objects.get(simulation__scenario__id=scenario.id)
-    y_variables = [n for n in assets_results.available_timeseries]
-
     results_json = report_item_render_to_json(
         report_item_id="all_timeseries",
-        data=REPORT_GRAPHS[GRAPH_TIMESERIES](
-            simulations=simulations, y_variables=y_variables
-        ),
+        data=REPORT_GRAPHS[GRAPH_TIMESERIES](simulations=simulations),
         title="",
         report_item_type=GRAPH_TIMESERIES,
     )
@@ -1013,22 +1008,21 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
     ):
         raise PermissionDenied
 
-    assets_results = AssetsResults.objects.get(simulation__scenario__id=scenario.id)
-    y_variables = [n for n in assets_results.available_timeseries]
+    results_json = []
+    for energy_vector in scenario.energy_vectors:
 
-    results_json = [
-        report_item_render_to_json(
-            report_item_id=energy_vector,
-            data=REPORT_GRAPHS[GRAPH_TIMESERIES_STACKED](
-                simulations=[scenario.simulation],
-                y_variables=y_variables,
-                energy_vector=energy_vector,
-            ),
-            title=energy_vector,
-            report_item_type=GRAPH_TIMESERIES_STACKED,
+        results_json.append(
+            report_item_render_to_json(
+                report_item_id=energy_vector,
+                data=REPORT_GRAPHS[GRAPH_TIMESERIES_STACKED](
+                    simulations=[scenario.simulation],
+                    y_variables=None,
+                    energy_vector=energy_vector,
+                ),
+                title=energy_vector,
+                report_item_type=GRAPH_TIMESERIES_STACKED,
+            )
         )
-        for energy_vector in scenario.energy_vectors
-    ]
 
     return JsonResponse(
         results_json, status=200, content_type="application/json", safe=False

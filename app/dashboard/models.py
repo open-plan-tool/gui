@@ -598,31 +598,48 @@ def parse_manytomany_object_list(object_list, model):
     return object_list
 
 
-def graph_timeseries(simulations, y_variables):
+def graph_timeseries(simulations, y_variables=None):
     simulations_results = []
-
     for sim in simulations:
-        y_values = []
-        assets_results_obj = AssetsResults.objects.get(simulation=sim)
-        asset_timeseries = assets_results_obj.available_timeseries
-        for y_var in y_variables:
-            if y_var in asset_timeseries:
-                single_ts_json = assets_results_obj.single_asset_timeseries(y_var)
-                if single_ts_json["asset_type"] == "sink" or single_ts_json[
-                    "asset_category"
-                ] == format_storage_subasset_name("energy_storage", "input_power"):
-                    single_ts_json["value"] = (
-                        -np.array(single_ts_json["value"])
-                    ).tolist()
-                if single_ts_json["asset_type"] == "chp":
-                    for bus in single_ts_json["value"]:
-                        new_ts = single_ts_json.copy()
-                        new_ts["value"] = single_ts_json["value"][bus]
-                        new_ts["label"] = single_ts_json["label"] + "_" + bus
-                        y_values.append(new_ts)
+        qs = FancyResults.objects.filter(simulation=sim, total_flow__gt=0)
 
-                else:
-                    y_values.append(single_ts_json)
+        if y_variables is None:
+            qs = qs.exclude(Q(asset__contains="@"))
+        else:
+            qs = qs.filter(asset__in=y_variables)
+
+        qs = qs.annotate(
+            label=Case(
+                When(
+                    Q(oemof_type="storage") & Q(direction="out"),
+                    then=Concat("asset", Value(" charge")),
+                ),
+                When(
+                    Q(oemof_type="storage") & Q(direction="in"),
+                    then=Concat("asset", Value(" discharge")),
+                ),
+                When(
+                    Q(oemof_type="transformer") & Q(direction="out"),
+                    then=Concat("asset", Value(" (inflow)")),
+                ),
+                When(
+                    Q(oemof_type="transformer") & Q(direction="in"),
+                    then=Concat("asset", Value(" (outflow)")),
+                ),
+                default="asset",
+            ),
+            unit=Value("kW"),
+            value=F("flow_data"),
+        )
+        # FilteredRelation() objects
+        y_values = []
+        # TODO asset_type filtering here
+        for y_val in qs.order_by("oemof_type", "-asset_type").values(
+            "value", "label", "total_flow", "unit"
+        ):
+            y_val["value"] = json.loads(y_val["value"])
+            y_values.append(y_val)
+
         simulations_results.append(
             simulation_timeseries_to_json(
                 scenario_name=sim.scenario.name,
@@ -636,29 +653,95 @@ def graph_timeseries(simulations, y_variables):
 
 def graph_timeseries_stacked(simulations, y_variables, energy_vector):
     simulations_results = []
-
     for simulation in simulations:
+
+        qs = FancyResults.objects.filter(
+            simulation=simulation, total_flow__gt=0, energy_vector=energy_vector
+        )
+        if y_variables is None:
+            qs = qs.exclude(Q(asset__contains="@"))
+        else:
+            qs = qs.filter(asset__in=y_variables)
+
+        qs = qs.annotate(
+            label=Case(
+                When(
+                    Q(oemof_type="storage") & Q(direction="out"),
+                    then=Concat("asset", Value(" charge")),
+                ),
+                When(
+                    Q(oemof_type="storage") & Q(direction="in"),
+                    then=Concat("asset", Value(" discharge")),
+                ),
+                When(
+                    Q(oemof_type="transformer") & Q(direction="out"),
+                    then=Concat("asset", Value(" (inflow)")),
+                ),
+                When(
+                    Q(oemof_type="transformer") & Q(direction="in"),
+                    then=Concat("asset", Value(" (outflow)")),
+                ),
+                default="asset",
+            ),
+            unit=Value("kW"),
+            value=F("flow_data"),
+            fill=Case(
+                When(Q(oemof_type="sink"), then=Value("none")),
+                When(Q(oemof_type="storage") & Q(direction="out"), then=Value("none")),
+                When(
+                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("none")
+                ),
+                default=Value("tonexty"),
+            ),
+            group=Case(
+                When(
+                    Q(oemof_type="storage") & Q(direction="out"), then=Value("demand")
+                ),
+                When(
+                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("demand")
+                ),
+                When(
+                    Q(oemof_type="sink"),  # & Q(asset_type__contains="demand"),
+                    then=Value("demand"),
+                ),
+                default=Value("production"),
+            ),
+            mode=Case(
+                When(Q(oemof_type="storage") & Q(direction="out"), then=Value("lines")),
+                When(
+                    Q(oemof_type="sink"),  # & Q(asset_type__contains="demand"),
+                    then=Value("lines"),
+                ),
+                When(
+                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("lines")
+                ),
+                default=Value("none"),
+            ),
+            plot_order=Case(
+                When(
+                    Q(oemof_type="sink") & Q(label__contains="_excess"), then=Value(1)
+                ),
+                When(Q(oemof_type__contains="ess"), then=Value(3)),
+                When(
+                    Q(oemof_type="sink") & Q(label__contains="_feedin"), then=Value(2)
+                ),
+                When(Q(oemof_type="sink"), then=Value(4)),
+                default=Value(0),
+            ),
+        )
         y_values = []
-        assets_results_obj = AssetsResults.objects.get(simulation=simulation)
-        asset_timeseries = assets_results_obj.available_timeseries
-        for y_var in y_variables:
-            if y_var in asset_timeseries:
-                single_ts_json = assets_results_obj.single_asset_timeseries(
-                    y_var, energy_vector=energy_vector
-                )
-                if single_ts_json is not None:
-                    if single_ts_json["asset_type"] == "sink" or single_ts_json[
-                        "asset_category"
-                    ] == format_storage_subasset_name("energy_storage", "input_power"):
-                        single_ts_json["fill"] = "none"
-                    else:
-                        single_ts_json["fill"] = "tonexty"
-                    y_values.append(single_ts_json)
+        # set the stacked lines order, first demand, then storages and finally dsos
+        for y_val in qs.order_by("mode", "plot_order").values(
+            "value", "label", "total_flow", "unit", "fill", "group", "mode"
+        ):
+            y_val["value"] = json.loads(y_val["value"])
+            y_values.append(y_val)
+
         simulations_results.append(
             simulation_timeseries_to_json(
                 scenario_name=simulation.scenario.name,
                 scenario_id=simulation.scenario.id,
-                scenario_timeseries=y_values,
+                scenario_timeseries=y_values[::-1],
                 scenario_timestamps=simulation.scenario.get_timestamps(),
             )
         )
