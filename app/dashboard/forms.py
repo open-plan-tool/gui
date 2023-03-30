@@ -16,6 +16,7 @@ from dashboard.helpers import (
     GRAPH_TIMESERIES_STACKED,
     GRAPH_CAPACITIES,
     GRAPH_BAR,
+    GRAPH_COSTS,
     GRAPH_PIE,
     GRAPH_LOAD_DURATION,
     GRAPH_SANKEY,
@@ -35,6 +36,11 @@ class ReportItemForm(ModelForm):
 
         if multi_scenario is True:
             self.fields["scenarios"] = forms.MultipleChoiceField(label=_("Scenarios"))
+            self.fields["report_type"].choices = [
+                f
+                for f in self.fields["report_type"].choices
+                if f[0] in [GRAPH_TIMESERIES, GRAPH_CAPACITIES, GRAPH_BAR]
+            ]
 
         if proj_id is not None:
             project = Project.objects.get(id=proj_id)
@@ -183,12 +189,11 @@ def graph_parameters_form_factory(report_type, *args, **kwargs):
         answer = StackedTimeseriesGraphForm(*args, **kwargs)
     if report_type == GRAPH_CAPACITIES:
         answer = StackedCapacitiesGraphForm(*args, **kwargs)
+    if report_type == GRAPH_COSTS:
+        answer = StackedCapacitiesGraphForm(*args, **kwargs)
     if report_type == GRAPH_LOAD_DURATION:
         answer = LoadDurationGraphForm(*args, **kwargs)
-    # GRAPH_BAR,
     # GRAPH_PIE,
-    # GRAPH_LOAD_DURATION,
-    # GRAPH_SANKEY,
     if report_type == GRAPH_SANKEY:
         answer = SankeyGraphForm(*args, **kwargs)
     if report_type == GRAPH_SENSITIVITY_ANALYSIS:

@@ -44,8 +44,10 @@
 		<!-- KPI table end -->
 		<div class="row">
 			<div class="col" id="report_items">
+				{% include "report/graph_template.html" with id="costs" title="Costs" %}
 				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
+
 			</div>
 		</div>
 		{% endif %}
@@ -65,6 +67,7 @@ $(document).ready(function () {
     if(fetchSelectedScenarios().length > 0 ){
     	scenario_visualize_timeseries();
     	scenario_visualize_capacities();
+    	scenario_visualize_costs();
     }
 });
 
@@ -87,6 +90,7 @@ function update_selected_multi_scenarios(target){
                 if(scen_ids.length > 0){
                 	scenario_visualize_timeseries();
                 	scenario_visualize_capacities();
+                	scenario_visualize_costs();
                 }
             },
         });

@@ -11,6 +11,8 @@ import pandas as pd
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.db import models
+from django.db.models import Value, Q, F, Case, When
+from django.db.models.functions import Concat, Replace
 from dashboard.helpers import (
     KPI_PARAMETERS,
     KPI_PARAMETERS_ASSETS,
@@ -19,12 +21,17 @@ from dashboard.helpers import (
     GRAPH_TIMESERIES_STACKED,
     GRAPH_CAPACITIES,
     GRAPH_BAR,
+    GRAPH_COSTS,
     GRAPH_PIE,
     GRAPH_LOAD_DURATION,
     GRAPH_SANKEY,
     GRAPH_PARAMETERS_SCHEMAS,
     GRAPH_SENSITIVITY_ANALYSIS,
     REPORT_TYPES,
+    COSTS_PER_ASSETS_STACKED,
+    COSTS_PER_CATEGORY_STACKED,
+    COSTS_PER_ASSETS,
+    COSTS_PER_CATEGORY,
     single_timeseries_to_json,
     simulation_timeseries_to_json,
     report_item_render_to_json,
@@ -874,6 +881,232 @@ def graph_capacities(simulations, y_variables):
     return simulations_results
 
 
+def graph_costs(
+    simulations, y_variables, arrangement=COSTS_PER_CATEGORY
+):  # COSTS_PER_CATEGORY
+    simulations_results = []
+    multi_scenario = False
+    if len(simulations) > 1:
+        multi_scenario = True
+
+    if y_variables is None:
+        y_variables = (
+            Asset.objects.filter(scenario__simulation__in=simulations)
+            .filter(installed_capacity__isnull=False)
+            .annotate(label=Case(default="name"))
+            .order_by("label")
+            .distinct()
+            .values_list("label", flat=True)
+        )
+
+    if arrangement in [COSTS_PER_ASSETS_STACKED, COSTS_PER_CATEGORY_STACKED]:
+        x_values = [
+            x
+            for x in Scenario.objects.filter(simulation__in=simulations).values_list(
+                "name", flat=True
+            )
+        ]
+        y_values = []
+
+    for simulation in simulations:
+
+        # read information about the installed capacity
+        qs1 = (
+            Asset.objects.filter(scenario__simulation=simulation)
+            .annotate(label=Case(default="name"))
+            .order_by("label")
+        )
+
+        # read information about the optimized capacity
+        qs2 = (
+            FancyResults.objects.filter(simulation=simulation)
+            .annotate(
+                label=Case(
+                    When(
+                        Q(oemof_type="storage") & Q(direction="out"),
+                        then=Concat("asset", Value(" input power")),
+                    ),
+                    When(
+                        Q(oemof_type="storage") & Q(direction="in"),
+                        then=Concat("asset", Value(" output power")),
+                    ),
+                    When(
+                        Q(oemof_type="storage") & Q(asset_type="capacity"),
+                        then=Concat("asset", Value(" capacity")),
+                    ),
+                    default="asset",
+                )
+            )
+            .order_by("label")
+        )
+
+        qs1 = qs1.filter(label__in=y_variables).values(
+            "label",
+            "installed_capacity",
+            "capex_fix",
+            "capex_var",
+            "opex_fix",
+            "opex_var",
+            "lifetime",
+            "energy_price",
+            "parent_asset__name",
+        )
+
+        records = []
+        for el in qs1:
+            qs_asset_results = qs2.filter(label=el["label"])
+            if qs_asset_results.count() == 1:
+                el.update(
+                    qs_asset_results.values(
+                        "optimized_capacity", "total_flow", "direction"
+                    ).get()
+                )
+            elif qs_asset_results.count() > 1:
+                qs_asset_results = qs_asset_results.filter(
+                    optimized_capacity__isnull=False
+                )
+                if qs_asset_results.count() == 1:
+                    el.update(
+                        qs_asset_results.values(
+                            "optimized_capacity", "total_flow", "direction"
+                        ).get()
+                    )
+                elif qs_asset_results.count() > 1:
+                    raise ValueError("should not have too much labels")
+            records.append(el)
+
+        wacc = simulation.scenario.project.economic_data.discount
+        df = pd.DataFrame.from_records(records)
+
+        # assign optimized capacity to storage components
+        storages = df.parent_asset__name.dropna().unique()
+        for ess in storages:
+            df.loc[
+                (df.parent_asset__name == ess) & (df.direction.isna() == True),
+                "optimized_capacity",
+            ] = df.loc[
+                (df.parent_asset__name == ess) & (df.direction == "out"),
+                "optimized_capacity",
+            ].values[
+                0
+            ]
+
+        df = df.fillna(0)
+        # TODO costs for batteries are skewed as battery capacity does not exists in fancy results
+        # TODO costs for dso not implemented yet
+        df["capex_total"] = df.apply(
+            lambda x: (x.installed_capacity + x.optimized_capacity)
+            * x.capex_var
+            * (wacc * (1 + wacc) ** x.lifetime)
+            / ((1 + wacc) ** x.lifetime - 1),
+            axis=1,
+        )
+        df["opex_fix_total"] = df.apply(
+            lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
+        )
+        df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
+
+        # nur für dso ...
+        df["fuel_costs_total"] = df.apply(
+            lambda x: x.total_flow * x.energy_price, axis=1
+        )
+
+        # TODO fuel costs
+
+        df = df[
+            [
+                "label",
+                "capex_total",
+                "opex_fix_total",
+                "opex_var_total",
+                "fuel_costs_total",
+                "parent_asset__name",
+            ]
+        ].set_index("label")
+
+        # merge the costs of the storages together
+        for ess in storages:
+            agr = (
+                df.loc[(df.parent_asset__name == ess)]
+                .groupby(["parent_asset__name"])
+                .sum()
+            )
+            df = pd.concat([df, agr])
+            df.drop(df.loc[(df.parent_asset__name == ess)].index, inplace=True)
+        df.drop(columns=["parent_asset__name"], inplace=True)
+
+        if arrangement == COSTS_PER_ASSETS:
+            x_values = df.index.values.tolist()
+            y_values = []
+            for i in range(len(df.columns)):
+                name = df.iloc[:, i].name.replace("_total", "")
+                y = df.iloc[:, i].values.tolist()
+                y_values.append(
+                    {
+                        "base": df.iloc[:, :i].sum(axis=1).values.tolist()
+                        if i > 0
+                        else None,
+                        "value": y,
+                        "text": [name for j in range(len(x_values))],
+                        "name": name
+                        if multi_scenario is False
+                        else name + f" {simulation.scenario.name}",
+                        "hover": "<b>%{text}, </b><br><br>Block value: %{customdata:.2f}$<br>Stacked value: %{y:.2f}$<extra> %{x}</extra>",
+                        "customdata": y
+                        # https://stackoverflow.com/questions/59057881/python-plotly-how-to-customize-hover-template-on-with-what-information-to-show
+                    }
+                )
+
+        elif arrangement == COSTS_PER_CATEGORY:
+            x_values = df.columns.tolist()
+            y_values = []
+            for i in range(len(df.index)):
+                name = df.iloc[i, :].name
+                y = df.iloc[i, :].values.tolist()
+                y_values.append(
+                    {
+                        "base": df.iloc[:i, :].sum(axis=0).values.tolist()
+                        if i > 0
+                        else None,
+                        "value": y,
+                        "text": [name for j in range(len(x_values))],
+                        "name": name
+                        if multi_scenario is False
+                        else name + f" {simulation.scenario.name}",
+                        "hover": "<b>%{text}</b><br><br>Block value: %{customdata:.2f}$<br>Stacked value: %{y:.2f}$",
+                        "customdata": y,
+                    }
+                )
+
+        elif arrangement == COSTS_PER_CATEGORY_STACKED:
+            y_values.append(df.sum(axis=1))
+        elif arrangement == COSTS_PER_ASSETS_STACKED:
+            y_values.append(df.sum(axis=0))
+
+        if arrangement in [COSTS_PER_ASSETS, COSTS_PER_CATEGORY]:
+            simulations_results.append(
+                simulation_timeseries_to_json(
+                    scenario_name=simulation.scenario.name,
+                    scenario_id=simulation.scenario.id,
+                    scenario_timeseries=y_values,
+                    scenario_timestamps=x_values,
+                )
+            )
+
+    if arrangement in [COSTS_PER_CATEGORY_STACKED, COSTS_PER_ASSETS_STACKED]:
+        df = pd.concat(y_values, axis=1).fillna(0)
+        for i, asset in enumerate(df.index):
+            simulations_results.append(
+                simulation_timeseries_to_json(
+                    scenario_name=asset,
+                    scenario_id=None,
+                    scenario_timeseries=df.loc[asset].values.tolist(),
+                    scenario_timestamps=x_values,
+                )
+            )
+    return simulations_results
+
+
 def graph_sankey(simulation, energy_vector):
     if isinstance(energy_vector, list) is False:
         energy_vector = [energy_vector]
@@ -1042,6 +1275,7 @@ REPORT_GRAPHS = {
     GRAPH_TIMESERIES: graph_timeseries,
     GRAPH_TIMESERIES_STACKED: graph_timeseries_stacked,
     GRAPH_CAPACITIES: graph_capacities,
+    GRAPH_COSTS: graph_costs,
     GRAPH_BAR: "Bar chart",
     GRAPH_PIE: "Pie chart",
     GRAPH_LOAD_DURATION: "Load duration curve",
@@ -1150,6 +1384,14 @@ class ReportItem(models.Model):
                     simulations=self.simulations.all().order_by("scenario__id"),
                     y_variables=y_variables,
                 )
+
+        if self.report_type == GRAPH_COSTS:
+            y_variables = parameters.get("y", None)
+
+            if y_variables is not None:
+                return graph_costs(
+                    simulations=self.simulations.all().order_by("scenario__id"),
+                    y_variables=y_variables,
                 )
 
         if self.report_type == GRAPH_SANKEY:

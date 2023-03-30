@@ -113,6 +113,8 @@ parameters specific to this graph type only, other parameters are available in t
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 				{% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
 				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
+				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
+
 
 			</div>
 		</div>
@@ -144,6 +146,7 @@ $(document).ready(function () {
     scenario_visualize_stacked_timeseries(scen_id);
     scenario_visualize_sankey(scen_id);
     scenario_visualize_capacities(scen_id);
+    scenario_visualize_costs(scen_id);
     // Highlight only the selected scenario
     //$(".scenario-select__item").map((i, item) => {item.classList.remove("selected");});
     // todo select the correct_scenario
@@ -169,6 +172,7 @@ function update_selected_single_scenario(target){
                 scenario_visualize_stacked_timeseries(scen_id);
                 scenario_visualize_sankey(scen_id);
                 scenario_visualize_capacities(scen_id);
+                scenario_visualize_costs(scen_id);
             },
             error: function (xhr, errmsg) {
                 if (xhr.status != 405){
@@ -193,8 +197,8 @@ function update_selected_single_scenario(target){
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
-        /* First retrieve the busses and assets, then draw the links */
 
+        /* First retrieve the busses and assets, then draw the links */
         $(window).on('load', async function () {
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])

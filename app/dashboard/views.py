@@ -1059,6 +1059,42 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     )
 
 
+def scenario_visualize_costs(request, proj_id, scen_id=None):
+
+    if scen_id is None:
+        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
+    else:
+        selected_scenario = [scen_id]
+
+    simulations = []
+
+    qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
+    for scenario in qs:
+        if (scenario.project.user != request.user) and (
+            request.user not in scenario.project.viewers.all()
+        ):
+            raise PermissionDenied
+        simulations.append(scenario.simulation)
+
+    results_json = []
+    for arrangement in [COSTS_PER_ASSETS]:
+
+        results_json.append(
+            report_item_render_to_json(
+                report_item_id=arrangement,
+                data=REPORT_GRAPHS[GRAPH_COSTS](
+                    simulations=simulations, y_variables=None, arrangement=arrangement
+                ),
+                title=arrangement,
+                report_item_type=GRAPH_COSTS,
+            )
+        )
+
+    return JsonResponse(
+        results_json, status=200, content_type="application/json", safe=False
+    )
+
+
 # TODO: Sector coupling must be refined (including transformer flows)
 def scenario_visualize_sankey(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)

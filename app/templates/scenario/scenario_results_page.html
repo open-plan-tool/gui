@@ -363,7 +363,27 @@ function scenario_visualize_capacities(scen_id=""){
             url: "{% url 'scenario_visualize_capacities' proj_id=proj_id %}" + scen_id,
             type: "GET",
             success: async (parameters) => {
-                await await graph_type_mapping[parameters.type](parameters.id, parameters);;
+                await graph_type_mapping[parameters.type](parameters.id, parameters);;
+            },
+        });
+};
+
+function scenario_visualize_costs(scen_id=""){
+ $.ajax({
+            url: "{% url 'scenario_visualize_costs' proj_id=proj_id %}" + scen_id,
+            type: "GET",
+            success: async (graphs) => {
+								const parentDiv = document.getElementById("costs");
+                await graphs.map(parameters => {
+                    const newGraph = document.createElement('div');
+                    newGraph.id = "costs" + parameters.id;
+                    parentDiv.appendChild(newGraph);
+                    if(parameters.title === "var1" || parameters.title === "var2")
+            				{ graph_type= parameters.type;
+            					parameters.title = "";}
+            				else{ graph_type = parameters.type + "Scenarios";}
+                    graph_type_mapping[graph_type](newGraph.id, parameters);
+                });
             },
         });
 };
@@ -457,7 +477,7 @@ function scenario_visualize_capacities(scen_id=""){
     const createReportItem = (event) => {
         //submit the form to create a new report item
 
-        // get the data of the form
+        // get the data of the form (view report_create_item in )
         const createReportUrl = createReportItemForm.getAttribute("ajax-post-url");
 
         const formData = new FormData(createReportItemForm);

@@ -365,16 +365,23 @@ GRAPH_TIMESERIES = "timeseries"
 GRAPH_TIMESERIES_STACKED = "timeseries_stacked"
 GRAPH_CAPACITIES = "capacities"
 GRAPH_BAR = "bar"
+GRAPH_COSTS = "costs"
 GRAPH_PIE = "pie"
 GRAPH_LOAD_DURATION = "load_duration"
 GRAPH_SANKEY = "sankey"
 GRAPH_SENSITIVITY_ANALYSIS = "sensitivity_analysis"
+
+COSTS_PER_ASSETS = "var1"
+COSTS_PER_CATEGORY = "var2"
+COSTS_PER_CATEGORY_STACKED = "var3"
+COSTS_PER_ASSETS_STACKED = "var4"
 
 REPORT_TYPES = (
     (GRAPH_TIMESERIES, _("Timeseries graph")),
     (GRAPH_TIMESERIES_STACKED, _("Stacked timeseries graph")),
     (GRAPH_CAPACITIES, _("Installed and optimized capacities")),
     (GRAPH_BAR, _("Bar chart")),
+    (GRAPH_COSTS, _("Cost breakdown")),
     (GRAPH_PIE, _("Pie chart")),
     (GRAPH_LOAD_DURATION, _("Load duration curve")),
     (GRAPH_SANKEY, _("Sankey diagram")),
@@ -433,6 +440,11 @@ def report_item_render_to_json(
     if report_item_type == GRAPH_CAPACITIES:
         answer["x_label"] = _("Component")
         answer["y_label"] = _("Capacity") + "(kW)"
+
+    if report_item_type == GRAPH_COSTS:
+        answer["x_label"] = _("Component")
+        answer["y_label"] = _("Costs") + "(currency)"
+
     return answer
 
 
@@ -527,6 +539,26 @@ GRAPH_PARAMETERS_SCHEMAS = {
         "additionalProperties": False,
     },
     GRAPH_BAR: {},
+    GRAPH_COSTS: {
+        "type": "object",
+        "required": ["y"],
+        "properties": {
+            "y": {
+                "oneOf": [
+                    {"type": "string"},
+                    {"type": "array", "items": {"type": "string"}},
+                ]
+            },
+            "energy_vector": {
+                "oneOf": [
+                    {"type": "string"},
+                    {"type": "array", "items": {"type": "string"}},
+                ]
+            },
+            "arrangement": {"type": "string"},
+        },
+        "additionalProperties": False,
+    },
     GRAPH_PIE: {},
     GRAPH_LOAD_DURATION: {
         "type": "object",

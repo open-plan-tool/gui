@@ -318,6 +318,28 @@ function addCapacitiyGraph(graphId, parameters){
     Plotly.newPlot(graphId, data, layout);
 };
 
+
+function addCostGraph(graphId, parameters){
+    // prepare traces in ploty format
+    var data = []
+    // source of the palette: https://colorswall.com/palette/171311
+    const colors = ["#d64e12", "#8bd346",  "#16a4d8",  "#efdf48", "#9b5fe0" , "#f9a52c", "#60dbe8"];
+    const patterns = ["", ".", "/", "x", "+", "-"]
+    const n_colors = colors.length;
+    parameters.data.forEach((scenario,j) => {
+        scenario.timeseries.forEach((timeseries,i) => {
+            // todo provide a function to format the name of the timeseries
+            data.push({
+                x: scenario.timestamps,
+                y: timeseries.value,
+                name:timeseries.name,
+                text: timeseries.text,
+                type: 'bar',
+                offsetgroup: scenario.scenario_id,
+                base: timeseries.base,
+                marker: {color:colors[j%n_colors], pattern:{shape: patterns[i%6]}},
+                customdata: timeseries.customdata,
+                hovertemplate:timeseries.hover,
             })
         });
     });
@@ -338,13 +360,34 @@ function addCapacitiyGraph(graphId, parameters){
     // create plot
     Plotly.newPlot(graphId, data, layout);
 };
+
+
+function addCostScenariosGraph(graphId, parameters){
+    // prepare traces in ploty format
+    var data = []
+    // source of the palette: https://colorswall.com/palette/171311
+    const colors = ["#d64e12", "#8bd346",  "#16a4d8",  "#efdf48", "#9b5fe0" , "#f9a52c", "#60dbe8"];
+    const patterns = ["", ".", "/", "x", "+", "-"]
+    const n_colors = colors.length;
+    parameters.data.forEach((timeseries,j) => {
+            data.push({
+                x: timeseries.timestamps,
+                y: timeseries.timeseries,
+                name:timeseries.scenario_name,
+                type: 'bar',
+            })
+    });
+
+    // prepare graph layout in plotly format
+    const layout= {
+        title: parameters.title,
+                barmode:'stack',
         xaxis:{
             title: parameters.x_label,
         },
         yaxis:{
             title: parameters.y_label,
         },
-        barmode: 'stack',
         showlegend: true,
         margin: {b: 150}
     }
@@ -390,7 +433,6 @@ function addSensitivityAnalysisGraph(graphId, parameters){
         }
     }
     // create plot
-    console.log(parameters)
     Plotly.newPlot(graphId, parameters.data, layout);
 };
 
@@ -400,6 +442,8 @@ const graph_type_mapping={
     timeseries: addTimeseriesGraph,
     timeseries_stacked: addStackedTimeseriesGraph,
     capacities: addCapacitiyGraph,
+    costs: addCostGraph,
+    costsScenarios: addCostScenariosGraph,
     sensitivity_analysis: addSensitivityAnalysisGraph,
     sankey: addSankeyDiagram,
     load_duration: addGenericPlotlyFigure
