@@ -198,18 +198,9 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
             ):
                 raise PermissionDenied
 
-            qs = Simulation.objects.filter(scenario=scenario)
-            if qs.exists() and scenario in user_scenarios:
-                kpi_scalar_results_obj = KPIScalarResults.objects.get(
-                    simulation=scenario.simulation
-                )
-                kpi_scalar_values_dict = json.loads(
-                    kpi_scalar_results_obj.scalar_values
-                )
+            qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
-                scalar_kpis_json = kpi_scalars_list(
-                    kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS
-                )
+            if qs.exists() and scenario in user_scenarios:
 
                 update_selected_scenarios_in_cache(request, proj_id, scen_id)
 
@@ -220,7 +211,6 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
                     "report/single_scenario.html",
                     {
                         "scen_id": scen_id,
-                        "scalar_kpis": scalar_kpis_json,
                         "proj_id": proj_id,
                         "project_list": user_projects,
                         "scenario_list": user_scenarios,
@@ -236,7 +226,7 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
                 messages.error(
                     request,
                     _(
-                        "Your scenario was never simulated, the results are still pending or there is an error in the simulation. Please click on 'Run simulation', 'Update results' or 'Check status' button "
+                        f"An error occured. It might be because 1) your scenario was never simulated 2) the results are still pending 3) there is an error in the simulation or 4) the simulation format has been updated and you need to rerun it to benefit from the updated results view. In case of 1), please click on 'Run simulation'. In case of 4) first 'Reset simulation' then on 'Run simulation'. In case of 3) The error message might contain useful information, if you still cannot figure out what was wrong, please contact us using the feedback form {request.build_absolute_uri(reverse('user_feedback'))}"
                     ),
                 )
                 answer = HttpResponseRedirect(
@@ -796,6 +786,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 
         # fetch optimized capacity and flow if they exist
         qs = Simulation.objects.filter(scenario=scenario)
+
         if qs.exists():
             asset_results = AssetsResults.objects.get(
                 simulation=qs.get()

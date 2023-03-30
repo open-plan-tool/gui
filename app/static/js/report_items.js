@@ -396,9 +396,6 @@ function addCostScenariosGraph(graphId, parameters){
 };
 
 function addSankeyDiagram(graphId, parameters){
-
-
-    console.log(parameters)
     // prepare graph layout in plotly format
     const layout= {
         title: parameters.title,
@@ -409,15 +406,14 @@ function addSankeyDiagram(graphId, parameters){
 
 function addGenericPlotlyFigure(graphId, parameters){
 
-    console.log(parameters)
+    const fig = JSON.parse(parameters.data);
     // prepare graph layout in plotly format
     const layout= {
         title: parameters.title,
-        ... parameters.data.layout
+        ... fig.layout
     }
-    console.log(layout);
     // create plot
-    Plotly.newPlot(graphId, parameters.data.data, layout);
+    Plotly.newPlot(graphId, fig.data, layout);
 };
 
 
