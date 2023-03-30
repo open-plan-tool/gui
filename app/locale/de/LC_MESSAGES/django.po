@@ -794,7 +794,7 @@ msgstr "Ergebnisse"
 
 #: templates/asset/asset_create_form.html:17
 msgid "Optimized additional capacity"
-msgstr "Optimierte zusätzliche Kapazität"
+msgstr "Optimierte zusätzliche Leistung"
 
 #: templates/asset/asset_create_form.html:25
 #: templates/asset/storage_asset_create_form.html:26
