@@ -283,18 +283,21 @@ function plotTimeseries(x, ts_data, plot_id="",userLayout=null){
 function addCapacitiyGraph(graphId, parameters){
     // prepare traces in ploty format
     var data = []
-    parameters.data.forEach(scenario => {
-        scenario.timeseries.forEach(timeseries => {
+    // source of the palette: https://colorswall.com/palette/171311
+    const colors = ["#d64e12", "#8bd346",  "#16a4d8",  "#efdf48", "#9b5fe0" , "#f9a52c", "#60dbe8"];
+    const n_colors = colors.length;
+    parameters.data.forEach((scenario,j) => {
+        scenario.timeseries.forEach((timeseries,i) => {
             // todo provide a function to format the name of the timeseries
-
             data.push({
                 x: scenario.timestamps,
                 y: timeseries.capacity,
                 name:timeseries.name,
                 type: 'bar',
-                // line: {shape: 'hv'},
-                // stackgroup: timeseries.asset_type,
-                // fill: timeseries.fill
+                offsetgroup: scenario.scenario_id,
+                base: i==0 ? null : scenario.timeseries[0].capacity,
+                marker: {color:colors[j%n_colors], pattern:{shape: i==0 ? "x" : ""}}
+
             })
         });
     });
@@ -302,6 +305,39 @@ function addCapacitiyGraph(graphId, parameters){
     // prepare graph layout in plotly format
     const layout= {
         title: parameters.title,
+        xaxis:{
+            title: parameters.x_label,
+        },
+        yaxis:{
+            title: parameters.y_label,
+        },
+        showlegend: true,
+        margin: {b: 150}
+    }
+    // create plot
+    Plotly.newPlot(graphId, data, layout);
+};
+
+            })
+        });
+    });
+
+    // prepare graph layout in plotly format
+    const layout= {
+        title: parameters.title,
+
+        xaxis:{
+            title: parameters.x_label,
+        },
+        yaxis:{
+            title: parameters.y_label,
+        },
+        showlegend: true,
+        margin: {b: 150}
+    }
+    // create plot
+    Plotly.newPlot(graphId, data, layout);
+};
         xaxis:{
             title: parameters.x_label,
         },

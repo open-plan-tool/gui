@@ -1039,24 +1039,17 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
 
     simulations = []
 
-    common_assets = []  # TODO take intersection of all y_variables sets
-
-    for scen_id in selected_scenario:
-        scenario = get_object_or_404(Scenario, pk=scen_id)
+    qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
+    for scenario in qs:
         if (scenario.project.user != request.user) and (
             request.user not in scenario.project.viewers.all()
         ):
             raise PermissionDenied
         simulations.append(scenario.simulation)
 
-        assets_results = AssetsResults.objects.get(simulation__scenario__id=scenario.id)
-        y_variables = [n for n in assets_results.available_timeseries]
-
     results_json = report_item_render_to_json(
         report_item_id="capacities",
-        data=REPORT_GRAPHS[GRAPH_CAPACITIES](
-            simulations=simulations, y_variables=y_variables
-        ),
+        data=REPORT_GRAPHS[GRAPH_CAPACITIES](simulations=simulations, y_variables=None),
         title="",
         report_item_type=GRAPH_CAPACITIES,
     )

@@ -753,72 +753,112 @@ def graph_capacities(simulations, y_variables):
     multi_scenario = False
     if len(simulations) > 1:
         multi_scenario = True
+
+    if y_variables is None:
+        y_variables = (
+            Asset.objects.filter(scenario__simulation__in=simulations)
+            .exclude(
+                Q(asset_type__asset_type__contains="dso")
+                | Q(asset_type__asset_type__contains="demand")
+                | Q(asset_type__asset_type__in=["charging_power", "capacity"])
+            )
+            .filter(installed_capacity__isnull=False)
+            .annotate(
+                label=Case(
+                    When(
+                        Q(asset_type__asset_type="discharging_power"),
+                        then=Replace("name", Value(" output power"), Value("")),
+                    ),
+                    default="name",
+                )
+            )
+            .order_by("label")
+            .distinct()
+            .values_list("label", flat=True)
+        )
     for simulation in simulations:
         y_values = (
             []
-        )  # stores the capacity, both installed and optimized in seperate dicts, of each individual asset/ component
+        )  # stores the capacity, both installed and optimized in separate dicts, of each individual asset/ component
         x_values = []  # stores the label of the corresponding asset
 
-        assets_results_obj = AssetsResults.objects.get(simulation=simulation)
-
-        # qs = FlowResults.objects.filter(simulation=simulation)
-
-        results_dict = json.loads(simulation.results)
-
-        kpi_scalar_matrix = results_dict["kpi"]["scalar_matrix"]
-
-        # TODO link unit to unit in asset["installed_capacity"]["unit"] or asset["optimized_add_cap"]["unit"]
         installed_capacity_dict = {
             "capacity": [],
-            "name": _("Installed Capacity") + " (kW)"
+            "name": _("Installed Capacity")
             if multi_scenario is False
-            else _("Inst. Cap.") + f"{simulation.scenario.name} (kW)",
+            else _("Inst. Cap.") + f"{simulation.scenario.name}",
         }
         optimized_capacity_dict = {
             "capacity": [],
-            "name": _("Optimized Capacity") + " (kW)"
+            "name": _("Optimized Capacity")
             if multi_scenario is False
-            else _("Opt. Cap.") + f"{simulation.scenario.name} (kW)",
+            else _("Opt. Cap.") + f"{simulation.scenario.name}",
         }
-        for y_var in y_variables:
-            do_not_add = False
-            if "@" not in y_var:
-                asset = assets_results_obj.single_asset_results(asset_name=y_var)
 
-                if asset is not None:
-                    installed_cap = asset["installed_capacity"]["value"]
-                    print(asset["asset_type"])
-                    if "dso" in asset["asset_type"] or "demand" in asset["asset_type"]:
-                        do_not_add = True
-                else:
-                    installed_cap = 0
-                if do_not_add is False:
-                    x_values.append(y_var)
-                    installed_capacity_dict["capacity"].append(installed_cap)
-                # TODO have all graphs made via this way
-                # if qs.exists():
-                #     flow_results = qs.get()
-                #
-                #     optimized_cap = flow_results.asset_optimized_capacity(y_var)
-                #
-                #     if isinstance(optimized_cap, pd.Series):
-                #         if optimized_cap.empty is False:
-                #             optimized_cap = optimized_cap[
-                #                 optimized_cap.index.get_level_values("direction")
-                #                 == "out"
-                #             ].values[0]
-                #         else:
-                #             optimized_cap = None
-                # else:
-                if y_var in kpi_scalar_matrix:
-                    optimized_cap = kpi_scalar_matrix[y_var]["optimized_add_cap"]
-                else:
-                    optimized_cap = 0
-                    if asset is not None:
-                        if "optimized_add_cap" in asset:
-                            optimized_cap = asset["optimized_add_cap"]["value"]
-                if optimized_cap is not None and do_not_add is False:
-                    optimized_capacity_dict["capacity"].append(optimized_cap)
+        # read information about the installed capacity
+        qs1 = (
+            Asset.objects.filter(scenario__simulation=simulation)
+            .exclude(
+                Q(asset_type__asset_type__contains="dso")
+                | Q(asset_type__asset_type__contains="demand")
+                | Q(asset_type__asset_type__in=["charging_power", "capacity"])
+            )
+            .filter(installed_capacity__isnull=False)
+            .annotate(
+                label=Case(
+                    When(
+                        Q(asset_type__asset_type="discharging_power"),
+                        then=Replace("name", Value(" output power"), Value("")),
+                    ),
+                    default="name",
+                )
+            )
+            .order_by("label")
+        )
+
+        # read information about the optimized capacity
+        qs2 = (
+            FancyResults.objects.filter(simulation=simulation)
+            .exclude(
+                (Q(oemof_type="storage") & Q(direction="out"))
+                | Q(asset_type="capacity")
+            )
+            .annotate(label=Case(default="asset"))
+            .filter(
+                label__in=qs1.values_list("label", flat=True),
+                optimized_capacity__isnull=False,
+            )
+            .order_by("label")
+        )
+        ic = {
+            item[0]: item[1]
+            for item in qs1.filter(label__in=y_variables).values_list(
+                "label", "installed_capacity"
+            )
+        }
+        oc = {
+            item[0]: item[1]
+            for item in qs2.filter(label__in=y_variables).values_list(
+                "label", "optimized_capacity"
+            )
+        }
+
+        for asset_name in y_variables:
+
+            if asset_name in ic:
+                installed_cap = ic[asset_name]
+            else:
+                installed_cap = 0
+
+            if asset_name in oc:
+                optimized_cap = oc[asset_name]
+            else:
+                optimized_cap = 0
+
+            if optimized_cap + installed_cap > 0:
+                x_values.append(asset_name)
+                installed_capacity_dict["capacity"].append(installed_cap)
+                optimized_capacity_dict["capacity"].append(optimized_cap)
 
         y_values.append(installed_capacity_dict)
         y_values.append(optimized_capacity_dict)
@@ -1107,7 +1147,9 @@ class ReportItem(models.Model):
 
             if y_variables is not None:
                 return graph_capacities(
-                    simulations=self.simulations.all(), y_variables=y_variables
+                    simulations=self.simulations.all().order_by("scenario__id"),
+                    y_variables=y_variables,
+                )
                 )
 
         if self.report_type == GRAPH_SANKEY:

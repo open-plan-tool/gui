@@ -432,7 +432,7 @@ def report_item_render_to_json(
 
     if report_item_type == GRAPH_CAPACITIES:
         answer["x_label"] = _("Component")
-        answer["y_label"] = _("Capacity")
+        answer["y_label"] = _("Capacity") + "(kW)"
     return answer
 
 
