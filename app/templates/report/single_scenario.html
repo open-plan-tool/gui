@@ -239,19 +239,26 @@ function update_selected_single_scenario(target){
                         var ts_data = JSON.parse(ts_data_div.querySelector("textarea").value);
                         if(["bess", "h2ess", "gess", "hess"].includes(nodeType)){
                             //storage asset
-                            storageResultGraph(ts_data.timestamps, ts_data.flows, plot_id="soc_traces")
+
+                            storageResultGraph(ts_data.timestamps, ts_data.traces, plot_id="flow_trace",userLayout={hovermode:'x unified'})
                         }
                         else if(["dso", "dso_gas"].includes(nodeType)){
                             console.log("Hihihi")
-                            plotTimeseries(ts_data.timestamps, ts_data.traces, plot_id="flow_trace")
+                            plotTimeseries(ts_data.timestamps, ts_data.traces, plot_id="flow_trace",userLayout={hovermode:'x unified'})
+                        }
+                        else if(["heat_pump","chp", "chp_fixed_ratio"].includes(nodeType)){
+                            plotTimeseries(ts_data.timestamps, ts_data.traces, plot_id="flow_trace",userLayout={hovermode:'x unified'})
                         }
                         else{
                             // all other assets
-                            // var ts_data_value = ts_data.value.map(String);
+
                             var plotLayout = {
-                                "yaxis": {"title": { "text": "Energy flow " + "(" + ts_data.unit + ")" }},
+                                "yaxis": {"title": { "text": "Energy flow" }},
                             };
-                            plotTimeseries( ts_data.timestamps, [ts_data], plot_id="flow_trace", userLayout=plotLayout)
+                            if (ts_data.traces.length > 1){
+                            	plotLayout["hovermode"]='x unified'
+                            };
+                            plotTimeseries(ts_data.timestamps, ts_data.traces, plot_id="flow_trace", userLayout=plotLayout)
                         }
                     }
 
