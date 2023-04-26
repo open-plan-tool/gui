@@ -635,16 +635,24 @@ def graph_timeseries(simulations, y_variables=None):
                 ),
                 default="asset",
             ),
+            group=Case(
+                When(Q(oemof_type="storage") & Q(direction="out"), then=Value(-1)),
+                When(Q(oemof_type="transformer") & Q(direction="out"), then=Value(-1)),
+                When(Q(oemof_type="sink"), then=Value(-1)),
+                default=Value(1),
+            ),
             unit=Value("kW"),
             value=F("flow_data"),
         )
         # FilteredRelation() objects
         y_values = []
         # TODO asset_type filtering here
-        for y_val in qs.order_by("oemof_type", "-asset_type").values(
-            "value", "label", "total_flow", "unit"
+        for y_val in qs.order_by("-group", "oemof_type", "-asset_type").values(
+            "value", "label", "total_flow", "unit", "group"
         ):
-            y_val["value"] = json.loads(y_val["value"])
+            y_val["value"] = (
+                y_val["group"] * np.array(json.loads(y_val["value"]))
+            ).tolist()
             y_values.append(y_val)
 
         simulations_results.append(
