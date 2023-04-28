@@ -55,6 +55,10 @@
         form_id.click();
     };
 
+		function move_step(){
+			window.location.href = "{% url 'scenario_create_topology' proj_id scen_id %}";
+		};
+
 </script>
 <script src="{% static 'js/form_utils.js' %}"></script>
 {% endblock end_body_scripts %}
@@ -69,7 +73,13 @@
     <div>
         <div class="step-footer__left"></div>
         <div class="step-footer__center">
-            <button onclick="javascript:next_btn_clicked()" class="btn btn--medium" >{% translate "Next" %} </button>
+
+				{% if scenario.project.user == request.user %}
+					<button onclick="javascript:next_btn_clicked()" class="btn btn--medium" >{% translate "Next" %} </button>
+
+        {% else %}
+					<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+				{% endif %}
         </div>
         <div class="step-footer__right">
             {% if scen_id %}

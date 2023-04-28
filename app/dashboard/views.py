@@ -74,7 +74,8 @@ logger = logging.getLogger(__name__)
 def scenario_available_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -154,7 +155,7 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
     else:
         project = get_object_or_404(Project, id=proj_id)
         if (project.user != request.user) and (
-            request.user not in project.viewers.all()
+            project.viewers.filter(user__email=request.user.email).exists() is False
         ):
             raise PermissionDenied
 
@@ -196,7 +197,8 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
             # TODO: change this when multi-scenario selection is allowed
 
             if (scenario.project.user != request.user) and (
-                request.user not in scenario.project.viewers.all()
+                scenario.project.viewers.filter(user__email=request.user.email).exists()
+                is False
             ):
                 raise PermissionDenied
 
@@ -245,7 +247,9 @@ def project_compare_results(request, proj_id):
     user_projects = request.user.project_set.all()
 
     project = get_object_or_404(Project, id=proj_id)
-    if (project.user != request.user) and (request.user not in project.viewers.all()):
+    if (project.user != request.user) and (
+        project.viewers.filter(user__email=request.user.email).exists() is False
+    ):
         raise PermissionDenied
 
     user_scenarios = project.get_scenarios_with_results()
@@ -299,8 +303,9 @@ def project_sensitivity_analysis(request, proj_id, sa_id=None):
     else:
 
         project = get_object_or_404(Project, id=proj_id)
-        if (project.user != request.user) and (
-            request.user not in project.viewers.all()
+        if (scenario.project.user != request.user) and (
+            scenario.project.viewers.filter(user__email=request.user.email).exists()
+            is False
         ):
             raise PermissionDenied
 
@@ -896,7 +901,8 @@ def scenario_economic_results(request, scen_id=None):
     # if scenario.project.user != request.user:
     #     return HttpResponseForbidden()
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -979,7 +985,8 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
     for scen_id in selected_scenario:
         scenario = get_object_or_404(Scenario, pk=scen_id)
         if (scenario.project.user != request.user) and (
-            request.user not in scenario.project.viewers.all()
+            scenario.project.viewers.filter(user__email=request.user.email).exists()
+            is False
         ):
             raise PermissionDenied
         simulations.append(scenario.simulation)
@@ -999,7 +1006,8 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
 def scenario_visualize_stacked_timeseries(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1037,7 +1045,8 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
         if (scenario.project.user != request.user) and (
-            request.user not in scenario.project.viewers.all()
+            scenario.project.viewers.filter(user__email=request.user.email).exists()
+            is False
         ):
             raise PermissionDenied
         simulations.append(scenario.simulation)
@@ -1066,7 +1075,8 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
         if (scenario.project.user != request.user) and (
-            request.user not in scenario.project.viewers.all()
+            scenario.project.viewers.filter(user__email=request.user.email).exists()
+            is False
         ):
             raise PermissionDenied
         simulations.append(scenario.simulation)
@@ -1094,7 +1104,8 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 def scenario_visualize_sankey(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1118,7 +1129,8 @@ def download_scalar_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1164,7 +1176,8 @@ def download_cost_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1209,7 +1222,8 @@ def download_timeseries_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 

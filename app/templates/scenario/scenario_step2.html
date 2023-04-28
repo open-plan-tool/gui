@@ -186,6 +186,11 @@ $(document).ready(function () {
             }).then((result) => result.value && editor.clearModuleSelected());
         }
 
+				function move_step(){
+					window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+				};
+
+
         /*
          * Export Topology to JSON and send to back-end.
          * Used by the Save and Next buttons at page footer
@@ -246,6 +251,9 @@ $(document).ready(function () {
 
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         const jsonData = XMLHttpRequest.responseJSON;
+                        if(move_step == true){
+                            window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+                        }
                         if (jsonData.specific_obj_type) {
                             Swal.fire('Grid Model Error', `Please fill in all ${jsonData.specific_obj_type.bold()} fields. \n
                        Asset ${jsonData.obj_name.bold()} has empty fields or fields with wrong values.`, 'error');
@@ -272,9 +280,12 @@ $(document).ready(function () {
         <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
         {% if scenario.project.user == request.user %}
         <button class="btn btn--medium btn--transparent" onclick="javascript:save_topology()">{% translate "Save" %}</button>
-        {% endif %}
         <button onclick="javascript:save_topology(move_step=true)" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
-    </div>
+        {% else %}
+				<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+
+				{% endif %}
+		</div>
     <div class="step-footer__right">
 
         {% if scen_id %}

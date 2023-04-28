@@ -220,7 +220,9 @@ def ajax_project_viewers_form(request):
 def project_detail(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
 
-    if (project.user != request.user) and (request.user not in project.viewers.all()):
+    if (project.user != request.user) and (
+        project.viewers.filter(user__email=request.user.email).exists() is False
+    ):
         raise PermissionDenied
 
     logger.info(f"Populating project and economic details in forms.")
@@ -393,7 +395,9 @@ def project_search(request, proj_id=None, scen_id=None):
     # project_list = Project.objects.filter(user=request.user)
     # shared_project_list = Project.objects.filter(viewers=request.user)
     combined_projects_list = (
-        Project.objects.filter(Q(user=request.user) | Q(viewers__user=request.user))
+        Project.objects.filter(
+            Q(user=request.user) | Q(viewers__user__email=request.user.email)
+        )
         .distinct()
         .order_by("date_created")
         .reverse()
@@ -439,7 +443,17 @@ def project_duplicate(request, proj_id):
 
     # duplicate the project
     dm = project.export(bind_scenario_data=True)
-    new_proj_id = load_project_from_dict(dm, user=project.user)
+    if (project.user == request.user) or (
+        project.viewers.filter(user__email=request.user.email).exists() is True
+    ):
+        new_proj_id = load_project_from_dict(dm, user=request.user)
+    else:
+        messages.error(
+            _(
+                "You cannot duplicate a shared project without the owner granting you 'edit' rights"
+            )
+        )
+        new_proj_id = project.id
 
     return HttpResponseRedirect(reverse("project_search", args=[new_proj_id]))
 
@@ -631,7 +645,8 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
             scenario = get_object_or_404(Scenario, id=scen_id)
 
             if (scenario.project.user != request.user) and (
-                request.user not in scenario.project.viewers.all()
+                scenario.project.viewers.filter(user__email=request.user.email).exists()
+                is False
             ):
                 raise PermissionDenied
 
@@ -748,7 +763,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
         scenario = get_object_or_404(Scenario, pk=scen_id)
         if request.user != scenario.project.user:
-            raise PermissionDenied
+            return JsonResponse({"success": True}, status=403)
+            # raise PermissionDenied
 
         topologies = json.loads(request.body)
         node_list = [NodeObject(topology) for topology in topologies]
@@ -817,7 +833,8 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -897,7 +914,8 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=5):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1009,7 +1027,8 @@ def scenario_view(request, scen_id, step_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
-        request.user not in scenario.project.viewers.all()
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
     ):
         raise PermissionDenied
 
@@ -1574,12 +1593,19 @@ def fetch_sensitivity_analysis_results(request, sa_id):
 def simulation_cancel(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
 
-    if scenario.project.user != request.user:
+    if scenario.project.user == request.user:
         raise PermissionDenied
 
-    qs = Simulation.objects.filter(scenario=scen_id)
-    if qs.exists():
-        scenario.simulation.delete()
+        qs = Simulation.objects.filter(scenario=scen_id)
+        if qs.exists():
+            scenario.simulation.delete()
+    else:
+        messages.error(
+            request,
+            _(
+                "You do not have the permission to reset a simulation on a project shared with you"
+            ),
+        )
 
     return HttpResponseRedirect(
         reverse("scenario_review", args=[scenario.project.id, scen_id])

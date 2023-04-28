@@ -59,6 +59,9 @@
         form_id.click();
     };
 
+		function move_step(){
+			window.location.href = "{% url 'scenario_review' proj_id scen_id %}";
+		};
 
 
 
@@ -72,8 +75,13 @@
     <div class="step-footer__left"></div>
     <div class="step-footer__center">
         <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
-        <button onclick="next_btn_clicked()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
 
+				{% if scenario.project.user == request.user %}
+					<button onclick="next_btn_clicked()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+
+        {% else %}
+					<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+				{% endif %}
     </div>
     <div class="step-footer__right">
         {% if scen_id %}

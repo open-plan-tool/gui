@@ -45,10 +45,10 @@ class EconomicData(models.Model):
 
 
 class Viewer(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     share_rights = models.CharField(
         max_length=10, choices=(("edit", _("Edit")), ("read", _("Read")))
     )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.user.email} [{self.share_rights}]"
@@ -112,7 +112,7 @@ class Project(models.Model):
             )
 
         if user is not None:
-            viewers = Viewer.objects.filter(user=user)
+            viewers = Viewer.objects.filter(user=user, share_rights=share_rights)
             if viewers.exists():
                 viewer = viewers.get()
             else:

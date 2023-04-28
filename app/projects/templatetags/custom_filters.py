@@ -1,6 +1,7 @@
 from math import floor
 
 from django import template
+from django.db.models import Q
 
 register = template.Library()
 
@@ -23,6 +24,18 @@ def convert_seconds_to_intuitive_string(value):
 @register.filter(name="scenario_list")
 def get_scenario_list_from_project(project):
     return project.scenario_set.all().order_by("name")
+
+
+@register.filter
+def has_viewer_edit_rights(project, user):
+    answer = False
+    if project.user == user:
+        answer = True
+    else:
+        qs = project.viewers.filter(Q(user__email=user.email) & Q(share_rights="edit"))
+        if qs.exists():
+            answer = True
+    return answer
 
 
 @register.filter
