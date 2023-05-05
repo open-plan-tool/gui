@@ -150,7 +150,7 @@ def fetch_user_projects(user):
     user_projects = user.project_set.all().annotate(
         label=F("name"), shared=Value(False)
     )
-    viewers = Viewer.objects.filter(user=user)
+    viewers = Viewer.objects.filter(user__email=user.email)
     if viewers.exists():
         viewer_projects = [
             viewer.viewer_projects.all().annotate(
