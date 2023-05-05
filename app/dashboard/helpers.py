@@ -3,7 +3,11 @@ import copy
 import csv
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Value, F
+from django.db.models.functions import Concat
 from numbers import Number
+
+from projects.models import Viewer
 import pickle
 from django.conf import settings as django_settings
 
@@ -139,6 +143,23 @@ def update_selected_scenarios_in_cache(request, proj_id, scen_id):
         selected_scenarios = [scen_id]
     selected_scenarios_per_project[proj_id] = selected_scenarios
     request.session["selected_scenarios"] = selected_scenarios_per_project
+
+
+def fetch_user_projects(user):
+    """Given a user return the projects they own as well as the shared ones"""
+    user_projects = user.project_set.all().annotate(
+        label=F("name"), shared=Value(False)
+    )
+    viewers = Viewer.objects.filter(user=user)
+    if viewers.exists():
+        viewer_projects = [
+            viewer.viewer_projects.all().annotate(
+                label=Concat("name", Value(" (shared)")), shared=Value(True)
+            )
+            for viewer in viewers
+        ]
+        user_projects = user_projects.union(*viewer_projects)
+    return user_projects
 
 
 def kpi_scalars_list(kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS):

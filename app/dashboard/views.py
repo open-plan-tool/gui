@@ -134,7 +134,8 @@ def result_change_project(request):
 @require_http_methods(["POST", "GET"])
 def scenario_visualize_results(request, proj_id=None, scen_id=None):
     request.session[COMPARE_VIEW] = False
-    user_projects = request.user.project_set.all()
+
+    user_projects = fetch_user_projects(request.user)
 
     if proj_id is None:
         if scen_id is not None:
@@ -147,11 +148,21 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
             if request.POST:
                 proj_id = int(request.POST.get("proj_id"))
             else:
-                proj_id = request.user.project_set.first().id
-            # make sure the project id is always visible in url
-            answer = HttpResponseRedirect(
-                reverse("project_visualize_results", args=[proj_id])
-            )
+                if user_projects.exists():
+                    proj_id = user_projects.first().id
+                else:
+                    proj_id = None
+            if proj_id is None:
+                messages.error(
+                    request,
+                    _("You have no projects yet, please create a project first"),
+                )
+                answer = HttpResponseRedirect(reverse("project_search"))
+            else:
+                # make sure the project id is always visible in url
+                answer = HttpResponseRedirect(
+                    reverse("project_visualize_results", args=[proj_id])
+                )
     else:
         project = get_object_or_404(Project, id=proj_id)
         if (project.user != request.user) and (
@@ -244,7 +255,7 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
 @require_http_methods(["POST", "GET"])
 def project_compare_results(request, proj_id):
     request.session[COMPARE_VIEW] = True
-    user_projects = request.user.project_set.all()
+    user_projects = fetch_user_projects(request.user)
 
     project = get_object_or_404(Project, id=proj_id)
     if (project.user != request.user) and (
@@ -282,7 +293,7 @@ def project_compare_results(request, proj_id):
 @require_http_methods(["POST", "GET"])
 def project_sensitivity_analysis(request, proj_id, sa_id=None):
     request.session[COMPARE_VIEW] = False
-    user_projects = request.user.project_set.all()
+    user_projects = fetch_user_projects(request.user)
 
     if proj_id is None:
         if sa_id is not None:

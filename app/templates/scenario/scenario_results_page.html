@@ -138,7 +138,7 @@
 						{% csrf_token %}
 						<select name="proj_id" class="form-select" aria-label="Default select example" onchange="this.form.submit()">
 							{% for project in project_list %}
-							<option value="{{ project.id }}" {% if project.id == proj_id %} selected {% endif %}> {{ project.name }}  </option>
+							<option value="{{ project.id }}" {% if project.id == proj_id %} selected {% endif %}> {{ project.label }} </option>
 							{% endfor %}
 						</select>
 					</form>
