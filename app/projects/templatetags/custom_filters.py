@@ -2,6 +2,7 @@ from math import floor
 
 from django import template
 from django.db.models import Q
+from projects.models import Project
 
 register = template.Library()
 
@@ -27,14 +28,21 @@ def get_scenario_list_from_project(project):
 
 
 @register.filter
-def has_viewer_edit_rights(project, user):
+def has_viewer_edit_rights(proj_id, user):
+    try:
+        project = Project.objects.get(pk=proj_id)
+    except Project.DoesNotExist:
+        project = None
     answer = False
-    if project.user == user:
-        answer = True
-    else:
-        qs = project.viewers.filter(Q(user__email=user.email) & Q(share_rights="edit"))
-        if qs.exists():
+    if project is not None:
+        if project.user == user:
             answer = True
+        else:
+            qs = project.viewers.filter(
+                Q(user__email=user.email) & Q(share_rights="edit")
+            )
+            if qs.exists():
+                answer = True
     return answer
 
 

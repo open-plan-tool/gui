@@ -1592,10 +1592,7 @@ def fetch_sensitivity_analysis_results(request, sa_id):
 @require_http_methods(["GET"])
 def simulation_cancel(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
-
     if scenario.project.user == request.user:
-        raise PermissionDenied
-
         qs = Simulation.objects.filter(scenario=scen_id)
         if qs.exists():
             scenario.simulation.delete()

@@ -1,6 +1,7 @@
 {% extends 'scenario/scenario_progression.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load custom_filters %}
 {% load i18n %}
 
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
@@ -55,10 +56,6 @@
         form_id.click();
     };
 
-		function move_step(){
-			window.location.href = "{% url 'scenario_create_topology' proj_id scen_id %}";
-		};
-
 </script>
 <script src="{% static 'js/form_utils.js' %}"></script>
 {% endblock end_body_scripts %}
@@ -73,11 +70,15 @@
     <div>
         <div class="step-footer__left"></div>
         <div class="step-footer__center">
-
-				{% if scenario.project.user == request.user %}
+				<!--scenario.project.user == request.user-->
+				{% if proj_id|has_viewer_edit_rights:request.user %}
 					<button onclick="javascript:next_btn_clicked()" class="btn btn--medium" >{% translate "Next" %} </button>
-
         {% else %}
+					<script>
+								function move_step(){
+									window.location.href = "{% url 'scenario_create_topology' proj_id scen_id %}";
+								};
+					</script>
 					<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
 				{% endif %}
         </div>

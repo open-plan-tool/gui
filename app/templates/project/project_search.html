@@ -91,7 +91,7 @@
                                 <span class="icon icon-results" aria-hidden="true"></span>
                                 {% translate "Results" %}
                             </a>
-														{% if project|has_viewer_edit_rights:request.user %}
+														{% if proj_id|has_viewer_edit_rights:request.user %}
                             <a class="btn btn--action action" href="{% url 'project_update' project.pk %}">
                                 <span class="icon icon-edit" aria-hidden="true"></span>
                                 {% translate "Edit" %}
@@ -225,7 +225,7 @@
                         </div>
                         <div class="add-scenario">
                             <div class="dropdown">
-															{% if project|has_viewer_edit_rights:request.user %}
+															{% if project.id|has_viewer_edit_rights:request.user %}
                                 <button class="btn dropdown-toggle" type="button" id="dropdownCreateScenario{{ project.id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="icon icon-add" aria-hidden="true"></span>
                                     {% translate "Create scenario" %}
