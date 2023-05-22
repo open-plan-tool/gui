@@ -21,41 +21,21 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
-                {% if user.is_authenticated %}
-                    <!--During scenario creation the nav bar does not display all options-->
-                    {% if not scenario_create %}
-                        <li class="nav-item">
-                            <!--results.html-->
-                            <a class="nav-link" href="{% url 'scenario_visualize_results' %}">{% translate "Simulation results" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <!--scenario-empty.html-->
-                            <a class="nav-link" href="{% url 'scenario_select_project' %}">{% translate "New scenario" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <!--project-view.html-->
-                            <a class="nav-link" href="{% url 'project_search' %}">{% translate "My projects" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
-                        </li>
-                    {% endif %}
-                {% elif signup %}
-                    <!--For user signup the nav bar does not display all options-->
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">{% translate "Contact" %}</a>
-                    </li>
-                    <li class="nav-item">
+							{% if not scenario_create %}
+							      <li class="nav-item">
                         <a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'license' %}">{% translate "License" %}</a>
-                    </li>
-                {% endif %}
+									{% if user.is_authenticated %}
+																<li class="nav-item">
+														<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
+												</li>
+									{% endif %}
+							{% elif signup %}
+                    <!--For user signup the nav bar does not display all options-->
+							{% endif %}
 
                 <li class="nav-item dropdown locale" id="language-switcher">
                     <form action="{% url 'set_language' %}" method="post">
@@ -80,36 +60,14 @@
                 </li>
 
                 {% if user.is_authenticated %}
-                    <!--<li class="nav-item">
-                        <a href="{% url 'logout' %}">Logout <span class="glyphicon glyphicon-log-out" style="font-size:13px;"></span></a>
-                    </li>
-
-                    <li class="nav-item dropdown" >
-                        <a data-bs-toggle="dropdown" href="#" id="userr">
-                            <span class="glyphicon glyphicon-user dropdown-toggle" style="font-size:13px;"></span>
-                            {{ user.username }}
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{% url 'user_info' %}">{% translate "User Info" %}</a></li>
-                            <li><a href="{% url 'change_password' %}">{% translate "Change Password" %}</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'project_search' %}">{% translate "Project List" %}</a></li>-->
-
-
                 <li class="nav-item dropdown profile">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{% static 'assets/icons/i_profile.svg' %}" alt="Profile icon">
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a></li>
+											  <li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->
                         <li><a class="dropdown-item" href="{% url 'license' %}">{% translate "License" %}</a></li>
                         <li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
-                        <li><a class="dropdown-item" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">{% translate "Log out" %}</a></li>
                     </ul>

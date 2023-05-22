@@ -593,7 +593,7 @@ STEP_LIST = [
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_select_project(request, step_id=0, max_step=1):
-    user_projects = request.user.project_set.all()
+    user_projects = fetch_user_projects(request.user)
     if request.method == "GET":
 
         if user_projects.exists():
