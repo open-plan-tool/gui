@@ -81,24 +81,44 @@ def scenario_upload(request, proj_id):
     if project.user != request.user:
         raise PermissionDenied
 
-    new_scenario_name = request.POST.get("name")
-
+    answer = HttpResponseRedirect(reverse("project_search"))
+    file_format_error = False
     # make a single scenario within a list
     if isinstance(scenario_data, list) is False:
-        scenario_data = [scenario_data]
-
-    # load each of the scenario from the file into the database
-    n_scenarios = len(scenario_data)
-    for i, scen in enumerate(scenario_data):
-        if new_scenario_name != "":
-            if n_scenarios > 1:
-                scen["name"] = f"{new_scenario_name}_{i+1}"
+        if isinstance(scenario_data, dict) is True:
+            if (
+                "project" in scenario_data
+                and "assets" in scenario_data
+                and "busses" in scenario_data
+            ):
+                scenario_data = [scenario_data]
             else:
-                scen["name"] = new_scenario_name
+                file_format_error = True
+                messages.error(
+                    request,
+                    _(
+                        "The file you wanted to upload does not seem to be an exported scenario file. It might be an exported project file, in that case use the 'From file' option on the 'Create project' dropdown at the top of the projects view page."
+                    ),
+                )
 
-        scen_id = load_scenario_from_dict(scen, user=request.user, project=project)
+    if file_format_error is False:
+        new_scenario_name = request.POST.get("name")
 
-    return HttpResponseRedirect(reverse("project_search", args=[proj_id, scen_id]))
+        # load each of the scenario from the file into the database
+        n_scenarios = len(scenario_data)
+        for i, scen in enumerate(scenario_data):
+            if new_scenario_name != "":
+                if n_scenarios > 1:
+                    scen["name"] = f"{new_scenario_name}_{i+1}"
+                else:
+                    scen["name"] = new_scenario_name
+
+            scen_id = load_scenario_from_dict(scen, user=request.user, project=project)
+        answer = HttpResponseRedirect(
+            reverse("project_search", args=[proj_id, scen_id])
+        )
+
+    return answer
 
 
 # region Project
@@ -335,14 +355,26 @@ def project_upload(request):
     project_data = request.FILES["file"].read()
     project_data = json.loads(project_data)
 
-    new_project_name = request.POST.get("name")
+    if isinstance(project_data, dict):
+        new_project_name = request.POST.get("name")
 
-    if new_project_name != "":
-        project_data["name"] = new_project_name
+        if new_project_name != "":
+            project_data["name"] = new_project_name
 
-    proj_id = load_project_from_dict(project_data, request.user)
+        proj_id = load_project_from_dict(project_data, request.user)
 
-    return HttpResponseRedirect(reverse("project_search", args=[proj_id]))
+        answer = HttpResponseRedirect(reverse("project_search", args=[proj_id]))
+
+    else:
+        messages.error(
+            request,
+            _(
+                "The file you wanted to upload does not seem to be an exported project file. It might be an exported scenario file, in that case use the 'From file' option on the 'Create scenario' dropdown of a project in which you want to import your scenario."
+            ),
+        )
+        answer = HttpResponseRedirect(reverse("project_search"))
+
+    return answer
 
 
 @login_required
