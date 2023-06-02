@@ -91,8 +91,8 @@
                                 <span class="icon icon-results" aria-hidden="true"></span>
                                 {% translate "Results" %}
                             </a>
-														{% if proj_id|has_viewer_edit_rights:request.user %}
-                            <a class="btn btn--action action" href="{% url 'project_update' project.pk %}">
+														{% if project.id|has_viewer_edit_rights:request.user %}
+														<a class="btn btn--action action" href="{% url 'project_update' project.pk %}">
                                 <span class="icon icon-edit" aria-hidden="true"></span>
                                 {% translate "Edit" %}
                             </a>
@@ -119,13 +119,14 @@
                                   <span class="icon icon-more"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="shareProject-{{ project.id }}">
-																	{% if project.user == request.user %}
+																	{% if project.user.email == request.user.email %}
                                   <li><a class="dropdown-item" onclick="javascript:showModal(event, modalId='shareProjectModal', attrs={'action': `{% url 'project_share' project.id %}`})">{% translate "Share project" %}</a></li>
                                   <li><a class="dropdown-item" onclick="javascript:showRevokeProjectModal(event, `{{ project.id }}`)">{% translate "Unshare project" %}</a></li>
                                   {% endif %}
 																	<li><a class="dropdown-item" href="{% url 'project_export' project.id %}">{% translate "Export project" %}</a></li>
                                 </ul>
                             </div>
+
 														{% endif %}
 
 
