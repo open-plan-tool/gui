@@ -11,7 +11,7 @@ capex_transmission_network,Grid connection,,Transmission network,207,currency/Mi
 costs_shipping,Shipping,,Logistics,20,currency/kWp_cap,,pv_plant_optimized_capacity
 costs_customs,Customs clearance costs,,Logistics,3,currency/kWp_cap,,pv_plant_optimized_capacity
 costs_storage,Costs for custom storage,,Logistics,2,currency/kWp_cap,,pv_plant_optimized_capacity
-costs_transport,Local transport,,Logistics,5,currency/kWp_cap,,pv_plant_optimized_capacity
+costs_transport,Local transporlabelt,,Logistics,5,currency/kWp_cap,,pv_plant_optimized_capacity
 costs_insurance_construction,Construction,,Insurances,20,currency/kWp_cap,,pv_plant_optimized_capacity
 costs_insurance_transport,Transportation,,Insurances,0,currency/kWp_cap,,pv_plant_optimized_capacity
 costs_insurance_policy,Political risk policy,,Insurances,0,currency/kWp_cap,,pv_plant_optimized_capacity
