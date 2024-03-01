@@ -572,7 +572,7 @@ function addTable(response, table_id="") {
         var tableHdr = document.createElement('th');
         tableHdr.class = "header_table"
         // omit unit if undefined
-        if (value.unit == undefined) {
+        if ((value.unit == undefined) || (value.unit == "")) {
             unit = " "
         }
         else {
@@ -597,8 +597,8 @@ function addTable(response, table_id="") {
         for (i=0; i < tableLength; ++i) {
             const tableDataCell = document.createElement('td');
             // omit unit if undefined
-            if (value.unit == undefined) {
-                unit = " "
+            if ((value.unit == undefined) || (value.unit == "")) {
+            unit = " "
             }
             else {
                 unit = ' (' + value.unit + ') '
