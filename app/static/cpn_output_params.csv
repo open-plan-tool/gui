@@ -1,0 +1,52 @@
+label,verbose,description,unit
+project_name,Project name,,
+location,Location,,
+yearly_production,Annual energy production,Estimated annual energy production of the mini-grid (including excess),kWh
+renewable_share,Renewable share,Share of the energy production that is provided from renewable sources,
+firm_output,Firm power output,Indication of the rough magnitude of a constant load that could be powered by the mini-grid,kW_firm
+total_investments,Total investment costs,Sum of all capital expenditures,currency
+tariff,Estimated tariff,"The estimated cost for the consumer, taking into account all capital and operational expenditures as well as financing costs over the project lifetime",currency/kWh
+project_lifetime,Project lifetime,Number of years the project is intended to be operational,years
+bm_name,Aspired business model,"The selected approach for the delivery of the mini-grid project. In this case, the business model refers to the determination of roles and responsibilities of project proponents in the fields of ownership, development and implementation, operation and maintenance and financing",
+exchange_rate,Assumed exchange rate,Price of the given currency in relation to USD,currency/USD
+total_equity,Total equity,"The sum of equity that is provided, e.g. by a mini-grid company and/or community energy cooperative",
+total_grant,Total grant,"The sum of grant financing that flows into the project from funding agencies",
+initial_loan_amount,Initial loan amount,The sum of debt borrowed from banks and financiers at the beginning of the mini-grid project to cover investment costs,
+replacement_loan_amount,Replacement loan amount,"The sum of debt borrowed from banks and financiers during the lifetime of the mini-grid project to cover larger replacement costs of assets, such as inverters, battery or diesel generator",
+shs,Solar home systems,Consumers assumed to be served by solar home systems instead of the mini-grid,
+households,Households,Households connected to the mini-grid,
+enterprises,Enterprises,"Enterprises connected to the mini-grid, including machinery",
+public,Public facilities,Public facilities connected to the mini-grid,
+nr_consumers,Number of consumers,,
+total_demand,Total demand,,kWh
+installed_capacity,Installed Capacity,Already existing capacity of asset,
+optimized_capacity,Optimized Capacity,Newly added capacity to satisfy demand,
+capex_initial,Initial investment,Total funds needed to buy the asset,currency
+fuel_costs_total,Total fuel costs,Fuel costs during the first year of operation,currency
+opex_total,Operational expenditures,Operational and maintenance costs during the first year of operation,currency
+battery,Battery,,
+pv_plant,Solar PV plant,,
+diesel_generator,Diesel generator,,
+inverter,Inverter,,
+costs,Costs,,currency
+ac_bus_excess_flow,Total excess solar PV generation,Excess solar PV electricity that may be fed into the storage,kW
+dc_bus_excess_flow,Unused electricity,Excess solar PV generation that is unused by the system,kW
+pv_plant_flow,Solar PV generation,Demand directly satisfied by the solar PV plant,kW
+battery_charge_flow,Battery charge,Battery charging from excess generation,kW
+battery_discharge_flow,Battery discharge,Demand satisfied by the storage system,kW
+electricity_demand_flow,Electricity demand,Total demand to be satisfied by the system,kW
+diesel_generator_flow,Diesel generator,Demand satisfied by the diesel generator,kW
+with_grant,With grant,Financial parameters assuming the given grant share provided by REA or similar institutions,
+without_grant,Without grant,Financial parameters assuming no grant ,
+Cash flow after debt service,Cash flow after debt service,The remaining cash flow from operating activities after the interest and debt service payments,
+Debt repayments,Debt repayments,"The process of paying back a lender, typically through pre-determined periodic payments until the original amount borrowed and interest payments are repaid",
+Debt interest payments,Debt interest payments,A periodic fee for being lent the money,
+Operating revenues net,Operating revenues net,"Revenues from operation after tax (VAT) payments. Operating revenues can include revenues from electricity sale, revenues from fees and revenues from excess power purchase",
+Operating expenses,Operating expenses,"Ongoing expenses for the operation of the mini-grid. These can include operation amd maintenance (O&M) costs of the PV system, management and bookkeeping, insurance, land lease, security on site, and diesel costs",
+Fix project costs,Fix project costs,"E.g. land purchase, planning and development costs",
+Insurances,Insurances,"Several uncontrollable risks may exist that can damage the mini-grid system and dimish revenues, such as extreme weather events, theft or technical defects. Against a periodical fee, insurances reimburse the mini-grid owner in such cases.",
+Labour and soft costs,Labour and soft costs,"E.g. the labour needed for the system installation, development expenditures (DEVEX), incl. feasibility studies, project management or any contingency costs",
+Logistics,Logistics,"Logistics include costs for shipping, customs clearance costs, costs for custom storage and local transport",
+Power supply system,Power supply system,"Purchase cost of the mini-grid assets (PV plant, battery and diesel generator)",
+Taxes,Taxes,"The Value Added Tax (VAT) is a consumption tax paid when goods are purchased and services rendered. VAT applies to all operating revenues of the mini-grid system",
+Transmission network,Transmission network,"Transmission network costs can include costs for the on-site transformer, the substation for grid connection and the grid-connection itself",

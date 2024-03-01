@@ -16,7 +16,7 @@ import json
 import csv
 from cp_nigeria.models import ConsumerGroup, DemandTimeseries, Options
 from projects.models import Asset
-from projects.constants import ENERGY_DENSITY_DIESEL
+from projects.constants import ENERGY_DENSITY_DIESEL, CURRENCY_SYMBOLS
 from business_model.models import EquityData, BusinessModel
 from business_model.helpers import B_MODELS
 from dashboard.models import FancyResults, KPIScalarResults
@@ -42,19 +42,49 @@ HOUSEHOLD_TIERS = [
     ("very_high", "Very High Consumption Estimate"),
 ]
 
-FINANCIAL_PARAMS = {}
-if os.path.exists(staticfiles_storage.path("financial_tool/financial_parameters_list.csv")) is True:
-    with open(staticfiles_storage.path("financial_tool/financial_parameters_list.csv"), encoding="utf-8") as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-        for i, row in enumerate(csvreader):
-            if i == 0:
-                hdr = row
-                label_idx = hdr.index("label")
-            else:
-                label = row[label_idx]
-                FINANCIAL_PARAMS[label] = {}
-                for k, v in zip(hdr, row):
-                    FINANCIAL_PARAMS[label][k] = v
+
+def csv_to_dict(filepath):
+    # the csv must contain a column named "label" containing the variable name, which will be used to construct the
+    # nested dictionaries
+    dict = {}
+    if os.path.exists(staticfiles_storage.path(filepath)) is True:
+        with open(staticfiles_storage.path(filepath), encoding="utf-8") as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+            for i, row in enumerate(csvreader):
+                if i == 0:
+                    hdr = row
+                    label_idx = hdr.index("label")
+                else:
+                    label = row[label_idx]
+                    dict[label] = {}
+                    for k, v in zip(hdr, row):
+                        dict[label][k] = v
+
+    return dict
+
+
+FINANCIAL_PARAMS = csv_to_dict("financial_tool/financial_parameters_list.csv")
+OUTPUT_PARAMS = csv_to_dict("cpn_output_params.csv")
+
+
+def set_table_format(param, from_dict=OUTPUT_PARAMS):
+    param_dict = {}
+    for item in ["verbose", "description", "unit"]:
+        if param == "":
+            param_dict[item] = ""
+            continue
+        if item == "description":
+            dict_value = "" if from_dict[param][item] == "" else help_icon(from_dict[param][item])
+        else:
+            dict_value = from_dict[param][item]
+
+        if "currency" in dict_value:
+            # TODO make this custom depending on project currency
+            dict_value = dict_value.replace("currency", CURRENCY_SYMBOLS["NGN"])
+
+        param_dict[item] = dict_value
+
+    return param_dict
 
 
 def get_project_summary(project):
