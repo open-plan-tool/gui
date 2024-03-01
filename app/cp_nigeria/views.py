@@ -1163,18 +1163,18 @@ def cpn_outputs(request, proj_id, step_id=STEP_MAPPING["outputs"], complex=False
         no_grant_tariff = ft.tariff
         no_grant_kpis = ft.financial_kpis
 
-        comparison_kpi_df = pd.DataFrame([financial_kpis, no_grant_kpis], index=["With grant", "Without grant"]).T
-        comparison_kpi_df.loc["Estimated tariff per kWh"] = {
-            "With grant": tariff * ft.exchange_rate,
-            "Without grant": no_grant_tariff * ft.exchange_rate,
+        comparison_kpi_df = pd.DataFrame([financial_kpis, no_grant_kpis], index=["with_grant", "without_grant"]).T
+        comparison_kpi_df.loc["tariff"] = {
+            "with_grant": tariff * ft.exchange_rate,
+            "without_grant": no_grant_tariff * ft.exchange_rate,
         }
 
         help_texts = {
-            "Total investment costs": help_icon("All upfront investment costs"),
-            "Total equity": help_icon("Total equity help text"),
-            "Total grant": help_icon("Total grant help text"),
-            "Initial loan amount": help_icon("Initial loan needed to cover the initial investment costs"),
-            "Replacement loan amount": help_icon("Amount needed to replace the system components"),
+            "total_investments": help_icon("All upfront investment costs"),
+            "total_equity": help_icon("Total equity help text"),
+            "total_grant": help_icon("Total grant help text"),
+            "initial_loan_amount": help_icon("Initial loan needed to cover the initial investment costs"),
+            "replacement_loan_amount": help_icon("Amount needed to replace the system components"),
         }
 
         for k in help_texts:
@@ -1184,7 +1184,7 @@ def cpn_outputs(request, proj_id, step_id=STEP_MAPPING["outputs"], complex=False
         cgs_df = pd.DataFrame.from_dict(aggregated_cgs, orient="index")
         cgs_df.loc["total mini-grid"] = cgs_df[cgs_df["supply_source"] == "mini_grid"].sum()
         cgs_df.drop(columns=["supply_source"], inplace=True)
-        cgs_df.rename(columns={"total_demand": "total_demand (kWh)"}, inplace=True)
+        cgs_df.rename(columns={"total_demand": "total_demand"}, inplace=True)
         project_summary = get_project_summary(project)
     currency_symbol = project.economic_data.currency_symbol
     context = {

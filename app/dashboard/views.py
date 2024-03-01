@@ -1298,10 +1298,10 @@ def request_financial_kpi_table(request, scen_id):
     no_grant_tariff = ft.tariff
     no_grant_kpis = ft.financial_kpis
 
-    comparison_kpi_df = pd.DataFrame([financial_kpis, no_grant_kpis], index=["With grant", "Without grant"]).T
-    comparison_kpi_df.loc["Estimated tariff"] = {
-        "With grant": tariff * ft.exchange_rate,
-        "Without grant": no_grant_tariff * ft.exchange_rate,
+    comparison_kpi_df = pd.DataFrame([financial_kpis, no_grant_kpis], index=["with_grant", "without_grant"]).T
+    comparison_kpi_df.loc["tariff"] = {
+        "with_grant": tariff * ft.exchange_rate,
+        "without_grant": no_grant_tariff * ft.exchange_rate,
     }
 
     comparison_kpis = comparison_kpi_df.T.to_dict()
