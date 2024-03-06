@@ -892,18 +892,24 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
     # TODO: if the scenario exists, load it, otherwise default form
 
+    scenario = get_object_or_404(Scenario, pk=scen_id)
+
+    if (scenario.project.user != request.user) and (
+        scenario.project.viewers.filter(
+            user__email=request.user.email, share_rights="edit"
+        ).exists()
+        is False
+    ):
+        user_has_right_to_save = False
+        # raise PermissionDenied
+    else:
+        user_has_right_to_save = True
+
     if request.method == "POST":
         # called by function save_topology() in templates/scenario/scenario_step2.html
 
-        scenario = get_object_or_404(Scenario, pk=scen_id)
-        if (scenario.project.user != request.user) and (
-            scenario.project.viewers.filter(
-                user__email=request.user.email, share_rights="edit"
-            ).exists()
-            is False
-        ):
+        if user_has_right_to_save is False:
             return JsonResponse({"success": True}, status=403)
-            # raise PermissionDenied
 
         topologies = json.loads(request.body)
         node_list = [NodeObject(topology) for topology in topologies]
@@ -936,6 +942,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
                 "proj_id": scenario.project.id,
                 "proj_name": scenario.project.name,
                 "topology_data_list": json.dumps(topology_data_list),
+                "user_has_right_to_save": user_has_right_to_save,
                 "step_id": step_id,
                 "step_list": STEP_LIST,
                 "max_step": max_step,
@@ -977,6 +984,16 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     ):
         raise PermissionDenied
 
+    if (scenario.project.user != request.user) and (
+        scenario.project.viewers.filter(
+            user__email=request.user.email, share_rights="edit"
+        ).exists()
+        is False
+    ):
+        user_has_right_to_save = False
+    else:
+        user_has_right_to_save = True
+
     qs_sim = Simulation.objects.filter(scenario=scenario)
 
     if request.method == "GET":
@@ -1008,6 +1025,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
                 "scen_id": scen_id,
                 "proj_id": scenario.project.id,
                 "proj_name": scenario.project.name,
+                "user_has_right_to_save": user_has_right_to_save,
                 "step_id": step_id,
                 "step_list": STEP_LIST,
                 "max_step": max_step,
@@ -1016,38 +1034,39 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
             },
         )
     elif request.method == "POST":
-        for constraint_type, form_model in constraints_forms.items():
-            form = form_model(request.POST, prefix=constraint_type)
+        if user_has_right_to_save is True:
+            for constraint_type, form_model in constraints_forms.items():
+                form = form_model(request.POST, prefix=constraint_type)
 
-            if form.is_valid():
-                # check whether the constraint is already associated to the scenario
-                qs = constraints_models[constraint_type].objects.filter(
-                    scenario=scenario
-                )
-                if qs.exists():
-                    if len(qs) == 1:
-                        constraint_instance = qs[0]
-                        for name, value in form.cleaned_data.items():
-                            if name != "help_text":
-                                if getattr(constraint_instance, name) != value:
-                                    setattr(constraint_instance, name, value)
-                                    if qs_sim.exists():
-                                        qs_sim.update(status=MODIFIED)
+                if form.is_valid():
+                    # check whether the constraint is already associated to the scenario
+                    qs = constraints_models[constraint_type].objects.filter(
+                        scenario=scenario
+                    )
+                    if qs.exists():
+                        if len(qs) == 1:
+                            constraint_instance = qs[0]
+                            for name, value in form.cleaned_data.items():
+                                if name != "help_text":
+                                    if getattr(constraint_instance, name) != value:
+                                        setattr(constraint_instance, name, value)
+                                        if qs_sim.exists():
+                                            qs_sim.update(status=MODIFIED)
 
-                else:
-                    constraint_instance = form.save(commit=False)
-                    constraint_instance.scenario = scenario
+                    else:
+                        constraint_instance = form.save(commit=False)
+                        constraint_instance.scenario = scenario
 
-                if constraint_type == "net_zero_energy":
-                    constraint_instance.value = constraint_instance.activated
+                    if constraint_type == "net_zero_energy":
+                        constraint_instance.value = constraint_instance.activated
 
-                if (scenario.project.user == request.user) or (
-                    scenario.project.viewers.filter(
-                        user__email=request.user.email, share_rights="edit"
-                    ).exists()
-                    is True
-                ):
-                    constraint_instance.save()
+                    if (scenario.project.user == request.user) or (
+                        scenario.project.viewers.filter(
+                            user__email=request.user.email, share_rights="edit"
+                        ).exists()
+                        is True
+                    ):
+                        constraint_instance.save()
 
         return HttpResponseRedirect(reverse("scenario_review", args=[proj_id, scen_id]))
 
