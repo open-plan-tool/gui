@@ -973,11 +973,11 @@ def graph_timeseries_stacked_cpn(simulations, y_variables, energy_vector):
             label=Case(
                 When(
                     Q(oemof_type="storage") & Q(direction="out"),
-                    then=Concat("asset", Value(" charge")),
+                    then=Concat("asset", Value("_charge")),
                 ),
                 When(
                     Q(oemof_type="storage") & Q(direction="in"),
-                    then=Concat("asset", Value(" discharge")),
+                    then=Concat("asset", Value("_discharge")),
                 ),
                 default="asset",
             ),

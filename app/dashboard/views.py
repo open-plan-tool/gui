@@ -66,7 +66,7 @@ import datetime
 import logging
 import traceback
 from projects.helpers import parameters_helper
-from cp_nigeria.helpers import FinancialTool, get_project_summary, get_aggregated_cgs, set_table_format
+from cp_nigeria.helpers import FinancialTool, get_project_summary, get_aggregated_cgs, set_table_format, OUTPUT_PARAMS
 from users.templatetags.custom_template_tags import field_to_title
 
 logger = logging.getLogger(__name__)
@@ -961,6 +961,15 @@ def scenario_visualize_cpn_stacked_timeseries(request, scen_id):
             )
         )
 
+    descriptions = {
+        param: {"verbose": OUTPUT_PARAMS[param]["verbose"], "description": OUTPUT_PARAMS[param]["description"]}
+        for param in OUTPUT_PARAMS
+        if "_flow" in param
+    }
+
+    for scenario in results_json:
+        scenario["descriptions"] = descriptions
+
     return JsonResponse(results_json, status=200, content_type="application/json", safe=False)
 
 
@@ -987,6 +996,17 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
         title="",
         report_item_type=GRAPH_CAPACITIES,
     )
+
+    descriptions = {
+        OUTPUT_PARAMS[param]["verbose"]: OUTPUT_PARAMS[param]["description"]
+        for param in OUTPUT_PARAMS
+        if "_capacity" in param
+    }
+
+    results_json["descriptions"] = descriptions
+    results_json["data"][0]["timestamps"] = [
+        OUTPUT_PARAMS[asset]["verbose"] for asset in results_json["data"][0]["timestamps"]
+    ]
 
     return JsonResponse(results_json, status=200, content_type="application/json", safe=False)
 
@@ -1051,25 +1071,26 @@ def scenario_visualize_cash_flow(request, scen_id):
     revenue = ft.revenue_over_lifetime(custom_tariff)
     costs = ft.om_costs_over_lifetime
 
-    y = [
-        ft.cash_flow_over_lifetime(custom_tariff).loc["Cash flow after debt service"].tolist(),
-        (initial_loan.loc["Principal"] + replacement_loan.loc["Principal"]).tolist()[1:],
-        (initial_loan.loc["Interest"] + replacement_loan.loc["Interest"]).tolist()[1:],
-        # ft.losses_over_lifetime(custom_tariff).loc["Equity interest"].tolist(),
-        revenue.loc[("Total operating revenues", "operating_revenues_total"), :].tolist(),
-        costs.loc["opex_total"].tolist(),
-    ]
+    graph_contents = {
+        "Cash flow after debt service": {
+            "values": ft.cash_flow_over_lifetime(custom_tariff).loc["Cash flow after debt service"].tolist()
+        },
+        "Debt repayments": {"values": (initial_loan.loc["Principal"] + replacement_loan.loc["Principal"]).tolist()[1:]},
+        "Debt interest payments": {
+            "values": (initial_loan.loc["Interest"] + replacement_loan.loc["Interest"]).tolist()[1:]
+        },
+        "Operating revenues net": {
+            "values": revenue.loc[("Total operating revenues", "operating_revenues_total"), :].tolist()
+        },
+        "Operating expenses": {"values": costs.loc["opex_total"].tolist()},
+    }
 
     x = ft.cash_flow_over_lifetime().columns.tolist()
     title = "Cash flow"
-    names = [
-        "Cash flow after debt service",
-        "Debt repayments",
-        "Debt interest payments",
-        "Operating revenues net",
-        "Operating expenses",
-    ]
-    return JsonResponse({"x": x, "y": y, "names": names, "title": title})
+    for trace in graph_contents:
+        graph_contents[trace]["description"] = OUTPUT_PARAMS[trace]["description"]
+
+    return JsonResponse({"x": x, "graph_contents": graph_contents, "title": title})
 
 
 def scenario_visualize_revenue(request, scen_id):
@@ -1081,15 +1102,20 @@ def scenario_visualize_revenue(request, scen_id):
     revenue = ft.revenue_over_lifetime(custom_tariff)
     costs = ft.om_costs_over_lifetime
 
-    y = [
-        revenue.loc[("Total operating revenues", "operating_revenues_total"), :].tolist(),
-        costs.loc["opex_total"].tolist(),
-    ]
+    graph_contents = {
+        "Operating revenues net": {
+            "values": revenue.loc[("Total operating revenues", "operating_revenues_total"), :].tolist()
+        },
+        "Operating expenses": {"values": costs.loc["opex_total"].tolist()},
+    }
 
     x = revenue.columns.tolist()
-    names = ["Operating revenues net", "Operating expenses"]
+
+    for trace in graph_contents:
+        graph_contents[trace].update(set_table_format(trace))
+
     title = "Operating revenues"
-    return JsonResponse({"x": x, "y": y, "names": names, "title": title})
+    return JsonResponse({"x": x, "graph_contents": graph_contents, "title": title})
 
 
 def scenario_visualize_system_costs(request, scen_id):
@@ -1104,18 +1130,20 @@ def scenario_visualize_system_costs(request, scen_id):
     system_costs = system_costs.pivot(columns="category", index="supply_source")
     system_costs.columns = [col[1] for col in system_costs.columns]
 
-    labels = system_costs.columns.tolist()
-    assets = system_costs.index.tolist()
-    costs = system_costs.T.values.tolist()
+    assets = [OUTPUT_PARAMS[asset]["verbose"] for asset in system_costs.index]
+    graph_contents = system_costs.to_dict()
+    descriptions = {
+        OUTPUT_PARAMS[cost_type]["verbose"]: OUTPUT_PARAMS[cost_type]["description"]
+        for cost_type in system_costs.columns
+    }
+    for cost_type in graph_contents:
+        graph_contents[OUTPUT_PARAMS[cost_type]["verbose"]] = graph_contents.pop(cost_type)
 
     # create table from data
     table_content = {}
     headers = system_costs.columns
     system_costs = system_costs.T.to_dict()
-    units = {
-        key: scenario.project.economic_data.currency_symbol
-        for key in ["capex_initial", "opex_total", "fuel_costs_total"]
-    }
+
     for param in system_costs:
         table_content[param] = set_table_format(param)
         table_content[param]["value"] = [f"{round(value, 2):,}" for value in system_costs[param].values()]
@@ -1126,7 +1154,13 @@ def scenario_visualize_system_costs(request, scen_id):
         table_headers[header] = set_table_format(header)
 
     return JsonResponse(
-        {"labels": labels, "assets": assets, "costs": costs, "data": table_content, "headers": table_headers}
+        {
+            "assets": assets,
+            "graph_contents": graph_contents,
+            "descriptions": descriptions,
+            "data": table_content,
+            "headers": table_headers,
+        }
     )
 
 
@@ -1145,17 +1179,24 @@ def scenario_visualize_capex(request, scen_id):
     table_content = {}
 
     headers = ["costs"]
-    units = {key: scenario.project.economic_data.currency_symbol for key in capex_by_category}
+    descriptions = []
     for param in capex_by_category:
         table_content[param] = set_table_format(param)
         table_content[param]["value"] = f"{round(capex_by_category[param], 2):,}"
+        descriptions.append(OUTPUT_PARAMS[param]["description"])
 
     table_headers = {}
     for header in headers:
         table_headers[header] = set_table_format(header)
 
     return JsonResponse(
-        {"categories": categories, "costs": total_costs, "data": table_content, "headers": table_headers}
+        {
+            "categories": categories,
+            "costs": total_costs,
+            "chart_descriptions": descriptions,
+            "data": table_content,
+            "headers": table_headers,
+        }
     )
 
 

@@ -4,6 +4,8 @@ var timeseriesFlowTitle = "Energy flow";
 var timeseriesTimeTitle = "Time";
 var timeseriesCapacityTitle = "Capacity";
 var timeseriesChargeDischargeTitle = "Charge/discharge";
+var colorway = ["008753", "F2CD5D", "B2916C", "778EB5", "824670", "991818", "E86C1A"]
+
 
 
 
@@ -215,26 +217,31 @@ function addTimeseriesGraph(graphId, parameters){
 function addStackedTimeseriesGraph(graphId, parameters){
     // prepare stacked traces in plotly format
     var data = []
-
+    var colorway = ["B2916C", "991818", "008753", "F2CD5D", "824670", "778EB5", "E86C1A"]
+    var descriptions = parameters.descriptions
     if(parameters.data.length == 1){
         compare = false;
         parameters.title = parameters.title + " sector of scenario " + parameters.data[0].scenario_name;
     }
+    axisRange = []
 
     parameters.data.forEach(scenario => {
+        axisRange.push(scenario.timestamps[0], scenario.timestamps[168])
         scenario.timeseries.forEach(timeseries => {
             // todo provide a function to format the name of the timeseries
+            var timeseriesName = timeseries.label + '_flow'
             var trace = {x: scenario.timestamps,
                 y: timeseries.value,
-                name: '',
+                name: descriptions[timeseriesName].verbose,
                 type: 'scatter',
                 line: {shape: 'hv'},
                 stackgroup: timeseries.group,
                 fill: timeseries.fill,
                 mode: timeseries.mode,
+                customdata: Array(scenario.timestamps.length).fill([descriptions[timeseriesName].description]),
+                hovertemplate: '<br><b>Value</b>: %{y:,.2f} kW<br>' + '<b>%{customdata}</b>',
 
             };
-            trace.name = format_trace_name(scenario.scenario_name, timeseries.label, timeseries.unit, compare=compare);
             data.push(trace);
         });
     });
@@ -243,11 +250,13 @@ function addStackedTimeseriesGraph(graphId, parameters){
 //        title: parameters.title,
         xaxis:{
             title: parameters.x_label,
+            range: axisRange
         },
         yaxis:{
             title: parameters.y_label,
         },
-        hovermode:'x unified'
+        hovermode:'x unified',
+        colorway: colorway,
     }
     // create plot
     Plotly.newPlot(graphId, data, layout);
@@ -364,6 +373,7 @@ function plotTimeseries(x, ts_data, plot_id="",userLayout=null){
 function addCapacitiyGraph(graphId, parameters){
     // prepare traces in ploty format
     var data = []
+    var descriptions = parameters.descriptions
     // source of the palette: https://colorswall.com/palette/171311
     const colors = ["#F2CD5D"];
     const n_colors = colors.length;
@@ -377,7 +387,10 @@ function addCapacitiyGraph(graphId, parameters){
                 type: 'bar',
                 offsetgroup: scenario.scenario_id,
                 base: i==0 ? null : scenario.timeseries[0].capacity,
-                marker: {color:colors[j%n_colors], pattern:{shape: i==0 ? "x" : ""}}
+                customdata: Array(scenario.timestamps.length).fill([insertLineBreaks(descriptions[timeseries.name], 50)]),
+                hovertemplate:  '<b>Capacity</b>: %{y:,.2f}'+ '<br><b>%{customdata}</b>',
+
+//                marker: {color:colors[j%n_colors], pattern:{shape: i==0 ? "x" : ""}}
 
             })
         });
@@ -393,7 +406,8 @@ function addCapacitiyGraph(graphId, parameters){
             title: parameters.y_label,
         },
         showlegend: true,
-        margin: {b: 150}
+        margin: {b: 150},
+        colorway: colorway
     }
     // create plot
     Plotly.newPlot(graphId, data, layout);
@@ -528,6 +542,7 @@ function addSensitivityAnalysisGraph(graphId, parameters){
 
 function addFinancialPlot(parameters, plot_id="") {
 	var plotDiv = document.getElementById(plot_id);
+	var graphContents = parameters.graph_contents
 	var layout = {
 //        height: 220,
         margin:{
@@ -538,13 +553,22 @@ function addFinancialPlot(parameters, plot_id="") {
         },
         xaxis: {title: "Time"},
         yaxis: {title: "currency"},
-        hovermode:'x unified',
-//        legend: {orientation: "h"}
+        colorway: colorway,
         }
     var traces = [];
-    for (var i = 0; i < parameters.y.length; i++) {
-    	traces.push({ type: "scatter", x: parameters.x, y: parameters.y[i], name: parameters.names[i] })
-    	}
+    for (const [key, value] of Object.entries(graphContents)) {
+        trace = {
+            type: "scatter",
+            x: parameters.x,
+            y: value.values,
+            name: key,
+            customdata: Array(parameters.x.length).fill([insertLineBreaks(value.description, 50)]),
+            hovertemplate:  '<b>Value</b>: %{y:,.2f} NGN'+
+            '<br><b>Year</b>: %{x}<br>'+
+            '<b>%{customdata}</b>',
+        };
+    	traces.push(trace)
+    }
     Plotly.newPlot(plotDiv, traces, layout, config);
     // simulate a click on autoscale
     plotDiv.querySelector('[data-title="Autoscale"]').click()
@@ -667,16 +691,17 @@ function addPieChart(parameters, plot_id="") {
 	var plotDiv = document.getElementById(plot_id);
     var labels = parameters.categories;
     var costs = parameters.costs;
-    var colors = [ "B21E2A", "2168AA", "874287", "#2A8449", "CC7D00", "8C8680"]
+    var descriptions = parameters.chart_descriptions.map(desc => insertLineBreaks(desc, 50))
 
     // Create a Plotly Pie Chart
     var data = [{
         labels: labels,
         values: costs,
-        marker: {colors: colors},
         type: 'pie',
-        textinfo: 'label',
-        textposition: 'outside',
+        customdata: descriptions,
+        hovertemplate:  '<b>Category</b>: %{label}' +
+        '<br><b>Value</b>: %{value:,.2f} NGN'+
+        '<br><b>%{customdata}</b><extra></extra>',
         automargin: true
     }];
 
@@ -688,6 +713,7 @@ function addPieChart(parameters, plot_id="") {
             't':100,
         },
         showlegend: true,
+        colorway: colorway,
     };
 
     Plotly.newPlot(plotDiv, data, layout);
@@ -697,19 +723,20 @@ function addPieChart(parameters, plot_id="") {
 function addCostsChart(parameters, plot_id="") {
 	var plotDiv = document.getElementById(plot_id);
     var assets = parameters.assets;
-    var labels = parameters.labels;
-    var costs = parameters.costs;
+    var graphContents = parameters.graph_contents;
+    var descriptions = parameters.descriptions;
     var data = []
-    var color = "#008753";
-    var patterns = ["", ".", "/", "x", "+", "-"]
 
-    for(var i=0; i < labels.length; i++){
+    for (const [name, value] of Object.entries(graphContents)) {
         var trace = {
           x: assets,
-          y: costs[i],
-          name: format_as_title(labels[i]),
+          y: Object.values(value),
+          name: name,
           type: 'bar',
-          marker: {color:color, pattern:{shape: patterns[i]}}
+          customdata: Array(assets.length).fill([descriptions[name]]),
+          hovertemplate:  '<b>Costs</b>: %{y:,.2f} NGN'+
+            '<br><b>Asset</b>: %{x}<br>'+
+            '<b>%{customdata}</b>',
         };
         data.push(trace)
     }
@@ -722,9 +749,44 @@ function addCostsChart(parameters, plot_id="") {
             't':100,
         },
         barmode: 'stack',
+        colorway: colorway,
     };
 
     Plotly.newPlot(plotDiv, data, layout);
+}
+
+function insertLineBreaks(inputString, charactersPerLine) {
+//Note from Paula: This function was fully generated with ChatGPT
+    // Split the input string into an array of words
+    var words = inputString.split(' ');
+
+    // Initialize an empty string to store the result
+    var result = '';
+
+    // Initialize a variable to keep track of the number of characters in the current line
+    let currentLineLength = 0;
+
+    // Loop through the words array
+    for (let i = 0; i < words.length; i++) {
+        // Get the current word
+        let word = words[i];
+
+        // Add the current word to the result string
+        result += word + ' ';
+
+        // Update the current line length with the length of the current word
+        currentLineLength += word.length + 1;
+
+        // Check if the current line length exceeds the specified characters per line
+        if (currentLineLength > charactersPerLine) {
+            // If exceeded, add a line break and reset the current line length
+            result += '<br>';
+            currentLineLength = 0;
+        }
+    }
+
+    // Return the result string with line breaks inserted
+    return result.trim(); // Trim to remove any extra spaces at the end
 }
 
 
