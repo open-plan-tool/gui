@@ -764,7 +764,12 @@ class AssetCreateForm(OpenPlanModelForm):
             if view_only is True:
                 self.fields[field].disabled = True
             if self.fields[field].help_text is not None:
-                help_text = self.fields[field].help_text
+                help_text = (
+                    self.fields[field].help_text
+                    + ". "
+                    + _("Click on the icon for more help")
+                    + "."
+                )
                 self.fields[field].help_text = None
             else:
                 help_text = ""
@@ -775,7 +780,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 else:
                     param_ref = ""
                 if field != "name":
-                    question_icon = f'<a href="{RTD_url}{param_ref}"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+                    question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
                 else:
                     question_icon = ""
                 self.fields[field].label = self.fields[field].label + question_icon
