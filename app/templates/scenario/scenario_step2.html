@@ -70,7 +70,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
-                {% if scenario.project.user == request.user %}
+                {% if user_has_right_to_save %}
                 <button class="btn btn--medium" onclick="submitForm(event)">{% translate "Save" %}</button>
                 {% endif %}
 
@@ -278,7 +278,7 @@ $(document).ready(function () {
     <div class="step-footer__left"></div>
     <div class="step-footer__center">
         <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
-        {% if scenario.project.user == request.user %}
+			  {% if user_has_right_to_save %}
         <button class="btn btn--medium btn--transparent" onclick="javascript:save_topology()">{% translate "Save" %}</button>
         <button onclick="javascript:save_topology(move_step=true)" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
         {% else %}
