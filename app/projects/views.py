@@ -152,6 +152,11 @@ def user_feedback(request):
     return render(request, "feedback.html", {"form": form})
 
 
+@require_http_methods(["GET", "POST"])
+def sponsor_feature(request):
+    return render(request, "legal/sponsor_feature.html")
+
+
 @login_required
 @json_view
 @require_http_methods(["GET"])
