@@ -348,9 +348,15 @@ function scenario_visualize_stacked_timeseries(scen_id){
 };
 
 
-function scenario_visualize_sankey(scen_id){
+function scenario_visualize_sankey(scen_id, ts=null){
+	var urlParams = scen_id;
+	if( ts === null || ts === ""){
+	}
+	else{
+		urlParams = scen_id + "/" + ts;
+	}
  $.ajax({
-            url: "{% url 'scenario_visualize_sankey' %}" + scen_id,
+            url: "{% url 'scenario_visualize_sankey' %}" + urlParams,
             type: "GET",
             success: async (parameters) => {
                 await graph_type_mapping[parameters.type](parameters.id, parameters);

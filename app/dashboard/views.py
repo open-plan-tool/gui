@@ -221,11 +221,13 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
 
                 topology_data_list = load_scenario_topology_from_db(scen_id)
 
+                timestamps = scenario.get_timestamps()
                 answer = render(
                     request,
                     "report/single_scenario.html",
                     {
                         "scen_id": scen_id,
+                        "timestamps": timestamps,
                         "proj_id": proj_id,
                         "project_list": user_projects,
                         "scenario_list": user_scenarios,
@@ -1117,18 +1119,21 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 
 
 # TODO: Sector coupling must be refined (including transformer flows)
-def scenario_visualize_sankey(request, scen_id):
+def scenario_visualize_sankey(request, scen_id, ts=None):
     scenario = get_object_or_404(Scenario, pk=scen_id)
     if (scenario.project.user != request.user) and (
         scenario.project.viewers.filter(user__email=request.user.email).exists()
         is False
     ):
         raise PermissionDenied
-
+    if ts is not None:
+        ts = int(ts)
     results_json = report_item_render_to_json(
         report_item_id="sankey",
         data=REPORT_GRAPHS[GRAPH_SANKEY](
-            simulation=scenario.simulation, energy_vector=scenario.energy_vectors
+            simulation=scenario.simulation,
+            energy_vector=scenario.energy_vectors,
+            timestep=ts,
         ),
         title="Sankey",
         report_item_type=GRAPH_SANKEY,

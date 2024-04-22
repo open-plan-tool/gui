@@ -110,6 +110,12 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="row">
 			<div class="col" id="report_items" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="sankey" title="Sankey diagram" %}
+				<select onchange="javascript:scenario_visualize_sankey(scen_id={{scen_id }},ts=this.value)">
+						<option value="">Aggregated</option>
+					{% for ts in timestamps %}
+						<option value="{{ forloop.counter0 }}">{{ ts }}</option>
+					{% endfor %}
+				</select>
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 				{% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
 				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
@@ -128,6 +134,8 @@ parameters specific to this graph type only, other parameters are available in t
 
 {% block results_end_body_scripts %}
 <script>
+
+
 document.getElementById('single-scenario-link').classList.add('active');
 
 var dropdownElement = new Choices('#results-scenarios', {
