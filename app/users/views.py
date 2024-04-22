@@ -48,7 +48,9 @@ def signup(request):
             send_email_exchange(to_email=to_email, subject=subject, message=message)
             messages.info(
                 request,
-                _("Please confirm your email address to complete the registration"),
+                _(
+                    "Please confirm your email address to complete the registration  (note that the registration email may land in your spam box, if your email provider does not trust our domain name, we have unfortunately no control on our users' email provider)"
+                ),
             )
             return redirect("home")
     else:
