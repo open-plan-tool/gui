@@ -834,7 +834,11 @@ class AssetCreateForm(OpenPlanModelForm):
         except TypeError as e:
             raise ValidationError(str(e))
         except Exception as ex:
-            raise ValidationError(_("Could not parse a file. Did you upload one?"))
+            raise ValidationError(
+                _(
+                    f"Could not parse a file due to the following error: {ex}. Did you upload a file?"
+                )
+            )
 
     def clean_efficiency_multiple(self):
         data = self.cleaned_data["efficiency_multiple"]
