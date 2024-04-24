@@ -314,9 +314,9 @@ class Timeseries(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
     )
     # TODO check that if both a user and scenario are provided the scenario belongs to the user
-    scenario = models.ForeignKey(
-        Scenario, on_delete=models.CASCADE, null=True, blank=True
-    )
+    # scenario = models.ForeignKey(
+    #     Scenario, on_delete=models.CASCADE, null=True, blank=True
+    # )
     ts_type = models.CharField(max_length=12, choices=MVS_TYPE, blank=True, null=True)
 
     open_source = models.BooleanField(
