@@ -544,7 +544,7 @@ def parse_input_timeseries(timeseries_file):
                 pass
 
     else:
-        timeseries_file_str = timeseries_file.read().decode("utf-8")
+        timeseries_file_str = timeseries_file.read().decode("utf-8-sig")
 
         if timeseries_file_str != "":
             if timeseries_file.name.endswith("json"):
