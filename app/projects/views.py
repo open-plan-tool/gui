@@ -6,11 +6,13 @@ import traceback
 from django.http import HttpResponseForbidden, JsonResponse
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.shortcuts import *
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+
 from jsonview.decorators import json_view
 from datetime import datetime
 from users.models import CustomUser
@@ -506,6 +508,16 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
+    if request.user.id == 1:
+        messages.info(
+            request,
+            mark_safe(
+                _(
+                    "<p>Hello dear open-plan-tool user!</br></br> We would just like to let you know we are looking for your inputs in terms of features ideas or feature sponsor. Please check out the new navigation bar link 'Sponsor new features' for more information</br></br>Thank you for using open-plan-tool</p>"
+                )
+            ),
+        )
+
     return render(
         request,
         "project/project_search.html",
@@ -543,9 +555,10 @@ def project_duplicate(request, proj_id):
         new_proj_id = load_project_from_dict(dm, user=request.user)
     else:
         messages.error(
+            request,
             _(
                 "You cannot duplicate a shared project without the owner granting you 'edit' rights"
-            )
+            ),
         )
         new_proj_id = project.id
 
