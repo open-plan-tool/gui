@@ -367,7 +367,7 @@ def project_sensitivity_analysis(request, proj_id, sa_id=None):
 def report_create_item(request, proj_id):
     """This ajax view is triggered by clicking on "create" in the form to add a report item"""
 
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         qs = request.POST
         multi_scenario = request.session.get(COMPARE_VIEW, False)
         report_form = ReportItemForm(qs, proj_id=proj_id, multi_scenario=multi_scenario)
@@ -469,7 +469,7 @@ def sensitivity_analysis_create_graph(request, proj_id):
 @require_http_methods(["POST"])
 def report_delete_item(request, proj_id):
     """This ajax view is triggered by clicking on "delete" in the report item top right menu options"""
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         qs = request.POST
         report_item_id = qs.get("report_item_id")
         if "reportItem" in report_item_id:
@@ -498,7 +498,7 @@ def report_delete_item(request, proj_id):
 @json_view
 @require_http_methods(["POST"])
 def ajax_get_graph_parameters_form(request, proj_id):
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         # Prefill the form with initial values
         initial_values = {}
         initial_values["title"] = request.POST.get("title")
@@ -538,7 +538,7 @@ def ajax_get_graph_parameters_form(request, proj_id):
 @login_required
 @require_http_methods(["POST"])
 def ajax_get_sensitivity_analysis_parameters(request):
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         qs = request.POST
         sa_id = int(qs.get("sa_id"))
         sa_item = get_object_or_404(SensitivityAnalysis, id=sa_id)
@@ -561,7 +561,7 @@ def ajax_get_sensitivity_analysis_parameters(request):
 def update_selected_single_scenario(request, proj_id, scen_id):
     proj_id = str(proj_id)
     scen_id = str(scen_id)
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         status_code = 200
         selected_scenarios_per_project = request.session.get("selected_scenarios", {})
         selected_scenario = selected_scenarios_per_project.get(proj_id, [])
@@ -600,7 +600,7 @@ def update_selected_multi_scenarios(request, proj_id):
     if scen_ids is not None:
         scen_ids = json.loads(scen_ids)
 
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         status_code = 200
         selected_scenarios_per_project = request.session.get("selected_scenarios", {})
         selected_scenarios = selected_scenarios_per_project.get(proj_id, [])
@@ -1050,7 +1050,6 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
 
 # TODO exclude sink components
 def scenario_visualize_capacities(request, proj_id, scen_id=None):
-
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:

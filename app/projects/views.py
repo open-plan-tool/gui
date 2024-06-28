@@ -228,7 +228,7 @@ def project_revoke_access(request, proj_id=None):
 @require_http_methods(["POST"])
 def ajax_project_viewers_form(request):
 
-    if request.is_ajax():
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
         proj_id = int(request.POST.get("proj_id"))
         project = get_object_or_404(Project, id=proj_id)
 
