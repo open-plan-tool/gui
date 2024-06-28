@@ -1235,15 +1235,22 @@ def graph_costs(
         # assign optimized capacity to storage components
         storages = df.parent_asset__name.dropna().unique()
         for ess in storages:
-            df.loc[
-                (df.parent_asset__name == ess) & (df.direction.isna() == True),
-                "optimized_capacity",
-            ] = df.loc[
+
+            opt_cap = df.loc[
                 (df.parent_asset__name == ess) & (df.direction == "out"),
                 "optimized_capacity",
-            ].values[
-                0
             ]
+
+            if opt_cap.empty is False:
+                df.loc[
+                    (df.parent_asset__name == ess) & (df.direction.isna() == True),
+                    "optimized_capacity",
+                ] = df.loc[
+                    (df.parent_asset__name == ess) & (df.direction == "out"),
+                    "optimized_capacity",
+                ].values[
+                    0
+                ]
 
         df = df.fillna(0)
         # TODO costs for batteries are skewed as battery capacity does not exists in fancy results
