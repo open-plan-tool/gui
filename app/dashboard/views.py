@@ -705,7 +705,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         form = BusForm(
             asset_type=asset_type_name, instance=existing_bus, view_only=True
         )
-
+        existing_asset = None
         context = {"form": form}
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
         template = "asset/storage_asset_create_form.html"
@@ -765,124 +765,125 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             }
         )
 
-    # fetch optimized capacity and flow if they exist
-    qs = FancyResults.objects.filter(simulation=scenario.simulation)
+    if existing_asset is not None:
+        # fetch optimized capacity and flow if they exist
+        qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
-    if qs.exists():
-        qs_fine = qs.exclude(asset__contains="@").filter(
-            asset__contains=existing_asset.name
-        )
-        negative_direction = "out"
-        if existing_asset.is_storage is True and optimized_cap is True:
-            for cap in qs_fine.values_list("optimized_capacity", flat=True):
-                context.update(
-                    {"optimized_add_cap": {"value": round(cap, 2), "unit": "kWh"}}
-                )
-
-        elif existing_asset.is_provider is True:
-            negative_direction = "in"
-        else:
-            qs_fine = qs_fine.filter(asset=existing_asset.name)
-
-        traces = []
-        total_flows = []
-        timestamps = scenario.get_timestamps(json_format=True)
-
-        if len(qs_fine) == 1:
-            asset_results = qs_fine.get()
-            total_flows.append(
-                {
-                    "value": round(asset_results.total_flow, 2),
-                    "unit": "kWh",
-                    "label": "",
-                }
+        if qs.exists():
+            qs_fine = qs.exclude(asset__contains="@").filter(
+                asset__contains=existing_asset.name
             )
-            if existing_asset.optimize_cap is True:
-                context.update(
-                    {
-                        "optimized_add_cap": {
-                            "value": round(asset_results.optimized_capacity, 2),
-                            "unit": "kW",
-                        }
-                    }
-                )
-            traces.append(
-                {
-                    "value": json.loads(asset_results.flow_data),
-                    "name": existing_asset.name,
-                    "unit": "kW",
-                }
-            )
-        else:
+            negative_direction = "out"
+            if existing_asset.is_storage is True and optimized_cap is True:
+                for cap in qs_fine.values_list("optimized_capacity", flat=True):
+                    context.update(
+                        {"optimized_add_cap": {"value": round(cap, 2), "unit": "kWh"}}
+                    )
 
-            qs_fine = qs_fine.annotate(
-                name=Case(
-                    When(
-                        Q(asset_type__contains="chp") & Q(direction="in"),
-                        then=Concat("asset", Value(" out ("), "bus", Value(")")),
-                    ),
-                    When(
-                        Q(asset_type__contains="chp") & Q(direction="out"),
-                        then=Concat("asset", Value(" in")),
-                    ),
-                    When(
-                        Q(asset_type__contains="ess") & Q(direction="in"),
-                        then=Concat("asset", Value(" " + _("Discharge"))),
-                    ),
-                    When(
-                        Q(asset_type__contains="ess") & Q(direction="out"),
-                        then=Concat("asset", Value(" " + _("Charge"))),
-                    ),
-                    When(
-                        Q(oemof_type="transformer") & Q(direction="out"),
-                        then=Concat("asset", Value(" in")),
-                    ),
-                    When(
-                        Q(oemof_type="transformer") & Q(direction="in"),
-                        then=Concat("asset", Value(" out")),
-                    ),
-                    default=F("asset"),
-                ),
-                unit=Case(
-                    When(Q(asset_type__contains="ess"), then=Value("kWh")),
-                    default=Value("kW"),
-                ),
-                value=F("flow_data"),
-            )
+            elif existing_asset.is_provider is True:
+                negative_direction = "in"
+            else:
+                qs_fine = qs_fine.filter(asset=existing_asset.name)
 
-            for y_vals in qs_fine.order_by("direction").values(
-                "name", "value", "unit", "direction", "total_flow"
-            ):
-                # make consumption values negative other wise inflow of asset is negative
-                if y_vals["direction"] == negative_direction:
-                    y_vals["value"] = (
-                        -1 * np.array(json.loads(y_vals["value"]))
-                    ).tolist()
-                else:
-                    y_vals["value"] = json.loads(y_vals["value"])
+            traces = []
+            total_flows = []
+            timestamps = scenario.get_timestamps(json_format=True)
 
-                traces.append(y_vals)
-
+            if len(qs_fine) == 1:
+                asset_results = qs_fine.get()
                 total_flows.append(
                     {
-                        "value": round(y_vals["total_flow"], 2),
-                        "unit": y_vals["unit"],
-                        "label": y_vals["name"],
+                        "value": round(asset_results.total_flow, 2),
+                        "unit": "kWh",
+                        "label": "",
                     }
                 )
-
-            if existing_asset.is_provider is True:
-                # add the possibility to see the cap limit on the feedin on the result graph
-                feedin_cap = existing_asset.feedin_cap
-                if feedin_cap is not None:
-                    traces.append(
+                if existing_asset.optimize_cap is True:
+                    context.update(
                         {
-                            "value": [feedin_cap for t in timestamps],
-                            "name": parameters_helper.get_doc_verbose("feedin_cap"),
-                            "unit": parameters_helper.get_doc_unit("feedin_cap"),
-                            "options": {"visible": "legendonly"},
+                            "optimized_add_cap": {
+                                "value": round(asset_results.optimized_capacity, 2),
+                                "unit": "kW",
+                            }
                         }
                     )
+                traces.append(
+                    {
+                        "value": json.loads(asset_results.flow_data),
+                        "name": existing_asset.name,
+                        "unit": "kW",
+                    }
+                )
+            else:
+
+                qs_fine = qs_fine.annotate(
+                    name=Case(
+                        When(
+                            Q(asset_type__contains="chp") & Q(direction="in"),
+                            then=Concat("asset", Value(" out ("), "bus", Value(")")),
+                        ),
+                        When(
+                            Q(asset_type__contains="chp") & Q(direction="out"),
+                            then=Concat("asset", Value(" in")),
+                        ),
+                        When(
+                            Q(asset_type__contains="ess") & Q(direction="in"),
+                            then=Concat("asset", Value(" " + _("Discharge"))),
+                        ),
+                        When(
+                            Q(asset_type__contains="ess") & Q(direction="out"),
+                            then=Concat("asset", Value(" " + _("Charge"))),
+                        ),
+                        When(
+                            Q(oemof_type="transformer") & Q(direction="out"),
+                            then=Concat("asset", Value(" in")),
+                        ),
+                        When(
+                            Q(oemof_type="transformer") & Q(direction="in"),
+                            then=Concat("asset", Value(" out")),
+                        ),
+                        default=F("asset"),
+                    ),
+                    unit=Case(
+                        When(Q(asset_type__contains="ess"), then=Value("kWh")),
+                        default=Value("kW"),
+                    ),
+                    value=F("flow_data"),
+                )
+
+                for y_vals in qs_fine.order_by("direction").values(
+                    "name", "value", "unit", "direction", "total_flow"
+                ):
+                    # make consumption values negative other wise inflow of asset is negative
+                    if y_vals["direction"] == negative_direction:
+                        y_vals["value"] = (
+                            -1 * np.array(json.loads(y_vals["value"]))
+                        ).tolist()
+                    else:
+                        y_vals["value"] = json.loads(y_vals["value"])
+
+                    traces.append(y_vals)
+
+                    total_flows.append(
+                        {
+                            "value": round(y_vals["total_flow"], 2),
+                            "unit": y_vals["unit"],
+                            "label": y_vals["name"],
+                        }
+                    )
+
+                if existing_asset.is_provider is True:
+                    # add the possibility to see the cap limit on the feedin on the result graph
+                    feedin_cap = existing_asset.feedin_cap
+                    if feedin_cap is not None:
+                        traces.append(
+                            {
+                                "value": [feedin_cap for t in timestamps],
+                                "name": parameters_helper.get_doc_verbose("feedin_cap"),
+                                "unit": parameters_helper.get_doc_unit("feedin_cap"),
+                                "options": {"visible": "legendonly"},
+                            }
+                        )
 
         context.update(
             {
