@@ -169,9 +169,13 @@ def handle_storage_unit_form_post(
                 new_name = form.cleaned_data.pop("name", None)
                 if new_name is not None:
                     ess_asset.name = new_name
+                    ess_capacity_asset.name = f"{ess_asset.name} capacity"
+                    ess_charging_power_asset.name = f"{ess_asset.name} input power"
+                    ess_discharging_power_asset.name = f"{ess_asset.name} output power"
                     ess_asset.save()
             else:
                 # Create the ESS Parent Asset
+
                 ess_asset = Asset.objects.create(
                     name=form.cleaned_data.pop("name"),
                     asset_type=get_object_or_404(
