@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+
+{% block title %} {% translate "Sponsor - open-plan-tool" %} {% endblock title%}
+
+<!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
+{% block content %}
+<main>
+	<section class="header">
+		<div>
+			<div class="header__left"></div>
+			<h1 class="header__title">{% translate "Sponsor new features" %}</h1>
+			<div class="header__back"></div>
+		</div>
+	</section>
+	<section class="standard-layout">
+		<div>
+			<div class="standard-layout__paragraph standard-layout__paragraph--foreground">
+				<h2>{% translate "You wish a feature would be added to open-plan-tool?" %}</h2>
+				{% url 'user_feedback' as url_feedback %}
+									{% blocktranslate with url_op="https://open-plan-tool.org/index_en.html" %}
+				<p>
+					The open-plan-tool was developed within the <a href="{{url_op}}" target="_blank">open_plan project</a> which ended in June 2023. Since then the tool has remained online but with limited to no budget to fix bugs or develop new features wished by users. If you are an enterprise and wish to use the open-plan-tool with an extra feature and are able to sponsor it (fully or partly),  please contact us at <a href="mailto:open_plan@rl-institut.de">open_plan@rl-institut.de</a> or via our <a target="_blank" href="{{url_feedback}}">feedback page</a>
+
+				{% endblocktranslate %}
+			</div>
+
+			<div class="standard-layout__paragraph">
+				<!--h2>Other  paragraph type</h2-->
+			</div>
+						<div class="standard-layout__paragraph standard-layout__paragraph--small">
+				<h2>{% translate "We also welcome ideas or wishes from users and would then list them on this page." %}</h2>
+
+			</div>
+
+
+		</div>
+	</section>
+</main>
+{% endblock content %}
+

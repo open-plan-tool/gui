@@ -220,4 +220,5 @@ urlpatterns = [
     ),
     # User Feedback
     path("user_feedback", user_feedback, name="user_feedback"),
+    path("sponsor/feature", sponsor_feature, name="sponsor_feature"),
 ]
