@@ -950,10 +950,8 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                 When(Q(oemof_type="sink"), then=Value("none")),
                 When(Q(oemof_type="storage") & Q(direction="out"), then=Value("none")),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("none")
-                ),
-                When(
-                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
                     then=Value("none"),
                 ),
                 default=Value("tonexty"),
@@ -963,10 +961,8 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     Q(oemof_type="storage") & Q(direction="out"), then=Value("demand")
                 ),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("demand")
-                ),
-                When(
-                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
                     then=Value("demand"),
                 ),
                 When(
@@ -982,10 +978,8 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     then=Value("lines"),
                 ),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("lines")
-                ),
-                When(
-                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
                     then=Value("lines"),
                 ),
                 default=Value("none"),
@@ -1242,6 +1236,7 @@ def graph_costs(
                         ).get()
                     )
                 elif qs_asset_results.count() > 1:
+                    # TODO bug here online with Lübben
                     raise ValueError("should not have too much labels")
             records.append(el)
 
