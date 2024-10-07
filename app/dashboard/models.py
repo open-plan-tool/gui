@@ -952,6 +952,10 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                 When(
                     Q(asset_type="heat_pump") & Q(direction="out"), then=Value("none")
                 ),
+                When(
+                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    then=Value("none"),
+                ),
                 default=Value("tonexty"),
             ),
             group=Case(
@@ -960,6 +964,10 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                 ),
                 When(
                     Q(asset_type="heat_pump") & Q(direction="out"), then=Value("demand")
+                ),
+                When(
+                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    then=Value("demand"),
                 ),
                 When(
                     Q(oemof_type="sink"),  # & Q(asset_type__contains="demand"),
@@ -975,6 +983,10 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                 ),
                 When(
                     Q(asset_type="heat_pump") & Q(direction="out"), then=Value("lines")
+                ),
+                When(
+                    Q(asset_type="chp_fixed_ratio") & Q(direction="out"),
+                    then=Value("lines"),
                 ),
                 default=Value("none"),
             ),
