@@ -1441,8 +1441,8 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                 if component_label in chp_in_flow:
                     chp_in_flow[component_label]["value"] += val
 
-                if val == 0:
-                    val = 1e-9
+                # if val == 0:
+                #     val = 1e-9
                 values.append(val)
             if ts is None:
                 bus_to_asset_names = qs.filter(
@@ -1485,8 +1485,8 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                     val = json.loads(val)
                     val = val[ts]
 
-                if val == 0:
-                    val = 1e-9
+                # if val == 0:
+                #     val = 1e-9
                 values.append(val)
 
         # TODO display the installed capacity, max capacity and optimized_add_capacity on the nodes if applicable
