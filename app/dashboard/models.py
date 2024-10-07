@@ -1381,6 +1381,10 @@ def graph_costs(
 
 
 def graph_sankey(simulation, energy_vector, timestep=None):
+
+    # for DSO results
+    dso_period_suffix = "_period (@)"
+
     ts = timestep
     if isinstance(energy_vector, list) is False:
         energy_vector = [energy_vector]
@@ -1418,6 +1422,22 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                 ).values_list("asset", "flow_data")
 
             for component_label, val in asset_to_bus_names:
+
+                if dso_period_suffix in component_label:
+                    component_label = component_label.replace(dso_period_suffix, "")
+                    if ts is None:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("total_flow")
+                            .get()[0]
+                        )
+                    else:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("flow_data")
+                            .get()[0]
+                        )
+
                 # draw link from the component to the bus
                 if component_label not in labels:
                     labels.append(component_label)
@@ -1445,9 +1465,24 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                     bus=bus.name, direction="out"
                 ).values_list("asset", "flow_data")
 
-            # TODO potentially rename feedin period and consumption period
             for component_label, val in bus_to_asset_names:
                 # draw link from the bus to the component
+
+                if dso_period_suffix in component_label:
+                    component_label = component_label.replace(dso_period_suffix, "")
+                    if ts is None:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("total_flow")
+                            .get()[0]
+                        )
+                    else:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("flow_data")
+                            .get()[0]
+                        )
+
                 if component_label not in labels:
                     labels.append(component_label)
                     colors.append("red")
