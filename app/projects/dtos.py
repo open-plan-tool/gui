@@ -347,6 +347,15 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
         ess_sub_assets = {}
 
         for asset in Asset.objects.filter(parent_asset=ess):
+            if asset.asset_type.asset_type == "capacity":
+                # This is the loss_rate in oemof
+                # As we take the efficiency provided by the user to be the roundtrip efficiency
+                # We assign sqrt(efficiency) to each of input and output power of the battery which get
+                # assigned to inflow_conversion_factor and outflow_conversion_factor parameters of
+                # solph.components.GenericStorage and we fix the loss_rate to 1
+                asset.efficiency = 1
+            efficiency = to_value_type(asset, "efficiency")
+
             asset_dto = AssetDto(
                 asset.asset_type.asset_type,
                 asset.name,
@@ -362,7 +371,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 to_value_type(asset, "soc_min"),
                 to_value_type(asset, "capex_fix"),
                 to_value_type(asset, "opex_var"),
-                to_value_type(asset, "efficiency"),
+                efficiency,
                 to_value_type(asset, "installed_capacity"),
                 to_value_type(asset, "lifetime"),
                 to_value_type(asset, "maximum_capacity"),
