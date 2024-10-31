@@ -435,9 +435,10 @@ class Asset(TopologyNode):
     lifetime = models.IntegerField(
         null=True, blank=False, validators=[MinValueValidator(0)]
     )
-    input_timeseries = models.TextField(
+    input_timeseries_old = models.TextField(
         null=True, blank=False
     )  # , validators=[validate_timeseries])
+    input_timeseries = models.ForeignKey(Timeseries, on_delete=models.CASCADE, null=True, blank=False)
     crate = models.FloatField(
         null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
     )
@@ -513,7 +514,7 @@ class Asset(TopologyNode):
             "efficiency_multiple",
             "energy_price",
             "feedin_tariff",
-            "input_timeseries",
+            "input_timeseries_old",
         ):
             try:
                 answer = float(answer)
