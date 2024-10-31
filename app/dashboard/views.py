@@ -755,7 +755,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             proj_id=scenario.project.id,
         )
         input_timeseries_data = (
-            existing_asset.input_timeseries if existing_asset.input_timeseries else ""
+            existing_asset.input_timeseries.values if existing_asset.input_timeseries else ""
         )
 
         context.update(
