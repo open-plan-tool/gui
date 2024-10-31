@@ -355,19 +355,8 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
-
-        answer = [self.default, "", None]
-        if value is not None:
-            value = value.replace("'", '"')
-            value = json.loads(value)
-            input_method = value["input_method"]["type"]
-            ts_values = value["values"]
-            if len(ts_values) == 1:
-                ts_values = ts_values[0]
-            if input_method == "select":
-                answer = [ts_values, value["input_method"]["extra_info"], None]
-            else:
-                answer = [ts_values, "", None]
+        # TODO update handling here - value corresponds to the pk of the timeseries
+        answer = ["", "", value]
 
         return answer
 
@@ -427,13 +416,13 @@ class TimeseriesField(forms.MultiValueField):
                 self.set_widget_error()
                 raise ValidationError(
                     _(
-                        "Please provide either a number within %(boundaries) s or upload a timeseries from a file"
+                        "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
                     ),
                     code="required",
                     params={"boundaries": self.boundaries},
                 )
             else:
-                input_dict = dict(type="manuel")
+                input_dict = dict(type="manual")
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
