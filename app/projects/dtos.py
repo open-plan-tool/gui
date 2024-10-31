@@ -672,7 +672,7 @@ def to_timeseries_data(model_obj, field_name):
     value_type = ValueType.objects.filter(type=field_name).first()
     unit = value_type.unit if value_type is not None else None
     value_list = (
-        json.loads(getattr(model_obj, field_name))
+        getattr(model_obj, field_name).values
         if getattr(model_obj, field_name) is not None
         else None
     )
