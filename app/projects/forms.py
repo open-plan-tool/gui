@@ -810,11 +810,11 @@ class AssetCreateForm(OpenPlanModelForm):
         else:
             return True
 
-    def clean_input_timeseries(self):
+    def clean_input_timeseries_old(self):
         """Override built-in Form method which is called upon form validation"""
         try:
             input_timeseries_values = []
-            timeseries_file = self.files.get("input_timeseries", None)
+            timeseries_file = self.files.get("input_timeseries_file", None)
             # read the timeseries from file if any
             if timeseries_file is not None:
                 input_timeseries_values = parse_input_timeseries(timeseries_file)
@@ -949,8 +949,7 @@ class AssetCreateForm(OpenPlanModelForm):
             "lifetime": forms.NumberInput(
                 attrs={"placeholder": "e.g. 10 years", "min": "0", "step": "1"}
             ),
-            # TODO: Try changing this to FileInput
-            "input_timeseries": forms.FileInput(
+            "input_timeseries_old": forms.FileInput(
                 attrs={
                     "onchange": "plot_file_trace(obj=this.files, plot_id='timeseries_trace')"
                 }
