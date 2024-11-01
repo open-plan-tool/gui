@@ -453,7 +453,6 @@ def project_from_usecase(request, usecase_id=None):
     return HttpResponseRedirect(reverse("project_search", args=[proj_id]))
 
 
-@login_required
 @require_http_methods(["GET"])
 def usecase_export(request, usecase_id):
 
@@ -569,13 +568,10 @@ def project_duplicate(request, proj_id):
 
 
 # region Usecase
-@login_required
 @require_http_methods(["GET"])
 def usecase_search(request, usecase_id=None, scen_id=None):
 
     usecase_list = UseCase.objects.all()
-
-    print(usecase_list)
 
     return render(
         request,
