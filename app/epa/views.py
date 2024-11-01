@@ -22,5 +22,10 @@ def about(request):
 
 
 @require_http_methods(["GET"])
+def contact(request):
+    return render(request, "legal/contact.html")
+
+
+@require_http_methods(["GET"])
 def license(request):
     return render(request, "legal/license.html")
