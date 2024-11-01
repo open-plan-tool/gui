@@ -1572,8 +1572,15 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 input_output_mapping=input_output_mapping,
             )
         else:
+            asset_list = Asset.objects.filter(
+                asset_type__asset_type=asset_type_name, scenario=scenario
+            )
+            n_asset = len(asset_list)
+            default_name = f"{asset_type_name}-{n_asset}"
             form = StorageForm(
-                asset_type=asset_type_name, input_output_mapping=input_output_mapping
+                asset_type=asset_type_name,
+                input_output_mapping=input_output_mapping,
+                initial={"name": default_name},
             )
         return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
