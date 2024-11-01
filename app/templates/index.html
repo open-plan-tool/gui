@@ -28,7 +28,7 @@
   </section>
 
 
-
+{% if version == 1 %}
 <section class="dev">
     <div class="dev__wrap">
       <div class="dev__heading">
@@ -63,7 +63,7 @@
     </div>
   </section>
 
-
+{% else %}
 	<section class="hero section" id="hero">
 	<div>
 		<div class="hero__text dev__heading">
@@ -85,7 +85,7 @@
 		</div>
 	</div>
 </section>
-
+{% endif %}
 
 	<!-- commented out section -->
 	<!--section class="energy-cell">

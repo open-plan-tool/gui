@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = [
     path("", home, name="home"),
+    path("<int:version>", home, name="home"),
     # Project
     path("project/create/", project_create, name="project_create"),
     path("notimplementedyet/", not_implemented, name="not_implemented"),
