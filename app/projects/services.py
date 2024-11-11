@@ -82,7 +82,7 @@ def create_or_delete_simulation_scheduler(**kwargs):
             func="projects.services.check_simulation_objects",
             # args='5',
             schedule_type=Schedule.MINUTES,
-            minutes=1
+            minutes=1,
             # kwargs={'test_arg': 1, 'test_arg2': "test"}
         )
         if schedule.id:

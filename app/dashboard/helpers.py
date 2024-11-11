@@ -172,21 +172,25 @@ def fetch_user_projects(user):
 
 def kpi_scalars_list(kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS):
     return [
-        {
-            "kpi": key.replace("_", " "),
-            "value": round(val, 3)
-            if "currency/kWh" in KPI_SCALAR_UNITS[key]
-            else round(val, 2),
-            "unit": KPI_SCALAR_UNITS[key],
-            "tooltip": KPI_SCALAR_TOOLTIPS[key],
-        }
-        if key in KPI_SCALAR_UNITS.keys()
-        else {
-            "kpi": key.replace("_", " "),
-            "value": round(val, 3),
-            "unit": "N/A",
-            "tooltip": "",
-        }
+        (
+            {
+                "kpi": key.replace("_", " "),
+                "value": (
+                    round(val, 3)
+                    if "currency/kWh" in KPI_SCALAR_UNITS[key]
+                    else round(val, 2)
+                ),
+                "unit": KPI_SCALAR_UNITS[key],
+                "tooltip": KPI_SCALAR_TOOLTIPS[key],
+            }
+            if key in KPI_SCALAR_UNITS.keys()
+            else {
+                "kpi": key.replace("_", " "),
+                "value": round(val, 3),
+                "unit": "N/A",
+                "tooltip": "",
+            }
+        )
         for key, val in kpi_scalar_values_dict.items()
     ]
 

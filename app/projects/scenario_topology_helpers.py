@@ -388,9 +388,9 @@ def db_bus_nodes_to_list(scen_id):
                 "name": db_bus.name,
                 "bustype": db_bus.type,
                 "databaseId": db_bus.id,
-                "parent_asset_id": db_bus.parent_asset_id
-                if db_bus.parent_asset_id
-                else "",
+                "parent_asset_id": (
+                    db_bus.parent_asset_id if db_bus.parent_asset_id else ""
+                ),
             },
         }
         bus_nodes_list.append(db_bus_dict)
@@ -411,9 +411,9 @@ def db_asset_nodes_to_list(scen_id):
             "data": {
                 "name": db_asset.name,
                 "unique_id": db_asset.unique_id,
-                "parent_asset_id": db_asset.parent_asset_id
-                if db_asset.parent_asset_id
-                else "",
+                "parent_asset_id": (
+                    db_asset.parent_asset_id if db_asset.parent_asset_id else ""
+                ),
             },
         }
         asset_nodes_list.append(db_asset_dict)

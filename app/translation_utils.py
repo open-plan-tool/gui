@@ -30,6 +30,7 @@ insert_translations_into_po_file(trans_dict, "django")
 the procedure is executed below when this file is executed as main
 
 """
+
 import os
 
 LANG = "de"

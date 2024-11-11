@@ -709,9 +709,9 @@ class AssetCreateForm(OpenPlanModelForm):
                 "Electrical efficiency with no heat extraction"
             )
 
-            self.fields[
-                "efficiency"
-            ].help_text = "This is the custom help text for chp efficiency"
+            self.fields["efficiency"].help_text = (
+                "This is the custom help text for chp efficiency"
+            )
 
             self.fields["efficiency_multiple"] = DualNumberField(
                 default=1, min=0, max=1, param_name="efficiency_multiple"
@@ -727,9 +727,9 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].label = _("Efficiency gaz to electricity")
 
             # TODO
-            self.fields[
-                "efficiency"
-            ].help_text = "This is the custom help text for chp efficiency"
+            self.fields["efficiency"].help_text = (
+                "This is the custom help text for chp efficiency"
+            )
 
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
                 attrs={
