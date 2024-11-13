@@ -23,10 +23,9 @@ Prior to be able to develop locally, you might need to install postgres, simply 
 
 1. Create a virtual environment
 2. Activate your virtual environment
-3. Install the dependencies with `pip install -r app/requirements/postgres.txt`
-4. Install extra local development dependencies with `pip install -r app/dev_requirements.txt`
-5. Move to the `app` folder with `cd app`
-6. Create environment variables (only replace content surrounded by `<>`)
+3. Move to the `app` folder with `cd app`
+4. Install local development dependencies with `pip install -r requirements/local.txt`
+5. Create environment variables (only replace content surrounded by `<>`)
 ```
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=<your db name>
@@ -36,10 +35,10 @@ SQL_HOST=localhost
 SQL_PORT=5432
 DEBUG=(True|False)
 ```
-8. Add an environment variable `MVS_HOST_API` and set the url of the simulation server you wish to use for your models
-9. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
-10. Start the local server with `python manage.py runserver`
-11. You can then login with `testUser` and `ASas12,.` or create your own account
+6. Add an environment variable `MVS_HOST_API` and set the url of the simulation server you wish to use for your models
+7. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
+8. Start the local server with `python manage.py runserver`
+9. You can then login with `testUser` and `ASas12,.` or create your own account
 
 ## Deploy using Docker Compose
 The following commands should get everything up and running, using the web based version of the MVS API.
