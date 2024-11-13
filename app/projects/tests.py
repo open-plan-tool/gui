@@ -1,17 +1,15 @@
-import pytest
 import json
-from django.test import TestCase
-from django.urls import reverse
-from django.conf import settings as django_settings
-from django.test.client import RequestFactory
-from projects.models import Project, Scenario, Viewer, Asset
-from users.models import CustomUser
-from django.core.exceptions import ValidationError
 
+import pytest
+from django.test import TestCase
+from django.test.client import RequestFactory
+from django.urls import reverse
+from projects.models import Project, Scenario, Asset
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
 )
+from users.models import CustomUser
 
 
 class BasicOperationsTest(TestCase):
@@ -136,7 +134,7 @@ class BasicOperationsTest(TestCase):
         self.assertEqual(self.project.viewers.filter(user__email=test_email).count(), 0)
 
     def test_remove_project_viewer_via_post_raises_permission_error_if_not_project_owner(
-        self
+        self,
     ):
         pass
 

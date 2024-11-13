@@ -1,5 +1,5 @@
 """
-What you need to know is what a django .po file 
+What you need to know is what a django .po file
     documentation here: https://docs.djangoproject.com/fr/3.2/topics/i18n/translation/
 What I call a translation dict is a python dictionnary which keys are the msgid (strings or tuple of strings, if multi-line) and values are the corresponding msgstr (strings or tuple of strings, if multi-line)
 
@@ -19,7 +19,7 @@ merge_deepL_translation_for_proofing("django_before_deepL_translation.txt", "dja
 # this creates a "deepL_translation_to_be_proofed.txt" file which you can send to the translators for proofing
 
 
-# paste the content of the proofed translation into "proofed_translation.txt" and run 
+# paste the content of the proofed translation into "proofed_translation.txt" and run
 
 trans_dict = read_translated_msgtr("proofed_translation.txt")
 
@@ -30,6 +30,7 @@ insert_translations_into_po_file(trans_dict, "django")
 the procedure is executed below when this file is executed as main
 
 """
+
 import os
 
 LANG = "de"

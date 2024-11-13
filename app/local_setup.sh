@@ -5,4 +5,5 @@ python manage.py migrate && \
 python manage.py update_assettype && \
 python manage.py loaddata 'fixtures/multivector_fixture.json' && \
 echo yes | python manage.py collectstatic && \
+pre-commit install && \
 echo 'Completed Setup Successfully!!'

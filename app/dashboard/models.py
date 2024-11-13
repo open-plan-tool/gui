@@ -691,9 +691,9 @@ class AssetsResults(models.Model):
                                     MAP_EPA_MVS.get(sub_cat, sub_cat)
                                 )
                             if storage_subasset is not None:
-                                storage_subasset[
-                                    "category"
-                                ] = format_storage_subasset_name(category, sub_cat)
+                                storage_subasset["category"] = (
+                                    format_storage_subasset_name(category, sub_cat)
+                                )
                                 storage_subasset["type_oemof"] = asset["type_oemof"]
                                 storage_subasset["energy_vector"] = asset[
                                     "energy_vector"
@@ -755,10 +755,10 @@ class AssetsResults(models.Model):
                                 if storage_subasset is not None:
                                     if answer is None:
                                         answer = storage_subasset
-                                        answer[
-                                            "category"
-                                        ] = format_storage_subasset_name(
-                                            category, sub_cat
+                                        answer["category"] = (
+                                            format_storage_subasset_name(
+                                                category, sub_cat
+                                            )
                                         )
                                         answer["energy_vector"] = asset["energy_vector"]
                                         break
@@ -1045,15 +1045,19 @@ def graph_capacities(simulations, y_variables):
 
         installed_capacity_dict = {
             "capacity": [],
-            "name": _("Installed Capacity")
-            if multi_scenario is False
-            else _("Inst. Cap.") + f"{simulation.scenario.name}",
+            "name": (
+                _("Installed Capacity")
+                if multi_scenario is False
+                else _("Inst. Cap.") + f"{simulation.scenario.name}"
+            ),
         }
         optimized_capacity_dict = {
             "capacity": [],
-            "name": _("Optimized Capacity")
-            if multi_scenario is False
-            else _("Opt. Cap.") + f"{simulation.scenario.name}",
+            "name": (
+                _("Optimized Capacity")
+                if multi_scenario is False
+                else _("Opt. Cap.") + f"{simulation.scenario.name}"
+            ),
         }
 
         # read information about the installed capacity
@@ -1304,16 +1308,20 @@ def graph_costs(
                 y = df.iloc[:, i].values.tolist()
                 y_values.append(
                     {
-                        "base": df.iloc[:, :i].sum(axis=1).values.tolist()
-                        if i > 0
-                        else None,
+                        "base": (
+                            df.iloc[:, :i].sum(axis=1).values.tolist()
+                            if i > 0
+                            else None
+                        ),
                         "value": y,
                         "text": [name for j in range(len(x_values))],
-                        "name": name
-                        if multi_scenario is False
-                        else name + f" {simulation.scenario.name}",
+                        "name": (
+                            name
+                            if multi_scenario is False
+                            else name + f" {simulation.scenario.name}"
+                        ),
                         "hover": "<b>%{text}, </b><br><br>Block value: %{customdata:.2f}$<br>Stacked value: %{y:.2f}$<extra> %{x}</extra>",
-                        "customdata": y
+                        "customdata": y,
                         # https://stackoverflow.com/questions/59057881/python-plotly-how-to-customize-hover-template-on-with-what-information-to-show
                     }
                 )
@@ -1326,14 +1334,18 @@ def graph_costs(
                 y = df.iloc[i, :].values.tolist()
                 y_values.append(
                     {
-                        "base": df.iloc[:i, :].sum(axis=0).values.tolist()
-                        if i > 0
-                        else None,
+                        "base": (
+                            df.iloc[:i, :].sum(axis=0).values.tolist()
+                            if i > 0
+                            else None
+                        ),
                         "value": y,
                         "text": [name for j in range(len(x_values))],
-                        "name": name
-                        if multi_scenario is False
-                        else name + f" {simulation.scenario.name}",
+                        "name": (
+                            name
+                            if multi_scenario is False
+                            else name + f" {simulation.scenario.name}"
+                        ),
                         "hover": "<b>%{text}</b><br><br>Block value: %{customdata:.2f}$<br>Stacked value: %{y:.2f}$",
                         "customdata": y,
                     }
@@ -1494,6 +1506,7 @@ REPORT_GRAPHS = {
     GRAPH_LOAD_DURATION: "Load duration curve",
     GRAPH_SANKEY: graph_sankey,
 }
+
 
 # # TODO change the form from this model to adapt the choices depending on single scenario/compare scenario or sensitivity
 class ReportItem(models.Model):

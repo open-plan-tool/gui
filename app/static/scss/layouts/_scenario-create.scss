@@ -29,7 +29,7 @@
   &__description {
     padding-top: 1.5rem;
     @include flex-row;
-    
+
     @media only screen and (min-width: $medium-screen) {
       flex: 1 1 0;
     }
