@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %} {% translate "Cellular" %} {% endblock title %}
+
+
+
+{% block head_block %}
+	<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+{% endblock head_block %}
+
+{% block index %}
+  {% if not user.is_authenticated %}
+	{% get_current_language as LANGUAGE_NAME %}
+<main class="landing-page">
+
+  <section class="header">
+    <div class="header__wrap" style="flex-direction:column;">
+      <div class="header__heading">
+        <h1>{% translate "We plan energy systems from a cellular perspective" %}</h1>
+        <p>{% translate "In close collaboration with practitioners of energy modelling and energy project developers we developed an open-source planning tool" %}</p>
+      </div>
+      <div class="header__btn">
+        <a href="#tool-anchor" class="btn btn--full">Learn more</a>
+      </div>
+    </div>
+  </section>
+
+
+	<!-- commented out section -->
+	<!--section class="energy-cell">
+    <div class="energy-cell__wrap">
+      <div class="energy-cell__heading">
+        <h2>Energy cells explained</h2>
+      </div>
+      <div class="energy-cell__content">
+        <div class="text text--left">
+          <div class="text__item">
+            <p>The cellular approach is a new energy system model framework based on decentralized energy systems and sector coupling</p>
+          </div>
+          <div class="text__item">
+            <p>The cellular approach describes an energy system organized in so-called energy cells</p>
+          </div>
+        </div>
+        <div class="img">
+          <picture>
+            <source 
+               media="(min-width: 1280px)"
+               srcset="{% static 'assets/open_plan_EC_explained_v2.svg' %}">
+            <img src="{% static 'assets/open_plan_EC_explained.svg' %}" alt="Energy cells inside a larger energy cell">
+         </picture>
+        </div>
+        <div class="text text--right">
+          <div class="text__item">
+            <p>The fundamental idea of the cellular approach is to optimize energy system planning at all possible levels, from the smallest energy cell to the largest one.</p>
+          </div>
+          <div class="text__item">
+            <p>An energy cell can contain and combine many forms of energy such as electricity, heat, gas, etc.</p>
+          </div>
+        </div>
+      </div>
+      <div class="energy-cell__hide">
+        <a href="#" id="hideShowBtn" class="hidden" onclick="showHide('ECText', this.id); return false;">Show more</a>
+        <div id="ECText" class="hidden">
+          <p>The adoption of the <a href="https://www.bmwi.de/Redaktion/DE/Downloads/G/gesetzentwurf-aenderung-erneuerbare-energien-gesetzes-und-weiterer-energierechtlicher-vorschriften.pdf?__blob=publicationFile&v=4" target="_blank" rel="noopener noreferrer">German Renewable Energy Law „EEG 2021“</a> opens a unique opportunity to be leveraged by looking at a new energy system planning perspective. The full transition to renewable energy sources and climate neutrality by 2050 requires a high level of citizens' acceptance, reachable by local participation opportunities. Such frameworks can enable tenants to benefit from rooftop PV installations and local communities and authorities to value wind power generation. These are two examples that show how bottom-up approaches can contribute to a successful energy transition, ultimatively requiring a cellular approach: "The cellular approach is a new organizational model for energy supply. In this interdisciplinary model, technical, economic, legal and political (and social) concerns are taken into account. The central component of this model is the energy cell." <a href="#footnote-1">[1]</a></p>
+          <p>This model was developed by the German Association for Electrical Engineering, VDE. It proposes a new way to organize future energy system networks. The cellular approach incorporates the idea that the production and consumption of energy are locally balanced forming a so-called energy cell. An energy cell is not geographically limited but it is a system composed of at least a generator, a converter, a storage unit, a load, a protection and control system and a connection to the distribution grid. An energy cell can contain many forms of energy such as electricity, heat, gas and mobility thus embracing the concept of sector coupling.</p>
+          <p class="footnote" id="footnote-1">[1] VDE Verband der Elektrotechnik Elektronik Informationstechnik e.V.: Cellular Energy System - A Contribution to the Concretization of the Cellular Approach with Recommendations for Action, Frankfurt am Main, May 2019</p>
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+
+
+  <section class="tool">
+    <div class="tool__wrap">
+      <div class="tool__logo" id="tool-anchor">
+        <img src="{% static 'assets/logos/open_plan_logo.svg' %}" alt="open_plan logo">
+      </div>
+      <div class="tool__heading">
+        <h2>Cross-sectoral, open-source planning tool</h2>
+      </div>
+      <div class="tool__content">
+        <div class="tool__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_energy_hex.svg' %}" alt="Heat and electricity inside a house">
+          </div>
+          <h3>Sector coupling</h3>
+          <p>The tool is intended to be used for the optimised planning of energy cells for the (partial) supply of the electricity and heat requirements of neighbourhoods, industrial yards and industry in Germany. As active subsystems, energy cells can facilitate the integration of renewable energy and considerably reduce network expansion, since they can be planned and controlled among each other.</p>
+        </div>
+        <div class="tool__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_open_science_hex.svg' %}" alt="Open science circle">
+          </div>
+          <h3>Open licence</h3>
+          <p>The project will follow the promising open-science approach already implemented by RLI in many projects and will make all data, methods and program code available under a suitable open license. This is intended to comply with scientific standards, because only results generated with open and citable tools and data can be reproduced and reproduced in the field of software-based research.</p>
+        </div>
+        <div class="tool__item tool__item--large">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_stakeholders_hex.svg' %}" alt="Stakeholders">
+          </div>
+          <h3>Stakeholder dialogue </h3>
+          <p>Close cooperation within the consortium and with a wide range of stakeholders and users will expand the research network, opening up a broad field of new, significant and explicitly application-oriented research questions. The open_plan project complements other previous open-science research projects of RLI, such as open_eGO (OpenEnergyPlatfrom), open_FRED (feed-in time series on OpenEnergyPlatform) and enables the comparison, validation and improvement of energy system modelling.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features__wrap">
+      <div class="features__heading">
+        <h2>Features</h2>
+      </div>
+      <div class="features__content">
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_sector_coupling_hex.svg' %}" alt="Sector coupling">
+          </div>
+          <h3>Sector coupling</h3>
+          <p>Combination of different generation components and demand categories for designing optimized systems and operational strategies</p>
+        </div>
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_data_management_hex.svg' %}" alt="Data management">
+          </div>
+          <h3>Data management</h3>
+          <p>Integration of open libraries, e.g. resource data and grid components and usage of open exchangeable formats</p>
+        </div>
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_analysis_hex.svg' %}" alt="Scenario analysis">
+          </div>
+          <h3>Scenario analysis</h3>
+          <p>An automated creation of scenarios allows for an easy comparison of different options and to understand sensitivities</p>
+        </div>
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_reproducibility_hex.svg' %}" alt="Reproducibility">
+          </div>
+          <h3>Reproducibility</h3>
+          <p>All results will be reproducible based on transparent calculations, both product-based and generic</p>
+        </div>
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_modularity_hex.svg' %}" alt="Modularity">
+          </div>
+          <h3>Modularity</h3>
+          <p>A large variety of different energy cells requires modular components to represent different levels of complexity and functionalities</p>
+        </div>
+        <div class="features__item">
+          <div class="icon">
+            <img src="{% static 'assets/icons/i_user_friendly_hex.svg' %}" alt="User friendly">
+          </div>
+          <h3>User friendliness</h3>
+          <p>The tool was developed with a strong focus on easy use without requiring programming language expertise</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--section class="projects">
+    <div class="projects__wrap">
+      <div class="projects__heading">
+        <h2>Related projects</h2>
+      </div>
+      <div class="projects__content">
+        <div class="projects__item">
+          <div class="icon">
+            <img src="{% static 'assets/logos/logo_egon_v3.png' %}" alt="eGo_n logo">
+          </div>
+          <div class="text">
+            <a href="https://ego-n.org/" target="_blank" rel="noopener noreferrer"><h3>eGo<sup>n</sup></h3></a>
+            <p>Open and cross-sectoral planning of transmission and distribution grids</p>
+            <a href="https://ego-n.org/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              Visit website
+            </a>
+          </div>
+        </div>
+        <div class="projects__item">
+          <div class="icon icon--larger">
+            <img src="{% static 'assets/logos/logo-eland-original.svg' %}" alt="E-LAND logo">
+          </div>
+          <div class="text">
+            <a href="https://elandh2020.eu/" target="_blank" rel="noopener noreferrer"><h3>E-LAND</h3></a>
+            <p>Toolbox for the low-carbon and climate-resistant transition of energy systems, which considers technical, social, and economic aspects equally</p>
+            <a href="https://elandh2020.eu/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              Visit website
+            </a>
+          </div>
+        </div>
+        <div class="projects__item">
+          <div class="icon">
+            <img src="{% static 'assets/logos/open_MODEX_logo.png' %}" alt="open_MODEX logo">
+          </div>
+          <div class="text">
+            <a href="https://reiner-lemoine-institut.de/open_modex/" target="_blank" rel="noopener noreferrer"><h3>open_MODEX</h3></a>
+            <p>Model experiment to compare and determine synergy potentials of open-source frameworks in energy system analysis</p>
+            <a href="https://reiner-lemoine-institut.de/open_modex/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              See project
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+
+	  <section class="features">
+    <div class="features__wrap">
+      <div class="features__heading">
+        <h2>Newsletter placeholder </h2>
+      </div>
+      <div class="features__content">
+
+        <div class="features__item">
+					(design would need Designer here)
+				</div>
+        <div class="features__item">
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="about">
+    <div class="about__wrap">
+      <!--div class="about__heading">
+        <h2>About us</h2>
+      </div>
+      <div class="about__text">
+        <p></p>
+      </div-->
+      <div class="about__logos">
+        <div class="about__partners">
+          <div>
+            <a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/ifam_logo.png' %}" alt="Fraunhofer IFAM logo">
+            </a>
+          </div>
+        </div>
+        <div class="about__support">
+					{% if "de" in LANGUAGE_NAME %}
+					<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+					</a>
+					{% else %}
+					<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+					</a>
+					{% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+	 <!-- ABOUT SECTION TO MOVE TO CONTACT section-- class="about">
+    <div class="about__wrap">
+      <div class="about__heading">
+        <h2>About us</h2>
+      </div>
+      <div class="about__text">
+        <p>The open_plan project consortium is composed of the Reiner Lemoine Institut (RLI), Deutsche Gesellschaft für Sonnenenergie (DGS) and the Potsdam Institut für Klimafolgenforschung (PIK). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWi's 7th Energy Research Programme "Innovation for the energy transition".</p>
+      </div>
+      <div class="about__logos">
+        <div class="about__partners">
+          <div>
+            <a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/ifam_logo.png' %}" alt="Fraunhofer IFAM logo">
+            </a>
+          </div>
+        </div>
+        <div class="about__support">
+
+								{% if "de" in LANGUAGE_NAME %}
+				          <a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+          </a>
+			{% else %}
+				          <a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+          </a>
+			{% endif %}
+
+
+
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+</main>
+
+
+
+  {% endif %}
+{% endblock index %}
