@@ -1,15 +1,24 @@
+{% load i18n %}
 <section class="features">
+
+	<form method="post" action="https://flow.cleverreach.com/fl/a176f5ea-761f-432f-8eec-b38a043ce09e/confirm" class="" target="_blank">
+
     <div class="features__wrap">
       <div class="features__heading">
-        <h2>Newsletter placeholder </h2>
+        <h2>Newsletter </h2>
       </div>
       <div class="features__content">
 
         <div class="features__item">
-					(design would need Designer here)
+							<input type="text" tabindex="-1" autocomplete="false" style="display:none !important;" class="cr-nope" name="email_confirm">
+<label class="required">{% translate "E-mail" %}</label>
+<input type="email" placeholder="" name="email" required="">
+<button type="submit" class="btn">{% translate "Register" %}</button>
+
 				</div>
         <div class="features__item">
         </div>
       </div>
     </div>
+</form>
   </section>
