@@ -950,7 +950,9 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                 When(Q(oemof_type="sink"), then=Value("none")),
                 When(Q(oemof_type="storage") & Q(direction="out"), then=Value("none")),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("none")
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
+                    then=Value("none"),
                 ),
                 default=Value("tonexty"),
             ),
@@ -959,7 +961,9 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     Q(oemof_type="storage") & Q(direction="out"), then=Value("demand")
                 ),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("demand")
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
+                    then=Value("demand"),
                 ),
                 When(
                     Q(oemof_type="sink"),  # & Q(asset_type__contains="demand"),
@@ -974,7 +978,9 @@ def graph_timeseries_stacked(simulations, y_variables, energy_vector):
                     then=Value("lines"),
                 ),
                 When(
-                    Q(asset_type="heat_pump") & Q(direction="out"), then=Value("lines")
+                    Q(asset_type__in=("heat_pump", "chp_fixed_ratio", "chp"))
+                    & Q(direction="out"),
+                    then=Value("lines"),
                 ),
                 default=Value("none"),
             ),
@@ -1230,6 +1236,7 @@ def graph_costs(
                         ).get()
                     )
                 elif qs_asset_results.count() > 1:
+                    # TODO bug here online with Lübben
                     raise ValueError("should not have too much labels")
             records.append(el)
 
@@ -1381,6 +1388,10 @@ def graph_costs(
 
 
 def graph_sankey(simulation, energy_vector, timestep=None):
+
+    # for DSO results
+    dso_period_suffix = "_period (@)"
+
     ts = timestep
     if isinstance(energy_vector, list) is False:
         energy_vector = [energy_vector]
@@ -1418,6 +1429,22 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                 ).values_list("asset", "flow_data")
 
             for component_label, val in asset_to_bus_names:
+
+                if dso_period_suffix in component_label:
+                    component_label = component_label.replace(dso_period_suffix, "")
+                    if ts is None:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("total_flow")
+                            .get()[0]
+                        )
+                    else:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("flow_data")
+                            .get()[0]
+                        )
+
                 # draw link from the component to the bus
                 if component_label not in labels:
                     labels.append(component_label)
@@ -1433,8 +1460,8 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                 if component_label in chp_in_flow:
                     chp_in_flow[component_label]["value"] += val
 
-                if val == 0:
-                    val = 1e-9
+                # if val == 0:
+                #     val = 1e-9
                 values.append(val)
             if ts is None:
                 bus_to_asset_names = qs.filter(
@@ -1445,9 +1472,24 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                     bus=bus.name, direction="out"
                 ).values_list("asset", "flow_data")
 
-            # TODO potentially rename feedin period and consumption period
             for component_label, val in bus_to_asset_names:
                 # draw link from the bus to the component
+
+                if dso_period_suffix in component_label:
+                    component_label = component_label.replace(dso_period_suffix, "")
+                    if ts is None:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("total_flow")
+                            .get()[0]
+                        )
+                    else:
+                        val = (
+                            qs.filter(asset=component_label)
+                            .values_list("flow_data")
+                            .get()[0]
+                        )
+
                 if component_label not in labels:
                     labels.append(component_label)
                     colors.append("red")
@@ -1462,8 +1504,8 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                     val = json.loads(val)
                     val = val[ts]
 
-                if val == 0:
-                    val = 1e-9
+                # if val == 0:
+                #     val = 1e-9
                 values.append(val)
 
         # TODO display the installed capacity, max capacity and optimized_add_capacity on the nodes if applicable
