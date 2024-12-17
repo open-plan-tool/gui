@@ -18,12 +18,11 @@
   <section class="header">
     <div class="header__wrap" style="flex-direction:column;">
       <div class="header__heading">
-        <h1>{% translate "We plan to find a good title" %}</h1>
-        <p>{% translate "In close collaboration we will manage to find a nice subtitle too" %}</p>
+        <h1>{% translate "Open-source planning tool for the energy transition" %}</h1>
+        <p>{% translate "With the open-plan-tool, you can plan and design energy systems in an open and free framework. " %}</p>
       </div>
       <div class="header__btn">
-        <a href="#tool-anchor" class="btn btn--full">Learn more</a>
-				Is this button still useful?
+        <a href="#tool-anchor" class="btn btn--full">{% translate "To the tool" %}</a>
       </div>
     </div>
   </section>
@@ -31,15 +30,15 @@
 <section class="dev">
     <div class="dev__wrap">
       <div class="dev__heading">
-        <h2>{% translate "Quick access" %}</h2>
+        <h2>{% translate "Application areas" %}</h2>
       </div>
       <!--div class="dev__text">
         <p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
       </div-->
       <div class="dev__links">
-				<a href="{% url 'landing_commune' %}" class="btn btn--hollow">{% translate "Heat planning" %}</a>
-        <a href="{% url 'landing_cellular' %}" class="btn btn--hollow">{% translate "Cellular approach" %}</a>
-        <a href="{% url 'landing_default' %}" class="btn btn--hollow">{% translate "Default view" %}</a>
+				<a href="{% url 'landing_commune' %}" class="btn btn--hollow">{% translate "Municipal heating planning" %}</a>
+        <a href="{% url 'landing_cellular' %}" class="btn btn--hollow">{% translate "Cellular energy systems" %}</a>
+        <a href="{% url 'landing_default' %}" class="btn btn--hollow">{% translate "General energy system analysis " %}</a>
       </div>
 
 			      <!-- THIS SHOULD BE ADDED TO THE DOCUMENTATION div class="dev__text">

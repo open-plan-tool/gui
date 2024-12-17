@@ -22,19 +22,42 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
 							{% if not scenario_create %}
-							      <li class="nav-item">
-                        <a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
+							      <li class="nav-item dropdown">
+											<select>
+												<option class="nav-link">
+													<a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
+
+												</option>
+												<option class="nav-link">
+													<a class="nav-link" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a>
+
+												</option>
+
+											</select>
                     </li>
-                    <li class="nav-item">
+
+
+
+
+																							<!--li class="nav-item">
+														<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
+												</li-->
+									{% if user.is_authenticated %}
+
+										<li class="nav-item">
                         <a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
                     </li>
-																							<li class="nav-item">
-														<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
-												</li>
-									{% if user.is_authenticated %}
 																<li class="nav-item">
 														<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
 												</li>
+									{% else %}
+																<li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">{% translate "About us" %}</a>
+                    </li>
+																	<li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">{% translate "Contact" %}</a>
+                    </li>
+
 									{% endif %}
 							{% elif signup %}
                     <!--For user signup the nav bar does not display all options-->
