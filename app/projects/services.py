@@ -1,5 +1,4 @@
 import logging
-import traceback
 from concurrent.futures import ThreadPoolExecutor
 
 from django.contrib import messages
@@ -7,14 +6,11 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_q.models import Schedule
-from exchangelib import (
-    Credentials,
-    Account,
-    Message,
-    Mailbox,
-)  # pylint: disable=import-error
-from exchangelib import EWSTimeZone, Configuration
-from requests.exceptions import ConnectionError  # pylint: disable=import-error
+
+import smtplib
+import warnings
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from epa.settings import (
     EXCHANGE_ACCOUNT,
@@ -96,36 +92,10 @@ def create_or_delete_simulation_scheduler(**kwargs):
 
 
 def send_feedback_email(subject, body):
-    tz = EWSTimeZone(TIME_ZONE)
-    try:
-        credentials = Credentials(EXCHANGE_ACCOUNT, EXCHANGE_PW)
-
-        config = Configuration(server=EXCHANGE_SERVER, credentials=credentials)
-
-        account = Account(
-            EXCHANGE_EMAIL,
-            credentials=credentials,
-            autodiscover=False,
-            default_timezone=tz,
-            config=config,
-        )
-        recipients = [Mailbox(email_address=recipient) for recipient in RECIPIENTS]
-        mail = Message(
-            account=account,
-            folder=account.sent,
-            subject=EMAIL_SUBJECT_PREFIX + subject,
-            body=body,
-            to_recipients=recipients,
-        )
-        mail.send_and_save()
-    except Exception as ex:
-        logger.warning(
-            f"Couldn't send feedback email. Exception raised: {traceback.format_exc()}."
-        )
-        raise ex
+    send_email(RECIPIENTS, subject, body)
 
 
-def send_email(*, to_email, subject, message):
+def send_email(to_email, subject, message):
     """Send E-mail via MS Exchange Server using credentials from env vars
     Parameters
     ----------
@@ -143,45 +113,27 @@ def send_email(*, to_email, subject, message):
     prefixed_subject = EMAIL_SUBJECT_PREFIX + subject
 
     if USE_EXCHANGE_EMAIL_BACKEND is True:
+        _message = MIMEMultipart()
+        _message["From"] = EXCHANGE_EMAIL
+        _message["To"] = to_email
+        _message["Subject"] = prefixed_subject
+        _message.attach(MIMEText(message, "plain"))
+        with smtplib.SMTP(EXCHANGE_SERVER, 587) as server:
+            server.starttls()
+            try:
+                server.login(EXCHANGE_EMAIL, EXCHANGE_PW)
+                server.sendmail(EXCHANGE_EMAIL, _message["To"], _message.as_string())
+                return True
+            except smtplib.SMTPAuthenticationError as e:
+                err_msg = (
+                    _("Form - mail sending error:")
+                    + f" {e}"
+                    + f", {EXCHANGE_EMAIL.replace('@', '')}"
+                )
+                logger.error(err_msg)
+                warnings.warn(str(e), category=UserWarning)
+                return False
 
-        tz = EWSTimeZone(TIME_ZONE)
-        credentials = Credentials(EXCHANGE_ACCOUNT, EXCHANGE_PW)
-        config = Configuration(server=EXCHANGE_SERVER, credentials=credentials)
-
-        try:
-            account = Account(
-                EXCHANGE_EMAIL,
-                credentials=credentials,
-                autodiscover=False,
-                default_timezone=tz,
-                config=config,
-            )
-        except ConnectionError as err:
-            err_msg = _("Form - connection error:") + f" {err}"
-            logger.error(err_msg)
-            return False
-        except Exception as err:  # pylint: disable=broad-except
-            err_msg = _("Form - other error:") + f" {err}"
-            logger.error(err_msg)
-            return False
-
-        recipients = [Mailbox(email_address=to_email)]
-
-        msg = Message(
-            account=account,
-            folder=account.sent,
-            subject=prefixed_subject,
-            body=message,
-            to_recipients=recipients,
-        )
-
-        try:
-            msg.send_and_save()
-            return True
-        except Exception as err:  # pylint: disable=broad-except
-            err_msg = _("Form - mail sending error:") + f" {err}"
-            logger.error(err_msg)
-            return False
     elif USE_EXCHANGE_EMAIL_BACKEND is False:
         print(
             "\n",
