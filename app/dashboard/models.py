@@ -227,7 +227,18 @@ class FancyResults(models.Model):
     simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE, default=None)
 
     def save(self, *args, **kwargs):
-        self.total_flow = np.array(self.flow_data).sum()
+        # for oemof 0.5.1 the last index is None for all timeseries
+        if self.flow_data[-1] is None:
+            self.flow_data = self.flow_data[:-1]
+        try:
+            self.total_flow = np.array(self.flow_data).sum()
+        except TypeError:
+            logging.error(
+                f"The flow data of the asset {self.asset} have some NaN value"
+            )
+            import pdb
+
+            pdb.set_trace()
         super().save(*args, **kwargs)
 
 
@@ -691,9 +702,9 @@ class AssetsResults(models.Model):
                                     MAP_EPA_MVS.get(sub_cat, sub_cat)
                                 )
                             if storage_subasset is not None:
-                                storage_subasset["category"] = (
-                                    format_storage_subasset_name(category, sub_cat)
-                                )
+                                storage_subasset[
+                                    "category"
+                                ] = format_storage_subasset_name(category, sub_cat)
                                 storage_subasset["type_oemof"] = asset["type_oemof"]
                                 storage_subasset["energy_vector"] = asset[
                                     "energy_vector"
@@ -755,10 +766,10 @@ class AssetsResults(models.Model):
                                 if storage_subasset is not None:
                                     if answer is None:
                                         answer = storage_subasset
-                                        answer["category"] = (
-                                            format_storage_subasset_name(
-                                                category, sub_cat
-                                            )
+                                        answer[
+                                            "category"
+                                        ] = format_storage_subasset_name(
+                                            category, sub_cat
                                         )
                                         answer["energy_vector"] = asset["energy_vector"]
                                         break
