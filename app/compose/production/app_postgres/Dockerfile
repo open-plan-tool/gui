@@ -23,4 +23,4 @@ RUN adduser appuser --system --no-create-home --shell /bin/sh \
     && chown -R appuser ${APP_ROOT}
 USER appuser
 
-CMD ["python", "manage.py", "collectstatic"]
+CMD ${STARTUP_COMMAND}
