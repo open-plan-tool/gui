@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+python /app/manage.py collectstatic --noinput
+python /app/manage.py migrate
+python /app/manage.py update_assettype
+python /app/manage.py update_valuetype
+python /app/manage.py compilemessages
+gunicorn epa.wsgi:application --bind 0.0.0.0:5000 --workers=4 --timeout=120 --chdir=/app

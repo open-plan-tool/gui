@@ -1,4 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": ".app/compose/production/app_postgres/Dockerfile"
+  "dockerfilePath": "./app/compose/production/app_postgres/Dockerfile"
 }
