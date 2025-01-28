@@ -7,10 +7,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN mkdir ${CONFIG_ROOT}
-COPY requirements/postgres.txt ${CONFIG_ROOT}/requirements.txt
+COPY requirements/base.txt ${CONFIG_ROOT}/base.txt
+COPY requirements/production.txt ${CONFIG_ROOT}/production.txt
+
 
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r ${CONFIG_ROOT}/requirements.txt
+    && pip install --no-cache-dir -r ${CONFIG_ROOT}/production.txt
 
 WORKDIR ${APP_ROOT}
 
