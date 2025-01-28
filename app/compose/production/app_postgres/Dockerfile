@@ -21,8 +21,18 @@ ADD app/ ${APP_ROOT}
 COPY ./app/djangoq_setup.sh /djangoq_setup.sh
 RUN chmod +x /djangoq_setup.sh
 
+COPY ./app/compose/production/app_postgres/start /start
+#RUN sed -i 's/\r$//g' /start
+RUN chmod +x /start
+
 RUN adduser appuser --system --no-create-home --shell /bin/sh \
     && chown -R appuser ${APP_ROOT}
+
+RUN chown appuser /start
+RUN chown appuser /djangoq_setup.sh
+
 USER appuser
+
+
 
 CMD ${STARTUP_COMMAND}
