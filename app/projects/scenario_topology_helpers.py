@@ -113,7 +113,13 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
                 old_value = pi.old_value
                 if pi.parameter_type == "vector":
                     old_value = (old_value, None)
-                if new_value == form.fields[pi.name].clean(old_value):
+
+                if pi.name == "input_timeseries":
+                    new_value = str(new_value)
+                else:
+                    old_value = form.fields[pi.name].clean(old_value)
+
+                if new_value == old_value:
                     pi.delete()
                 else:
                     qs_param.update(new_value=new_value)
