@@ -41,7 +41,7 @@ def convert_timeseries_to_model(apps, schema_editor):
             # Update asset to point to new timeseries
             asset.input_timeseries = timeseries
             asset.save()
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError as e:
             timeseries = Timeseries.objects.using(db_alias).create(
                 name=f"{asset.name}_migration",
                 user=asset.scenario.project.user,
