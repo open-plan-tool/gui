@@ -1,3 +1,5 @@
+import warnings
+
 from django.db import migrations
 from django.db.models import Q
 import json
@@ -39,7 +41,19 @@ def convert_timeseries_to_model(apps, schema_editor):
             # Update asset to point to new timeseries
             asset.input_timeseries = timeseries
             asset.save()
-
+        except json.decoder.JSONDecodeError:
+            timeseries = Timeseries.objects.using(db_alias).create(
+                name=f"{asset.name}_migration",
+                user=asset.scenario.project.user,
+                scenario=asset.scenario,
+                values=[],
+                ts_type=asset.asset_type.mvs_type,
+                open_source=False,
+                start_date=asset.scenario.start_date,
+                time_step=asset.scenario.time_step,
+                end_date=end_date,
+            )
+            warnings.warn(f"Skipping migrating asset {asset.id} timeseries: {str(e)}: input_timeseries_old is '{asset.input_timeseries_old}'")
         except Exception as e:
             # print()
             raise ValueError(
