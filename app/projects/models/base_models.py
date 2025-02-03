@@ -295,63 +295,63 @@ def get_default_timeseries():
     return list([])
 
 
-class Timeseries(models.Model):
-    name = models.CharField(max_length=120, blank=True, default="")
-    values = ArrayField(
-        models.FloatField(), blank=False, default=get_default_timeseries
-    )
-    units = models.CharField(
-        max_length=50, choices=TIMESERIES_UNITS, blank=True, null=True
-    )
-    category = models.CharField(
-        max_length=6, choices=TIMESERIES_CATEGORIES, blank=True, null=True
-    )
-
-    # TODO user or scenario can be both null only if open_source attribute is True --> by way of saving
-    # TODO if the timeseries is open_source and the user is deleted, the timeseries user should just be set to null,
-    # otherwise the timeseries should be deleted
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
-    )
-    # TODO check that if both a user and scenario are provided the scenario belongs to the user
-    # scenario = models.ForeignKey(
-    #     Scenario, on_delete=models.CASCADE, null=True, blank=True
-    # )
-    ts_type = models.CharField(max_length=12, choices=MVS_TYPE, blank=True, null=True)
-
-    open_source = models.BooleanField(
-        null=False, blank=False, choices=BOOL_CHOICES, default=False
-    )
-
-    # get this from the scenario
-    # TODO rename with _date instead of _time
-    start_time = models.DateTimeField(blank=True, default=None, null=True)
-    end_time = models.DateTimeField(blank=True, default=None, null=True)
-    time_step = models.IntegerField(
-        blank=True, default=None, null=True, validators=[MinValueValidator(1)]
-    )
-
-    def save(self, *args, **kwargs):
-        n = len(self.values)
-        if n == 1:
-            self.ts_type = "scalar"
-        elif n > 1:
-            self.ts_type = "vector"
-        super().save(*args, **kwargs)
-
-    @property
-    def get_values(self):
-        if self.ts_type == "scalar":
-            answer = self.values[0]
-        else:
-            answer = self.values
-        return answer
-
-    def compute_time_attribute_from_timestamps(self, timestamps):
-        pass
-
-    def compute_end_time_from_duration(self, duration):
-        pass
+# class Timeseries(models.Model):
+#     name = models.CharField(max_length=120, blank=True, default="")
+#     values = ArrayField(
+#         models.FloatField(), blank=False, default=get_default_timeseries
+#     )
+#     units = models.CharField(
+#         max_length=50, choices=TIMESERIES_UNITS, blank=True, null=True
+#     )
+#     category = models.CharField(
+#         max_length=6, choices=TIMESERIES_CATEGORIES, blank=True, null=True
+#     )
+#
+#     # TODO user or scenario can be both null only if open_source attribute is True --> by way of saving
+#     # TODO if the timeseries is open_source and the user is deleted, the timeseries user should just be set to null,
+#     # otherwise the timeseries should be deleted
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
+#     )
+#     # TODO check that if both a user and scenario are provided the scenario belongs to the user
+#     # scenario = models.ForeignKey(
+#     #     Scenario, on_delete=models.CASCADE, null=True, blank=True
+#     # )
+#     ts_type = models.CharField(max_length=12, choices=MVS_TYPE, blank=True, null=True)
+#
+#     open_source = models.BooleanField(
+#         null=False, blank=False, choices=BOOL_CHOICES, default=False
+#     )
+#
+#     # get this from the scenario
+#     # TODO rename with _date instead of _time
+#     start_time = models.DateTimeField(blank=True, default=None, null=True)
+#     end_time = models.DateTimeField(blank=True, default=None, null=True)
+#     time_step = models.IntegerField(
+#         blank=True, default=None, null=True, validators=[MinValueValidator(1)]
+#     )
+#
+#     def save(self, *args, **kwargs):
+#         n = len(self.values)
+#         if n == 1:
+#             self.ts_type = "scalar"
+#         elif n > 1:
+#             self.ts_type = "vector"
+#         super().save(*args, **kwargs)
+#
+#     @property
+#     def get_values(self):
+#         if self.ts_type == "scalar":
+#             answer = self.values[0]
+#         else:
+#             answer = self.values
+#         return answer
+#
+#     def compute_time_attribute_from_timestamps(self, timestamps):
+#         pass
+#
+#     def compute_end_time_from_duration(self, duration):
+#         pass
 
 
 class AssetType(models.Model):

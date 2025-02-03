@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import html_safe
 from projects.dtos import convert_to_dto
-from projects.models import Timeseries, AssetType
+from projects.models import AssetType
 from projects.constants import MAP_MVS_EPA
 from dashboard.helpers import KPIFinder
 
