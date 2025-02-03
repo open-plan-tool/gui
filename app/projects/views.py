@@ -1597,7 +1597,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 proj_id=scenario.project.id,
             )
             input_timeseries_data = (
-                existing_asset.input_timeseries
+                existing_asset.input_timeseries.values
                 if existing_asset.input_timeseries
                 else ""
             )
