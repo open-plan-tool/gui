@@ -9,12 +9,14 @@ def convert_timeseries_to_model(apps, schema_editor):
     Forward migration: Convert timeseries_old to Timeseries instance
     """
     # Get historical models
-    Asset = apps.get_model('projects', 'Asset')
-    Timeseries = apps.get_model('projects', 'Timeseries')
+    Asset = apps.get_model("projects", "Asset")
+    Timeseries = apps.get_model("projects", "Timeseries")
     db_alias = schema_editor.connection.alias
 
     # Iterate through all assets with timeseries_old data
-    for asset in Asset.objects.using(db_alias).exclude(Q(input_timeseries_old__isnull=True) | Q(input_timeseries_old=[])):
+    for asset in Asset.objects.using(db_alias).exclude(
+        Q(input_timeseries_old__isnull=True) | Q(input_timeseries_old=[])
+    ):
         try:
             # Calculate end time from asset start date and duration
             duration = asset.scenario.evaluated_period
@@ -31,7 +33,7 @@ def convert_timeseries_to_model(apps, schema_editor):
                 open_source=False,
                 start_date=asset.scenario.start_date,
                 time_step=asset.scenario.time_step,
-                end_date=end_date
+                end_date=end_date,
             )
 
             # Update asset to point to new timeseries
@@ -39,26 +41,30 @@ def convert_timeseries_to_model(apps, schema_editor):
             asset.save()
 
         except Exception as e:
-            print(f"Error migrating asset {asset.id} timeseries: {str(e)}")
-            raise e
+            # print()
+            raise ValueError(
+                f"Error migrating asset {asset.id} timeseries: {str(e)}: input_timeseries_old is '{asset.input_timeseries_old}'"
+            )
 
 
 def reverse_timeseries_conversion(apps, schema_editor):
     """
     Reverse migration: Delete created Timeseries instances and restore old data
     """
-    Asset = apps.get_model('projects', 'Asset')
-    Timeseries = apps.get_model('projects', 'Timeseries')
+    Asset = apps.get_model("projects", "Asset")
+    Timeseries = apps.get_model("projects", "Timeseries")
     db_alias = schema_editor.connection.alias
 
     try:
         # Find all timeseries created by this migration
-        migration_timeseries = Timeseries.objects.using(db_alias).filter(name__contains="_migration")
+        migration_timeseries = Timeseries.objects.using(db_alias).filter(
+            name__contains="_migration"
+        )
 
         # Update assets to remove reference to timeseries
-        Asset.objects.using(db_alias).filter(input_timeseries__in=migration_timeseries).update(
-            input_timeseries=None
-        )
+        Asset.objects.using(db_alias).filter(
+            input_timeseries__in=migration_timeseries
+        ).update(input_timeseries=None)
 
         # Delete the timeseries instances
         migration_timeseries.delete()
@@ -75,8 +81,6 @@ class Migration(migrations.Migration):
     operations = [
         # Run the timeseries migration
         migrations.RunPython(
-            convert_timeseries_to_model,
-            reverse_timeseries_conversion
+            convert_timeseries_to_model, reverse_timeseries_conversion
         ),
     ]
-

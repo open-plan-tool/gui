@@ -698,9 +698,12 @@ class AssetCreateForm(OpenPlanModelForm):
         # set the custom timeseries field for timeseries
         # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
         if "input_timeseries" in self.fields:
-            self.fields["input_timeseries"] = TimeseriesField(qs_ts=Timeseries.objects.filter(
-                Q(ts_type=self.asset_type.mvs_type) & (Q(open_source=True) | Q(user=self.user)),
-            ))
+            self.fields["input_timeseries"] = TimeseriesField(
+                qs_ts=Timeseries.objects.filter(
+                    Q(ts_type=self.asset_type.mvs_type)
+                    & (Q(open_source=True) | Q(user=self.user)),
+                )
+            )
 
         self.fields["inputs"] = forms.CharField(
             widget=forms.HiddenInput(), required=False
@@ -918,23 +921,27 @@ class AssetCreateForm(OpenPlanModelForm):
             if input_method == "upload" or input_method == "manual":
                 # replace the dict with a new timeseries instance
                 cleaned_data["input_timeseries"] = self.create_timeseries_from_input(
-                    ts_data)
+                    ts_data
+                )
             if input_method == "select":
                 # return the timeseries instance
                 timeseries_id = ts_data["input_method"]["extra_info"]
-                cleaned_data["input_timeseries"] = Timeseries.objects.get(id=timeseries_id)
+                cleaned_data["input_timeseries"] = Timeseries.objects.get(
+                    id=timeseries_id
+                )
 
         return cleaned_data
 
     def create_timeseries_from_input(self, input_timeseries):
         timeseries_name = input_timeseries["input_method"]["extra_info"]
         timeseries_values = input_timeseries["values"]
-        ts_instance = Timeseries.objects.create(user=self.user,
-                                                name=timeseries_name,
-                                                ts_type=self.asset_type.mvs_type,
-                                                values=timeseries_values,
-                                                open_source=False
-                                                )
+        ts_instance = Timeseries.objects.create(
+            user=self.user,
+            name=timeseries_name,
+            ts_type=self.asset_type.mvs_type,
+            values=timeseries_values,
+            open_source=False,
+        )
 
         return ts_instance
 
