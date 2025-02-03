@@ -53,11 +53,11 @@ def convert_timeseries_to_model(apps, schema_editor):
                 time_step=asset.scenario.time_step,
                 end_date=end_date,
             )
-            warnings.warn(f"Skipping migrating asset {asset.id} timeseries: {str(e)}: input_timeseries_old is '{asset.input_timeseries_old}'")
+            warnings.warn(f"Skipping migrating asset {asset.id} timeseries: {str(e)}'")
         except Exception as e:
             # print()
             raise ValueError(
-                f"Error migrating asset {asset.id} timeseries: {str(e)}: input_timeseries_old is '{asset.input_timeseries_old}'"
+                f"Error migrating asset {asset.id} timeseries: {str(e)}'"
             )
 
 
