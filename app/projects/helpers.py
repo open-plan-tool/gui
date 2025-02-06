@@ -335,21 +335,22 @@ class TimeseriesInputWidget(forms.MultiWidget):
         select_widget.attrs.update(
             {
                 "class": "form-select",
-                "onchange": f"selectExistingTimeseries(obj=this.value, param_name='{self.param_name}')",
+                "onchange": f"changeTimeseriesSelectValue(obj=this.value, param_name='{self.param_name}')",
+                "onload": f"changeTimeseriesSelectValue(obj=this.value, param_name='{self.param_name}')",
             }
         )
         widgets = {
             "scalar": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "onchange": f"plotDualInputTrace(obj=this.value, param_name='{self.param_name}')",
+                    "onchange": f"changeTimeseriesManualValue(obj=this.value, param_name='{self.param_name}')",
                 }
             ),
             "select": select_widget,
             "file": forms.FileInput(
                 attrs={
                     "class": "form-control",
-                    "onchange": f"uploadDualInputTrace(obj=this.files, param_name='{self.param_name}')",
+                    "onchange": f"changeTimeseriesUploadValue(obj=this.files, param_name='{self.param_name}')",
                 }
             ),
         }
