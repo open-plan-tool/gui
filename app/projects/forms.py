@@ -701,9 +701,16 @@ class AssetCreateForm(OpenPlanModelForm):
         # set the custom timeseries field for timeseries
         # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
         if "input_timeseries" in self.fields:
-            self.fields["input_timeseries"] = TimeseriesField(qs_ts=Timeseries.objects.filter(
-                Q(ts_type=self.asset_type.mvs_type) & (Q(open_source=True) | Q(user=self.user)),
-            ))
+            self.fields["input_timeseries"] = TimeseriesField(
+                qs_ts=Timeseries.objects.filter(
+                    Q(ts_type=self.asset_type.mvs_type)
+                    & (Q(open_source=True) | Q(user=self.user))
+                ),
+                default=0,
+                param_name="input_timeseries",
+                asset_type=self.asset_type_name,
+            )
+            # TODO here one can play with min, max, max_length as kwargs
 
         self.fields["inputs"] = forms.CharField(
             widget=forms.HiddenInput(), required=False
@@ -916,6 +923,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
         if "input_timeseries" in cleaned_data:
+            # TODO add either a checkbox or a user setting to save ts to model
             ts_data = json.loads(cleaned_data["input_timeseries"])
             input_method = ts_data["input_method"]["type"]
             if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
@@ -926,19 +934,26 @@ class AssetCreateForm(OpenPlanModelForm):
             if input_method == TS_SELECT_TYPE:
                 # return the timeseries instance
                 timeseries_id = ts_data["input_method"]["extra_info"]
-                cleaned_data["input_timeseries"] = Timeseries.objects.get(id=timeseries_id)
+                cleaned_data["input_timeseries"] = Timeseries.objects.get(
+                    id=timeseries_id
+                )
 
         return cleaned_data
 
     def create_timeseries_from_input(self, input_timeseries):
-        timeseries_name = input_timeseries["input_method"]["extra_info"]
+        timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
         timeseries_values = input_timeseries["values"]
-        ts_instance = Timeseries.objects.create(user=self.user,
-                                                name=timeseries_name,
-                                                ts_type=self.asset_type.mvs_type,
-                                                values=timeseries_values,
-                                                open_source=False
-                                                )
+        if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
+            timeseries_name = f"constant value = {timeseries_values[0]}"
+            timeseries_values = len(self.timestamps) * timeseries_values
+        # TODO here one should check if a timeseries with the exact same value exists and use this one instead
+        ts_instance = Timeseries.objects.create(
+            user=self.user,
+            name=timeseries_name,
+            ts_type=self.asset_type.mvs_type,
+            values=timeseries_values,
+            open_source=False,
+        )
 
         return ts_instance
 
