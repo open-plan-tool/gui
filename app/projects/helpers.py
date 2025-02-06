@@ -516,39 +516,62 @@ def parse_csv_timeseries(file_str):
     return timeseries_values
 
 
+def parse_xlsx_timeseries(file_buffer):
+    wb = load_workbook(filename=file_buffer)
+    worksheet = wb.active
+    timeseries_values = []
+    n_col = worksheet.max_column
+
+    col_idx = 0
+
+    if n_col > 1:
+        col_idx = 1
+
+    for j in range(0, worksheet.max_row):
+        try:
+            timeseries_values.append(
+                float(worksheet.cell(row=j + 1, column=col_idx + 1).value)
+            )
+        except ValueError:
+            pass
+            # TODO add error message if this fails
+    return timeseries_values
+
+
+def parse_json_timeseries(file_str):
+    # TODO add error message if this fails
+    timeseries_values = json.loads(file_str)
+    # TODO add error message if this is not a timeseries
+    return timeseries_values
+
+
 def parse_input_timeseries(timeseries_file):
+    """Parse timeseries input file provided by user for .xlsx, .csv, .txt and .json file formats
+
+    Parameters
+    ----------
+    timeseries_file file handle return by forms.FileInput clean method
+
+    Returns
+    -------
+    The values of the timeseries
+
+    """
     if timeseries_file.name.endswith("xls") or timeseries_file.name.endswith("xlsx"):
-        wb = load_workbook(filename=timeseries_file)
-        worksheet = wb.active
-        timeseries_values = []
-        n_col = worksheet.max_column
-
-        col_idx = 0
-
-        if n_col > 1:
-            col_idx = 1
-
-        for j in range(0, worksheet.max_row):
-            try:
-                timeseries_values.append(
-                    float(worksheet.cell(row=j + 1, column=col_idx + 1).value)
-                )
-            except ValueError:
-                pass
-
+        timeseries_values = parse_xlsx_timeseries(file_buffer=timeseries_file)
     else:
         timeseries_file_str = timeseries_file.read().decode("utf-8-sig")
 
         if timeseries_file_str != "":
             if timeseries_file.name.endswith("json"):
-                timeseries_values = json.loads(timeseries_file_str)
+                timeseries_values = parse_json_timeseries(timeseries_file_str)
             elif timeseries_file.name.endswith("csv"):
                 timeseries_values = parse_csv_timeseries(timeseries_file_str)
 
             elif timeseries_file.name.endswith("txt"):
                 nlines = timeseries_file_str.count("\n") + 1
                 if nlines == 1:
-                    timeseries_values = json.loads(timeseries_file_str)
+                    timeseries_values = parse_json_timeseries(timeseries_file_str)
                 else:
                     timeseries_values = parse_csv_timeseries(timeseries_file_str)
             else:
