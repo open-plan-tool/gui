@@ -35,6 +35,9 @@ from projects.helpers import (
     DualNumberField,
     parse_input_timeseries,
     TimeseriesField,
+    TS_SELECT_TYPE,
+    TS_UPLOAD_TYPE,
+    TS_MANUAL_TYPE,
 )
 
 
@@ -915,11 +918,12 @@ class AssetCreateForm(OpenPlanModelForm):
         if "input_timeseries" in cleaned_data:
             ts_data = json.loads(cleaned_data["input_timeseries"])
             input_method = ts_data["input_method"]["type"]
-            if input_method == "upload" or input_method == "manual":
+            if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                 # replace the dict with a new timeseries instance
                 cleaned_data["input_timeseries"] = self.create_timeseries_from_input(
-                    ts_data)
-            if input_method == "select":
+                    ts_data
+                )
+            if input_method == TS_SELECT_TYPE:
                 # return the timeseries instance
                 timeseries_id = ts_data["input_method"]["extra_info"]
                 cleaned_data["input_timeseries"] = Timeseries.objects.get(id=timeseries_id)

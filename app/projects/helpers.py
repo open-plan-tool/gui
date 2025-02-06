@@ -13,6 +13,10 @@ from projects.models import Timeseries, AssetType
 from projects.constants import MAP_MVS_EPA
 from dashboard.helpers import KPIFinder
 
+TS_SELECT_TYPE = "select"
+TS_UPLOAD_TYPE = "upload"
+TS_MANUAL_TYPE = "manual"
+TS_INPUT_TYPES = (TS_MANUAL_TYPE, TS_SELECT_TYPE, TS_UPLOAD_TYPE)
 
 PARAMETERS = {}
 if os.path.exists(staticfiles_storage.path("MVS_parameters_list.csv")) is True:
@@ -386,17 +390,17 @@ class TimeseriesField(forms.MultiValueField):
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
 
     def clean(self, values):
-        """If a file is provided it will be considered over the scalar"""
+        """If a file is provided it will be considered over the other fields"""
         scalar_value, timeseries_id, timeseries_file = values
 
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
-            input_dict = dict(type="upload", extra_info=timeseries_file.name)
+            input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
         elif timeseries_id != "":
             ts = Timeseries.objects.get(id=timeseries_id)
             answer = ts.get_values
-            input_dict = dict(type="select", extra_info=timeseries_id)
+            input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
         else:
             if scalar_value is None:
                 scalar_value = ""
@@ -422,7 +426,7 @@ class TimeseriesField(forms.MultiValueField):
                     params={"boundaries": self.boundaries},
                 )
             else:
-                input_dict = dict(type="manual")
+                input_dict = dict(type=TS_MANUAL_TYPE)
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
