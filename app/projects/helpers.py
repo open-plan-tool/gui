@@ -362,6 +362,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
+        answer = [value, None, None]
         if not isinstance(value, int):
             logging.error("The value of timeseries index is not an integer")
         if Timeseries.objects.filter(id=value).exists():
