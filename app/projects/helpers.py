@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import io
 import csv
@@ -323,6 +324,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
     template_name = "asset/timeseries_input.html"
 
     class Media:
+        # TODO: currently not loading the content as not within head
         js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, select_widget, **kwargs):
@@ -359,9 +361,10 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
-        # TODO update handling here - value corresponds to the pk of the timeseries
-        answer = ["", "", value]
-
+        if not isinstance(value, int):
+            logging.error("The value of timeseries index is not an integer")
+        if Timeseries.objects.filter(id=value).exists():
+            answer = [value, value, ""]
         return answer
 
 
