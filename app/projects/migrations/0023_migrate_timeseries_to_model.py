@@ -22,27 +22,44 @@ def convert_timeseries_to_model(apps, schema_editor):
             duration = asset.scenario.evaluated_period
             total_duration = timedelta(hours=asset.scenario.time_step) * duration
             end_date = asset.scenario.start_date + total_duration
+            timeseries_values = json.loads(asset.input_timeseries_old)
+            user = asset.scenario.project.user
 
-            # Create new Timeseries instance
-            timeseries = Timeseries.objects.using(db_alias).create(
-                name=f"{asset.name}_migration",
-                user=asset.scenario.project.user,
-                scenario=asset.scenario,
-                values=json.loads(asset.input_timeseries_old),
-                ts_type=asset.asset_type.mvs_type,
-                open_source=False,
-                start_date=asset.scenario.start_date,
-                time_step=asset.scenario.time_step,
-                end_date=end_date,
-            )
+            updated_assets = []
+            timeseries_cache = {}  # Cache existing timeseries by (values, user) tuple
 
-            # Update asset to point to new timeseries
+            # Check cache before hitting DB
+            ts_key = (tuple(timeseries_values), user)
+            if ts_key in timeseries_cache:
+                timeseries = timeseries_cache[ts_key]
+            else:
+                # Check if ts with values and user already exists
+                timeseries, created = Timeseries.objects.using(db_alias).get_or_create(
+                    values=timeseries_values,
+                    user=user,
+                    defaults={
+                        "name": f"{asset.name}_migration",
+                        "scenario": asset.scenario,
+                        "ts_type": asset.asset_type.mvs_type,
+                        "open_source": False,
+                        "start_date": asset.scenario.start_date,
+                        "time_step": asset.scenario.time_step,
+                        "end_date": end_date,
+                    },
+                )
+                timeseries_cache[ts_key] = timeseries  # Store in cache
+
+            # Append to updated assets for batch processing later
             asset.input_timeseries = timeseries
-            asset.save()
+            updated_assets.append(asset)
 
-        except Exception as e:
-            print(f"Error migrating asset {asset.id} timeseries: {str(e)}")
-            raise e
+        except json.JSONDecodeError:
+            print(f"Error migrating asset {asset.id} timeseries")
+            continue
+
+        # Batch update all assets in one query
+        if updated_assets:
+            Asset.objects.using(db_alias).bulk_update(updated_assets, ["input_timeseries"])
 
 
 def reverse_timeseries_conversion(apps, schema_editor):
