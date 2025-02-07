@@ -928,7 +928,7 @@ class AssetCreateForm(OpenPlanModelForm):
             input_method = ts_data["input_method"]["type"]
             if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                 # replace the dict with a new timeseries instance
-                cleaned_data["input_timeseries"] = self.create_timeseries_from_input(
+                cleaned_data["input_timeseries"] = self.assign_timeseries_from_input(
                     ts_data
                 )
             if input_method == TS_SELECT_TYPE:
@@ -940,22 +940,26 @@ class AssetCreateForm(OpenPlanModelForm):
 
         return cleaned_data
 
-    def create_timeseries_from_input(self, input_timeseries):
+    def assign_timeseries_from_input(self, input_timeseries):
+        # Assign the existing timeseries if already uploaded by the same user, else create a new instance
         timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
         timeseries_values = input_timeseries["values"]
+
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
             timeseries_name = f"constant value = {timeseries_values[0]}"
             timeseries_values = len(self.timestamps) * timeseries_values
-        # TODO here one should check if a timeseries with the exact same value exists and use this one instead
-        ts_instance = Timeseries.objects.create(
-            user=self.user,
-            name=timeseries_name,
-            ts_type=self.asset_type.mvs_type,
+
+        timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
-            open_source=False,
+            user=self.user,
+            defaults={
+                "name": timeseries_name,
+                "ts_type": self.asset_type.mvs_type,
+                "open_source": False,
+            },
         )
 
-        return ts_instance
+        return timeseries
 
     def timeseries_same_as_timestamps(self, ts, param):
         if isinstance(ts, np.ndarray):
