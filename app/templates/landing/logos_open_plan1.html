@@ -1,0 +1,42 @@
+{% load static %}
+{% load i18n %}
+<section class="about">
+	<div class="about__wrap">
+		<div class="about__heading">
+			<h2>{% translate "About the project" %}</h2>
+		</div>
+		<div class="about__text">
+			<p>{% translate "The functions for planning cellular energy systems were developed in the context of the open_plan 1.0 research project. The project consortium consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). It was funded from January 2020 to June 2023 as part of the 'Technology-oriented Systems Analysis' funding area of the BMWi's 7th Energy Research Program 'Innovation for the Energy Transition.' " %}</p>
+		</div>
+		<div class="about__logos">
+			<div class="about__partners">
+				<div>
+					<a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
+					</a>
+				</div>
+				<div>
+					<a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
+					</a>
+				</div>
+				<div>
+					<a href="https://www.pik-potsdam.de/" target="_blank" rel="noopener noreferrer">
+						<img src="static/assets/logos/pik_logo.png" alt="Potsdam-Institut für Klimafolgenforschung logo">
+					</a>
+				</div>
+			</div>
+			<div class="about__support">
+				{% if "de" in LANGUAGE_NAME %}
+				<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+				</a>
+				{% else %}
+				<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+				</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</section>

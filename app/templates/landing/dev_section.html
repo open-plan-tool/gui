@@ -1,0 +1,30 @@
+{% load static %}
+{% load i18n %}
+<section class="dev">
+	<div class="dev__wrap">
+		<!--div class="dev__heading">
+			<h2>{% translate "Application areas" %}</h2>
+		</div>
+		<div class="dev__text">
+			<p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
+		</div-->
+		<div class="dev__text">
+			<p>{% translate "Would you like to be involved in the further development of the open-plan tool?" %}</p>
+		</div>
+		<div class="dev__links">
+			<div>
+				<a href="https://github.com/open-plan-tool" class="btn btn--hollow">{% translate "GitHub" %}</a>
+				{% translate "You can follow the current project progress in our freely accessible repository." %}
+			</div>
+			<div>
+				<a href="{% url 'sponsor_feature' %}" class="btn btn--hollow">{% translate "New features" %}</a>
+				{% translate "Please feel free to contact us if you would like to develop further functionalities together with us." %}
+			</div>
+			<div>
+				<a href="https://open-plan-documentation.readthedocs.io/en/latest/" class="btn btn--hollow">{% translate "Publications" %}</a>
+				{% translate "We publish relevant reports, summaries and scientific papers here on our website." %}
+
+			</div>
+		</div>
+	</div>
+</section>
