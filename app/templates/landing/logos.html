@@ -1,52 +1,41 @@
 {% load static %}
 
-	<section class="about">
-    <div class="about__wrap">
-      <!--div class="about__heading">
-        <h2>About us</h2>
-      </div>
-      <div class="about__text">
-        <p></p>
-      </div-->
-      <div class="about__logos">
-        <div class="about__partners">
-          <div>
-            <a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
-            </a>
-          </div>
-          <div>
-            <a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
-            </a>
-          </div>
-          <div>
-            <a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/logo_ifam.jpg' %}" alt="Fraunhofer IFAM logo">
-            </a>
-          </div>
-					<div>
-            <a href="https://energielenker.de/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/EnergieLenker_logo.gif' %}" alt="Energie Lenker logo">
-            </a>
-          </div>
-					<div>
-            <a href="https://oekozentrum.nrw/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/oeko_zentrum_NRW_logo.jpeg' %}" alt="Oeko Zentrum NRW logo">
-            </a>
-          </div>
-        </div>
-        <div class="about__support">
-					{% if "de" in LANGUAGE_NAME %}
-					<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
-					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
-					</a>
-					{% else %}
-					<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
-					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
-					</a>
-					{% endif %}
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="logos2">
+	<div>
+		<a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo" width="196" height="76">
+		</a>
+	</div>
+	<div>
+		<a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo" width="97" height="71">
+		</a>
+	</div>
+	<div>
+		<a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/logo_ifam.png' %}" alt="Fraunhofer IFAM logo" width="219" height="62">
+		</a>
+	</div>
+	<div>
+		<a href="https://energielenker.de/" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/EnergieLenker_logo.png' %}" alt="Energie Lenker logo" width="135" height="135">
+		</a>
+	</div>
+	<div>
+		<a href="https://oekozentrum.nrw/" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/oeko_zentrum_NRW_logo.png' %}" alt="Oeko Zentrum NRW logo" width="157" height="157">
+		</a>
+	</div>
+	</div>
+	<div>
+		{% if "de" in LANGUAGE_NAME %}
+		<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
+		</a>
+		{% else %}
+		<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+			<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.png' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
+		</a>
+		{% endif %}
+	</div>
+</section>
