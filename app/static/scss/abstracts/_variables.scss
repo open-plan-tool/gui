@@ -15,7 +15,11 @@ $secondary-gray-color-1: #E4E4E4;
 $secondary-gray-color-2: #D6D6D6;
 
 $error-color: #9A031E;
+$error-color-bg: #FFEBED;
+$error-color-text: #AB2134;
 $success-color: #09BC8A;
+$success-color-bg: #EBFFF9;
+$success-color-text: #13825F;
 $pending-color: #EC9A29;
 $warning-bg-color: #FFF3D4;
 $warning-color: #FDC534;
@@ -173,3 +177,9 @@ $form-control-placeholders: '::placeholder', '::-webkit-input-placeholder', '::-
 
 // Z-index
 $z-index-nav: 9;
+
+/* ----------------------------- open_plan 2 ----------------------------- */
+$font-size-hero: 4rem;
+$text-color-secondary: #6E6E6E;
+
+$bg-color-light: #F3F7FC
