@@ -476,6 +476,7 @@ template {
 [hidden] {
   display: none; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 body {
   font-family: lato, Arial, Helvetica, sans-serif !important;
   color: #343434;
@@ -489,6 +490,7 @@ h2,
 h3 {
   letter-spacing: 0.03rem; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 a {
   font-weight: 700;
   color: #1F567D !important;
@@ -590,6 +592,7 @@ footer a:visited {
 .nav-link:visited {
   color: #343434 !important; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 a.btn,
 button.btn,
@@ -986,6 +989,7 @@ ul.dropdown-menu {
 a.dropdown-item:active {
   background-color: #E3EAEE; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 .components h1 {
   text-align: center; }
 
@@ -1006,6 +1010,7 @@ a.dropdown-item:active {
 .components nav.navbar {
   position: relative; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .footer {
   background-color: #F4F7F9;
@@ -1087,6 +1092,7 @@ a.dropdown-item:active {
     font-size: 0.875rem;
     margin-left: 1rem; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 form .form-control:focus {
   border-color: #1F567D;
@@ -1205,6 +1211,7 @@ form .btn {
   .choices[data-type*=select-multiple] .choices__inner .choices__button, .choices[data-type*=text] .choices__inner.choices__button {
     background-image: url("/static/assets/icons/i_close.svg"); }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .header {
   background-color: #fff;
@@ -1278,6 +1285,7 @@ form .btn {
     font-weight: 300;
     color: #343434; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 .icon--small {
   font-size: 0.6rem; }
 
@@ -1296,6 +1304,7 @@ form .btn {
 .tooltip-inner {
   max-width: 350px !important; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .modal .modal-header {
   background-color: #F4F7F9;
@@ -1343,6 +1352,7 @@ form .btn {
 .modal-uc__body img {
   width: 100%; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 table.table {
   box-shadow: 0px 0px 16px rgba(31, 86, 125, 0.08);
   border-radius: 8px; }
@@ -1363,6 +1373,7 @@ table.table {
   table.table > :not(caption) > * > * {
     padding: 0.75rem 1rem; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 nav.navbar {
   position: fixed;
@@ -1548,6 +1559,7 @@ nav.navbar {
       .wizard__steps li:not(:first-of-type)::after {
         width: 1.25rem;
         margin-left: -2.5rem; } }
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .dashboard-tabs {
   display: flex;
@@ -1696,6 +1708,7 @@ nav.navbar {
       .dashboard .chart .item--worst .item__value {
         color: #A10B0B; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .projects-empty,
 .scenario-empty {
@@ -1719,7 +1732,7 @@ nav.navbar {
     text-align: center;
     font-size: 1.25rem;
     font-weight: 300;
-    color: #495965;
+    color: #6E6E6E;
     padding-top: 2rem; }
   .projects-empty__btn,
   .scenario-empty__btn {
@@ -1753,8 +1766,9 @@ nav.navbar {
       padding: 0 1rem;
       font-size: 1rem;
       font-weight: 300;
-      color: #495965; }
+      color: #6E6E6E; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .main--padding-top {
   padding-top: 7rem; }
@@ -1816,6 +1830,7 @@ nav.navbar {
       flex-direction: row;
       justify-content: center; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .system-design {
   display: flex;
@@ -2402,7 +2417,24 @@ nav.navbar {
 .modal.modal--gui .row {
   margin-bottom: 1rem; }
 
-@use 'variables' as *;
+.modal.modal--gui ul.nav.nav-pills {
+  padding-bottom: 1rem; }
+  .modal.modal--gui ul.nav.nav-pills button {
+    border-radius: 0;
+    border: 1px solid #E3EAEE; }
+    .modal.modal--gui ul.nav.nav-pills button.active {
+      background-color: #1F567D;
+      color: #fff !important;
+      border-color: #1F567D; }
+  .modal.modal--gui ul.nav.nav-pills li:first-of-type button {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px; }
+  .modal.modal--gui ul.nav.nav-pills li:last-of-type button {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px; }
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 .hero {
   padding-top: 4.5rem;
   display: flex;
@@ -2434,6 +2466,355 @@ nav.navbar {
     .hero__image img {
       max-width: calc(82rem / 2); }
 
+.hero2 {
+  padding-top: 4.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center; }
+  .hero2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: row; }
+  .hero2__text {
+    padding-top: 7rem;
+    padding-right: 7rem;
+    padding-bottom: 4rem; }
+    .hero2__text h1 {
+      text-align: left;
+      font-size: 4rem;
+      color: #343434;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      line-height: 110%; }
+    .hero2__text span {
+      display: block;
+      text-align: left;
+      font-size: 1.25rem;
+      font-weight: 300;
+      color: #6E6E6E;
+      margin-bottom: 2rem; }
+  .hero2__image {
+    padding-top: 4rem;
+    padding-bottom: 4rem; }
+    .hero2__image img {
+      max-width: calc(82rem / 2); }
+  .hero2 a.btn {
+    width: 100%; }
+  @media (max-width: 1200px) {
+    .hero2__image img {
+      max-width: 80%; } }
+  @media (max-width: 1024px) {
+    .hero2 > div {
+      flex-direction: column-reverse;
+      text-align: center;
+      align-items: center; }
+    .hero2__text {
+      padding: 2rem 0 4rem 0;
+      text-align: center; }
+      .hero2__text h1 {
+        font-size: 3rem; }
+    .hero2__image {
+      padding-bottom: 2rem; }
+    .hero2__image img {
+      max-width: 40%; } }
+  @media (max-width: 768px) {
+    .hero2__text {
+      padding-right: 0; }
+    .hero2__image img {
+      max-width: 75%; } }
+  @media (max-width: 480px) {
+    .hero2__text h1 {
+      font-size: 2rem; }
+    .hero2__image img {
+      max-width: 85%; } }
+.special-features2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #F3F7FC; }
+  .special-features2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .special-features2__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 2rem; }
+    .special-features2__heading h2 {
+      padding-top: 1rem;
+      font-size: 1.953rem;
+      font-weight: 700; }
+  .special-features2__items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; }
+  .special-features2__item {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem; }
+    @media (max-width: 1024px) {
+      .special-features2__item {
+        width: 100%; } }
+    .special-features2__item h3 {
+      padding: 1rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #17405C; }
+    .special-features2__item p {
+      line-height: 170%; }
+
+.target2 {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: white; }
+  .target2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .target2__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 2rem; }
+    .target2__heading h2 {
+      padding-top: 1rem;
+      font-size: 1.953rem;
+      font-weight: 700; }
+  .target2 img {
+    width: 100%; }
+
+.features2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #F3F7FC; }
+  .features2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .features2__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 2rem; }
+    .features2__heading h2 {
+      padding-top: 1rem;
+      font-size: 1.953rem;
+      font-weight: 700; }
+  .features2__items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem; }
+  .features2__item {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem; }
+    @media (max-width: 1024px) {
+      .features2__item {
+        width: 45%; } }
+    @media (max-width: 768px) {
+      .features2__item {
+        width: 100%; } }
+    .features2__item h3 {
+      padding: 1rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #17405C; }
+    .features2__item p {
+      line-height: 170%; }
+
+.related2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: white;
+  text-align: center; }
+  .related2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .related2__heading {
+    margin-bottom: 4rem; }
+    .related2__heading h2 {
+      padding-top: 1rem;
+      font-size: 1.953rem;
+      font-weight: 700; }
+  .related2__items {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem; }
+  .related2 a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0 0.5rem; }
+  @media (max-width: 768px) {
+    .related2__items {
+      flex-direction: column;
+      gap: 1rem; }
+    .related2 a {
+      width: 100%;
+      justify-content: center; } }
+.involvement2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #F3F7FC;
+  text-align: center; }
+  .involvement2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .involvement2 h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #17405C;
+    margin-bottom: 4rem; }
+  .involvement2__cards {
+    display: flex;
+    gap: 2rem;
+    justify-content: center; }
+    @media (max-width: 1024px) {
+      .involvement2__cards {
+        flex-wrap: wrap; } }
+  .involvement2__card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 20rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out; }
+    .involvement2__card:hover {
+      transform: translateY(-5px); }
+    .involvement2__card p {
+      font-size: 1rem;
+      color: #17405C;
+      margin-bottom: 1.5rem; }
+  @media (max-width: 768px) {
+    .involvement2__cards {
+      flex-direction: column;
+      align-items: center; }
+    .involvement2__card {
+      width: 90%;
+      max-width: 25rem; } }
+.newsletter2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #1F567D;
+  text-align: center; }
+  .newsletter2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem; }
+  .newsletter2__heading {
+    margin-bottom: 4rem; }
+    .newsletter2__heading h2 {
+      padding-top: 1rem;
+      font-size: 1.953rem;
+      font-weight: 700;
+      color: #fff; }
+  .newsletter2__form {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; }
+    .newsletter2__form input {
+      width: 300px;
+      max-width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0px;
+      outline: none; }
+    .newsletter2__form button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1F567D;
+      background-color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out; }
+      .newsletter2__form button:hover {
+        background-color: #d2d7ea; }
+  @media (max-width: 768px) {
+    .newsletter2__form {
+      flex-direction: column;
+      align-items: center; }
+    .newsletter2 input {
+      width: 90%; }
+    .newsletter2 button {
+      width: 90%; } }
+.logos2 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #fff;
+  text-align: center; }
+  .logos2 > div {
+    width: 100%;
+    max-width: 82rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem; }
+    .logos2 > div a {
+      display: flex;
+      justify-content: center;
+      align-items: center; }
+  @media (max-width: 1024px) {
+    .logos2 > div {
+      justify-content: center; }
+    .logos2 a {
+      width: 45%; } }
+  @media (max-width: 768px) {
+    .logos2 > div {
+      flex-direction: column; }
+    .logos2 a {
+      width: 100%; } }
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .project {
   display: flex;
@@ -2512,14 +2893,14 @@ nav.navbar {
       flex-direction: row;
       justify-content: flex-start; }
     .project__details .detail {
-      color: #495965; }
+      color: #6E6E6E; }
       .project__details .detail:not(:last-of-type) {
         padding-right: 1.5rem; }
       .project__details .detail__property {
         font-weight: 300;
         padding-right: .75rem; }
       .project__details .detail__value:active {
-        color: #495965; }
+        color: #6E6E6E; }
     .project__details .actions {
       display: flex;
       flex-direction: row; }
@@ -2585,14 +2966,14 @@ nav.navbar {
         padding-left: .5rem;
         padding-right: 2rem; }
       .project__scenarios .details .detail {
-        color: #495965; }
+        color: #6E6E6E; }
         .project__scenarios .details .detail:not(:last-of-type) {
           padding-right: 1.5rem; }
         .project__scenarios .details .detail__property {
           font-weight: 300;
           padding-right: .75rem; }
         .project__scenarios .details .detail__value:active {
-          color: #495965; }
+          color: #6E6E6E; }
     .project__scenarios .actions .btn--action {
       margin-top: 0; }
     .project__scenarios .actions .btn--action.results {
@@ -2649,6 +3030,7 @@ nav.navbar {
   .projects-new button::after {
     display: none; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .scenario-create {
   display: flex;
@@ -2708,6 +3090,7 @@ nav.navbar {
       margin-top: 1.75rem;
       font-size: 1rem; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .signup {
   display: flex;
@@ -2731,7 +3114,7 @@ nav.navbar {
       padding-top: 1rem; }
     .signup .signup-frame__subheading {
       font-size: 0.875rem;
-      color: #495965;
+      color: #6E6E6E;
       font-weight: 300;
       text-align: center;
       padding-top: 1rem; }
@@ -2739,12 +3122,13 @@ nav.navbar {
       padding-top: 2rem; }
     .signup .signup-frame .form-check {
       font-size: 0.875rem;
-      color: #495965;
+      color: #6E6E6E;
       font-weight: 300;
       padding-top: 1rem; }
     .signup .signup-frame button {
       margin-top: 1.5rem; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .simulation {
   display: flex;
@@ -2900,6 +3284,7 @@ nav.navbar {
       .simulation .table-changed__content .key {
         width: 66.6%; }
 
+/* ----------------------------- open_plan 2 ----------------------------- */
 @use 'variables' as *;
 .project-setup.two-columns {
   display: flex;
