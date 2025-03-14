@@ -71,6 +71,19 @@ footer button.btn {
     font-weight: 700;
   }
 
+  &--secondary {
+    background-color: $bg-color-secondary-btn;
+    color: $primary-color-1-dark;
+
+    #{$anchor-pseudo-classes-inactive-state} {
+      color: $primary-color-1-dark !important;
+    }
+
+    #{$anchor-pseudo-classes-active-state} {
+      background-color: $bg-color-light !important;
+    }
+  }
+
   &--action {
     background-color: transparent;
     color: $primary-color-2;

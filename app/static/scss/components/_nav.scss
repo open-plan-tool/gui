@@ -223,3 +223,38 @@ nav.navbar {
     }
   }
 }
+
+// open_plan 2
+.navbar2 {
+  @media only screen and (max-width: 991px) {
+    border-bottom: 1px solid $primary-gray-color-1;
+  }
+
+  .navbar-collapse {
+    @media only screen and (max-width: 991px) {
+      padding: 2rem;
+    }
+  }
+
+  .nav-item {
+    a.nav-link {
+      @media only screen and (max-width: 991px) {
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      padding-left: 0;
+      padding-right: 0;
+      margin-left: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    select {
+      cursor: pointer;
+    }
+  }
+}

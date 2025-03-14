@@ -90,3 +90,38 @@
 		margin-left: 1rem;
 	}
 }
+
+// open_plan2
+.footer2 {
+	padding-top: 4rem;
+	padding-bottom: 4rem;
+	height: auto;
+
+	& > div {
+		display: flex;
+		flex-direction: column;
+
+		@media only screen and (min-width: 601px) {
+			flex-direction: row;
+		}
+	}
+
+	.footer__logo {
+		@media only screen and (max-width: 600px) {
+			text-align: center;
+			padding-bottom: 2rem;
+		}
+	}
+
+	.footer__links {
+		@media only screen and (max-width: 600px) {
+			ul {
+				text-align: center;
+
+				li:first-of-type {
+					padding-left: 0;
+				}
+			}
+		}
+	}
+}
