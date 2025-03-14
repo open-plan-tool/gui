@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-15 15:19+0100\n"
+"POT-Creation-Date: 2025-03-14 21:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -573,8 +573,8 @@ msgid ""
 "The supported formats are \"json\", \"csv\", \"txt\", \"xls\" and \"xlsx\""
 msgstr ""
 "Der Dateityp der Zeitserie \"{timeseries_file.name}\" wird nicht "
-"unterstützt. Die unterstützten Formate sind \"json\", \"csv\", \"txt\", \"xls"
-"\" und \"xlsx\"."
+"unterstützt. Die unterstützten Formate sind \"json\", \"csv\", \"txt\", "
+"\"xls\" und \"xlsx\"."
 
 #: projects/helpers.py:569
 #, python-format
@@ -1007,12 +1007,12 @@ msgid "About"
 msgstr ""
 
 #: templates/base.html:90 templates/legal/contact.html:21
-#: templates/navbar.html:58 templates/navbar.html:96
+#: templates/navbar.html:52 templates/navbar.html:90
 msgid "Contact"
 msgstr "Kontakt"
 
 #: templates/base.html:91 templates/legal/license.html:13
-#: templates/navbar.html:95
+#: templates/navbar.html:89
 msgid "License"
 msgstr "Lizenz"
 
@@ -1055,13 +1055,15 @@ msgstr ""
 msgid "Refresh Page"
 msgstr "Seite aktualisieren"
 
-#: templates/feedback.html:50 templates/navbar.html:51
+#: templates/feedback.html:50 templates/navbar.html:45
 msgid "Feedback"
 msgstr "Feedback"
 
 #: templates/feedback.html:65
 msgid "Should you face any issue, let us know or share your feedback with us!"
-msgstr "Sollten Sie auf ein Problem stoßen, lassen Sie es uns wissen oder teilen Sie uns Ihr Feedback mit!"
+msgstr ""
+"Sollten Sie auf ein Problem stoßen, lassen Sie es uns wissen oder teilen Sie "
+"uns Ihr Feedback mit!"
 
 #: templates/feedback.html:76
 msgid "How much you like it?"
@@ -1071,22 +1073,24 @@ msgstr "Wie gefällt es Ihnen?"
 msgid "Submit"
 msgstr "Absenden"
 
-#: templates/index.html:21
+#: templates/index.html:17
 msgid "Open-source planning tool for the energy transition"
 msgstr "Open-Source-Planungstool für die Energiewende"
 
 #: templates/index.html:22
 msgid ""
 "With the open-plan-tool, you can plan and design energy systems in an open "
-"and free framework."
-msgstr "Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework Energiesysteme planen und auslegen."
+"and free framework. "
+msgstr ""
+"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Energiesysteme planen und auslegen."
 
-#: templates/index.html:25 templates/landing/default.html:27
+#: templates/index.html:19 templates/landing/cellular.html:21
+#: templates/landing/commune.html:24 templates/landing/default.html:27
 msgid "To open-plan-tool"
 msgstr "Zum open-plan-tool"
 
-#: templates/index.html:33 templates/landing/default.html:276
-#: templates/landing/default.html:293
+#: templates/index.html:29
 msgid "Application areas"
 msgstr "Anwendungsbereiche"
 
@@ -1098,7 +1102,7 @@ msgstr "Kommunale Wärmeplanung"
 msgid "Cellular energy systems"
 msgstr "Zellulare Energiesysteme"
 
-#: templates/index.html:41
+#: templates/index.html:44
 msgid "General energy system analysis"
 msgstr "Allgemeine Energiesystemanalyse"
 
@@ -1142,15 +1146,15 @@ msgstr ""
 "Verwenden Sie das open-plan-tool für eine Vielzahl von unterschiedlichen "
 "Anwendungsfällen im Rahmen einer Energiesystemanalyse"
 
-#: templates/landing/default.html:92
+#: templates/landing/default.html:90
 msgid "Special features of the open-plan-tool"
 msgstr "Besonderheiten des open-plan-tools"
 
-#: templates/landing/default.html:99
+#: templates/landing/default.html:95
 msgid "Easy to use"
 msgstr "Einfache Bedienung"
 
-#: templates/landing/default.html:101
+#: templates/landing/default.html:97
 msgid ""
 "The open-plan-tool offers an intuitive and user-friendly interface that "
 "allows users to easily design energy systems using drag-and-drop functions. "
@@ -1173,17 +1177,17 @@ msgid ""
 "are available under open licenses. This ensures transparency, "
 "reproducibility and traceability – crucial aspects for scientific work."
 msgstr ""
-"Das Vorhaben open_plan verfolgt den Open-Science-Ansatz und basiert auf "
-"dem open energy modelling framework (oemof). Alle Daten, Methoden und der "
+"Das Vorhaben open_plan verfolgt den Open-Science-Ansatz und basiert auf dem "
+"open energy modelling framework (oemof). Alle Daten, Methoden und der "
 "Quellcode stehen unter offenen Lizenzen zur Verfügung. Das gewährleistet "
 "Transparenz, Reproduzierbarkeit und Nachvollziehbarkeit – entscheidende "
 "Aspekte für wissenschaftliches Arbeiten."
 
-#: templates/landing/default.html:117
+#: templates/landing/default.html:109
 msgid "Cooperation between research and practice"
 msgstr "Verknüpfung von Wissenschaft und Praxis"
 
-#: templates/landing/default.html:119
+#: templates/landing/default.html:111
 msgid ""
 "The open_plan community bridges the gap between scientific theory and "
 "practical application. Its ease of use makes it attractive for "
@@ -1195,8 +1199,8 @@ msgstr ""
 "Theorie und praktischer Anwendung geschlagen. Die einfache Bedienung macht "
 "es für Anwender:innen aus der Praxis attraktiv, während die Integration "
 "aktueller wissenschaftlicher Ansätze Forschenden eine wertvolle Plattform "
-"bietet. So fördert das Tool die Entwicklung innovativer Energiesysteme "
-"für verschiedene Anwendungsbereiche."
+"bietet. So fördert das Tool die Entwicklung innovativer Energiesysteme für "
+"verschiedene Anwendungsbereiche."
 
 #: templates/landing/default.html:130
 msgid "Target groups"
@@ -1216,11 +1220,11 @@ msgid ""
 "designing optimized systems and operational strategies"
 msgstr ""
 
-#: templates/landing/default.html:161
+#: templates/landing/features_section.html:19
 msgid "Data management"
 msgstr "Datenmanagement"
 
-#: templates/landing/default.html:163
+#: templates/landing/features_section.html:21
 msgid ""
 "Integration of open libraries, e.g. generation and consumption data, and use "
 "of open generic formats"
@@ -1228,11 +1232,11 @@ msgstr ""
 "Integration offener Bibliotheken, z.B. Erzeugungs-, Verbrauchsdaten und "
 "Nutzung offener generischer Formate"
 
-#: templates/landing/default.html:170
+#: templates/landing/features_section.html:26
 msgid "Scenario analysis"
 msgstr "Senarioanalyse"
 
-#: templates/landing/default.html:172
+#: templates/landing/features_section.html:28
 msgid ""
 "An automated creation of scenarios allows for an easy comparison of "
 "different options and to understand sensitivities"
@@ -1241,11 +1245,11 @@ msgstr ""
 "einfachen Vergleich verschiedener Optionen und das Verständnis "
 "von Sensitivitäten"
 
-#: templates/landing/default.html:179
+#: templates/landing/features_section.html:33
 msgid "Reproducibility"
 msgstr "Reproduzierbarkeit"
 
-#: templates/landing/default.html:181
+#: templates/landing/features_section.html:35
 msgid ""
 "All results are reproducible on the basis of open and transparent "
 "calculations"
@@ -1253,11 +1257,11 @@ msgstr ""
 "Alle Ergebnisse sind auf der Grundlage offener und transparenter "
 "Berechnungen reproduzierbar"
 
-#: templates/landing/default.html:188
+#: templates/landing/features_section.html:40
 msgid "Modularity"
 msgstr "Modularität"
 
-#: templates/landing/default.html:190
+#: templates/landing/features_section.html:42
 msgid ""
 "A wide variety of different energy systems requires modular components to "
 "map different degrees of complexity and framework conditions"
@@ -1266,11 +1270,11 @@ msgstr ""
 "Komponenten, um unterschiedliche Komplexitätsgrade und Rahmenbedingungen "
 "abzubilden"
 
-#: templates/landing/default.html:197
+#: templates/landing/features_section.html:47
 msgid "User friendliness"
 msgstr "Benutzerfreundlichkeit"
 
-#: templates/landing/default.html:199
+#: templates/landing/features_section.html:49
 msgid ""
 "The tool was developed with a strong focus on easy use without requiring "
 "programming language expertise"
@@ -1278,11 +1282,11 @@ msgstr ""
 "Bei der Entwicklung des Tools wurde besonderer Wert auf eine einfache "
 "Bedienung gelegt, die keine Kenntnisse einer Programmiersprache erfordert"
 
-#: templates/landing/default.html:206
+#: templates/landing/features_section.html:54
 msgid "Easy collaboration"
 msgstr "Einfache Zusammenarbeit"
 
-#: templates/landing/default.html:208
+#: templates/landing/features_section.html:56
 msgid ""
 "Projects can be shared with team members, customers or suppliers, so that "
 "all involved parties can be informed about the current project progress in a "
@@ -1292,11 +1296,11 @@ msgstr ""
 "sodass alle beteiligten Akteure in einem zentralen Tool über den aktuellen "
 "Projektfortschritt informiert werden können"
 
-#: templates/landing/default.html:215
+#: templates/landing/features_section.html:61
 msgid "Interfaces"
 msgstr "Schnittstellen"
 
-#: templates/landing/default.html:217
+#: templates/landing/features_section.html:63
 msgid ""
 "Standardized formats enable easy integration of external databases and other "
 "tools used in energy system analysis"
@@ -1363,7 +1367,7 @@ msgstr ""
 "Relevante Berichte, Zusammenfassungen und wissenschaftliche Arbeiten "
 "veröffentlichen wir hier über unsere Webseite."
 
-#: templates/landing/newsletter.html:9
+#: templates/landing/newsletter.html:5
 msgid "Register to our Newsletter"
 msgstr "Newsletter abonnieren"
 
@@ -1371,7 +1375,7 @@ msgstr "Newsletter abonnieren"
 msgid "E-mail"
 msgstr "E-Mail"
 
-#: templates/landing/newsletter.html:17
+#: templates/landing/newsletter.html:10
 msgid "Register"
 msgstr "Abonnieren"
 
@@ -1379,7 +1383,7 @@ msgstr "Abonnieren"
 msgid "About us - open_plan"
 msgstr "Über uns - open_plan"
 
-#: templates/legal/about.html:21 templates/navbar.html:55
+#: templates/legal/about.html:21 templates/navbar.html:49
 msgid "About us"
 msgstr "Über uns"
 
@@ -1388,27 +1392,28 @@ msgid "open_plan 2.0 project consortium"
 msgstr "open_plan 2.0 Projektkonsortium"
 
 #: templates/legal/about.html:29
+#, python-format
 msgid ""
 "\n"
-"          <p>The open_plan 2.0 project consortium is composed of the <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a "
-"href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
+"          <p>The open_plan 2.0 project consortium is composed of the <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
+"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
 "IFAM</a> (IFAM). It is funded within the framework of the \"Technology-"
 "oriented systems analysis\" funding area of the BMWK's ????th Energy "
 "Research Programme \"?????\".</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem <a "
-"href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
-"IFAM</a> (IFAM). Es wird im Rahmen des Programms "
-"‚ \"Technologieorientierte Systemanalyse\" des ????????. Energieforschungsprogramms "
-"‚ \"Innovation für die Energiewende\" des BMWi gefördert.</p>\n"
+"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
+"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
+"IFAM</a> (IFAM). Es wird im Rahmen des Programms ‚ \"Technologieorientierte "
+"Systemanalyse\" des ????????. Energieforschungsprogramms ‚ \"Innovation für "
+"die Energiewende\" des BMWi gefördert.</p>\n"
 "\t\t\t\t"
 
 #: templates/legal/about.html:62
@@ -1419,23 +1424,24 @@ msgstr "open_plan 1.0 Projektkonsortium"
 #, python-format
 msgid ""
 "\n"
-"\t\t\t\t<p>The open_plan project consortium is composed of the <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a "
-"href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam Institut "
-"für Klimafolgenforschung</a> (PIK). It is funded within the framework of the "
-"\"Technology-oriented systems analysis\" funding area of the BMWi's 7th "
-"Energy Research Programme \"Innovation for the energy transition\".</p>\n"
+"\t\t\t\t<p>The open_plan project consortium is composed of the <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
+"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
+"Institut für Klimafolgenforschung</a> (PIK). It is funded within the "
+"framework of the \"Technology-oriented systems analysis\" funding area of "
+"the BMWi's 7th Energy Research Programme \"Innovation for the energy "
+"transition\".</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem <a "
-"href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam Institut "
-"für Klimafolgenforschung</a> (PIK). Es wird im Rahmen des Programms "
+"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
+"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
+"Institut für Klimafolgenforschung</a> (PIK). Es wird im Rahmen des Programms "
 "‚ \"Technologieorientierte Systemanalyse\" des 7. Energieforschungsprogramms "
 "‚ \"Innovation für die Energiewende\" des BMWi gefördert.</p>\n"
 "\t\t\t\t"
@@ -1449,10 +1455,10 @@ msgstr "Feedback oder Frage?"
 msgid ""
 "\n"
 "\t\t\t\t<p>You can always <a href=\"%(url_feedback)s\">leave us a comment or "
-"feedback</a> on things you would improve. You can also visit <a href="
-"\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github project "
-"page</a> to see which bugs are being fixed and which new features are being "
-"developed.</p>\n"
+"feedback</a> on things you would improve. You can also visit <a "
+"href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github "
+"project page</a> to see which bugs are being fixed and which new features "
+"are being developed.</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
@@ -1464,17 +1470,18 @@ msgstr ""
 "\t\t\t\t"
 
 #: templates/legal/about.html:74 templates/legal/contact.html:40
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>If you wish to sponsor a new feature of open-plan-tool, please "
-"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" rel=\"noreferrer"
-"\">sponsoring page</a></p>\n"
+"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">sponsoring page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
 "\t\t\t\t<p>Wenn Sie eine neue Funktion von open-plan-tool sponsern möchten, "
-"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" rel="
-"\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
+"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
 "\t\t\t\t"
 
 #: templates/legal/about.html:80
@@ -1483,10 +1490,10 @@ msgid ""
 "\n"
 "\t\t\t\t<p>You can follow the development of this <a href=\"%(url_github)s\" "
 "target=\"_blank\" rel=\"noreferrer\">user interface</a>, or deploy your own "
-"open-plan tool (including <a href=\"%(url_simulation_server)s\" target="
-"\"_blank\" rel=\"noreferrer\">simulation server</a> and user interface) by "
-"visiting our <a href=\"%(url_gui)s\" target=\"_blank\" rel=\"noreferrer"
-"\">github page</a></p>\n"
+"open-plan tool (including <a href=\"%(url_simulation_server)s\" "
+"target=\"_blank\" rel=\"noreferrer\">simulation server</a> and user "
+"interface) by visiting our <a href=\"%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">github page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
@@ -1508,12 +1515,12 @@ msgid ""
 "\n"
 "\t\t\t\t\tOur simulations run on a server hosted at RLI, the code to setup "
 "the simulation server is licenced under MIT License and publicly available "
-"on <a href=\"%(url_simulation_server)s\" target=\"_blank\" rel=\"noreferrer"
-"\">our github page</a>.\n"
-"\t\t\t\t\tThe simulation are perfomed with <a href=\"%(url_mvs)s\" target="
-"\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a>, a code using <a "
-"href=\"%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer\">oemof-solph</a> "
-"to simulate energy system model from techno-economic parameters.\n"
+"on <a href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">our github page</a>.\n"
+"\t\t\t\t\tThe simulation are perfomed with <a href=\"%(url_mvs)s\" "
+"target=\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a>, a code "
+"using <a href=\"%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer\">oemof-"
+"solph</a> to simulate energy system model from techno-economic parameters.\n"
 "\t\t\t\t\t"
 msgstr ""
 "\n"
@@ -1521,11 +1528,11 @@ msgstr ""
 "wird, der Code zur Einrichtung der Simulationsserver steht unter MIT-Lizenz "
 "und ist öffentlich verfügbar auf <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">unserer Github-Seite</a>.\n"
-"\t\t\t\t\tDie Simulationen werden mit <a href=\"%(url_mvs)s\" target=\"_blank"
-"\" rel=\"noreferrer\">multi-vector-simulator</a> durchgeführt, einem Code "
-"auf Basis von <a href=%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer"
-"\">oemof-solph</a> , um ein Energiesystemmodell anhand technisch-"
-"ökonomischer Parameter zu simulieren.\n"
+"\t\t\t\t\tDie Simulationen werden mit <a href=\"%(url_mvs)s\" "
+"target=\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a> "
+"durchgeführt, einem Code auf Basis von <a href=%(url_oemof)s\" "
+"target=\"_blank\" rel=\"noreferrer\">oemof-solph</a> , um ein "
+"Energiesystemmodell anhand technisch-ökonomischer Parameter zu simulieren.\n"
 "\t\t\t\t\t"
 
 #: templates/legal/about.html:94
@@ -1550,8 +1557,8 @@ msgid ""
 "information is only visible if you are logged in."
 msgstr ""
 "Sie können uns per E-Mail unter open_plan at rl-institut.de kontaktieren. "
-"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sie"
-"angemeldet sind."
+"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sieangemeldet "
+"sind."
 
 #: templates/legal/imprint.html:4
 msgid "Imprint - open_plan"
@@ -1732,17 +1739,19 @@ msgstr "Lizenz - open_plan"
 #: templates/legal/license.html:21
 #, python-format
 msgid ""
-"The source code of this <a href=\"%(url_gui)s\" target=\"_blank\" rel="
-"\"noreferrer\">user interface</a> and of the <a href="
-"\"%(url_simulation_server)s\" target=\"_blank\" rel=\"noreferrer"
-"\">simulation server</a> are licensed under <a href=\"%(url_license)s\" "
-"target=\"_blank\" rel=\"noreferrer\">MIT license</a></p>"
+"The source code of this <a href=\"%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">user interface</a> and of the <a "
+"href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">simulation server</a> are licensed under <a "
+"href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT license</"
+"a></p>"
 msgstr ""
-"Der Quellcode dieser <a href=%(url_gui)s\" target=\"_blank\" rel=\"noreferrer"
-"\">Benutzeroberfläche</a> und des <a href=\"%(url_simulation_server)s\" "
-"target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> sind lizenziert "
-"unter <a href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT-"
-"Lizenz</a></p>"
+"Der Quellcode dieser <a href=%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Benutzeroberfläche</a> und des <a "
+"href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Simulationsserver</a> sind lizenziert unter <a "
+"href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT-Lizenz</"
+"a></p>"
 
 #: templates/legal/privacy.html:5 templates/legal/privacy_DE.html:5
 msgid "Privacy - open_plan"
@@ -2734,7 +2743,7 @@ msgstr ""
 msgid "Sponsor - open-plan-tool"
 msgstr "Fördern - open-plan-tool"
 
-#: templates/legal/sponsor_feature.html:13 templates/navbar.html:43
+#: templates/legal/sponsor_feature.html:13 templates/navbar.html:37
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
@@ -2792,29 +2801,29 @@ msgstr "Schließen"
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: templates/navbar.html:32
+#: templates/navbar.html:31
 msgid "Video-tutorials"
 msgstr "Video-tutorials"
 
-#: templates/navbar.html:48 templates/usecase/usecase_search.html:25
+#: templates/navbar.html:42 templates/usecase/usecase_search.html:25
 msgid "Use cases"
 msgstr "Anwendungsbeispiele"
 
-#: templates/navbar.html:94
+#: templates/navbar.html:88
 msgid "Account"
 msgstr "Konto"
 
-#: templates/navbar.html:98
+#: templates/navbar.html:92
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:106
+#: templates/navbar.html:100
 #: templates/registration/password_reset_complete.html:10
 #: templates/registration/signup.html:23
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:110 templates/registration/login.html:23
+#: templates/navbar.html:104 templates/registration/login.html:23
 #: templates/registration/signup.html:28
 msgid "Sign up"
 msgstr "Registrieren"
@@ -3429,8 +3438,9 @@ msgid ""
 "I have read and accept the <a target='_blank' href='%(privacy_url)s'>privacy "
 "statement</a> from open_plan"
 msgstr ""
-"Ich habe die <a target='_blank' href=\"%(privacy_url)s"
-"\">Datenschutzbestimmungen</a> von open_plan gelesen und akzeptiert."
+"Ich habe die <a target='_blank' "
+"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von open_plan gelesen "
+"und akzeptiert."
 
 #: users/views.py:35
 msgid "Activate your account."
