@@ -2,110 +2,62 @@
 {% load static %}
 {% load i18n %}
 
-
-
-
-
 {% block head_block %}
-	<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
 {% endblock head_block %}
 
 {% block index %}
-  {% if not user.is_authenticated %}
-	{% get_current_language as LANGUAGE_NAME %}
+{% if not user.is_authenticated %}
+{% get_current_language as LANGUAGE_NAME %}
 <main class="landing-page">
 
-  <section class="header">
-    <div class="header__wrap" style="flex-direction:column;">
-      <div class="header__heading">
-        <h1>{% translate "Open-source planning tool for the energy transition" %}</h1>
-        <p>{% translate "With the open-plan-tool, you can plan and design energy systems in an open and free framework. " %}</p>
-      </div>
-      <div class="header__btn">
-        <a href="#tool-anchor" class="btn btn--full">{% translate "To open-plan-tool" %}</a>
-      </div>
-    </div>
-  </section>
+	<section class="cellular2 section" id="hero" data-aos="fade-up">
+		<div>
+			<div class="cellular2__text">
+				<h1>{% translate "Open-source planning tool for the energy transition" %}</h1>
+				<span>{% translate "With the open-plan-tool, you can plan and design energy systems in an open and free framework. " %}</span>
+				<a href="#tool-anchor" class="btn btn--medium">{% translate "To open-plan-tool" %}</a>
+			</div>
+			<div class="cellular2__image">
+				<img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
+			</div>
+		</div>
+	</section>
 
-<section class="dev">
-    <div class="dev__wrap">
-      <div class="dev__heading">
-        <h2>{% translate "Application areas" %}</h2>
-      </div>
-      <!--div class="dev__text">
-        <p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
-      </div-->
-      <div class="dev__links">
-				<a href="{% url 'landing_commune' %}" class="btn btn--hollow">{% translate "Municipal heating planning" %}</a>
-        <a href="{% url 'landing_cellular' %}" class="btn btn--hollow">{% translate "Cellular energy systems" %}</a>
-        <a href="{% url 'landing_default' %}" class="btn btn--hollow">{% translate "General energy system analysis" %}</a>
-      </div>
-
-			      <!-- THIS SHOULD BE ADDED TO THE DOCUMENTATION div class="dev__text">
-      <p>{% translate "If you want to collaborate or are interested in the project, you can find more information on:" %}</p>
-      <div class="dev__links">
-        <a href="publications_en.html" class="btn btn--hollow">Publications</a>
-        <a href="https://github.com/open-plan-tool" class="btn btn--hollow">GitHub</a>
-        <a href="https://open-plan-documentation.readthedocs.io/en/latest/" class="btn btn--hollow">Read the Docs</a>
-        <a href="https://www.youtube.com/channel/UCg8NUlNM4m9iT94K3Zf8S2A" class="btn btn--hollow" target="_blank" rel="noopener noreferrer">YouTube</a>
-      </div-->
-    </div>
-  </section>
-
-
-{% include 'landing/newsletter.html' %}
-{% include 'landing/logos.html' %}
-
-
-	 <!-- ABOUT SECTION TO MOVE TO CONTACT section-- class="about">
-    <div class="about__wrap">
-      <div class="about__heading">
-        <h2>About us</h2>
-      </div>
-      <div class="about__text">
-        <p>The open_plan project consortium is composed of the Reiner Lemoine Institut (RLI), Deutsche Gesellschaft für Sonnenenergie (DGS) and the Potsdam Institut für Klimafolgenforschung (PIK). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWi's 7th Energy Research Programme "Innovation for the energy transition".</p>
-      </div>
-      <div class="about__logos">
-        <div class="about__partners">
-          <div>
-            <a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
-            </a>
-          </div>
-          <div>
-            <a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
-            </a>
-          </div>
-          <div>
-            <a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'assets/logos/ifam_logo.png' %}" alt="Fraunhofer IFAM logo">
-            </a>
-          </div>
-        </div>
-        <div class="about__support">
-
-								{% if "de" in LANGUAGE_NAME %}
-				          <a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
-            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
-          </a>
-			{% else %}
-				          <a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
-            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
-          </a>
-			{% endif %}
+	<section class="application2">
+		<div>
+			<h2>{% translate "Application areas" %}</h2>
+			<!--div class="dev__text">
+				<p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
+			</div-->
+			<div class="application2__cards">
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_heating_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_commune' %}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
+				</div>
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_cells_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_cellular' %}" class="btn btn--medium btn--hollow">{% translate "Cellular energy systems" %}</a>
+				</div>
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_analysis_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_default' %}" class="btn btn--medium btn--hollow">{% translate "General energy system analysis" %}</a>
+				</div>
+			</div>
+			<!-- THIS SHOULD BE ADDED TO THE DOCUMENTATION div class="dev__text">
+<p>{% translate "If you want to collaborate or are interested in the project, you can find more information on:" %}</p>
+<div class="dev__links">
+	<a href="publications_en.html" class="btn btn--hollow">Publications</a>
+	<a href="https://github.com/open-plan-tool" class="btn btn--hollow">GitHub</a>
+	<a href="https://open-plan-documentation.readthedocs.io/en/latest/" class="btn btn--hollow">Read the Docs</a>
+	<a href="https://www.youtube.com/channel/UCg8NUlNM4m9iT94K3Zf8S2A" class="btn btn--hollow" target="_blank" rel="noopener noreferrer">YouTube</a>
+</div-->
+		</div>
+	</section>
 
 
-
-        </div>
-      </div>
-    </div>
-  </section-->
-
-
+	{% include 'landing/newsletter.html' %}
+	{% include 'landing/logos.html' %}
 </main>
-
-
-
-  {% endif %}
+{% endif %}
 {% endblock index %}
