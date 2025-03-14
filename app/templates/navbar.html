@@ -4,113 +4,107 @@
 
 
 {% if signup %}
-    {% setvar "navbar--signup" as navbar_class %}
+{% setvar "navbar--signup" as navbar_class %}
 {% elif scenario_create %}
-    {% setvar "navbar--scenario" as navbar_class %}
+{% setvar "navbar--scenario" as navbar_class %}
 {% else %}
-    {% setvar "" as navbar_class %}
+{% setvar "" as navbar_class %}
 {% endif %}
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }} navbar2">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'project_search' %}">
-            <img src="{% static 'assets/logos/open_plan_logo_horizontal.svg' %}" alt="open_plan Logo">
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0">
-							{% if not scenario_create %}
-							      <li class="nav-item">
-											<select class="form-select">
-												<option>
-													<a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
+	<div class="container-fluid">
+		<a class="navbar-brand" href="{% url 'project_search' %}">
+			<img src="{% static 'assets/logos/open_plan_logo_horizontal.svg' %}" alt="open_plan Logo">
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mb-2 mb-lg-0">
+				{% if not scenario_create %}
+				<li class="nav-item">
+					<select class="form-select">
+						<option>
+							<a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
+						</option>
+						<option>
+							<a class="nav-link" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a>
+						</option>
+					</select>
+				</li>
 
-												</option>
-												<option>
-													<a class="nav-link" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a>
+				<!--li class="nav-item">
+<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
+</li-->
+				{% if user.is_authenticated %}
 
-												</option>
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
+				</li>
+				{% else %}
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'about' %}">{% translate "About us" %}</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'contact' %}">{% translate "Contact" %}</a>
+				</li>
 
-											</select>
-                    </li>
+				{% endif %}
+				{% elif signup %}
+				<!--For user signup the nav bar does not display all options-->
+				{% endif %}
 
+				<li class="nav-item dropdown locale" id="language-switcher">
+					<form action="{% url 'set_language' %}" method="post">
+						{% csrf_token %}
+						<input name="next" type="hidden" value="{{ redirect_to }}" />
 
+						<select class="selectpicker" name="language" onchange="this.form.submit()">
+							{% get_current_language as LANGUAGE_CODE %}
+							{% get_available_languages as LANGUAGES %}
+							{% get_language_info_list for LANGUAGES as languages %}
+							{% for language in languages %}
+							<option
+								class="nav-link"
+								value="{{ language.code }}"
+								{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}
+							>
+								{{ language.code }}
+							</option>
+							{% endfor %}
+						</select>
+					</form>
+				</li>
 
-
-																							<!--li class="nav-item">
-														<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
-												</li-->
-									{% if user.is_authenticated %}
-
-										<li class="nav-item">
-                        <a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
-                    </li>
-																<li class="nav-item">
-														<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
-												</li>
-									{% else %}
-																<li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">{% translate "About us" %}</a>
-                    </li>
-																	<li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact' %}">{% translate "Contact" %}</a>
-                    </li>
-
-									{% endif %}
-							{% elif signup %}
-                    <!--For user signup the nav bar does not display all options-->
-							{% endif %}
-
-                <li class="nav-item dropdown locale" id="language-switcher">
-                    <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ redirect_to }}" />
-
-                        <select class="selectpicker" name="language" onchange="this.form.submit()">
-                            {% get_current_language as LANGUAGE_CODE %}
-                            {% get_available_languages as LANGUAGES %}
-                            {% get_language_info_list for LANGUAGES as languages %}
-                            {% for language in languages %}
-                            <option
-                                    class="nav-link"
-                                    value="{{ language.code }}"
-                                    {% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}
-														>
-                                {{ language.code }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                </li>
-
-                {% if user.is_authenticated %}
-                <li class="nav-item dropdown profile">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{% static 'assets/icons/i_profile.svg' %}" alt="Profile icon">
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-											  <li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->
-                        <li><a class="dropdown-item" href="{% url 'license' %}">{% translate "License" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">{% translate "Log out" %}</a></li>
-                    </ul>
-                </li>
+				{% if user.is_authenticated %}
+				<li class="nav-item dropdown profile">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<img src="{% static 'assets/icons/i_profile.svg' %}" alt="Profile icon">
+					</a>
+					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->
+						<li><a class="dropdown-item" href="{% url 'license' %}">{% translate "License" %}</a></li>
+						<li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
+						<li><hr class="dropdown-divider"></li>
+						<li><a class="dropdown-item" href="{% url 'logout' %}">{% translate "Log out" %}</a></li>
+					</ul>
+				</li>
 
 
-                {% else %}
-                    <li class="nav-item">
-                        <!-- pages/projects-view-empty.html -->
-                        <a class="nav-link" href="{% url 'login' %}">{% translate "Log in" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <!-- pages/signup.html -->
-                        <a class="btn btn--small btn--secondary" href="{% url 'signup' %}" role="button">{% translate "Sign up" %}</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
+				{% else %}
+				<li class="nav-item">
+					<!-- pages/projects-view-empty.html -->
+					<a class="nav-link" href="{% url 'login' %}">{% translate "Log in" %}</a>
+				</li>
+				<li class="nav-item">
+					<!-- pages/signup.html -->
+					<a class="btn btn--small btn--secondary" href="{% url 'signup' %}" >{% translate "Sign up" %}</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+	</div>
 </nav>
