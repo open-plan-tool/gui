@@ -1077,7 +1077,7 @@ msgstr "Absenden"
 msgid "Open-source planning tool for the energy transition"
 msgstr "Open-Source-Planungstool für die Energiewende"
 
-#: templates/index.html:22
+#: templates/index.html:18
 msgid ""
 "With the open-plan-tool, you can plan and design energy systems in an open "
 "and free framework. "
@@ -1094,7 +1094,16 @@ msgstr "Zum open-plan-tool"
 msgid "Application areas"
 msgstr "Anwendungsbereiche"
 
-#: templates/index.html:39
+#: templates/index.html:31 templates/landing/dev_section.html:10
+msgid ""
+"Use the GUI to include sector-coupling and optimize the energy system model "
+"subject to equality constraints"
+msgstr ""
+"Verwenden Sie die grafische Benutzeroberfläche, um die Sektorkopplung "
+"einzubeziehen und das Energiesystemmodell zu optimieren unter "
+"Berücksichtigung von Gleichheitsbeschränkungen"
+
+#: templates/index.html:36
 msgid "Municipal heating planning"
 msgstr "Kommunale Wärmeplanung"
 
@@ -1106,33 +1115,258 @@ msgstr "Zellulare Energiesysteme"
 msgid "General energy system analysis"
 msgstr "Allgemeine Energiesystemanalyse"
 
-#: templates/landing/cellular.html:6
+#: templates/index.html:48
+msgid ""
+"If you want to collaborate or are interested in the project, you can find "
+"more information on:"
+msgstr ""
+"Wenn Sie mitarbeiten möchten oder sich für das Projekt interessieren, "
+"finden Sie weitere Informationen unter:"
+
+#: templates/landing/cellular.html:5
 msgid "Cellular"
 msgstr "Zellular"
 
-#: templates/landing/cellular.html:22
-msgid "We plan energy systems from a cellular perspective"
-msgstr "Wir planen Energiesysteme aus einer zellularen Perspektive"
+#: templates/landing/cellular.html:19
+msgid "Planning of cellular energy systems with the open-plan-tool"
+msgstr "Planung zellularer Energiesysteme mit dem open-plan-tool"
 
-#: templates/landing/cellular.html:23
+#: templates/landing/cellular.html:20
 msgid ""
-"In close collaboration with practitioners of energy modelling and energy "
-"project developers we developed an open-source planning tool"
+"With the open-plan-tool, you can plan and design energy cells in the context "
+"of the cellular approach."
 msgstr ""
-"In enger Zusammenarbeit mit Experten für Energiemodellierung und "
-"Entwicklern von Energieprojekten haben wir ein Open-Source-Planungstool entwickelt."
+"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Energiesysteme planen und auslegen."
+
+#: templates/landing/cellular.html:32
+msgid "Energy cells explained"
+msgstr "Energiezellen erklärt"
+
+#: templates/landing/cellular.html:36
+msgid ""
+"The cellular approach is a model framework for energy systems that is based "
+"on decentralized energy systems and sector coupling."
+msgstr ""
+"Der zellulare Ansatz ist ein Modellrahmen für Energiesysteme, der auf "
+"dezentralen Energiesystemen und Sektorenkopplung basiert."
+
+#: templates/landing/cellular.html:37
+msgid ""
+"The cellular approach describes an energy system that is organized into so-"
+"called energy cells."
+msgstr ""
+"Der zellulare Ansatz beschreibt ein Energiesystem, das in sogenannte "
+"Energiezellen organisiert ist"
+
+#: templates/landing/cellular.html:48
+msgid ""
+"The cellular approach is based on the principle of subsidiarity, with energy "
+"supply and demand being balanced as closely as possible at the local level."
+msgstr ""
+"Der Grundgedanke basiert auf dem Subsidiaritätsprinzip, mit dem Energieangebot "
+"und -nachfrage so weit wie möglich auf lokaler Ebene ausgeglichen werden."
+
+#: templates/landing/cellular.html:49
+msgid ""
+"An energy cell can contain and combine various energy sectors, such as "
+"electricity, heat, mobility, etc."
+msgstr ""
+"Eine Energiezelle kann verschiedene Energiesektoren, wie Strom, Wärme, "
+"Mobilität, etc., enthalten und kombinieren."
+
+#: templates/landing/cellular.html:55
+msgid ""
+"The adoption of the <a href='https://www.bmwi.de/Redaktion/DE/Downloads/G/"
+"gesetzentwurf-aenderung-erneuerbare-energien-gesetzes-und-weiterer-"
+"energierechtlicher-vorschriften.pdf?__blob=publicationFile&v=4' "
+"target='_blank' rel='noopener noreferrer'>German Renewable Energy Law „EEG "
+"2021“</a> opens a unique opportunity to be leveraged by looking at a new "
+"energy system planning perspective. The full transition to renewable energy "
+"sources and climate neutrality by 2050 requires a high level of citizens' "
+"acceptance, reachable by local participation opportunities. Such frameworks "
+"can enable tenants to benefit from rooftop PV installations and local "
+"communities and authorities to value wind power generation. These are two "
+"examples that show how bottom-up approaches can contribute to a successful "
+"energy transition, ultimatively requiring a cellular approach: 'The cellular "
+"approach is a new organizational model for energy supply. In this "
+"interdisciplinary model, technical, economic, legal and political (and "
+"social) concerns are taken into account. The central component of this model "
+"is the energy cell.' <a href='#footnote-1'>[1]</a>"
+msgstr ""
+
+#: templates/landing/cellular.html:56
+msgid ""
+"This model was developed by the German Association for Electrical "
+"Engineering, VDE. It proposes a new way to organize future energy system "
+"networks. The cellular approach incorporates the idea that the production "
+"and consumption of energy are locally balanced forming a so-called energy "
+"cell. An energy cell is not geographically limited but it is a system "
+"composed of at least a generator, a converter, a storage unit, a load, a "
+"protection and control system and a connection to the distribution grid. An "
+"energy cell can contain many forms of energy such as electricity, heat, gas "
+"and mobility thus embracing the concept of sector coupling."
+msgstr ""
+
+#: templates/landing/cellular.html:57
+msgid ""
+"[1] VDE Verband der Elektrotechnik Elektronik Informationstechnik e.V.: "
+"Cellular Energy System - A Contribution to the Concretization of the "
+"Cellular Approach with Recommendations for Action, Frankfurt am Main, May "
+"2019"
+msgstr ""
+
+#: templates/landing/cellular.html:69
+msgid "Cross-sector and open-source planning tool"
+msgstr "Sektorübergreifendes und quelloffenes Planungswerkzeug"
+
+#: templates/landing/cellular.html:74
+#: templates/landing/features_section.html:12
+msgid "Sector coupling"
+msgstr "Sektorkopplung"
+
+#: templates/landing/cellular.html:75
+msgid ""
+"The tool is used for the optimized planning of energy cells for the "
+"(partial) supply of electricity and heat to neighborhoods, commercial parks "
+"and industry in Germany. As active subsystems, energy cells can facilitate "
+"the integration of renewable energies and significantly reduce the need for "
+"grid expansion, since they can be planned and controlled in relation to each "
+"other."
+msgstr ""
+"Das Tool wird zur optimierten Planung von Energiezellen für die (Teil-) "
+"Versorgung des Strom- und Wärmebedarfs von Quartieren, Gewerbehöfen und "
+"Industrie in Deutschland eingesetzt. Energiezellen können als aktive "
+"Teilsysteme die Integration erneuerbarer Energien erleichtern und den "
+"Netzausbau erheblich reduzieren, da sie untereinander plan- und steuerbar sind."
+
+#: templates/landing/cellular.html:79 templates/landing/default.html:102
+msgid "Open licence"
+msgstr "Offene Lizenz"
+
+#: templates/landing/cellular.html:80
+msgid ""
+"The project follows the promising open science approach that RLI has already "
+"implemented in many projects, and all data, methods, and program codes are "
+"made available under a suitable open license. This ensures that scientific "
+"standards are met, because only results that have been generated with open "
+"and citable tools and data can be reproduced and duplicated in the field of "
+"software-based research."
+msgstr ""
+"Das Projekt folgt dem vielversprechenden Open-Science-Ansatz, den das RLI "
+"bereits in vielen Projekten umgesetzt hat, und alle Daten, Methoden und "
+"Programmcodes unter einer geeigneten offenen Lizenz zur Verfügung stellt. "
+"Damit wird wissenschaftlichen Standards entsprochen, denn nur Ergebnisse, "
+"die mit offenen und zitierfähigen Werkzeugen und Daten erzeugt wurden, "
+"können im Bereich der softwarebasierten Forschung reproduziert und "
+"vervielfältigt werden."
+
+#: templates/landing/cellular.html:84
+msgid "Stakeholder dialogue"
+msgstr "Stakeholder-Dialog"
+
+#: templates/landing/cellular.html:85
+msgid ""
+"Through close collaboration within the consortium and with a wide range of "
+"stakeholders and users, the research network was expanded and a broad range "
+"of new, important, and explicitly application-oriented research questions "
+"were developed."
+msgstr ""
+"Durch die enge Zusammenarbeit innerhalb des Konsortiums und mit einem "
+"breiten Spektrum von Stakeholdern und Nutzer*innen wurde das "
+"Forschungsnetzwerk erweitert und ein breites Feld neuer, bedeutender "
+"und explizit anwendungsorientierter Forschungsfragen erschlossen."
+
+#: templates/landing/cellular.html:96
+msgid "Related projects (NEED UPDATE)"
+msgstr "Verwandte Projekte"
+
+#: templates/landing/cellular.html:106
+msgid ""
+"UPDATE Open and cross-sectoral planning of transmission and distribution "
+"grids"
+msgstr ""
+
+#: templates/landing/cellular.html:111 templates/landing/cellular.html:128
+msgid "Visit website"
+msgstr "Webseite besuchen"
+
+#: templates/landing/cellular.html:123
+msgid ""
+"UPDATE Toolbox for the low-carbon and climate-resistant transition of energy "
+"systems, which considers technical, social, and economic aspects equally"
+msgstr ""
+
+#: templates/landing/cellular.html:140
+msgid ""
+"UPDATE Model experiment to compare and determine synergy potentials of open-"
+"source frameworks in energy system analysis"
+msgstr ""
+
+#: templates/landing/cellular.html:145
+msgid "See project"
+msgstr "Projekt seite besuchen"
 
 #: templates/landing/commune.html:6
 msgid "Commune"
 msgstr "Kommune"
 
 #: templates/landing/commune.html:21
-msgid "Something about KEP"
-msgstr "Etwas über KWP"
+msgid "Expand your municipal heating plan with open-plan-tool"
+msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mitopen-plan-tool"
 
-#: templates/landing/commune.html:22
-msgid "tbd"
-msgstr "tdb"
+#: templates/landing/commune.html:36
+msgid "The open-plan-tool is targeted at:"
+msgstr "Das OpenPlanTool richtet sich an:"
+
+#: templates/landing/commune.html:41
+msgid "Communes"
+msgstr "Kommunen"
+
+#: templates/landing/commune.html:45
+msgid "Energy suppliers"
+msgstr "Energieversorger"
+
+#: templates/landing/commune.html:49
+msgid "Planning offices"
+msgstr "Planungsbüros"
+
+#: templates/landing/commune.html:53
+msgid "Actors involved in municipal heating planning"
+msgstr "Akteure rund um die kommunale Wärmeplanung"
+
+#: templates/landing/commune.html:60
+msgid ""
+"\n"
+"\t\t\t<p>It is already possible to map <b>a municipality's energy system</b> "
+"(electricity, heat, mobility) in order to better plan the transformation "
+"under the current framework conditions.</p>\n"
+"\t\t\t<p>As part of a three-year project <b>until the end of 2027</b>, the "
+"tool will be even better adapted to the <b>needs of municipal heating "
+"planning</b>. During this time, you will have the opportunity to test the "
+"tool and contribute your experiences to the development process. Subscribe "
+"to our newsletter to stay up to date on the project.</p>\n"
+"\t\t\t<p>OpenPlan is easy to use thanks to its <b>graphical, web-based "
+"interface</b>. However, we also provide support ranging from introductory "
+"training to the initial creation of an energy system and a complete analysis."
+"</p>\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t<p>Schon aktuell ist es möglich <b>das Energiesystem</b> (Strom, Wärme, "
+"Mobilität) <b>einer Kommune abzubilden</b>, um die Transformation unter den "
+"aktuellen Rahmenbedingungen besser planen zu können.</p>\n"
+"\t\t\t<p>Im Rahmen eines dreijährigen Projekts <b>bis Ende 2027</b>, wird "
+"das Tool noch besser auf die <b>Bedürfnisse der Kommunalen Wärmeplanung "
+"angepasst</b>. In dieser Zeit haben Sie die Möglichkeit das Tool zu testen "
+"und ihre Erfahrungen in den Entwicklungsprozess einzubringen. Nutzen Sie "
+"unseren Newsletter, um jederzeit über den aktuellen Stand des Projekts "
+"informiert zu bleiben.</p>\n"
+"\t\t\t<p>Durch die <b>grafische, webbasierte Oberfläche</b> ist OpenPlan "
+"einfach zu nutzen. Darüber hinaus stellen wir aber auch Hilfsangebote "
+"von der einführenden Schulung, über die initiale Erstellung eines "
+"Energiesystems bis zur vollständigen Analyse bereit.</p>\n"
+"\t\t\t"
 
 #: templates/landing/default.html:22
 msgid "Model your local energy system"
@@ -1162,15 +1396,12 @@ msgid ""
 "accessible for use in complex models."
 msgstr ""
 "Das open-plan-tool bietet eine intuitive und benutzerfreundliche Oberfläche, "
-"die es Nutzer:innen ermöglicht, Energiesysteme mithilfe von Drag-&-Drop-Funktionen "
-"einfach zu gestalten. Es sind keine Programmierkenntnisse erforderlich, was den "
-"Einstieg erleichtert und die Nutzung auch für komplexe Modelle zugänglich macht."
+"die es Nutzer:innen ermöglicht, Energiesysteme mithilfe von Drag-&-Drop-"
+"Funktionen einfach zu gestalten. Es sind keine Programmierkenntnisse "
+"erforderlich, was den Einstieg erleichtert und die Nutzung auch für komplexe "
+"Modelle zugänglich macht."
 
-#: templates/landing/default.html:108
-msgid "Open licence"
-msgstr "Offene Lizenz"
-
-#: templates/landing/default.html:110
+#: templates/landing/default.html:104
 msgid ""
 "The open_plan project follows the open science approach and is based on the "
 "open energy modeling framework (oemof). All data, methods and source code "
@@ -1202,23 +1433,79 @@ msgstr ""
 "bietet. So fördert das Tool die Entwicklung innovativer Energiesysteme für "
 "verschiedene Anwendungsbereiche."
 
-#: templates/landing/default.html:130
-msgid "Target groups"
+#: templates/landing/default.html:121
+msgid "Target Groups"
 msgstr "Zielgruppen"
 
-#: templates/landing/default.html:145
+#: templates/landing/default.html:183
+msgid "Related content"
+msgstr "Weiterführende Inhalte"
+
+#: templates/landing/default.html:190
+msgid "Usecases"
+msgstr "Anwendungsfälle"
+
+#: templates/landing/default.html:196
+msgid "user Manual"
+msgstr "Handbuch"
+
+#: templates/landing/default.html:211
+msgid "Video-Tutorials"
+msgstr "Video-Tutorials"
+
+#: templates/landing/dev_section.html:5
+msgid ""
+"Would you like to be involved in the further development of the open-plan "
+"tool?"
+msgstr "Sie möchten an der Weiterentwicklung des open-plan-tools mitwirken?"
+
+#: templates/landing/dev_section.html:16
+msgid ""
+"You can follow the current project progress in our freely accessible "
+"repository."
+msgstr ""
+"Über unser frei zugängliches Repository können Sie den aktuellen "
+"Projektfortschritt mitverfolgen"
+
+#: templates/landing/dev_section.html:17
+msgid "GitHub"
+msgstr "GitHub"
+
+#: templates/landing/dev_section.html:21
+msgid ""
+"Please feel free to contact us if you would like to develop further "
+"functionalities together with us."
+msgstr ""
+"Nehmen Sie gerne Kontakt mit uns auf, wenn Sie gemeinsam mit uns weitere "
+"Funktionalitäten entwickeln möchten"
+
+#: templates/landing/dev_section.html:22
+msgid "New features"
+msgstr "Neue Funktionen"
+
+#: templates/landing/dev_section.html:26
+msgid ""
+"We publish relevant reports, summaries and scientific papers here on our "
+"website."
+msgstr ""
+"Relevante Berichte, Zusammenfassungen und wissenschaftliche Arbeiten "
+"veröffentlichen wir hier über unsere Webseite."
+
+#: templates/landing/dev_section.html:27
+msgid "Publications"
+msgstr "Veröffentlichungen"
+
+#: templates/landing/features_section.html:7
 msgid "Features"
 msgstr "Funktionnen"
 
-#: templates/landing/default.html:152
-msgid "Sector coupling"
-msgstr "Sektorkopplung"
-
-#: templates/landing/default.html:154
+#: templates/landing/features_section.html:14
 msgid ""
 "Combination of different generation components and demand categories for "
 "designing optimized systems and operational strategies"
 msgstr ""
+"Kombination verschiedener Erzeugungskomponenten und Bedarfskategorien "
+"zur Gestaltung optimierter Systeme und Betriebsstrategien"
 
 #: templates/landing/features_section.html:19
 msgid "Data management"
@@ -1241,9 +1528,8 @@ msgid ""
 "An automated creation of scenarios allows for an easy comparison of "
 "different options and to understand sensitivities"
 msgstr ""
-"Eine automatisierte Erstellung von Szenarien ermöglicht einen "
-"einfachen Vergleich verschiedener Optionen und das Verständnis "
-"von Sensitivitäten"
+"Eine automatisierte Erstellung von Szenarien ermöglicht einen einfachen "
+"Vergleich verschiedener Optionen und das Verständnis von Sensitivitäten"
 
 #: templates/landing/features_section.html:33
 msgid "Reproducibility"
@@ -1266,9 +1552,9 @@ msgid ""
 "A wide variety of different energy systems requires modular components to "
 "map different degrees of complexity and framework conditions"
 msgstr ""
-"Eine große Vielfalt an unterschiedlichen Energiesystemen erfordert modulare"
-"Komponenten, um unterschiedliche Komplexitätsgrade und Rahmenbedingungen "
-"abzubilden"
+"Eine große Vielfalt an unterschiedlichen Energiesystemen erfordert "
+"modulareKomponenten, um unterschiedliche Komplexitätsgrade und "
+"Rahmenbedingungen abzubilden"
 
 #: templates/landing/features_section.html:47
 msgid "User friendliness"
@@ -1308,72 +1594,31 @@ msgstr ""
 "Standardisierte Formate ermöglichen eine einfache Einbindung von externen "
 "Datenbanken und weiteren Tools aus der Energiesystemanalyse"
 
-#: templates/landing/default.html:280
-msgid "Related content"
-msgstr "Weiterführende Inhalte"
+#: templates/landing/logos_open_plan1.html:6
+msgid "About the project"
+msgstr "Über das Projekt"
 
-#: templates/landing/default.html:283
-msgid "Usecases"
-msgstr "Anwendungsfälle"
-
-#: templates/landing/default.html:284
-msgid "user Manual"
-msgstr "Handbuch"
-
-#: templates/landing/default.html:285
-msgid "Video-Tutorials"
-msgstr "Video-Tutorials"
-
-#: templates/landing/default.html:299
+#: templates/landing/logos_open_plan1.html:9
 msgid ""
-"Would you like to be involved in the further development of the open-plan "
-"tool?"
+"The functions for planning cellular energy systems were developed in the "
+"context of the open_plan 1.0 research project. The project consortium "
+"consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy "
+"Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). "
+"It was funded from January 2020 to June 2023 as part of the 'Technology-"
+"oriented Systems Analysis' funding area of the BMWi's 7th Energy Research "
+"Program 'Innovation for the Energy Transition.' "
 msgstr ""
-"Sie möchten an der Weiterentwicklung des open-plan-tools mitwirken?"
-
-#: templates/landing/default.html:303
-msgid "GitHub"
-msgstr "GitHub"
-
-#: templates/landing/default.html:304
-msgid ""
-"You can follow the current project progress in our freely accessible "
-"repository."
-msgstr ""
-"Über unser frei zugängliches Repository können Sie den aktuellen "
-"Projektfortschritt mitverfolgen"
-
-#: templates/landing/default.html:307
-msgid "New features"
-msgstr "Neue Funktionen"
-
-#: templates/landing/default.html:308
-msgid ""
-"Please feel free to contact us if you would like to develop further "
-"functionalities together with us."
-msgstr ""
-"Nehmen Sie gerne Kontakt mit uns auf, wenn Sie gemeinsam mit uns weitere "
-"Funktionalitäten entwickeln möchten"
-
-#: templates/landing/default.html:311
-msgid "Publications"
-msgstr "Veröffentlichungen"
-
-#: templates/landing/default.html:312
-msgid ""
-"We publish relevant reports, summaries and scientific papers here on our "
-"website."
-msgstr ""
-"Relevante Berichte, Zusammenfassungen und wissenschaftliche Arbeiten "
-"veröffentlichen wir hier über unsere Webseite."
+"Die Funktionen zur Planung zellularer Energiesysteme wurden im Kontext des "
+"Forschungsvorhabens open_plan 1.0 entwickelt. Das Projektkonsortium bestand "
+"aus dem Reiner Lemoine Institut (RLI), der Deutschen Gesellschaft für "
+"Sonnenenergie (DGS) und dem Potsdam Institut für Klimafolgenforschung (PIK). "
+"Es wurde von Januar 2020 bis Juni 2023 im Rahmen des Förderbereichs "
+"'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms "
+"des BMWi 'Innovation für die Energiewende' gefördert. "
 
 #: templates/landing/newsletter.html:5
 msgid "Register to our Newsletter"
 msgstr "Newsletter abonnieren"
-
-#: templates/landing/newsletter.html:15
-msgid "E-mail"
-msgstr "E-Mail"
 
 #: templates/landing/newsletter.html:10
 msgid "Register"
