@@ -11,7 +11,7 @@
     {% setvar "" as navbar_class %}
 {% endif %}
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }}">
+<nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }} navbar2">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'project_search' %}">
             <img src="{% static 'assets/logos/open_plan_logo_horizontal.svg' %}" alt="open_plan Logo">
@@ -22,13 +22,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
 							{% if not scenario_create %}
-							      <li class="nav-item dropdown">
-											<select>
-												<option class="nav-link">
+							      <li class="nav-item">
+											<select class="form-select">
+												<option>
 													<a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
 
 												</option>
-												<option class="nav-link">
+												<option>
 													<a class="nav-link" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a>
 
 												</option>
@@ -107,7 +107,7 @@
                     </li>
                     <li class="nav-item">
                         <!-- pages/signup.html -->
-                        <a class="btn btn--small" href="{% url 'signup' %}" role="button">{% translate "Sign up" %}</a>
+                        <a class="btn btn--small btn--secondary" href="{% url 'signup' %}" role="button">{% translate "Sign up" %}</a>
                     </li>
                 {% endif %}
             </ul>
