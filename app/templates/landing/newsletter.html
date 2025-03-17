@@ -6,7 +6,10 @@
 		</div>
 		<form class="newsletter2__form" method="post" action="https://flow.cleverreach.com/fl/a176f5ea-761f-432f-8eec-b38a043ce09e/confirm">
 			<input type="text" tabindex="-1" autocomplete="false" style="display:none !important;" class="cr-nope" name="email_confirm">
-			<input type="email" placeholder="name@email.com" name="email" required="" style="padding:0.36rem;width:20rem;border: 1px solid #ced4da;border-radius: .25rem; ">
+			<input type="email" placeholder="name@email.com" name="email" required="" >
+			<input type="checkbox" name="accept_privacy" required="" id="id_accept_privacy">
+			<label for="id_accept_privacy">
+                    {% translate 'I have read and accept the privacy statement <a target="_blank" href="/en/privacy/"></a> from open_plan<span class="asteriskField">*</span>' %} </label>
 			<button type="submit">{% translate "Register" %}</button>
 		</form>
 	</div>
