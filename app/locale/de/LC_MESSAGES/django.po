@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-14 21:41+0100\n"
+"POT-Creation-Date: 2025-03-20 21:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1002,25 +1002,25 @@ msgstr "Hochladen"
 msgid "Select"
 msgstr "Auswählen"
 
-#: templates/base.html:89
+#: templates/base.html:84
 msgid "About"
 msgstr ""
 
-#: templates/base.html:90 templates/legal/contact.html:21
+#: templates/base.html:85 templates/legal/contact.html:21
 #: templates/navbar.html:52 templates/navbar.html:90
 msgid "Contact"
 msgstr "Kontakt"
 
-#: templates/base.html:91 templates/legal/license.html:13
+#: templates/base.html:86 templates/legal/license.html:13
 #: templates/navbar.html:89
 msgid "License"
 msgstr "Lizenz"
 
-#: templates/base.html:92 templates/legal/imprint.html:12
+#: templates/base.html:87 templates/legal/imprint.html:12
 msgid "Imprint"
 msgstr "Impressum"
 
-#: templates/base.html:93
+#: templates/base.html:88
 msgid "Privacy"
 msgstr "Datenschutz"
 
@@ -1120,8 +1120,8 @@ msgid ""
 "If you want to collaborate or are interested in the project, you can find "
 "more information on:"
 msgstr ""
-"Wenn Sie mitarbeiten möchten oder sich für das Projekt interessieren, "
-"finden Sie weitere Informationen unter:"
+"Wenn Sie mitarbeiten möchten oder sich für das Projekt interessieren, finden "
+"Sie weitere Informationen unter:"
 
 #: templates/landing/cellular.html:5
 msgid "Cellular"
@@ -1164,8 +1164,9 @@ msgid ""
 "The cellular approach is based on the principle of subsidiarity, with energy "
 "supply and demand being balanced as closely as possible at the local level."
 msgstr ""
-"Der Grundgedanke basiert auf dem Subsidiaritätsprinzip, mit dem Energieangebot "
-"und -nachfrage so weit wie möglich auf lokaler Ebene ausgeglichen werden."
+"Der Grundgedanke basiert auf dem Subsidiaritätsprinzip, mit dem "
+"Energieangebot und -nachfrage so weit wie möglich auf lokaler Ebene "
+"ausgeglichen werden."
 
 #: templates/landing/cellular.html:49
 msgid ""
@@ -1238,7 +1239,8 @@ msgstr ""
 "Versorgung des Strom- und Wärmebedarfs von Quartieren, Gewerbehöfen und "
 "Industrie in Deutschland eingesetzt. Energiezellen können als aktive "
 "Teilsysteme die Integration erneuerbarer Energien erleichtern und den "
-"Netzausbau erheblich reduzieren, da sie untereinander plan- und steuerbar sind."
+"Netzausbau erheblich reduzieren, da sie untereinander plan- und steuerbar "
+"sind."
 
 #: templates/landing/cellular.html:79 templates/landing/default.html:102
 msgid "Open licence"
@@ -1274,8 +1276,8 @@ msgid ""
 msgstr ""
 "Durch die enge Zusammenarbeit innerhalb des Konsortiums und mit einem "
 "breiten Spektrum von Stakeholdern und Nutzer*innen wurde das "
-"Forschungsnetzwerk erweitert und ein breites Feld neuer, bedeutender "
-"und explizit anwendungsorientierter Forschungsfragen erschlossen."
+"Forschungsnetzwerk erweitert und ein breites Feld neuer, bedeutender und "
+"explizit anwendungsorientierter Forschungsfragen erschlossen."
 
 #: templates/landing/cellular.html:96
 msgid "Related projects (NEED UPDATE)"
@@ -1353,9 +1355,9 @@ msgid ""
 "\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t<p>Schon aktuell ist es möglich <b>das Energiesystem</b> (Strom, Wärme, "
-"Mobilität) <b>einer Kommune abzubilden</b>, um die Transformation unter den "
-"aktuellen Rahmenbedingungen besser planen zu können.</p>\n"
+"\t\t\t<p>Schon aktuell ist es möglich <b>das Energiesystem</b> (Strom, "
+"Wärme, Mobilität) <b>einer Kommune abzubilden</b>, um die Transformation "
+"unter den aktuellen Rahmenbedingungen besser planen zu können.</p>\n"
 "\t\t\t<p>Im Rahmen eines dreijährigen Projekts <b>bis Ende 2027</b>, wird "
 "das Tool noch besser auf die <b>Bedürfnisse der Kommunalen Wärmeplanung "
 "angepasst</b>. In dieser Zeit haben Sie die Möglichkeit das Tool zu testen "
@@ -1363,9 +1365,9 @@ msgstr ""
 "unseren Newsletter, um jederzeit über den aktuellen Stand des Projekts "
 "informiert zu bleiben.</p>\n"
 "\t\t\t<p>Durch die <b>grafische, webbasierte Oberfläche</b> ist OpenPlan "
-"einfach zu nutzen. Darüber hinaus stellen wir aber auch Hilfsangebote "
-"von der einführenden Schulung, über die initiale Erstellung eines "
-"Energiesystems bis zur vollständigen Analyse bereit.</p>\n"
+"einfach zu nutzen. Darüber hinaus stellen wir aber auch Hilfsangebote von "
+"der einführenden Schulung, über die initiale Erstellung eines Energiesystems "
+"bis zur vollständigen Analyse bereit.</p>\n"
 "\t\t\t"
 
 #: templates/landing/default.html:22
@@ -1504,8 +1506,8 @@ msgid ""
 "Combination of different generation components and demand categories for "
 "designing optimized systems and operational strategies"
 msgstr ""
-"Kombination verschiedener Erzeugungskomponenten und Bedarfskategorien "
-"zur Gestaltung optimierter Systeme und Betriebsstrategien"
+"Kombination verschiedener Erzeugungskomponenten und Bedarfskategorien zur "
+"Gestaltung optimierter Systeme und Betriebsstrategien"
 
 #: templates/landing/features_section.html:19
 msgid "Data management"
@@ -1613,16 +1615,25 @@ msgstr ""
 "aus dem Reiner Lemoine Institut (RLI), der Deutschen Gesellschaft für "
 "Sonnenenergie (DGS) und dem Potsdam Institut für Klimafolgenforschung (PIK). "
 "Es wurde von Januar 2020 bis Juni 2023 im Rahmen des Förderbereichs "
-"'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms "
-"des BMWi 'Innovation für die Energiewende' gefördert. "
+"'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms des "
+"BMWi 'Innovation für die Energiewende' gefördert. "
 
-#: templates/landing/newsletter.html:5
+#: templates/landing/newsletter.html:6
 msgid "Register to our Newsletter"
 msgstr "Newsletter abonnieren"
 
-#: templates/landing/newsletter.html:10
+#: templates/landing/newsletter.html:12
 msgid "Register"
 msgstr "Abonnieren"
+
+#: templates/landing/newsletter.html:18
+#, python-format
+msgid ""
+" I have read and accept the <a target=\"_blank\" href=\"%(url)s\">privacy "
+"statement </a> from open_plan<span class=\"asteriskField\">*</span> "
+msgstr ""
+"Ich habe die <a target='_blank' href=\"%(url)s\">Datenschutzbestimmungen</a> "
+"von open_plan gelesen und akzeptiert."
 
 #: templates/legal/about.html:10
 msgid "About us - open_plan"
