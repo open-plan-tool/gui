@@ -5,12 +5,18 @@
 			<h2>{% translate "Register to our Newsletter" %}</h2>
 		</div>
 		<form class="newsletter2__form" method="post" action="https://flow.cleverreach.com/fl/a176f5ea-761f-432f-8eec-b38a043ce09e/confirm">
-			<input type="text" tabindex="-1" autocomplete="false" style="display:none !important;" class="cr-nope" name="email_confirm">
-			<input type="email" placeholder="name@email.com" name="email" required="" >
-			<input type="checkbox" name="accept_privacy" required="" id="id_accept_privacy">
-			<label for="id_accept_privacy">
-                    {% translate 'I have read and accept the privacy statement <a target="_blank" href="/en/privacy/"></a> from open_plan<span class="asteriskField">*</span>' %} </label>
-			<button type="submit">{% translate "Register" %}</button>
+			<span class="newsletter2__form--input">
+				<input type="text" tabindex="-1" autocomplete="false" style="display:none !important;" class="cr-nope" name="email_confirm">
+				<input class="newsletter2__form--email" type="email" placeholder="name@email.com" name="email" required="" >
+				<button type="submit">{% translate "Register" %}</button>
+			</span>
+			<span class="newsletter2__form--privacy">
+				<input type="checkbox" name="accept_privacy" required="" id="id_accept_privacy">
+				<label for="id_accept_privacy">
+        	{% translate 'I have read and accept the privacy statement <a target="_blank" href="/en/privacy/"></a> from open_plan<span class="asteriskField">*</span>' %}
+				</label>
+			</span>
+
 		</form>
 	</div>
 </section>

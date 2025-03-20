@@ -3182,11 +3182,16 @@ nav.navbar {
       color: #fff; }
   .newsletter2__form {
     display: flex;
-    justify-content: center;
-    gap: 1rem; }
-    .newsletter2__form input {
-      width: 300px;
-      max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; }
+    .newsletter2__form--input {
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+      max-width: 50rem; }
+    .newsletter2__form--email {
+      width: 100%;
       padding: 0.75rem;
       font-size: 1rem;
       border: none;
@@ -3204,6 +3209,17 @@ nav.navbar {
       transition: background 0.3s ease-in-out; }
       .newsletter2__form button:hover {
         background-color: #d2d7ea; }
+    .newsletter2__form--privacy {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 50rem;
+      color: #fff;
+      font-size: 0.875rem;
+      text-align: left; }
+      .newsletter2__form--privacy input {
+        width: auto !important; }
   @media (max-width: 768px) {
     .newsletter2__form {
       flex-direction: column;
