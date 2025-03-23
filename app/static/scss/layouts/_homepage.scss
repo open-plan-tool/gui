@@ -899,6 +899,17 @@
       input {
         width: auto !important;
       }
+
+      label:active,
+      label:focus {
+        color: $white;
+      }
+
+      a {
+        color: $white !important;
+        font-weight: 700;
+        text-decoration: underline !important;
+      }
     }
   }
 

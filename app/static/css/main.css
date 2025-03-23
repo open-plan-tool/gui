@@ -3220,6 +3220,13 @@ nav.navbar {
       text-align: left; }
       .newsletter2__form--privacy input {
         width: auto !important; }
+      .newsletter2__form--privacy label:active,
+      .newsletter2__form--privacy label:focus {
+        color: #fff; }
+      .newsletter2__form--privacy a {
+        color: #fff !important;
+        font-weight: 700;
+        text-decoration: underline !important; }
   @media (max-width: 768px) {
     .newsletter2__form {
       flex-direction: column;
