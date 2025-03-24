@@ -1509,6 +1509,19 @@ def upload_timeseries(request):
             ts.user = request.user
 
 
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def get_timeseries(request, ts_id=None):
+    if request.method == "GET":
+        # TODO prevent user to get it is no access rights
+        # ts.user = request.user
+        if ts_id is not None:
+            ts = Timeseries.objects.get(id=ts_id)
+            # import pdb;pdb.set_trace()
+            return JsonResponse({"values": ts.get_values})
+
+
 # region Asset
 
 

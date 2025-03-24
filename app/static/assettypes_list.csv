@@ -24,7 +24,7 @@ geothermal_conversion,energy_production,Electricity,source,"[name,age_installed,
 solar_thermal_plant,energy_production,Heat,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",m³
 charging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW
 discharging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW
-capacity,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",kWh
+capacity,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,soc_initial,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",kWh
 bess,energy_storage,Electricity,storage,[name],kW (el)
 gess,energy_storage,Gas,storage,[name],l
 h2ess,energy_storage,H2,storage,[name],kgH2

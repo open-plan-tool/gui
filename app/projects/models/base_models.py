@@ -467,6 +467,13 @@ class Asset(TopologyNode):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
+
+    #
+    # soc_initial = models.FloatField(
+    #     null=True,
+    #     blank=False,
+    #     validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    # )
     dispatchable = models.BooleanField(
         null=True, blank=False, choices=TRUE_FALSE_CHOICES, default=None
     )

@@ -35,6 +35,9 @@ from projects.helpers import (
     DualNumberField,
     parse_input_timeseries,
     TimeseriesField,
+    TS_SELECT_TYPE,
+    TS_UPLOAD_TYPE,
+    TS_MANUAL_TYPE,
 )
 
 
@@ -701,9 +704,13 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["input_timeseries"] = TimeseriesField(
                 qs_ts=Timeseries.objects.filter(
                     Q(ts_type=self.asset_type.mvs_type)
-                    & (Q(open_source=True) | Q(user=self.user)),
-                )
+                    & (Q(open_source=True) | Q(user=self.user))
+                ),
+                default=0,
+                param_name="input_timeseries",
+                asset_type=self.asset_type_name,
             )
+            # TODO here one can play with min, max, max_length as kwargs
 
         self.fields["inputs"] = forms.CharField(
             widget=forms.HiddenInput(), required=False
@@ -916,14 +923,15 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
         if "input_timeseries" in cleaned_data:
+            # TODO add either a checkbox or a user setting to save ts to model
             ts_data = json.loads(cleaned_data["input_timeseries"])
             input_method = ts_data["input_method"]["type"]
-            if input_method == "upload" or input_method == "manual":
+            if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                 # replace the dict with a new timeseries instance
-                cleaned_data["input_timeseries"] = self.create_timeseries_from_input(
+                cleaned_data["input_timeseries"] = self.assign_timeseries_from_input(
                     ts_data
                 )
-            if input_method == "select":
+            if input_method == TS_SELECT_TYPE:
                 # return the timeseries instance
                 timeseries_id = ts_data["input_method"]["extra_info"]
                 cleaned_data["input_timeseries"] = Timeseries.objects.get(
@@ -932,18 +940,26 @@ class AssetCreateForm(OpenPlanModelForm):
 
         return cleaned_data
 
-    def create_timeseries_from_input(self, input_timeseries):
-        timeseries_name = input_timeseries["input_method"]["extra_info"]
+    def assign_timeseries_from_input(self, input_timeseries):
+        # Assign the existing timeseries if already uploaded by the same user, else create a new instance
+        timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
         timeseries_values = input_timeseries["values"]
-        ts_instance = Timeseries.objects.create(
-            user=self.user,
-            name=timeseries_name,
-            ts_type=self.asset_type.mvs_type,
+
+        if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
+            timeseries_name = f"constant value = {timeseries_values[0]}"
+            timeseries_values = len(self.timestamps) * timeseries_values
+
+        timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
-            open_source=False,
+            user=self.user,
+            defaults={
+                "name": timeseries_name,
+                "ts_type": self.asset_type.mvs_type,
+                "open_source": False,
+            },
         )
 
-        return ts_instance
+        return timeseries
 
     def timeseries_same_as_timestamps(self, ts, param):
         if isinstance(ts, np.ndarray):
@@ -1108,6 +1124,7 @@ class StorageForm(AssetCreateForm):
         "efficiency",
         "soc_max",
         "soc_min",
+        "soc_initial",
         "dispatchable",
     ]
 
