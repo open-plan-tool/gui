@@ -362,7 +362,6 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
-
 class AssetType(models.Model):
     asset_type = models.CharField(
         max_length=30, choices=ASSET_TYPE, null=False, unique=True
@@ -447,7 +446,9 @@ class Asset(TopologyNode):
     input_timeseries_old = models.TextField(
         null=True, blank=False
     )  # , validators=[validate_timeseries])
-    input_timeseries = models.ForeignKey(Timeseries, on_delete=models.CASCADE, null=True, blank=False)
+    input_timeseries = models.ForeignKey(
+        Timeseries, on_delete=models.CASCADE, null=True, blank=False
+    )
     crate = models.FloatField(
         null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
     )

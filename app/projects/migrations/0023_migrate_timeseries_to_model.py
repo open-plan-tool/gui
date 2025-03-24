@@ -59,7 +59,9 @@ def convert_timeseries_to_model(apps, schema_editor):
 
         # Batch update all assets in one query
         if updated_assets:
-            Asset.objects.using(db_alias).bulk_update(updated_assets, ["input_timeseries"])
+            Asset.objects.using(db_alias).bulk_update(
+                updated_assets, ["input_timeseries"]
+            )
 
 
 def reverse_timeseries_conversion(apps, schema_editor):
