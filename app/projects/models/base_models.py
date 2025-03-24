@@ -314,9 +314,9 @@ class Timeseries(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
     )
     # TODO check that if both a user and scenario are provided the scenario belongs to the user
-    # scenario = models.ForeignKey(
-    #     Scenario, on_delete=models.CASCADE, null=True, blank=True
-    # )
+    scenario = models.ForeignKey(
+        Scenario, on_delete=models.CASCADE, null=True, blank=True
+    )
     ts_type = models.CharField(max_length=12, choices=MVS_TYPE, blank=True, null=True)
 
     open_source = models.BooleanField(
@@ -324,19 +324,18 @@ class Timeseries(models.Model):
     )
 
     # get this from the scenario
-    # TODO rename with _date instead of _time
-    start_time = models.DateTimeField(blank=True, default=None, null=True)
-    end_time = models.DateTimeField(blank=True, default=None, null=True)
+    start_date = models.DateTimeField(blank=True, default=None, null=True)
+    end_date = models.DateTimeField(blank=True, default=None, null=True)
     time_step = models.IntegerField(
         blank=True, default=None, null=True, validators=[MinValueValidator(1)]
     )
 
+    def __str__(self):
+        return f"{self.name} ({self.pk})"
+
     def save(self, *args, **kwargs):
-        n = len(self.values)
-        if n == 1:
-            self.ts_type = "scalar"
-        elif n > 1:
-            self.ts_type = "vector"
+        # set time attributes
+        self.set_date_attributes_from_scenario()
         super().save(*args, **kwargs)
 
     @property
@@ -350,8 +349,17 @@ class Timeseries(models.Model):
     def compute_time_attribute_from_timestamps(self, timestamps):
         pass
 
-    def compute_end_time_from_duration(self, duration):
-        pass
+    def compute_end_date_from_duration(self):
+        duration = self.scenario.evaluated_period
+        total_duration = timedelta(hours=self.time_step) * duration
+        end_time = self.start_date + total_duration
+        return end_time
+
+    def set_date_attributes_from_scenario(self):
+        if self.scenario is not None:
+            self.start_date = self.scenario.start_date
+            self.time_step = self.scenario.time_step
+            self.end_date = self.compute_end_date_from_duration()
 
 
 class AssetType(models.Model):
@@ -435,9 +443,12 @@ class Asset(TopologyNode):
     lifetime = models.IntegerField(
         null=True, blank=False, validators=[MinValueValidator(0)]
     )
-    input_timeseries = models.TextField(
+    input_timeseries_old = models.TextField(
         null=True, blank=False
     )  # , validators=[validate_timeseries])
+    input_timeseries = models.ForeignKey(
+        Timeseries, on_delete=models.CASCADE, null=True, blank=False
+    )
     crate = models.FloatField(
         null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
     )
@@ -513,7 +524,7 @@ class Asset(TopologyNode):
             "efficiency_multiple",
             "energy_price",
             "feedin_tariff",
-            "input_timeseries",
+            "input_timeseries_old",
         ):
             try:
                 answer = float(answer)

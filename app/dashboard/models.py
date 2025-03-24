@@ -702,9 +702,9 @@ class AssetsResults(models.Model):
                                     MAP_EPA_MVS.get(sub_cat, sub_cat)
                                 )
                             if storage_subasset is not None:
-                                storage_subasset[
-                                    "category"
-                                ] = format_storage_subasset_name(category, sub_cat)
+                                storage_subasset["category"] = (
+                                    format_storage_subasset_name(category, sub_cat)
+                                )
                                 storage_subasset["type_oemof"] = asset["type_oemof"]
                                 storage_subasset["energy_vector"] = asset[
                                     "energy_vector"
@@ -766,10 +766,10 @@ class AssetsResults(models.Model):
                                 if storage_subasset is not None:
                                     if answer is None:
                                         answer = storage_subasset
-                                        answer[
-                                            "category"
-                                        ] = format_storage_subasset_name(
-                                            category, sub_cat
+                                        answer["category"] = (
+                                            format_storage_subasset_name(
+                                                category, sub_cat
+                                            )
                                         )
                                         answer["energy_vector"] = asset["energy_vector"]
                                         break

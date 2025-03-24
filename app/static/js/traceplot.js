@@ -67,37 +67,79 @@ function makePlotly( x, y, plot_id="",userLayout=null){
 };
 
 
-function selectExistingTimeseries(ts_id, param_name=""){
-    if(ts_id == ""){
-        console.log("placeholder here")
-    }
-    else{
-        console.log(ts_id);
-        console.log(param_name);
-        // ajax call to get ts, then use plotDualInputTrace with select=true
-        $.ajax({
-            type: "GET",
-            url: tsGetUrl + ts_id,
-            success: function (resp) {
-                plotDualInputTrace(resp, param_name, select=true)
-            },
-        });
-    }
+function getTimeseriesValues(ts_id, param_name=""){
+    //tsGetUrl is defined in scenario_step2.html
+    $.ajax({
+        type: "GET",
+        url: tsGetUrl + "/" + ts_id,
+        success: function (resp) {
 
-
+            ts_values = resp["values"];
+            console.log("retrieved values")
+            console.log(ts_values)
+            plotTimeseriesInputTrace(ts_values, param_name=param_name)
+        },
+    });
 }
+
+
 
 var PLOT_ID = "";
 
-/* Plot update of textinput field of DualInput field */
-function plotDualInputTrace(obj, param_name="", select=false){
-
-    if(select == true) {
-        // TODO in a different function, load the data from DB and then plot this data
-        var valueID = "id_" + param_name + "_0";
-        var value_input = document.getElementById(valueID);
-        value_input.value = obj;
+function changeTimeseriesSelectValue(ts_idx, param_name=""){
+    console.log("widget: select");
+    if(ts_idx == ""){
+        console.log("No timeseries selected");
     }
+    else{
+        ts_idx = JSON.parse(ts_idx);
+        console.log(ts_idx);
+        getTimeseriesValues(ts_idx,param_name=param_name);
+    }
+}
+function changeTimeseriesUploadValue(obj, param_name=""){
+    console.log("widget: upload");
+    plot_file_trace(obj, plot_id=param_name+'_trace');
+    var selectID = "id_" + param_name + "_1";
+    var select_input = document.getElementById(selectID);
+    select_input.value = "";
+    var manualID = "id_" + param_name + "_0";
+    var manual_input = document.getElementById(manualID);
+    manual_input.value = "";
+}
+function changeTimeseriesManualValue(obj, param_name=""){
+    console.log("widget: manual");
+    // this is hacky as select does not get triggered as changed
+    var selectID = "id_" + param_name + "_1";
+    var select_input = document.getElementById(selectID);
+    select_input.dispatchEvent(new Event('change'));
+}
+
+
+function plotTimeseriesInputTrace(ts_values,param_name=""){
+     // this refers to div id in the html template asset/dual_input.html
+    PLOT_ID = param_name + "_trace";
+
+    var graphDOM = document.getElementById(PLOT_ID);
+    if(Array.isArray(ts_values)){
+        myarray = []
+        ts_values.forEach(el => myarray.push([el]))
+        processData(myarray);
+        graphDOM.style.display = "block";
+    }
+    else{
+     graphDOM.style.display = "none";
+     // reset file in memory if the user inputs a scalar after uploading a file
+     var fileID = "id_" + param_name + "_2";
+     var file_input = document.getElementById(fileID);
+     file_input.value = "";
+    };
+
+}
+
+
+/* Plot update of textinput field of DualInput field */
+function plotDualInputTrace(obj, param_name=""){
 
     // TODO get the timeseries timestamps (if exists) from a hidden safejs div with the django tag method
     jsObj = JSON.parse(obj);
@@ -112,8 +154,6 @@ function plotDualInputTrace(obj, param_name="", select=false){
         graphDOM.style.display = "block";
     }
     else{
-     graphDOM.style.display = "none";
-     // reset file in memory if the user inputs a scalar after uploading a file
      var fileID = "id_" + param_name + "_1";
      var file_input = document.getElementById(fileID);
      file_input.value = "";

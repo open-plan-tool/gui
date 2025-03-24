@@ -1,2 +1,37 @@
-{% include "asset/ts_input_template.html" with user="user_one" %}
-<!-- TODO find a way to get the actual user as parameter from the TimeseriesInputWidget class-->
+{% load i18n %}
+<ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+
+	<li class="nav-item" role="presentation" title="{% translate 'Select a timeseries amongst the one below' %}">
+		<button class="nav-link active" id="select-tab" data-bs-toggle="tab" data-bs-target="#select" type="button" role="tab" aria-controls="select" aria-selected="true">{% translate "Select" %}</button>
+	</li>
+	<li class="nav-item" role="presentation" title="{% translate 'Upload a timeseries from a file' %}">
+		<button class="nav-link " id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="false">{% translate "Upload" %}</button>
+	</li>
+	<li class="nav-item" role="presentation" title="{% translate 'You can input a constant timeseries here: simply type in the number you want it will be turned into a timeseries upon save' %}">
+		<button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="false">{% translate "Constant value" %}</button>
+	</li>
+
+
+</ul>
+<div class="tab-content" id="myTabContent">
+	{% spaceless %}{% for widget in widget.subwidgets %}
+	{{ widget.id }}
+	{% if 'scalar' in widget.name %}
+
+	<div class="tab-pane fade" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+		{% include widget.template_name %}
+	</div>
+	{% elif 'select' in widget.name %}
+	<div class="tab-pane fade show active" id="select" role="tabpanel" aria-labelledby="select-tab">
+		{% include widget.template_name %}
+	</div>
+	{% else %}
+	<div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+		{% include widget.template_name %}
+	</div>
+	{% endif %}
+	{% endfor %}{% endspaceless %}
+</div>
+<div id="{{ widget.name }}_trace"></div>
+{% url 'get_timeseries' as ts_url %}
+{{ ts_url|json_script:"tsUrl" }}
