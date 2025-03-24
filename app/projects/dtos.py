@@ -88,7 +88,7 @@ class AssetDto:
         c_rate: ValueTypeDto,
         soc_max: ValueTypeDto,
         soc_min: ValueTypeDto,
-        soc_initial: ValueTypeDto,
+        # soc_initial: ValueTypeDto,
         development_costs: ValueTypeDto,
         dispatch_price: ValueTypeDto,
         efficiency: ValueTypeDto,
@@ -125,7 +125,7 @@ class AssetDto:
         self.c_rate = c_rate
         self.soc_max = soc_max
         self.soc_min = soc_min
-        self.soc_initial = soc_initial
+        # self.soc_initial = soc_initial
         self.development_costs = development_costs
         self.dispatch_price = dispatch_price
         self.efficiency = efficiency
@@ -371,7 +371,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 to_value_type(asset, "crate"),
                 to_value_type(asset, "soc_max"),
                 to_value_type(asset, "soc_min"),
-                to_value_type(asset, "soc_initial"),
+                # to_value_type(asset, "soc_initial"),
                 to_value_type(asset, "capex_fix"),
                 to_value_type(asset, "opex_var"),
                 efficiency,
@@ -565,7 +565,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             to_value_type(asset, "crate"),
             to_value_type(asset, "soc_max"),
             to_value_type(asset, "soc_min"),
-            to_value_type(asset, "soc_initial"),
+            # to_value_type(asset, "soc_initial"),
             to_value_type(asset, "capex_fix"),
             to_value_type(asset, "opex_var"),
             asset_efficiency,

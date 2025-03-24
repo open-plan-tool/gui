@@ -1124,7 +1124,7 @@ class StorageForm(AssetCreateForm):
         "efficiency",
         "soc_max",
         "soc_min",
-        "soc_initial",
+        # "soc_initial",
         "dispatchable",
     ]
 
