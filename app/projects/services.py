@@ -111,18 +111,20 @@ def send_email(to_email, subject, message):
         Success status (True: successful)
     """
     prefixed_subject = EMAIL_SUBJECT_PREFIX + subject
+    if isinstance(to_email, str):
+        to_email = [to_email]
 
     if USE_EXCHANGE_EMAIL_BACKEND is True:
         _message = MIMEMultipart()
         _message["From"] = EXCHANGE_EMAIL
-        _message["To"] = to_email
+        _message["To"] = ",".join(to_email)
         _message["Subject"] = prefixed_subject
         _message.attach(MIMEText(message, "plain"))
         with smtplib.SMTP(EXCHANGE_SERVER, 587) as server:
             server.starttls()
             try:
                 server.login(EXCHANGE_EMAIL, EXCHANGE_PW)
-                server.sendmail(EXCHANGE_EMAIL, _message["To"], _message.as_string())
+                server.sendmail(EXCHANGE_EMAIL, to_email, _message.as_string())
                 return True
             except smtplib.SMTPAuthenticationError as e:
                 err_msg = (
