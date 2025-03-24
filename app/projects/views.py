@@ -64,11 +64,35 @@ def not_implemented(request):
 
 
 @require_http_methods(["GET"])
-def home(request):
+def home(request, version=1):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("project_search"))
     else:
-        return render(request, "index.html")
+        return render(request, "index.html", {"version": version})
+
+
+@require_http_methods(["GET"])
+def landing_commune(request, version=1):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("project_search"))
+    else:
+        return render(request, "landing/commune.html", {"version": version})
+
+
+@require_http_methods(["GET"])
+def landing_cellular(request, version=1):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("project_search"))
+    else:
+        return render(request, "landing/cellular.html", {"version": version})
+
+
+@require_http_methods(["GET"])
+def landing_default(request, version=1):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("project_search"))
+    else:
+        return render(request, "landing/default.html", {"version": version})
 
 
 @login_required
@@ -453,7 +477,6 @@ def project_from_usecase(request, usecase_id=None):
     return HttpResponseRedirect(reverse("project_search", args=[proj_id]))
 
 
-@login_required
 @require_http_methods(["GET"])
 def usecase_export(request, usecase_id):
 
@@ -569,13 +592,10 @@ def project_duplicate(request, proj_id):
 
 
 # region Usecase
-@login_required
 @require_http_methods(["GET"])
 def usecase_search(request, usecase_id=None, scen_id=None):
 
     usecase_list = UseCase.objects.all()
-
-    print(usecase_list)
 
     return render(
         request,

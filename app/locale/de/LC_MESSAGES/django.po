@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-24 23:00+0200\n"
+"POT-Creation-Date: 2025-03-20 21:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr "Zeitreihenvariable(n)"
 msgid "Component(s)"
 msgstr "Komponente"
 
-#: dashboard/forms.py:176 projects/views.py:1402
+#: dashboard/forms.py:176 projects/views.py:1419
 #: templates/report/sensitivity_analysis.html:8
 msgid "Sensitivity analysis"
 msgstr "Sensitivitätsanalyse"
@@ -134,7 +134,7 @@ msgstr "Opt. Leis."
 msgid "You have no projects yet, please create a project first"
 msgstr "Sie haben derzeit keine Projekte, bitte erstellen Sie zuerst eines"
 
-#: dashboard/views.py:244
+#: dashboard/views.py:246
 msgid ""
 "An error occured. It might be because 1) your scenario was never simulated "
 "2) the results are still pending 3) there is an error in the simulation or "
@@ -155,33 +155,33 @@ msgstr ""
 "möglicherweise nützliche Informationen, wenn Sie trotzdem nicht herausfinden "
 "können, was falsch war, kontaktieren Sie bitte uns über das Feedback-Formular"
 
-#: dashboard/views.py:572
+#: dashboard/views.py:574
 #, python-brace-format
 msgid "Scenario {scen_id} was deselected"
 msgstr "Szenario {scen_id} wurde abgewählt"
 
-#: dashboard/views.py:574
+#: dashboard/views.py:576
 msgid "At least one scenario need to be selected"
 msgstr "Es muss mindestens ein Szenario ausgewählt werden"
 
-#: dashboard/views.py:578
+#: dashboard/views.py:580
 #, python-brace-format
 msgid "Scenario {scen_id} was selected"
 msgstr "Szenario {scen_id} wurde ausgewählt"
 
-#: dashboard/views.py:609
+#: dashboard/views.py:611
 msgid "Scenarios were updated"
 msgstr "Szenarien wurden aktualisiert"
 
-#: dashboard/views.py:830
+#: dashboard/views.py:833
 msgid "Discharge"
 msgstr "Entladen"
 
-#: dashboard/views.py:834
+#: dashboard/views.py:837
 msgid "Charge"
 msgstr "Aufladen"
 
-#: dashboard/views.py:1350 projects/views.py:1203
+#: dashboard/views.py:1355 projects/views.py:1220
 msgid ""
 "No scenario was available in the cache, try refreshing the page and make "
 "sure one scenario is selected."
@@ -237,75 +237,75 @@ msgstr "Wärmepumpe"
 msgid "Chiller"
 msgstr ""
 
-#: projects/forms.py:153 projects/forms.py:269 projects/forms.py:735
+#: projects/forms.py:154 projects/forms.py:270 projects/forms.py:736
 msgid "eg. 0.1"
 msgstr "z. B. 0.1"
 
-#: projects/forms.py:157
+#: projects/forms.py:158
 msgid "Investment Discount factor."
 msgstr "Investitionsabzinsungsfaktor."
 
-#: projects/forms.py:181
+#: projects/forms.py:182
 msgid "Project Name"
 msgstr "Projektname"
 
-#: projects/forms.py:184
+#: projects/forms.py:185
 msgid "Name..."
 msgstr "Name..."
 
-#: projects/forms.py:186
+#: projects/forms.py:187
 msgid "A self explanatory name for the project."
 msgstr "Ein selbsterklärender Name für das Projekt."
 
-#: projects/forms.py:191
+#: projects/forms.py:192
 msgid "Project Description"
 msgstr "Projektbeschreibung"
 
-#: projects/forms.py:194
+#: projects/forms.py:195
 msgid "More detailed description here..."
 msgstr ""
 
-#: projects/forms.py:197
+#: projects/forms.py:198
 msgid "A description of what this project objectives or test cases."
 msgstr "Eine Beschreibung der Ziele oder Testfälle dieses Projekts."
 
-#: projects/forms.py:203
+#: projects/forms.py:204
 msgid "Country"
 msgstr "Land"
 
-#: projects/forms.py:208
+#: projects/forms.py:209
 msgid "Name of the country where the project is being deployed"
 msgstr "Name des Landes, in dem das Projekt eingesetzt werden soll"
 
-#: projects/forms.py:213
+#: projects/forms.py:214
 msgid "Location, longitude"
 msgstr "Standort, Längengrad"
 
-#: projects/forms.py:216 projects/forms.py:229
+#: projects/forms.py:217 projects/forms.py:230
 msgid "click on the map"
 msgstr ""
 
-#: projects/forms.py:220
+#: projects/forms.py:221
 msgid "Longitude coordinate of the project's geographical location."
 msgstr "Längengradkoordinate des geografischen Standorts des Projekts."
 
-#: projects/forms.py:226
+#: projects/forms.py:227
 msgid "Location, latitude"
 msgstr "Standort Breitengrad"
 
-#: projects/forms.py:233
+#: projects/forms.py:234
 msgid "Latitude coordinate of the project's geographical location."
 msgstr "Breitengrad-Koordinate des geografischen Standorts des Projekts."
 
-#: projects/forms.py:239
+#: projects/forms.py:240
 msgid "Project Duration"
 msgstr "Projektdauer"
 
-#: projects/forms.py:242
+#: projects/forms.py:243
 msgid "eg. 1"
 msgstr "z.B. 0.1"
 
-#: projects/forms.py:248
+#: projects/forms.py:249
 msgid ""
 "The number of years the project is intended to be operational. The project "
 "duration also sets the installation time of the assets used in the "
@@ -318,19 +318,19 @@ msgstr ""
 "'verkauft' und die Rückerstattung wird mit den ursprünglichen "
 "Investitionskosten verrechnet."
 
-#: projects/forms.py:254
+#: projects/forms.py:255
 msgid "Currency"
 msgstr "Währung"
 
-#: projects/forms.py:260
+#: projects/forms.py:261
 msgid "The currency of the country where the project is implemented."
 msgstr "Die Währung des Landes, in dem das Projekt durchgeführt wird."
 
-#: projects/forms.py:266
+#: projects/forms.py:267
 msgid "Discount Factor"
 msgstr "Abzinsungsfaktor"
 
-#: projects/forms.py:275
+#: projects/forms.py:276
 msgid ""
 "Discount factor is the factor which accounts for the depreciation in the "
 "value of money in the future, compared to the current value of the same "
@@ -343,53 +343,53 @@ msgstr ""
 "durchschnittlichen Kapitalkosten (WACC) und diese als Abzinsungsfaktor zu "
 "verwenden."
 
-#: projects/forms.py:281
+#: projects/forms.py:282
 msgid "Tax"
 msgstr "Steuer"
 
-#: projects/forms.py:284
+#: projects/forms.py:285
 msgid "eg. 0.3"
 msgstr "z.B. 0.1"
 
-#: projects/forms.py:289
+#: projects/forms.py:290
 msgid "Tax factor"
 msgstr "Steuerfaktor"
 
-#: projects/forms.py:316
+#: projects/forms.py:317
 msgid "Email address"
 msgstr "E-Mail Adresse"
 
-#: projects/forms.py:330
+#: projects/forms.py:331
 msgid "Select the user(s) for which you want to revoke access rights "
 msgstr ""
 "Wählen Sie den/die Benutzer aus, für den/die Sie die Zugriffsrechte "
 "entziehen möchten."
 
-#: projects/forms.py:333
+#: projects/forms.py:334
 msgid "Users currently having access to the project"
 msgstr "Benutzer, die derzeit Zugriff auf das Projekt haben"
 
-#: projects/forms.py:338
+#: projects/forms.py:339
 msgid "No users have access to this project"
 msgstr "Keine Benutzer haben Zugriff auf dieses Projekt"
 
-#: projects/forms.py:368
+#: projects/forms.py:369
 msgid "Select a use case (or"
 msgstr "Wählen Sie einen Anwendungsfall (oder"
 
-#: projects/forms.py:370
+#: projects/forms.py:371
 msgid "visit use cases page"
 msgstr "Seite Anwendungsfälle besuchen"
 
-#: projects/forms.py:400
+#: projects/forms.py:401
 msgid "Length of the time steps"
 msgstr "Länge der Zeitschritte"
 
-#: projects/forms.py:410
+#: projects/forms.py:411
 msgid "The number of days simulated with the energy system model."
 msgstr "Die Anzahl der Tage, die mit dem Energiesystemmodell simuliert wurden."
 
-#: projects/forms.py:419
+#: projects/forms.py:420
 msgid ""
 "A fixed cost to implement the asset, eg. planning costs which do not depend "
 "on the (optimized) asset capacity."
@@ -397,72 +397,72 @@ msgstr ""
 "Fixe Kosten für die Implementierung der Anlage, z.B. Planungskosten, die "
 "nicht von der (optimierten) Anlagenkapazität abhängen."
 
-#: projects/forms.py:426 templates/scenario/scenario_results_page.html:134
+#: projects/forms.py:427 templates/scenario/scenario_results_page.html:134
 #: templates/scenario/simulation/modified.html:56
 msgid "Project"
 msgstr "Projekt"
 
-#: projects/forms.py:427
+#: projects/forms.py:428
 msgid "Scenario name"
 msgstr "Name des Szenarios"
 
-#: projects/forms.py:428
+#: projects/forms.py:429
 msgid "Scenario description"
 msgstr "Szenariobeschreibung"
 
-#: projects/forms.py:429
+#: projects/forms.py:430
 msgid "Evaluated Period"
 msgstr "Ausgewerteter Zeitraum"
 
-#: projects/forms.py:430
+#: projects/forms.py:431
 msgid "Time Step"
 msgstr "Zeitschritt"
 
-#: projects/forms.py:431
+#: projects/forms.py:432
 msgid "Start Date"
 msgstr "Startdatum"
 
-#: projects/forms.py:432
+#: projects/forms.py:433
 msgid "Development costs"
 msgstr "Entwicklungskosten"
 
-#: projects/forms.py:646
+#: projects/forms.py:647
 msgid "The energy Vector of the connected assets."
 msgstr "Der Energievektor der angeschlossenen Anlagen."
 
-#: projects/forms.py:651 templates/scenario/scenario_results_page.html:65
+#: projects/forms.py:652 templates/scenario/scenario_results_page.html:65
 msgid "Name"
 msgstr "Name"
 
-#: projects/forms.py:651
+#: projects/forms.py:652
 msgid "Energy carrier"
 msgstr "Energieträger"
 
-#: projects/forms.py:708
+#: projects/forms.py:709
 msgid "Electrical efficiency with no heat extraction"
 msgstr "Elektrischer Wirkungsgrad ohne Wärmeauskopplung"
 
-#: projects/forms.py:719
+#: projects/forms.py:720
 msgid "Thermal efficiency with maximal heat extraction"
 msgstr "Thermischer Wirkungsgrad mit maximalem Wärmeentzug"
 
-#: projects/forms.py:722
+#: projects/forms.py:723
 msgid "Stromverlustkenzahl"
 msgstr "Stromverlustkenzahl"
 
-#: projects/forms.py:726
+#: projects/forms.py:727
 msgid "Efficiency gaz to electricity"
 msgstr "Wirkungsgrad gaz auf Strom"
 
-#: projects/forms.py:741
+#: projects/forms.py:742
 msgid "Efficiency gaz to heat"
 msgstr "Wirkungsgrad Gas zu Wärme"
 
-#: projects/forms.py:770
+#: projects/forms.py:771
 msgid "Click on the icon for more help"
 msgstr "Klicken Sie auf das Symbol für weitere Hilfe"
 
-#: projects/forms.py:831
+#: projects/forms.py:832
 msgid ""
 "File not properly formatted. Please ensure you upload a comma separated "
 "array of values. E.g. [1,2,0.32]"
@@ -470,7 +470,7 @@ msgstr ""
 "Datei nicht korrekt formatiert. Bitte stellen Sie sicher, dass Sie ein "
 "kommagetrenntes Array von Werten hochladen, z. B. [1,2,0.32]"
 
-#: projects/forms.py:839
+#: projects/forms.py:840
 #, python-brace-format
 msgid ""
 "Could not parse a file due to the following error: {ex}. Did you upload a "
@@ -478,17 +478,17 @@ msgid ""
 msgstr ""
 "Konnte keine Datei einlesen wegen Fehler: {ex}. Haben Sie eine hochgeladen?"
 
-#: projects/forms.py:867
+#: projects/forms.py:868
 msgid "If you have no installed capacity, age installed should also be 0"
 msgstr ""
 "Wenn Sie keine installierte Leistung haben, sollte auch das installierte "
 "Alter 0 sein"
 
-#: projects/forms.py:883
+#: projects/forms.py:884
 msgid "The sum of the efficiencies should not exceed 1"
 msgstr "Die Summe der Wirkungsgrade sollte 1 nicht überschreiten"
 
-#: projects/forms.py:895
+#: projects/forms.py:896
 msgid ""
 "Feed-in tariff > energy price for some of simulation's timesteps. This would "
 "cause an unbound solution and terminate the optimization. Please reconsider "
@@ -498,15 +498,15 @@ msgstr ""
 "würde eine ungebundene Lösung verursachen und die Optimierung beenden. Bitte "
 "überdenken Sie Ihre Einspeisevergütung und Ihren Energiepreis."
 
-#: projects/forms.py:912
+#: projects/forms.py:913
 msgid "The number of values of the parameter "
 msgstr "Die Anzahl der Werte des Parameters ist in der Tabelle angegeben."
 
-#: projects/forms.py:915
+#: projects/forms.py:916
 msgid " are not equal to the number of simulation timesteps"
 msgstr " ist nicht gleich der Anzahl der Simulationszeitschritte"
 
-#: projects/forms.py:918
+#: projects/forms.py:919
 msgid ""
 ". You can change the number of timesteps in the first step of scenario "
 "creation."
@@ -514,15 +514,15 @@ msgstr ""
 ". Sie können die Anzahl der Zeitschritte im ersten Schritt der "
 "Szenarienerstellung ändern."
 
-#: projects/forms.py:932
+#: projects/forms.py:933
 msgid "Asset Name"
 msgstr "Anlagensname"
 
-#: projects/forms.py:1024
+#: projects/forms.py:1025
 msgid "Timeseries vector"
 msgstr "Zeitreihenvektor"
 
-#: projects/forms.py:1027
+#: projects/forms.py:1028
 msgid ""
 "You can upload your timeseries as xls(x), csv or json format. Either there "
 "is one column with the values of the timeseries matching the scenario "
@@ -573,8 +573,8 @@ msgid ""
 "The supported formats are \"json\", \"csv\", \"txt\", \"xls\" and \"xlsx\""
 msgstr ""
 "Der Dateityp der Zeitserie \"{timeseries_file.name}\" wird nicht "
-"unterstützt. Die unterstützten Formate sind \"json\", \"csv\", \"txt\", \"xls"
-"\" und \"xlsx\"."
+"unterstützt. Die unterstützten Formate sind \"json\", \"csv\", \"txt\", "
+"\"xls\" und \"xlsx\"."
 
 #: projects/helpers.py:569
 #, python-format
@@ -685,7 +685,7 @@ msgstr "There is already a bus with this name in the scenario"
 msgid "There is already a storage with this name in the scenario"
 msgstr "Es gibt bereits einen Speicher mit diesem Namen im Szenario"
 
-#: projects/scenario_topology_helpers.py:319
+#: projects/scenario_topology_helpers.py:323
 msgid "There is already an asset with this name in the scenario"
 msgstr "Es gibt bereits eine Anlage mit diesem Namen im Szenario"
 
@@ -705,7 +705,7 @@ msgstr "Formular - Fehler beim Mailversand:"
 msgid "Select a use case"
 msgstr "Anwendungsfall Auswähl"
 
-#: projects/views.py:103
+#: projects/views.py:127
 msgid ""
 "The file you wanted to upload does not seem to be an exported scenario file. "
 "It might be an exported project file, in that case use the 'From file' "
@@ -716,11 +716,11 @@ msgstr ""
 "diesem Fall verwenden Sie die Option 'Aus Datei' im Dropdown-Menü 'Projekt "
 "erstellen' oben auf der Projektansichtsseite."
 
-#: projects/views.py:371
+#: projects/views.py:395
 msgid "Project Info updated successfully!"
 msgstr "Projektinfo erfolgreich aktualisiert!"
 
-#: projects/views.py:433
+#: projects/views.py:457
 msgid ""
 "The file you wanted to upload does not seem to be an exported project file. "
 "It might be an exported scenario file, in that case use the 'From file' "
@@ -732,23 +732,23 @@ msgstr ""
 "verwenden Sie die Option 'Aus Datei' im Dropdown-Menü 'Szenario erstellen' "
 "eines Projekts, in das Sie Ihr Szenario importieren möchten."
 
-#: projects/views.py:500
+#: projects/views.py:523
 msgid "New scenario name"
 msgstr "Neuer Szenarioname"
 
-#: projects/views.py:500
+#: projects/views.py:523
 msgid "Scenario file"
 msgstr "Szenariosdatei"
 
-#: projects/views.py:503
+#: projects/views.py:526
 msgid "New project name"
 msgstr "Neuer Projektname"
 
-#: projects/views.py:503
+#: projects/views.py:526
 msgid "Project file"
 msgstr "Projektdatei"
 
-#: projects/views.py:519
+#: projects/views.py:539
 msgid ""
 "<p>Hello dear open-plan-tool user!</br></br> We would just like to let you "
 "know we are looking for your inputs in terms of features ideas or feature "
@@ -761,17 +761,17 @@ msgstr ""
 "fördern' in der Navigationsleiste an. </br></br>Vielen Dank für die Nutzung "
 "von open-plan-tool</p>"
 
-#: projects/views.py:537 projects/views.py:590
+#: projects/views.py:557 projects/views.py:607
 #: templates/project/project_search.html:165
 #: templates/usecase/usecase_search.html:111
 msgid "Show scenarios"
 msgstr "Szenarien anzeigen"
 
-#: projects/views.py:538 projects/views.py:591
+#: projects/views.py:558 projects/views.py:608
 msgid "Hide scenarios"
 msgstr "Szenarien ausblenden"
 
-#: projects/views.py:563
+#: projects/views.py:583
 msgid ""
 "You cannot duplicate a shared project without the owner granting you 'edit' "
 "rights"
@@ -779,159 +779,159 @@ msgstr ""
 "Sie können ein freigegebenes Projekt nicht duplizieren, ohne dass der "
 "Eigentümer Ihnen Bearbeitungsrechtegewährt."
 
-#: projects/views.py:696
+#: projects/views.py:713
 msgid "Scenario Setup"
 msgstr "Szenario-Einstellung"
 
-#: projects/views.py:697
+#: projects/views.py:714
 msgid "Energy system design"
 msgstr "Auslegung des Energiesystems"
 
-#: projects/views.py:698
+#: projects/views.py:715
 msgid "Constraints"
 msgstr "Randbedingungen"
 
-#: projects/views.py:699
+#: projects/views.py:716
 msgid "Simulation"
 msgstr "Simulation"
 
-#: projects/views.py:717
+#: projects/views.py:734
 msgid "Project selection"
 msgstr "Projektauswahl"
 
-#: projects/views.py:723
+#: projects/views.py:740
 msgid "You have currently no projects, please create one first"
 msgstr "Sie haben derzeit keine Projekte, bitte erstellen Sie zuerst eines"
 
-#: projects/views.py:872
+#: projects/views.py:889
 msgid "Electricity DSO"
 msgstr "Elektrizitätsversorger"
 
-#: projects/views.py:873
+#: projects/views.py:890
 msgid "Gas DSO"
 msgstr "Gasversorger"
 
-#: projects/views.py:874
+#: projects/views.py:891
 msgid "H2 DSO"
 msgstr "H2-Versorger"
 
-#: projects/views.py:875
+#: projects/views.py:892
 msgid "Heat DSO"
 msgstr "Wärmeversorger"
 
-#: projects/views.py:878
+#: projects/views.py:895
 msgid "PV Plant"
 msgstr "PV-Anlage"
 
-#: projects/views.py:879
+#: projects/views.py:896
 msgid "Wind Plant"
 msgstr "Windkraftanlage"
 
-#: projects/views.py:880
+#: projects/views.py:897
 msgid "Biogas Plant"
 msgstr "Biogasanlage"
 
-#: projects/views.py:881
+#: projects/views.py:898
 msgid "Geothermal Conversion"
 msgstr "Geothermische Umwandlung"
 
-#: projects/views.py:882
+#: projects/views.py:899
 msgid "Solar Thermal Plant"
 msgstr "Thermische Solaranlage"
 
-#: projects/views.py:885
+#: projects/views.py:902
 msgid "Transformer Station (in)"
 msgstr "Trafostation (in)"
 
-#: projects/views.py:886
+#: projects/views.py:903
 msgid "Transformer Station (out)"
 msgstr "Trafostation (aus)"
 
-#: projects/views.py:887
+#: projects/views.py:904
 msgid "Storage Charge Controller (in)"
 msgstr "Speicherladeregler (in)"
 
-#: projects/views.py:888
+#: projects/views.py:905
 msgid "Storage Charge Controller (out)"
 msgstr "Speicherladeregler (out)"
 
-#: projects/views.py:889
+#: projects/views.py:906
 msgid "Solar Inverter"
 msgstr "Solar-Wechselrichter"
 
-#: projects/views.py:890
+#: projects/views.py:907
 msgid "Diesel Generator"
 msgstr "Diesel-Generator"
 
-#: projects/views.py:891
+#: projects/views.py:908
 msgid " Fuel Cell"
 msgstr " Brennstoffzelle"
 
-#: projects/views.py:892
+#: projects/views.py:909
 msgid "Gas Boiler"
 msgstr "Gasboiler"
 
-#: projects/views.py:893
+#: projects/views.py:910
 msgid "Electrolyzer"
 msgstr "Elektrolyseur"
 
-#: projects/views.py:894
+#: projects/views.py:911
 msgid "Heat Pump"
 msgstr "Wärmepumpe"
 
-#: projects/views.py:895
+#: projects/views.py:912
 msgid "Combined Heat and Power"
 msgstr "Kraft-Wärme-Kopplung"
 
-#: projects/views.py:896
+#: projects/views.py:913
 msgid "CHP fixed ratio"
 msgstr "Kraft-Wärme-Kopplung festes Verhältnis"
 
-#: projects/views.py:899
+#: projects/views.py:916
 msgid "Electricity Storage"
 msgstr "Elektrizitätsspeicher"
 
-#: projects/views.py:901
+#: projects/views.py:918
 msgid "H2 Storage"
 msgstr "Wasserstoffspeicher"
 
-#: projects/views.py:902
+#: projects/views.py:919
 msgid "Heat Storage"
 msgstr "Wärmespeicher"
 
-#: projects/views.py:905
+#: projects/views.py:922
 msgid "Electricity Demand"
 msgstr "Elektrizitätsnachfrage"
 
-#: projects/views.py:907
+#: projects/views.py:924
 msgid "H2 Demand"
 msgstr "Wasserstoffbedarf"
 
-#: projects/views.py:908
+#: projects/views.py:925
 msgid "Heat Demand"
 msgstr "Wärmebedarf"
 
-#: projects/views.py:910
+#: projects/views.py:927
 msgid "Bus"
 msgstr "Bus"
 
-#: projects/views.py:981
+#: projects/views.py:998
 msgid "Minimal degree of autonomy"
 msgstr "Minimal Autarkiegrad"
 
-#: projects/views.py:982
+#: projects/views.py:999
 msgid "Minimal share of renewables"
 msgstr "Minimal Anteil Erneuerbarer Energien"
 
-#: projects/views.py:983
+#: projects/views.py:1000
 msgid "Maximal CO2 emissions"
 msgstr "Maximale CO2-Emissionen"
 
-#: projects/views.py:984
+#: projects/views.py:1001
 msgid "Net zero energy system"
 msgstr "Netto-Nullenergie-System"
 
-#: projects/views.py:1153
+#: projects/views.py:1170
 msgid ""
 "The simulation was performed with an older MVS version which is not "
 "compatible with the result view anymore, please reset and rerun the "
@@ -941,11 +941,11 @@ msgstr ""
 "mehrmit der Ergebnisansicht kompatibel ist.Bitte setzen Sie die Simulation "
 "zurück und führen Sie sie erneut aus."
 
-#: projects/views.py:1360
+#: projects/views.py:1377
 msgid "Scenario changes successfully reversed!"
 msgstr "Szenarioänderungen erfolgreich rückgängig gemacht!"
 
-#: projects/views.py:1875
+#: projects/views.py:1899
 msgid ""
 "You do not have the permission to reset a simulation on a project shared "
 "with you"
@@ -1002,20 +1002,25 @@ msgstr "Hochladen"
 msgid "Select"
 msgstr "Auswählen"
 
-#: templates/base.html:89 templates/navbar.html:73
+#: templates/base.html:84
+msgid "About"
+msgstr ""
+
+#: templates/base.html:85 templates/legal/contact.html:21
+#: templates/navbar.html:52 templates/navbar.html:90
 msgid "Contact"
 msgstr "Kontakt"
 
-#: templates/base.html:90 templates/legal/license.html:13
-#: templates/navbar.html:72
+#: templates/base.html:86 templates/legal/license.html:13
+#: templates/navbar.html:89
 msgid "License"
 msgstr "Lizenz"
 
-#: templates/base.html:91 templates/legal/imprint.html:12
+#: templates/base.html:87 templates/legal/imprint.html:12
 msgid "Imprint"
 msgstr "Impressum"
 
-#: templates/base.html:92
+#: templates/base.html:88
 msgid "Privacy"
 msgstr "Datenschutz"
 
@@ -1050,141 +1055,701 @@ msgstr ""
 msgid "Refresh Page"
 msgstr "Seite aktualisieren"
 
-#: templates/feedback.html:50 templates/navbar.html:36
+#: templates/feedback.html:50 templates/navbar.html:45
 msgid "Feedback"
-msgstr "Rückmeldung"
+msgstr "Feedback"
 
 #: templates/feedback.html:65
 msgid "Should you face any issue, let us know or share your feedback with us!"
 msgstr ""
+"Sollten Sie auf ein Problem stoßen, lassen Sie es uns wissen oder teilen Sie "
+"uns Ihr Feedback mit!"
 
 #: templates/feedback.html:76
 msgid "How much you like it?"
-msgstr ""
+msgstr "Wie gefällt es Ihnen?"
 
 #: templates/feedback.html:204
 msgid "Submit"
+msgstr "Absenden"
+
+#: templates/index.html:17
+msgid "Open-source planning tool for the energy transition"
+msgstr "Open-Source-Planungstool für die Energiewende"
+
+#: templates/index.html:18
+msgid ""
+"With the open-plan-tool, you can plan and design energy systems in an open "
+"and free framework. "
 msgstr ""
+"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Energiesysteme planen und auslegen."
 
-#: templates/index.html:12
-msgid "Model your local energy system"
-msgstr "Modellieren Sie Ihr lokales Energiesystem"
+#: templates/index.html:19 templates/landing/cellular.html:21
+#: templates/landing/commune.html:24 templates/landing/default.html:27
+msgid "To open-plan-tool"
+msgstr "Zum open-plan-tool"
 
-#: templates/index.html:15
+#: templates/index.html:29
+msgid "Application areas"
+msgstr "Anwendungsbereiche"
+
+#: templates/index.html:31 templates/landing/dev_section.html:10
 msgid ""
 "Use the GUI to include sector-coupling and optimize the energy system model "
 "subject to equality constraints"
 msgstr ""
-"Verwenden Sie die GUI, um die Sektorkopplung einzubeziehen und das "
-"Energiesystemmodellunter Berücksichtigung von Gleichheitsbedingungen zu "
-"optimieren"
+"Verwenden Sie die grafische Benutzeroberfläche, um die Sektorkopplung "
+"einzubeziehen und das Energiesystemmodell zu optimieren unter "
+"Berücksichtigung von Gleichheitsbeschränkungen"
 
-#: templates/index.html:18
-msgid "Try out"
-msgstr "Ausprobieren"
+#: templates/index.html:36
+msgid "Municipal heating planning"
+msgstr "Kommunale Wärmeplanung"
 
-#: templates/legal/about.html:5
-msgid "About - open_plan"
-msgstr "Über - open_plan"
+#: templates/index.html:40
+msgid "Cellular energy systems"
+msgstr "Zellulare Energiesysteme"
 
-#: templates/legal/about.html:13
-msgid "About"
+#: templates/index.html:44
+msgid "General energy system analysis"
+msgstr "Allgemeine Energiesystemanalyse"
+
+#: templates/index.html:48
+msgid ""
+"If you want to collaborate or are interested in the project, you can find "
+"more information on:"
+msgstr ""
+"Wenn Sie mitarbeiten möchten oder sich für das Projekt interessieren, finden "
+"Sie weitere Informationen unter:"
+
+#: templates/landing/cellular.html:5
+msgid "Cellular"
+msgstr "Zellular"
+
+#: templates/landing/cellular.html:19
+msgid "Planning of cellular energy systems with the open-plan-tool"
+msgstr "Planung zellularer Energiesysteme mit dem open-plan-tool"
+
+#: templates/landing/cellular.html:20
+msgid ""
+"With the open-plan-tool, you can plan and design energy cells in the context "
+"of the cellular approach."
+msgstr ""
+"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Energiesysteme planen und auslegen."
+
+#: templates/landing/cellular.html:32
+msgid "Energy cells explained"
+msgstr "Energiezellen erklärt"
+
+#: templates/landing/cellular.html:36
+msgid ""
+"The cellular approach is a model framework for energy systems that is based "
+"on decentralized energy systems and sector coupling."
+msgstr ""
+"Der zellulare Ansatz ist ein Modellrahmen für Energiesysteme, der auf "
+"dezentralen Energiesystemen und Sektorenkopplung basiert."
+
+#: templates/landing/cellular.html:37
+msgid ""
+"The cellular approach describes an energy system that is organized into so-"
+"called energy cells."
+msgstr ""
+"Der zellulare Ansatz beschreibt ein Energiesystem, das in sogenannte "
+"Energiezellen organisiert ist"
+
+#: templates/landing/cellular.html:48
+msgid ""
+"The cellular approach is based on the principle of subsidiarity, with energy "
+"supply and demand being balanced as closely as possible at the local level."
+msgstr ""
+"Der Grundgedanke basiert auf dem Subsidiaritätsprinzip, mit dem "
+"Energieangebot und -nachfrage so weit wie möglich auf lokaler Ebene "
+"ausgeglichen werden."
+
+#: templates/landing/cellular.html:49
+msgid ""
+"An energy cell can contain and combine various energy sectors, such as "
+"electricity, heat, mobility, etc."
+msgstr ""
+"Eine Energiezelle kann verschiedene Energiesektoren, wie Strom, Wärme, "
+"Mobilität, etc., enthalten und kombinieren."
+
+#: templates/landing/cellular.html:55
+msgid ""
+"The adoption of the <a href='https://www.bmwi.de/Redaktion/DE/Downloads/G/"
+"gesetzentwurf-aenderung-erneuerbare-energien-gesetzes-und-weiterer-"
+"energierechtlicher-vorschriften.pdf?__blob=publicationFile&v=4' "
+"target='_blank' rel='noopener noreferrer'>German Renewable Energy Law „EEG "
+"2021“</a> opens a unique opportunity to be leveraged by looking at a new "
+"energy system planning perspective. The full transition to renewable energy "
+"sources and climate neutrality by 2050 requires a high level of citizens' "
+"acceptance, reachable by local participation opportunities. Such frameworks "
+"can enable tenants to benefit from rooftop PV installations and local "
+"communities and authorities to value wind power generation. These are two "
+"examples that show how bottom-up approaches can contribute to a successful "
+"energy transition, ultimatively requiring a cellular approach: 'The cellular "
+"approach is a new organizational model for energy supply. In this "
+"interdisciplinary model, technical, economic, legal and political (and "
+"social) concerns are taken into account. The central component of this model "
+"is the energy cell.' <a href='#footnote-1'>[1]</a>"
 msgstr ""
 
-#: templates/legal/about.html:20
-msgid "open_plan project consortium"
-msgstr "open_plan Projektkonsortium"
+#: templates/landing/cellular.html:56
+msgid ""
+"This model was developed by the German Association for Electrical "
+"Engineering, VDE. It proposes a new way to organize future energy system "
+"networks. The cellular approach incorporates the idea that the production "
+"and consumption of energy are locally balanced forming a so-called energy "
+"cell. An energy cell is not geographically limited but it is a system "
+"composed of at least a generator, a converter, a storage unit, a load, a "
+"protection and control system and a connection to the distribution grid. An "
+"energy cell can contain many forms of energy such as electricity, heat, gas "
+"and mobility thus embracing the concept of sector coupling."
+msgstr ""
 
-#: templates/legal/about.html:21
+#: templates/landing/cellular.html:57
+msgid ""
+"[1] VDE Verband der Elektrotechnik Elektronik Informationstechnik e.V.: "
+"Cellular Energy System - A Contribution to the Concretization of the "
+"Cellular Approach with Recommendations for Action, Frankfurt am Main, May "
+"2019"
+msgstr ""
+
+#: templates/landing/cellular.html:69
+msgid "Cross-sector and open-source planning tool"
+msgstr "Sektorübergreifendes und quelloffenes Planungswerkzeug"
+
+#: templates/landing/cellular.html:74
+#: templates/landing/features_section.html:12
+msgid "Sector coupling"
+msgstr "Sektorkopplung"
+
+#: templates/landing/cellular.html:75
+msgid ""
+"The tool is used for the optimized planning of energy cells for the "
+"(partial) supply of electricity and heat to neighborhoods, commercial parks "
+"and industry in Germany. As active subsystems, energy cells can facilitate "
+"the integration of renewable energies and significantly reduce the need for "
+"grid expansion, since they can be planned and controlled in relation to each "
+"other."
+msgstr ""
+"Das Tool wird zur optimierten Planung von Energiezellen für die (Teil-) "
+"Versorgung des Strom- und Wärmebedarfs von Quartieren, Gewerbehöfen und "
+"Industrie in Deutschland eingesetzt. Energiezellen können als aktive "
+"Teilsysteme die Integration erneuerbarer Energien erleichtern und den "
+"Netzausbau erheblich reduzieren, da sie untereinander plan- und steuerbar "
+"sind."
+
+#: templates/landing/cellular.html:79 templates/landing/default.html:102
+msgid "Open licence"
+msgstr "Offene Lizenz"
+
+#: templates/landing/cellular.html:80
+msgid ""
+"The project follows the promising open science approach that RLI has already "
+"implemented in many projects, and all data, methods, and program codes are "
+"made available under a suitable open license. This ensures that scientific "
+"standards are met, because only results that have been generated with open "
+"and citable tools and data can be reproduced and duplicated in the field of "
+"software-based research."
+msgstr ""
+"Das Projekt folgt dem vielversprechenden Open-Science-Ansatz, den das RLI "
+"bereits in vielen Projekten umgesetzt hat, und alle Daten, Methoden und "
+"Programmcodes unter einer geeigneten offenen Lizenz zur Verfügung stellt. "
+"Damit wird wissenschaftlichen Standards entsprochen, denn nur Ergebnisse, "
+"die mit offenen und zitierfähigen Werkzeugen und Daten erzeugt wurden, "
+"können im Bereich der softwarebasierten Forschung reproduziert und "
+"vervielfältigt werden."
+
+#: templates/landing/cellular.html:84
+msgid "Stakeholder dialogue"
+msgstr "Stakeholder-Dialog"
+
+#: templates/landing/cellular.html:85
+msgid ""
+"Through close collaboration within the consortium and with a wide range of "
+"stakeholders and users, the research network was expanded and a broad range "
+"of new, important, and explicitly application-oriented research questions "
+"were developed."
+msgstr ""
+"Durch die enge Zusammenarbeit innerhalb des Konsortiums und mit einem "
+"breiten Spektrum von Stakeholdern und Nutzer*innen wurde das "
+"Forschungsnetzwerk erweitert und ein breites Feld neuer, bedeutender und "
+"explizit anwendungsorientierter Forschungsfragen erschlossen."
+
+#: templates/landing/cellular.html:96
+msgid "Related projects (NEED UPDATE)"
+msgstr "Verwandte Projekte"
+
+#: templates/landing/cellular.html:106
+msgid ""
+"UPDATE Open and cross-sectoral planning of transmission and distribution "
+"grids"
+msgstr ""
+
+#: templates/landing/cellular.html:111 templates/landing/cellular.html:128
+msgid "Visit website"
+msgstr "Webseite besuchen"
+
+#: templates/landing/cellular.html:123
+msgid ""
+"UPDATE Toolbox for the low-carbon and climate-resistant transition of energy "
+"systems, which considers technical, social, and economic aspects equally"
+msgstr ""
+
+#: templates/landing/cellular.html:140
+msgid ""
+"UPDATE Model experiment to compare and determine synergy potentials of open-"
+"source frameworks in energy system analysis"
+msgstr ""
+
+#: templates/landing/cellular.html:145
+msgid "See project"
+msgstr "Projekt seite besuchen"
+
+#: templates/landing/commune.html:6
+msgid "Commune"
+msgstr "Kommune"
+
+#: templates/landing/commune.html:21
+msgid "Expand your municipal heating plan with open-plan-tool"
+msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mitopen-plan-tool"
+
+#: templates/landing/commune.html:36
+msgid "The open-plan-tool is targeted at:"
+msgstr "Das OpenPlanTool richtet sich an:"
+
+#: templates/landing/commune.html:41
+msgid "Communes"
+msgstr "Kommunen"
+
+#: templates/landing/commune.html:45
+msgid "Energy suppliers"
+msgstr "Energieversorger"
+
+#: templates/landing/commune.html:49
+msgid "Planning offices"
+msgstr "Planungsbüros"
+
+#: templates/landing/commune.html:53
+msgid "Actors involved in municipal heating planning"
+msgstr "Akteure rund um die kommunale Wärmeplanung"
+
+#: templates/landing/commune.html:60
+msgid ""
+"\n"
+"\t\t\t<p>It is already possible to map <b>a municipality's energy system</b> "
+"(electricity, heat, mobility) in order to better plan the transformation "
+"under the current framework conditions.</p>\n"
+"\t\t\t<p>As part of a three-year project <b>until the end of 2027</b>, the "
+"tool will be even better adapted to the <b>needs of municipal heating "
+"planning</b>. During this time, you will have the opportunity to test the "
+"tool and contribute your experiences to the development process. Subscribe "
+"to our newsletter to stay up to date on the project.</p>\n"
+"\t\t\t<p>OpenPlan is easy to use thanks to its <b>graphical, web-based "
+"interface</b>. However, we also provide support ranging from introductory "
+"training to the initial creation of an energy system and a complete analysis."
+"</p>\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t<p>Schon aktuell ist es möglich <b>das Energiesystem</b> (Strom, "
+"Wärme, Mobilität) <b>einer Kommune abzubilden</b>, um die Transformation "
+"unter den aktuellen Rahmenbedingungen besser planen zu können.</p>\n"
+"\t\t\t<p>Im Rahmen eines dreijährigen Projekts <b>bis Ende 2027</b>, wird "
+"das Tool noch besser auf die <b>Bedürfnisse der Kommunalen Wärmeplanung "
+"angepasst</b>. In dieser Zeit haben Sie die Möglichkeit das Tool zu testen "
+"und ihre Erfahrungen in den Entwicklungsprozess einzubringen. Nutzen Sie "
+"unseren Newsletter, um jederzeit über den aktuellen Stand des Projekts "
+"informiert zu bleiben.</p>\n"
+"\t\t\t<p>Durch die <b>grafische, webbasierte Oberfläche</b> ist OpenPlan "
+"einfach zu nutzen. Darüber hinaus stellen wir aber auch Hilfsangebote von "
+"der einführenden Schulung, über die initiale Erstellung eines Energiesystems "
+"bis zur vollständigen Analyse bereit.</p>\n"
+"\t\t\t"
+
+#: templates/landing/default.html:22
+msgid "Model your local energy system"
+msgstr "Modellieren Sie Ihr lokales Energiesystem"
+
+#: templates/landing/default.html:25
+msgid ""
+"Use the open-plan-tool for a variety of different use cases in the context "
+"of an energy system analysis"
+msgstr ""
+"Verwenden Sie das open-plan-tool für eine Vielzahl von unterschiedlichen "
+"Anwendungsfällen im Rahmen einer Energiesystemanalyse"
+
+#: templates/landing/default.html:90
+msgid "Special features of the open-plan-tool"
+msgstr "Besonderheiten des open-plan-tools"
+
+#: templates/landing/default.html:95
+msgid "Easy to use"
+msgstr "Einfache Bedienung"
+
+#: templates/landing/default.html:97
+msgid ""
+"The open-plan-tool offers an intuitive and user-friendly interface that "
+"allows users to easily design energy systems using drag-and-drop functions. "
+"No programming knowledge is required, which makes it easy to get started and "
+"accessible for use in complex models."
+msgstr ""
+"Das open-plan-tool bietet eine intuitive und benutzerfreundliche Oberfläche, "
+"die es Nutzer:innen ermöglicht, Energiesysteme mithilfe von Drag-&-Drop-"
+"Funktionen einfach zu gestalten. Es sind keine Programmierkenntnisse "
+"erforderlich, was den Einstieg erleichtert und die Nutzung auch für komplexe "
+"Modelle zugänglich macht."
+
+#: templates/landing/default.html:104
+msgid ""
+"The open_plan project follows the open science approach and is based on the "
+"open energy modeling framework (oemof). All data, methods and source code "
+"are available under open licenses. This ensures transparency, "
+"reproducibility and traceability – crucial aspects for scientific work."
+msgstr ""
+"Das Vorhaben open_plan verfolgt den Open-Science-Ansatz und basiert auf dem "
+"open energy modelling framework (oemof). Alle Daten, Methoden und der "
+"Quellcode stehen unter offenen Lizenzen zur Verfügung. Das gewährleistet "
+"Transparenz, Reproduzierbarkeit und Nachvollziehbarkeit – entscheidende "
+"Aspekte für wissenschaftliches Arbeiten."
+
+#: templates/landing/default.html:109
+msgid "Cooperation between research and practice"
+msgstr "Verknüpfung von Wissenschaft und Praxis"
+
+#: templates/landing/default.html:111
+msgid ""
+"The open_plan community bridges the gap between scientific theory and "
+"practical application. Its ease of use makes it attractive for "
+"practitioners, while the integration of current scientific approaches offers "
+"researchers a valuable platform. In this way, the tool promotes the "
+"development of innovative energy systems for various application areas."
+msgstr ""
+"Mit der open_plan-Community wird eine Brücke zwischen wissenschaftlicher "
+"Theorie und praktischer Anwendung geschlagen. Die einfache Bedienung macht "
+"es für Anwender:innen aus der Praxis attraktiv, während die Integration "
+"aktueller wissenschaftlicher Ansätze Forschenden eine wertvolle Plattform "
+"bietet. So fördert das Tool die Entwicklung innovativer Energiesysteme für "
+"verschiedene Anwendungsbereiche."
+
+#: templates/landing/default.html:121
+msgid "Target Groups"
+msgstr "Zielgruppen"
+
+#: templates/landing/default.html:183
+msgid "Related content"
+msgstr "Weiterführende Inhalte"
+
+#: templates/landing/default.html:190
+msgid "Usecases"
+msgstr "Anwendungsfälle"
+
+#: templates/landing/default.html:196
+msgid "user Manual"
+msgstr "Handbuch"
+
+#: templates/landing/default.html:211
+msgid "Video-Tutorials"
+msgstr "Video-Tutorials"
+
+#: templates/landing/dev_section.html:5
+msgid ""
+"Would you like to be involved in the further development of the open-plan "
+"tool?"
+msgstr "Sie möchten an der Weiterentwicklung des open-plan-tools mitwirken?"
+
+#: templates/landing/dev_section.html:16
+msgid ""
+"You can follow the current project progress in our freely accessible "
+"repository."
+msgstr ""
+"Über unser frei zugängliches Repository können Sie den aktuellen "
+"Projektfortschritt mitverfolgen"
+
+#: templates/landing/dev_section.html:17
+msgid "GitHub"
+msgstr "GitHub"
+
+#: templates/landing/dev_section.html:21
+msgid ""
+"Please feel free to contact us if you would like to develop further "
+"functionalities together with us."
+msgstr ""
+"Nehmen Sie gerne Kontakt mit uns auf, wenn Sie gemeinsam mit uns weitere "
+"Funktionalitäten entwickeln möchten"
+
+#: templates/landing/dev_section.html:22
+msgid "New features"
+msgstr "Neue Funktionen"
+
+#: templates/landing/dev_section.html:26
+msgid ""
+"We publish relevant reports, summaries and scientific papers here on our "
+"website."
+msgstr ""
+"Relevante Berichte, Zusammenfassungen und wissenschaftliche Arbeiten "
+"veröffentlichen wir hier über unsere Webseite."
+
+#: templates/landing/dev_section.html:27
+msgid "Publications"
+msgstr "Veröffentlichungen"
+
+#: templates/landing/features_section.html:7
+msgid "Features"
+msgstr "Funktionnen"
+
+#: templates/landing/features_section.html:14
+msgid ""
+"Combination of different generation components and demand categories for "
+"designing optimized systems and operational strategies"
+msgstr ""
+"Kombination verschiedener Erzeugungskomponenten und Bedarfskategorien zur "
+"Gestaltung optimierter Systeme und Betriebsstrategien"
+
+#: templates/landing/features_section.html:19
+msgid "Data management"
+msgstr "Datenmanagement"
+
+#: templates/landing/features_section.html:21
+msgid ""
+"Integration of open libraries, e.g. generation and consumption data, and use "
+"of open generic formats"
+msgstr ""
+"Integration offener Bibliotheken, z.B. Erzeugungs-, Verbrauchsdaten und "
+"Nutzung offener generischer Formate"
+
+#: templates/landing/features_section.html:26
+msgid "Scenario analysis"
+msgstr "Senarioanalyse"
+
+#: templates/landing/features_section.html:28
+msgid ""
+"An automated creation of scenarios allows for an easy comparison of "
+"different options and to understand sensitivities"
+msgstr ""
+"Eine automatisierte Erstellung von Szenarien ermöglicht einen einfachen "
+"Vergleich verschiedener Optionen und das Verständnis von Sensitivitäten"
+
+#: templates/landing/features_section.html:33
+msgid "Reproducibility"
+msgstr "Reproduzierbarkeit"
+
+#: templates/landing/features_section.html:35
+msgid ""
+"All results are reproducible on the basis of open and transparent "
+"calculations"
+msgstr ""
+"Alle Ergebnisse sind auf der Grundlage offener und transparenter "
+"Berechnungen reproduzierbar"
+
+#: templates/landing/features_section.html:40
+msgid "Modularity"
+msgstr "Modularität"
+
+#: templates/landing/features_section.html:42
+msgid ""
+"A wide variety of different energy systems requires modular components to "
+"map different degrees of complexity and framework conditions"
+msgstr ""
+"Eine große Vielfalt an unterschiedlichen Energiesystemen erfordert "
+"modulareKomponenten, um unterschiedliche Komplexitätsgrade und "
+"Rahmenbedingungen abzubilden"
+
+#: templates/landing/features_section.html:47
+msgid "User friendliness"
+msgstr "Benutzerfreundlichkeit"
+
+#: templates/landing/features_section.html:49
+msgid ""
+"The tool was developed with a strong focus on easy use without requiring "
+"programming language expertise"
+msgstr ""
+"Bei der Entwicklung des Tools wurde besonderer Wert auf eine einfache "
+"Bedienung gelegt, die keine Kenntnisse einer Programmiersprache erfordert"
+
+#: templates/landing/features_section.html:54
+msgid "Easy collaboration"
+msgstr "Einfache Zusammenarbeit"
+
+#: templates/landing/features_section.html:56
+msgid ""
+"Projects can be shared with team members, customers or suppliers, so that "
+"all involved parties can be informed about the current project progress in a "
+"central tool"
+msgstr ""
+"Projekte können mit Teammitgliedern, Kunden oder Zulieferern geteilt werden, "
+"sodass alle beteiligten Akteure in einem zentralen Tool über den aktuellen "
+"Projektfortschritt informiert werden können"
+
+#: templates/landing/features_section.html:61
+msgid "Interfaces"
+msgstr "Schnittstellen"
+
+#: templates/landing/features_section.html:63
+msgid ""
+"Standardized formats enable easy integration of external databases and other "
+"tools used in energy system analysis"
+msgstr ""
+"Standardisierte Formate ermöglichen eine einfache Einbindung von externen "
+"Datenbanken und weiteren Tools aus der Energiesystemanalyse"
+
+#: templates/landing/logos_open_plan1.html:6
+msgid "About the project"
+msgstr "Über das Projekt"
+
+#: templates/landing/logos_open_plan1.html:9
+msgid ""
+"The functions for planning cellular energy systems were developed in the "
+"context of the open_plan 1.0 research project. The project consortium "
+"consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy "
+"Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). "
+"It was funded from January 2020 to June 2023 as part of the 'Technology-"
+"oriented Systems Analysis' funding area of the BMWi's 7th Energy Research "
+"Program 'Innovation for the Energy Transition.' "
+msgstr ""
+"Die Funktionen zur Planung zellularer Energiesysteme wurden im Kontext des "
+"Forschungsvorhabens open_plan 1.0 entwickelt. Das Projektkonsortium bestand "
+"aus dem Reiner Lemoine Institut (RLI), der Deutschen Gesellschaft für "
+"Sonnenenergie (DGS) und dem Potsdam Institut für Klimafolgenforschung (PIK). "
+"Es wurde von Januar 2020 bis Juni 2023 im Rahmen des Förderbereichs "
+"'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms des "
+"BMWi 'Innovation für die Energiewende' gefördert. "
+
+#: templates/landing/newsletter.html:6
+msgid "Register to our Newsletter"
+msgstr "Newsletter abonnieren"
+
+#: templates/landing/newsletter.html:12
+msgid "Register"
+msgstr "Abonnieren"
+
+#: templates/landing/newsletter.html:18
+#, python-format
+msgid ""
+" I have read and accept the <a target=\"_blank\" href=\"%(url)s\">privacy "
+"statement </a> from open_plan<span class=\"asteriskField\">*</span> "
+msgstr ""
+"Ich habe die <a target='_blank' href=\"%(url)s\">Datenschutzbestimmungen</a> "
+"von open_plan gelesen und akzeptiert."
+
+#: templates/legal/about.html:10
+msgid "About us - open_plan"
+msgstr "Über uns - open_plan"
+
+#: templates/legal/about.html:21 templates/navbar.html:49
+msgid "About us"
+msgstr "Über uns"
+
+#: templates/legal/about.html:28
+msgid "open_plan 2.0 project consortium"
+msgstr "open_plan 2.0 Projektkonsortium"
+
+#: templates/legal/about.html:29
 #, python-format
 msgid ""
 "\n"
-"\t\t\t\t<p>The open_plan project consortium is composed of the <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a "
-"href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam Institut "
-"für Klimafolgenforschung</a> (PIK). It is funded within the framework of the "
-"\"Technology-oriented systems analysis\" funding area of the BMWi's 7th "
-"Energy Research Programme \"Innovation for the energy transition\".</p>\n"
+"          <p>The open_plan 2.0 project consortium is composed of the <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
+"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
+"IFAM</a> (IFAM). It is funded within the framework of the \"Technology-"
+"oriented systems analysis\" funding area of the BMWK's ????th Energy "
+"Research Programme \"?????\".</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a href="
-"\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" rel="
-"\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem <a "
-"href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam Institut "
-"für Klimafolgenforschung</a> (PIK). Es wird im Rahmen des Programms "
+"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
+"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
+"IFAM</a> (IFAM). Es wird im Rahmen des Programms ‚ \"Technologieorientierte "
+"Systemanalyse\" des ????????. Energieforschungsprogramms ‚ \"Innovation für "
+"die Energiewende\" des BMWi gefördert.</p>\n"
+"\t\t\t\t"
+
+#: templates/legal/about.html:62
+msgid "open_plan 1.0 project consortium"
+msgstr "open_plan 1.0 Projektkonsortium"
+
+#: templates/legal/about.html:63
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\t<p>The open_plan project consortium is composed of the <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
+"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
+"Institut für Klimafolgenforschung</a> (PIK). It is funded within the "
+"framework of the \"Technology-oriented systems analysis\" funding area of "
+"the BMWi's 7th Energy Research Programme \"Innovation for the energy "
+"transition\".</p>\n"
+"\t\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
+"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
+"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
+"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
+"Institut für Klimafolgenforschung</a> (PIK). Es wird im Rahmen des Programms "
 "‚ \"Technologieorientierte Systemanalyse\" des 7. Energieforschungsprogramms "
 "‚ \"Innovation für die Energiewende\" des BMWi gefördert.</p>\n"
-
 "\t\t\t\t"
 
-#: templates/legal/about.html:26
-msgid "open_plan project website"
-msgstr "open_plan Projekt Webseite"
-
-#: templates/legal/about.html:27
-#, python-format
-msgid ""
-"<p>You can visit the open_plan <a href=\"%(url_op)s\" target=\"_blank\" rel="
-"\"noreferrer\">website</a> to know more about the cellular approach and the "
-"open_plan project </p>"
-msgstr ""
-"<p>Sie können die open_plan <a href=\"%(url_op)s\" target=\"_blank\" rel="
-"\"noreferrer\">Website</a> besuchen, um mehr über den zellulären Ansatz und das "
-"open_plan project zu erfahren</p>"
-
-
-#: templates/legal/about.html:30
+#: templates/legal/about.html:68 templates/legal/contact.html:34
 msgid "Feedback or question?"
 msgstr "Feedback oder Frage?"
 
-#: templates/legal/about.html:33
+#: templates/legal/about.html:71 templates/legal/contact.html:37
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>You can always <a href=\"%(url_feedback)s\">leave us a comment or "
-"feedback</a> on things you would improve. You can also visit <a href="
-"\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github project "
-"page</a> to see which bugs are being fixed and which new features are being "
-"developed.</p>\n"
+"feedback</a> on things you would improve. You can also visit <a "
+"href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github "
+"project page</a> to see which bugs are being fixed and which new features "
+"are being developed.</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
 "\t\t\t\t<p>Sie können uns jederzeit <a href=\"%(url_feedback)s\">einen "
 "Kommentar oder Feedback</a> zu Verbesserungen hinterlassen. Außerdem können "
-"Sie <a href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer"
-"\">unsere Github-Projektseite</a> besuchen, um zu sehen, welche Bugs behoben und "
+"Sie <a href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">unsere "
+"Github-Projektseite</a> besuchen, um zu sehen, welche Bugs behoben und "
 "welche neuen Features entwickelt werden.</p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:36
+#: templates/legal/about.html:74 templates/legal/contact.html:40
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>If you wish to sponsor a new feature of open-plan-tool, please "
-"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" rel=\"noreferrer"
-"\">sponsoring page<a></p>\n"
+"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">sponsoring page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
 "\t\t\t\t<p>Wenn Sie eine neue Funktion von open-plan-tool sponsern möchten, "
-"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" rel="
-"\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
+"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:42
+#: templates/legal/about.html:80
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>You can follow the development of this <a href=\"%(url_github)s\" "
 "target=\"_blank\" rel=\"noreferrer\">user interface</a>, or deploy your own "
-"open-plan tool (including <a href=\"%(url_simulation_server)s\" target="
-"\"_blank\" rel=\"noreferrer\">simulation server</a> and user interface) by "
-"visiting our <a href=\"%(url_gui)s\" target=\"_blank\" rel=\"noreferrer"
-"\">github page</a></p>\n"
+"open-plan tool (including <a href=\"%(url_simulation_server)s\" "
+"target=\"_blank\" rel=\"noreferrer\">simulation server</a> and user "
+"interface) by visiting our <a href=\"%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">github page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
@@ -1196,22 +1761,22 @@ msgstr ""
 "target=\"_blank\" rel=\"noreferrer\">Github-Seite</a> besuchen.</p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:47
+#: templates/legal/about.html:85
 msgid "Simulation server"
 msgstr "Simulationserver"
 
-#: templates/legal/about.html:49
+#: templates/legal/about.html:87
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t\tOur simulations run on a server hosted at RLI, the code to setup "
 "the simulation server is licenced under MIT License and publicly available "
-"on <a href=\"%(url_simulation_server)s\" target=\"_blank\" rel=\"noreferrer"
-"\">our github page</a>.\n"
-"\t\t\t\t\tThe simulation are perfomed with <a href=\"%(url_mvs)s\" target="
-"\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a>, a code using <a "
-"href=\"%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer\">oemof-solph</a> "
-"to simulate energy system model from techno-economic parameters.\n"
+"on <a href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">our github page</a>.\n"
+"\t\t\t\t\tThe simulation are perfomed with <a href=\"%(url_mvs)s\" "
+"target=\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a>, a code "
+"using <a href=\"%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer\">oemof-"
+"solph</a> to simulate energy system model from techno-economic parameters.\n"
 "\t\t\t\t\t"
 msgstr ""
 "\n"
@@ -1219,20 +1784,37 @@ msgstr ""
 "wird, der Code zur Einrichtung der Simulationsserver steht unter MIT-Lizenz "
 "und ist öffentlich verfügbar auf <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">unserer Github-Seite</a>.\n"
-"\t\t\t\t\tDie Simulationen werden mit <a href=\"%(url_mvs)s\" target=\"_blank"
-"\" rel=\"noreferrer\">multi-vector-simulator</a> durchgeführt, einem Code auf Basis"
-" von <a href=%(url_oemof)s\" target=\"_blank\" rel=\"noreferrer\">oemof-solph</a> , um "
-"ein Energiesystemmodell anhand technisch-ökonomischer Parameter zu "
-"simulieren.\n"
+"\t\t\t\t\tDie Simulationen werden mit <a href=\"%(url_mvs)s\" "
+"target=\"_blank\" rel=\"noreferrer\">multi-vector-simulator</a> "
+"durchgeführt, einem Code auf Basis von <a href=%(url_oemof)s\" "
+"target=\"_blank\" rel=\"noreferrer\">oemof-solph</a> , um ein "
+"Energiesystemmodell anhand technisch-ökonomischer Parameter zu simulieren.\n"
 "\t\t\t\t\t"
 
-#: templates/legal/about.html:56
+#: templates/legal/about.html:94
 msgid "This webapp design"
 msgstr "Auslegegung des Webapps"
 
-#: templates/legal/about.html:57
+#: templates/legal/about.html:95
 msgid "Bryan Lancien from "
 msgstr "Bryan Lancien vom "
+
+#: templates/legal/contact.html:10
+msgid "Contact - open_plan"
+msgstr "Kontakt - open_plan"
+
+#: templates/legal/contact.html:29
+msgid "Contact us"
+msgstr "Kontakt"
+
+#: templates/legal/contact.html:30
+msgid ""
+"You can contact us by email at open_plan at rl-institut.de. Note that this "
+"information is only visible if you are logged in."
+msgstr ""
+"Sie können uns per E-Mail unter open_plan at rl-institut.de kontaktieren. "
+"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sieangemeldet "
+"sind."
 
 #: templates/legal/imprint.html:4
 msgid "Imprint - open_plan"
@@ -1413,17 +1995,19 @@ msgstr "Lizenz - open_plan"
 #: templates/legal/license.html:21
 #, python-format
 msgid ""
-"The source code of this <a href=\"%(url_gui)s\" target=\"_blank\" rel="
-"\"noreferrer\">user interface</a> and of the <a href="
-"\"%(url_simulation_server)s\" target=\"_blank\" rel=\"noreferrer"
-"\">simulation server</a> are licensed under <a href=\"%(url_license)s\" "
-"target=\"_blank\" rel=\"noreferrer\">MIT license</a></p>"
+"The source code of this <a href=\"%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">user interface</a> and of the <a "
+"href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">simulation server</a> are licensed under <a "
+"href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT license</"
+"a></p>"
 msgstr ""
-"Der Quellcode dieser <a href=%(url_gui)s\" target=\"_blank\" rel=\"noreferrer"
-"\">Benutzeroberfläche</a> und des <a href=\"%(url_simulation_server)s\" "
-"target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> sind lizenziert "
-"unter <a href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT-"
-"Lizenz</a></p>"
+"Der Quellcode dieser <a href=\"%(url_gui)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Benutzeroberfläche</a> und des <a "
+"href=\"%(url_simulation_server)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Simulationsserver</a> sind lizenziert unter <a "
+"href=\"%(url_license)s\" target=\"_blank\" rel=\"noreferrer\">MIT-Lizenz</"
+"a></p>"
 
 #: templates/legal/privacy.html:5 templates/legal/privacy_DE.html:5
 msgid "Privacy - open_plan"
@@ -2415,7 +2999,7 @@ msgstr ""
 msgid "Sponsor - open-plan-tool"
 msgstr "Fördern - open-plan-tool"
 
-#: templates/legal/sponsor_feature.html:13 templates/navbar.html:32
+#: templates/legal/sponsor_feature.html:13 templates/navbar.html:37
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
@@ -2469,29 +3053,33 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/navbar.html:26
+#: templates/navbar.html:28
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: templates/navbar.html:29 templates/usecase/usecase_search.html:25
+#: templates/navbar.html:31
+msgid "Video-tutorials"
+msgstr "Video-tutorials"
+
+#: templates/navbar.html:42 templates/usecase/usecase_search.html:25
 msgid "Use cases"
 msgstr "Anwendungsbeispiele"
 
-#: templates/navbar.html:71
+#: templates/navbar.html:88
 msgid "Account"
 msgstr "Konto"
 
-#: templates/navbar.html:75
+#: templates/navbar.html:92
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:83
+#: templates/navbar.html:100
 #: templates/registration/password_reset_complete.html:10
 #: templates/registration/signup.html:23
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:87 templates/registration/login.html:23
+#: templates/navbar.html:104 templates/registration/login.html:23
 #: templates/registration/signup.html:28
 msgid "Sign up"
 msgstr "Registrieren"
@@ -3106,8 +3694,9 @@ msgid ""
 "I have read and accept the <a target='_blank' href='%(privacy_url)s'>privacy "
 "statement</a> from open_plan"
 msgstr ""
-"Ich habe die <a target='_blank' href=\"%(privacy_url)s"
-"\">Datenschutzbestimmungen</a> von open_plan gelesen und akzeptiert."
+"Ich habe die <a target='_blank' "
+"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von open_plan gelesen "
+"und akzeptiert."
 
 #: users/views.py:35
 msgid "Activate your account."

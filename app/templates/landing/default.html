@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+
+
+
+{% block head_block %}
+	<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
+{% block index %}
+  {% if not user.is_authenticated %}
+	{% get_current_language as LANGUAGE_NAME %}
+<main>
+
+	<section class="hero2 section" id="hero" data-aos="fade-up">
+		<div>
+			<div class="hero2__text ">
+				<h1>
+					{% translate "Model your local energy system" %}
+				</h1>
+				<span>
+					{% translate "Use the open-plan-tool for a variety of different use cases in the context of an energy system analysis" %}
+				</span>
+				<a href="{% url 'signup' %}" class="btn btn--medium">{% translate "To open-plan-tool" %}</a>
+			</div>
+			<div class="hero2__image">
+
+				{% if "de" in LANGUAGE_NAME %}
+				<img src="{% static 'assets/illustrations/tool_de.png' %}" alt="Energy system GUI">
+				{% else %}
+				<img src="{% static 'assets/illustrations/tool_en.png' %}" alt="Energy system GUI">
+				{% endif %}
+			</div>
+		</div>
+	</section>
+
+	<!-- commented out section -->
+	<!--section class="energy-cell">
+    <div class="energy-cell__wrap">
+      <div class="energy-cell__heading">
+        <h2>Energy cells explained</h2>
+      </div>
+      <div class="energy-cell__content">
+        <div class="text text--left">
+          <div class="text__item">
+            <p>The cellular approach is a new energy system model framework based on decentralized energy systems and sector coupling</p>
+          </div>
+          <div class="text__item">
+            <p>The cellular approach describes an energy system organized in so-called energy cells</p>
+          </div>
+        </div>
+        <div class="img">
+          <picture>
+            <source 
+               media="(min-width: 1280px)"
+               srcset="{% static 'assets/open_plan_EC_explained_v2.svg' %}">
+            <img src="{% static 'assets/open_plan_EC_explained.svg' %}" alt="Energy cells inside a larger energy cell">
+         </picture>
+        </div>
+        <div class="text text--right">
+          <div class="text__item">
+            <p>The fundamental idea of the cellular approach is to optimize energy system planning at all possible levels, from the smallest energy cell to the largest one.</p>
+          </div>
+          <div class="text__item">
+            <p>An energy cell can contain and combine many forms of energy such as electricity, heat, gas, etc.</p>
+          </div>
+        </div>
+      </div>
+      <div class="energy-cell__hide">
+        <a href="#" id="hideShowBtn" class="hidden" onclick="showHide('ECText', this.id); return false;">Show more</a>
+        <div id="ECText" class="hidden">
+          <p>The adoption of the <a href="https://www.bmwi.de/Redaktion/DE/Downloads/G/gesetzentwurf-aenderung-erneuerbare-energien-gesetzes-und-weiterer-energierechtlicher-vorschriften.pdf?__blob=publicationFile&v=4" target="_blank" rel="noopener noreferrer">German Renewable Energy Law „EEG 2021“</a> opens a unique opportunity to be leveraged by looking at a new energy system planning perspective. The full transition to renewable energy sources and climate neutrality by 2050 requires a high level of citizens' acceptance, reachable by local participation opportunities. Such frameworks can enable tenants to benefit from rooftop PV installations and local communities and authorities to value wind power generation. These are two examples that show how bottom-up approaches can contribute to a successful energy transition, ultimatively requiring a cellular approach: "The cellular approach is a new organizational model for energy supply. In this interdisciplinary model, technical, economic, legal and political (and social) concerns are taken into account. The central component of this model is the energy cell." <a href="#footnote-1">[1]</a></p>
+          <p>This model was developed by the German Association for Electrical Engineering, VDE. It proposes a new way to organize future energy system networks. The cellular approach incorporates the idea that the production and consumption of energy are locally balanced forming a so-called energy cell. An energy cell is not geographically limited but it is a system composed of at least a generator, a converter, a storage unit, a load, a protection and control system and a connection to the distribution grid. An energy cell can contain many forms of energy such as electricity, heat, gas and mobility thus embracing the concept of sector coupling.</p>
+          <p class="footnote" id="footnote-1">[1] VDE Verband der Elektrotechnik Elektronik Informationstechnik e.V.: Cellular Energy System - A Contribution to the Concretization of the Cellular Approach with Recommendations for Action, Frankfurt am Main, May 2019</p>
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+
+
+	<section class="special-features2">
+		<div>
+			<div class="special-features2__heading">
+				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo">
+				<h2>{% translate "Special features of the open-plan-tool" %}</h2>
+			</div>
+			<div class="special-features2__items">
+				<div class="special-features2__item">
+					<img src="{% static 'assets/icons/i_easy_use_hex.png' %}" alt="Snapping fingers">
+					<h3>{% translate "Easy to use" %}</h3>
+					<p>
+						{% translate "The open-plan-tool offers an intuitive and user-friendly interface that allows users to easily design energy systems using drag-and-drop functions. No programming knowledge is required, which makes it easy to get started and accessible for use in complex models." %}
+					</p>
+				</div>
+				<div class="special-features2__item">
+					<img src="{% static 'assets/icons/i_open_science_hex.png' %}" alt="Open science circle">
+					<h3>{% translate "Open licence" %}</h3>
+					<p>
+						{% translate "The open_plan project follows the open science approach and is based on the open energy modeling framework (oemof). All data, methods and source code are available under open licenses. This ensures transparency, reproducibility and traceability – crucial aspects for scientific work." %}
+					</p>
+				</div>
+				<div class="special-features2__item">
+					<img src="{% static 'assets/icons/i_coop_hex.png' %}" alt="Stakeholders">
+					<h3>{% translate "Cooperation between research and practice" %}</h3>
+					<p>
+						{% translate "The open_plan community bridges the gap between scientific theory and practical application. Its ease of use makes it attractive for practitioners, while the integration of current scientific approaches offers researchers a valuable platform. In this way, the tool promotes the development of innovative energy systems for various application areas." %}
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="target2">
+		<div>
+			<div class="target2__heading">
+				<h2>{% translate 'Target Groups' %}</h2>
+			</div>
+			<!-- TODO make it lang dependent -->
+			<img src="{% static 'assets/illustrations/target-groups.png' %}" alt="Target groups categories" width="1280">
+		</div>
+	</section>
+
+	{% include 'landing/features_section.html' %}
+
+  <!--section class="projects">
+    <div class="projects__wrap">
+      <div class="projects__heading">
+        <h2>Related projects</h2>
+      </div>
+      <div class="projects__content">
+        <div class="projects__item">
+          <div class="icon">
+            <img src="{% static 'assets/logos/logo_egon_v3.png' %}" alt="eGo_n logo">
+          </div>
+          <div class="text">
+            <a href="https://ego-n.org/" target="_blank" rel="noopener noreferrer"><h3>eGo<sup>n</sup></h3></a>
+            <p>Open and cross-sectoral planning of transmission and distribution grids</p>
+            <a href="https://ego-n.org/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              Visit website
+            </a>
+          </div>
+        </div>
+        <div class="projects__item">
+          <div class="icon icon--larger">
+            <img src="{% static 'assets/logos/logo-eland-original.svg' %}" alt="E-LAND logo">
+          </div>
+          <div class="text">
+            <a href="https://elandh2020.eu/" target="_blank" rel="noopener noreferrer"><h3>E-LAND</h3></a>
+            <p>Toolbox for the low-carbon and climate-resistant transition of energy systems, which considers technical, social, and economic aspects equally</p>
+            <a href="https://elandh2020.eu/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              Visit website
+            </a>
+          </div>
+        </div>
+        <div class="projects__item">
+          <div class="icon">
+            <img src="{% static 'assets/logos/open_MODEX_logo.png' %}" alt="open_MODEX logo">
+          </div>
+          <div class="text">
+            <a href="https://reiner-lemoine-institut.de/open_modex/" target="_blank" rel="noopener noreferrer"><h3>open_MODEX</h3></a>
+            <p>Model experiment to compare and determine synergy potentials of open-source frameworks in energy system analysis</p>
+            <a href="https://reiner-lemoine-institut.de/open_modex/" target="_blank" rel="noopener noreferrer" class="btn btn--hollow">
+              <img src="{% static 'assets/icons/i_new_tab.svg' %}" alt="open link in new tab">
+              See project
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+	<section class="related2">
+		<div>
+			<div class="related2__heading">
+				<h2>{% translate "Related content" %}</h2>
+			</div>
+			<div class="related2__items">
+				<a href="{% url 'usecase_search' %}" class="btn btn--medium">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M7.99957 11.805H7.19989C6.31208 11.8059 5.59302 12.5259 5.59302 13.4128V15.7378C5.59302 16.6256 6.31208 17.3456 7.19989 17.3466H11.2499V20.985L12.0243 22.3125L12.7499 20.985V17.3466H16.7999C17.6868 17.3456 18.4068 16.6266 18.4068 15.7397V13.4147C18.4068 12.5269 17.6877 11.8059 16.7999 11.805H16.0002C15.9458 11.805 15.8999 11.7638 15.8933 11.7094L15.2755 6.15002C15.2727 6.12002 15.2821 6.08909 15.3027 6.06659C15.3233 6.04409 15.3524 6.03096 15.3824 6.03096C16.1109 6.03002 16.7474 5.54064 16.9358 4.83751L17.2865 3.525C17.4168 3.04219 17.3146 2.52562 17.0108 2.12906C16.7062 1.73251 16.2346 1.5 15.734 1.5H8.2659C7.76528 1.5 7.29371 1.7325 6.98903 2.12906C6.68528 2.52562 6.58309 3.04219 6.71341 3.525L7.06403 4.84032C7.2534 5.54251 7.88996 6.03094 8.61747 6.03094C8.64747 6.03094 8.67653 6.04406 8.69716 6.06656C8.71779 6.08906 8.72716 6.12 8.72435 6.15L8.10748 11.7094H8.10654C8.09998 11.7637 8.05394 11.805 7.99957 11.805ZM9.81457 5.06629C9.50895 4.72503 9.07206 4.53003 8.61457 4.53097C8.56582 4.53097 8.52363 4.49816 8.51051 4.45128L8.16176 3.13503C8.15239 3.10315 8.15989 3.06846 8.18051 3.04221C8.20114 3.01503 8.23208 2.99909 8.26583 3.00003H15.7339C15.7677 2.99909 15.7986 3.01503 15.8192 3.04221C15.8398 3.06846 15.8473 3.10315 15.838 3.13503L15.4864 4.45222H15.4855C15.4733 4.49816 15.4311 4.53097 15.3824 4.53097C14.9249 4.53097 14.4898 4.72597 14.1852 5.06629C13.8805 5.40754 13.7352 5.86129 13.7848 6.31597L14.4027 11.8753C14.4927 12.69 15.1808 13.3059 16.0001 13.305H16.7998C16.8589 13.305 16.9067 13.3538 16.9067 13.4128V15.7378C16.9067 15.7969 16.8589 15.8456 16.7998 15.8456H7.19982C7.14076 15.8456 7.09294 15.7969 7.09294 15.7378V13.4128C7.09294 13.3538 7.14076 13.305 7.19982 13.305H8.00043C8.81888 13.3059 9.50792 12.69 9.59792 11.8753L10.2157 6.31597C10.2654 5.86129 10.1202 5.40659 9.81457 5.06629Z" fill="white"/>
+					</svg>
+					<span>{% translate "Usecases" %}</span>
+				</a>
+				<a href="https://open-plan-documentation.readthedocs.io/en/latest" class="btn btn--medium" target="_blank" rel="noopener noreferrer">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8.3729 5.19824C7.38571 5.19824 6.55884 6.02511 6.55884 7.01231V17.2901C6.55884 18.1197 7.24039 18.8013 8.07009 18.8013H16.9875C17.2247 18.8013 17.4413 18.5857 17.4413 18.3476V8.3727C17.4394 8.10644 17.2472 7.91708 16.9875 7.91895C16.5516 7.91895 16.081 7.44834 16.081 7.0124C16.081 6.57647 16.5516 6.10585 16.9875 6.10585C17.2275 6.1096 17.4413 5.8921 17.4413 5.65211C17.4413 5.41211 17.2275 5.19555 16.9875 5.19836L8.3729 5.19824ZM8.3729 6.10479H15.4248C15.2664 6.37292 15.1745 6.68324 15.1745 7.01135C15.1745 7.33947 15.2664 7.64979 15.4248 7.9179H8.3729C7.93697 7.9179 7.46635 7.44728 7.46635 7.01135C7.46635 6.57541 7.93697 6.10479 8.3729 6.10479ZM7.46635 8.57511C7.73448 8.73261 8.04573 8.82543 8.3729 8.82543H16.5348V17.8938H8.07098C7.72785 17.8938 7.4663 17.6323 7.4663 17.2892L7.46635 8.57511ZM9.12854 10.4876C8.87822 10.4876 8.6748 10.6911 8.6748 10.9414C8.6748 11.1917 8.87824 11.3951 9.12854 11.3951H14.8717C15.1221 11.3951 15.3255 11.1917 15.3255 10.9414C15.3255 10.6911 15.122 10.4876 14.8717 10.4876H9.12854ZM9.12854 12.9063C8.87822 12.9063 8.6748 13.1098 8.6748 13.3601C8.6748 13.6104 8.87824 13.8138 9.12854 13.8138H14.8717C15.1221 13.8138 15.3255 13.6104 15.3255 13.3601C15.3255 13.1098 15.122 12.9063 14.8717 12.9063H9.12854ZM9.12854 15.3251C8.87822 15.3251 8.6748 15.5285 8.6748 15.7788C8.6748 16.0291 8.87824 16.2326 9.12854 16.2326H14.8717C15.1221 16.2326 15.3255 16.0291 15.3255 15.7788C15.3255 15.5285 15.122 15.3251 14.8717 15.3251H9.12854Z" fill="white"/>
+					</svg>
+					<span>{% translate "user Manual" %}</span>
+				</a>
+				<a href="https://www.youtube.com/channel/UCg8NUlNM4m9iT94K3Zf8S2A" class="btn btn--medium" target="_blank" rel="noopener noreferrer">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<g clip-path="url(#clip0_43_318)">
+							<path d="M9.52588 17.4675V6.66748L18.3411 12.0675L9.52588 17.4675Z" fill="white"/>
+							<path d="M9.52588 17.4675L18.3411 12.0675L9.52588 6.66748V17.4675Z" fill="white"/>
+							<path d="M12 0C8.81712 0 5.7648 1.26468 3.5148 3.5148C1.2648 5.76492 0 8.81736 0 12C0 15.1826 1.26468 18.2352 3.5148 20.4852C5.76492 22.7352 8.81736 24 12 24C15.1826 24 18.2352 22.7353 20.4852 20.4852C22.7352 18.2351 24 15.1826 24 12C24 8.81736 22.7353 5.7648 20.4852 3.5148C18.2351 1.2648 15.1826 0 12 0ZM12 22.32C9.26256 22.32 6.6384 21.2325 4.70256 19.2974C2.76756 17.3615 1.68 14.7374 1.68 12C1.68 9.26256 2.76749 6.6384 4.70256 4.70256C6.6385 2.76756 9.26256 1.68 12 1.68C14.7374 1.68 17.3616 2.76749 19.2974 4.70256C21.2324 6.6385 22.32 9.26256 22.32 12C22.32 14.7374 21.2325 17.3616 19.2974 19.2974C17.3615 21.2324 14.7374 22.32 12 22.32Z" fill="white"/>
+						</g>
+						<defs>
+							<clipPath id="clip0_43_318">
+								<rect width="24" height="24" fill="white"/>
+							</clipPath>
+						</defs>
+					</svg>
+					<span>{% translate "Video-Tutorials" %}</span>
+				</a>
+			</div>
+		</div>
+	</section>
+
+	{% include 'landing/dev_section.html' %}
+
+	{% include 'landing/newsletter.html' %}
+
+	{% include 'landing/logos.html' %}
+
+	 <!-- ABOUT SECTION TO MOVE TO CONTACT section-- class="about">
+    <div class="about__wrap">
+      <div class="about__heading">
+        <h2>About us</h2>
+      </div>
+      <div class="about__text">
+        <p>The open_plan project consortium is composed of the Reiner Lemoine Institut (RLI), Deutsche Gesellschaft für Sonnenenergie (DGS) and the Potsdam Institut für Klimafolgenforschung (PIK). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWi's 7th Energy Research Programme "Innovation for the energy transition".</p>
+      </div>
+      <div class="about__logos">
+        <div class="about__partners">
+          <div>
+            <a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
+            </a>
+          </div>
+          <div>
+            <a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'assets/logos/ifam_logo.png' %}" alt="Fraunhofer IFAM logo">
+            </a>
+          </div>
+        </div>
+        <div class="about__support">
+
+								{% if "de" in LANGUAGE_NAME %}
+				          <a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+          </a>
+			{% else %}
+				          <a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+            <img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+          </a>
+			{% endif %}
+
+
+
+        </div>
+      </div>
+    </div>
+  </section-->
+
+
+</main>
+
+
+
+  {% endif %}
+{% endblock index %}

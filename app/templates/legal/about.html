@@ -1,30 +1,68 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load i18n %}
 
 
-{% block title %} {% translate "About - open_plan" %} {% endblock title%}
+{% block head_block %}
+	<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
+{% block title %} {% translate "About us - open_plan" %} {% endblock title%}
 
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
 {% block content %}
+
+	{% get_current_language as LANGUAGE_NAME %}
+
 <main>
 	<section class="header">
 		<div>
 			<div class="header__left"></div>
-			<h1 class="header__title">{% translate "About" %}</h1>
+			<h1 class="header__title">{% translate "About us" %}</h1>
 			<div class="header__back"></div>
 		</div>
 	</section>
 	<section class="standard-layout">
 		<div>
 			<div class="standard-layout__paragraph">
-				<h2>{% translate "open_plan project consortium" %}</h2>
+				<h2>{% translate "open_plan 2.0 project consortium" %}</h2>
+				{% blocktranslate with url_rli="https://reiner-lemoine-institut.de/" url_dgs="https://www.dgs-berlin.de" url_ifam="https://www.ifam.fraunhofer.de" url_pik="https://www.pik-potsdam.de/de" %}
+          <p>The open_plan 2.0 project consortium is composed of the <a href="{{url_rli}}" target="_blank" rel="noreferrer">Reiner Lemoine Institut</a> (RLI), <a href="{{url_dgs}}" target="_blank" rel="noreferrer">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a href="{{url_ifam}}" target="_blank" rel="noreferrer">the Fraunhofer IFAM</a> (IFAM). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWK's ????th Energy Research Programme "?????".</p>
+				{% endblocktranslate %}
+				<div class="about__partners">
+				<div>
+					<a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo">
+					</a>
+				</div>
+				<div>
+					<a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo">
+					</a>
+				</div>
+				<div>
+					<a href="https://www.ifam.fraunhofer.de" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/ifam_logo.png' %}" alt="Fraunhofer IFAM logo">
+					</a>
+				</div>
+			</div>
+			  <div class="about__support">
+				{% if "de" in LANGUAGE_NAME %}
+				<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+				</a>
+		    {% else %}
+				<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo">
+				</a>
+				{% endif %}
+				</div>
+			</div>
+			<div class="standard-layout__paragraph">
+				<h2>{% translate "open_plan 1.0 project consortium" %}</h2>
 				{% blocktranslate with url_rli="https://reiner-lemoine-institut.de/" url_dgs="https://www.dgs-berlin.de" url_pik="https://www.pik-potsdam.de/de" %}
 				<p>The open_plan project consortium is composed of the <a href="{{url_rli}}" target="_blank" rel="noreferrer">Reiner Lemoine Institut</a> (RLI), <a href="{{url_dgs}}" target="_blank" rel="noreferrer">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a href="{{url_pik}}" target="_blank" rel="noreferrer">Potsdam Institut für Klimafolgenforschung</a> (PIK). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWi's 7th Energy Research Programme "Innovation for the energy transition".</p>
 				{% endblocktranslate %}
-			</div>
-			<div class="standard-layout__paragraph">
-				<h2>{% translate "open_plan project website" %}</h2>
-				{% blocktranslate with url_op="https://open-plan-tool.org/" %}<p>You can visit the open_plan <a href="{{url_op}}" target="_blank" rel="noreferrer">website</a> to know more about the cellular approach and the open_plan project </p>{% endblocktranslate %}
 			</div>
 			<div class="standard-layout__paragraph standard-layout__paragraph--foreground">
 				<h2>{% translate "Feedback or question?" %}</h2>
@@ -34,7 +72,7 @@
 				<p>You can always <a href="{{url_feedback}}">leave us a comment or feedback</a> on things you would improve. You can also visit <a href="{{url_github}}" target="_blank" rel="noreferrer">our github project page</a> to see which bugs are being fixed and which new features are being developed.</p>
 				{% endblocktranslate %}
 				{% blocktranslate %}
-				<p>If you wish to sponsor a new feature of open-plan-tool, please visit our <a href="{{url_sponsor}}" target="_blank" rel="noreferrer">sponsoring page<a></p>
+				<p>If you wish to sponsor a new feature of open-plan-tool, please visit our <a href="{{url_sponsor}}" target="_blank" rel="noreferrer">sponsoring page</a></p>
 				{% endblocktranslate %}
 			</div>
 			<div class="standard-layout__paragraph standard-layout__paragraph--small">
@@ -57,6 +95,10 @@
 				<p>{% translate "Bryan Lancien from " %} <a href="https://bryanlancien-ui.com/about.html" target="_blank" rel="noreferrer">bryanlancien-ui</a></p>
 			</div>
 		</div>
+
+
+
+
 	</section>
 </main>
 {% endblock content %}

@@ -3,6 +3,17 @@ from .views import *
 
 urlpatterns = [
     path("", home, name="home"),
+    # TODO provide landing with different URL for different languages
+    # https://stackoverflow.com/questions/28675442/switch-language-in-django-with-the-translated-url-redirect
+    # https://docs.djangoproject.com/en/5.1/topics/http/urls/
+    # TODO https://docs.djangoproject.com/en/5.1/topics/i18n/translation/#translating-url-patterns
+    path("<int:version>", home, name="home"),
+    path("commune", landing_commune, name="landing_commune"),
+    path("cellular", landing_cellular, name="landing_cellular"),
+    path("index", landing_default, name="landing_default"),
+    path("commune/<int:version>", landing_commune, name="landing_commune"),
+    path("cellular/<int:version>", landing_cellular, name="landing_cellular"),
+    path("index/<int:version>", landing_default, name="landing_default"),
     # Project
     path("project/create/", project_create, name="project_create"),
     path("notimplementedyet/", not_implemented, name="not_implemented"),

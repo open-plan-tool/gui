@@ -2,37 +2,62 @@
 {% load static %}
 {% load i18n %}
 
+{% block head_block %}
+<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
 {% block index %}
-  {% if not user.is_authenticated %}
-  <main>
-    <section class="hero section" id="hero" data-aos="fade-up">
-      <div>
-        <div class="hero__text">
-          <h1>
-            {% translate "Model your local energy system" %}
-          </h1>
-          <span>
-                    {% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}
-                  </span>
-          <a href="{% url 'signup' %}" class="btn btn--medium">
-            {% translate "Try out" %}
+{% if not user.is_authenticated %}
+{% get_current_language as LANGUAGE_NAME %}
+<main class="landing-page">
+
+	<section class="cellular2 section" id="hero" data-aos="fade-up">
+		<div>
+			<div class="cellular2__text">
+				<h1>{% translate "Open-source planning tool for the energy transition" %}</h1>
+				<span>{% translate "With the open-plan-tool, you can plan and design energy systems in an open and free framework. " %}</span>
+				<a href="#tool-anchor" class="btn btn--medium">{% translate "To open-plan-tool" %}</a>
+			</div>
+			<div class="cellular2__image">
+				<img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
+			</div>
+		</div>
+	</section>
+
+	<section class="application2">
+		<div>
+			<h2>{% translate "Application areas" %}</h2>
+			<!--div class="dev__text">
+				<p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
+			</div-->
+			<div class="application2__cards">
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_heating_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_commune' %}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
+				</div>
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_cells_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_cellular' %}" class="btn btn--medium btn--hollow">{% translate "Cellular energy systems" %}</a>
+				</div>
+				<div class="application2__card">
+					<img src="{% static 'assets/icons/i_analysis_hex.png' %}" alt="" width="60">
+					<a href="{% url 'landing_default' %}" class="btn btn--medium btn--hollow">{% translate "General energy system analysis" %}</a>
+				</div>
+			</div>
+			<!-- THIS SHOULD BE ADDED TO THE DOCUMENTATION div class="dev__text">
+<p>{% translate "If you want to collaborate or are interested in the project, you can find more information on:" %}</p>
+<div class="dev__links">
+	<a href="publications_en.html" class="btn btn--hollow">Publications</a>
+	<a href="https://github.com/open-plan-tool" class="btn btn--hollow">GitHub</a>
+	<a href="https://open-plan-documentation.readthedocs.io/en/latest/" class="btn btn--hollow">Read the Docs</a>
+	<a href="https://www.youtube.com/channel/UCg8NUlNM4m9iT94K3Zf8S2A" class="btn btn--hollow" target="_blank" rel="noopener noreferrer">YouTube</a>
+</div-->
+		</div>
+	</section>
 
 
-          </a>
-        </div>
-        <div class="hero__image">
-					{% get_current_language as LANGUAGE_NAME %}
-					{% if "de" in LANGUAGE_NAME %}
-          	<img src="{% static 'assets/illustrations/tool_de.png' %}" alt="Energy system GUI">
-					{% else %}
-          	<img src="{% static 'assets/illustrations/tool_en.png' %}" alt="Energy system GUI">
-					{% endif %}
-        </div>
-      </div>
-    </section>
-		{% include 'landing/newsletter.html' %}
-
-
-  </main>
-  {% endif %}
+	{% include 'landing/newsletter.html' %}
+	{% include 'landing/logos.html' %}
+</main>
+{% endif %}
 {% endblock index %}
