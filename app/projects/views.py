@@ -66,6 +66,7 @@ def not_implemented(request):
 @require_http_methods(["GET"])
 def home(request):
     if request.user.is_authenticated:
+        messages.warning(request, f"Thank you for your feedback.")
         return HttpResponseRedirect(reverse("project_search"))
     else:
         return render(request, "index.html")
@@ -506,6 +507,15 @@ def project_search(request, proj_id=None, scen_id=None):
     project_revoke_form = ProjectRevokeForm(proj_id=proj_id)
     usecase_form = UseCaseForm(
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
+    )
+
+    messages.warning(
+        request,
+        mark_safe(
+            _(
+                "<p>Hello dear open-plan-tool user!</br></br> We would like to let you know we are moving the tool to a new server. From now on you should be able to the tool on the new server via <a href='https://open-plan-tool.apps2.rl-institut.de' >https://open-plan-tool.apps2.rl-institut.de</a>. Soon the tool will be available via <a>https://open-plan-tool.org</a> and <a>https://open-plan.rl-institut.de</a> will be automatically redirected to it. </br>Please do no create new projects/scenario here as from now on the new scenarios you are creating here WILL NOT BE transferred to the new server. </br>Instead, create new scenarios on the new server (login with your credentials via provided link). Should you encounter any inconvenience, please let us know at <a>open-plan@rl-institut</a>. Note that we will be able to retrieve your data as we will not erase the data on the old server immediately, however we would like to avoid doing individual project backup.</br></br>Your open_plan team</p>"
+            )
+        ),
     )
 
     if request.user.id == 1:
