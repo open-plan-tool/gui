@@ -148,6 +148,7 @@
         const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
         const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
         const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
+        const tsGetUrl = `{% url 'get_timeseries' %}`;
     </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 

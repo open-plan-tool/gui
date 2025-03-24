@@ -5,43 +5,38 @@
 <!doctype html>
 <html lang="de">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'assets/favicon/site.webmanifest' %}">
-    <link rel="mask-icon" href="{% static 'assets/favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#2b5797">
-    <meta name="theme-color" content="#ffffff">
-    <!--<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'node_modules/aos/dist/aos.css' %}">-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/apple-touch-icon.png' %}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/favicon-32x32.png' %}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'assets/favicon/site.webmanifest' %}">
+	<link rel="mask-icon" href="{% static 'assets/favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#2b5797">
+	<meta name="theme-color" content="#ffffff">
+	<!--<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'node_modules/aos/dist/aos.css' %}">-->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
 
 
-    <title>{% block title %} open_plan {% endblock title %}</title>
+	<title>{% block title %} open_plan {% endblock title %}</title>
 
 
 
-    {% block head_block %}
-    {% endblock head_block %}
-    {% if DEBUG == True %}
-        {% include "scss.html" %}
-    {% else %}
-        <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
-    {% endif %}
+	{% block head_block %}
+	{% endblock head_block %}
+	{% if DEBUG == True %}
+	{% include "scss.html" %}
+	{% else %}
+	<link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
+	{% endif %}
 
-	  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 
-    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+	<!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
 </head>
-
-
-
-
-
 
 <body>
 
@@ -54,7 +49,7 @@
 {% setvar "https://open-plan-documentation.readthedocs.io/en/latest/" as documentation_url %}
 
 {% block navbar %}
-    {% include "navbar.html" with user=user documentation_url=documentation_url %}
+{% include "navbar.html" with user=user documentation_url=documentation_url %}
 {% endblock navbar %}
 
 {% block topology %}{% endblock %}
@@ -67,9 +62,9 @@
 
 <!-- modal to show debug messages -->
 <div class="modal fade" id="messagesModal" tabindex="-1" role="dialog" aria-labelledby="messagesModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-       {% include 'messages.html' %}
-  </div>
+	<div class="modal-dialog" role="document">
+		{% include 'messages.html' %}
+	</div>
 </div>
 
 {% block content %}
@@ -77,24 +72,25 @@
 
 
 {% block footer %}
-<footer class="footer">
-
-
-    <div>
-        <div class="footer__logo">
-            <img src="{% static 'assets/logos/open_plan_logo_horizontal.svg' %}" alt="open_plan logo">
-        </div>
-        <div class="footer__links">
-            <ul>
-                <li><a href="{% url 'about' %}">{% translate "Contact" %}</a></li>
-                <li><a href="{% url 'license' %}">{% translate "License" %}</a></li>
-                <li><a href="{% url 'imprint' %}">{% translate "Imprint" %}</a></li>
-                <li><a href="{% url 'privacy' %}">{% translate "Privacy" %}</a></li>
-            </ul>
-        </div>
-    </div>
+<footer class="footer footer2">
+	<div>
+		<div class="footer__logo">
+			<a href="{% url 'home' %}">
+				<img src="{% static 'assets/logos/open_plan_logo_horizontal.svg' %}" alt="open_plan logo">
+			</a>
+		</div>
+		<div class="footer__links">
+			<ul>
+				<!--li><a href="{% url 'about' %}">{% translate "About" %}</a></li>
+				<li><a href="{% url 'contact' %}">{% translate "Contact" %}</a></li-->
+				<li><a href="{% url 'license' %}">{% translate "License" %}</a></li>
+				<li><a href="{% url 'imprint' %}">{% translate "Imprint" %}</a></li>
+				<li><a href="{% url 'privacy' %}">{% translate "Privacy" %}</a></li>
+			</ul>
+		</div>
+	</div>
 </footer>
-    {% endblock footer %}
+{% endblock footer %}
 
 
 <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
@@ -106,10 +102,10 @@
 
 {% if messages %}
 <script>
-    $(document).ready(function(){
-        var messagesModal = new bootstrap.Modal(document.getElementById('messagesModal'))
-        messagesModal.show();
-    });
+	$(document).ready(function(){
+			var messagesModal = new bootstrap.Modal(document.getElementById('messagesModal'))
+			messagesModal.show();
+	});
 
 </script>
 {% endif %}

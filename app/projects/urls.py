@@ -3,6 +3,17 @@ from .views import *
 
 urlpatterns = [
     path("", home, name="home"),
+    # TODO provide landing with different URL for different languages
+    # https://stackoverflow.com/questions/28675442/switch-language-in-django-with-the-translated-url-redirect
+    # https://docs.djangoproject.com/en/5.1/topics/http/urls/
+    # TODO https://docs.djangoproject.com/en/5.1/topics/i18n/translation/#translating-url-patterns
+    path("<int:version>", home, name="home"),
+    path("commune", landing_commune, name="landing_commune"),
+    path("cellular", landing_cellular, name="landing_cellular"),
+    path("index", landing_default, name="landing_default"),
+    path("commune/<int:version>", landing_commune, name="landing_commune"),
+    path("cellular/<int:version>", landing_cellular, name="landing_cellular"),
+    path("index/<int:version>", landing_default, name="landing_default"),
     # Project
     path("project/create/", project_create, name="project_create"),
     path("notimplementedyet/", not_implemented, name="not_implemented"),
@@ -135,6 +146,8 @@ urlpatterns = [
     # path('scenario/upload/<int:proj_id>', LoadScenarioFromFileView.as_view(), name='scenario_upload'),
     # Timeseries Model
     path("upload/timeseries", upload_timeseries, name="upload_timeseries"),
+    path("get/timeseries", get_timeseries, name="get_timeseries"),
+    path("get/timeseries/<int:ts_id>", get_timeseries, name="get_timeseries"),
     # Grid Model (Assets Creation)
     re_path(
         r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",

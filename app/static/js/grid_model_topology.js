@@ -102,16 +102,17 @@ async function addNodeToDrawFlow(name, pos_x, pos_y, nodeInputs = 1, nodeOutputs
     return createNodeObject(name, nodeInputs, nodeOutputs, nodeData, pos_x, pos_y);
 }
 
+// TODO potentially remove this function
 function updateInputTimeseries(){
     //connected to the templates/asset/asset_create_form.html content
-    ts_data_div = document.getElementById("input_timeseries_data");
+    /*ts_data_div = document.getElementById("input_timeseries_data");
     if(ts_data_div){
         var ts_data = JSON.parse(ts_data_div.querySelector("textarea").value);
         var ts_data = ts_data.map(String);
         var ts_idx = [...Array(ts_data.length).keys()];
         ts_idx = ts_idx.map(String);
         makePlotly( ts_idx, ts_data, plot_id="timeseries_trace")
-    }
+    }*/
 }
 
 // find out the name of the other nodes the given node is connected to
@@ -327,7 +328,8 @@ $("#guiModal").on('shown.bs.modal', function (event) {
      var formDiv = document.getElementsByClassName("form-group");
      var plotDiv = null;
 
-     var plotDivIds = ["flow_trace", "timeseries_trace", "soc_traces"];
+    //TODO get rid of maybe soc_traces
+     var plotDivIds = ["flow_trace", "soc_traces"];
 
      for(i=0;i<plotDivIds.length;++i){
          plotDiv = document.getElementById(plotDivIds[i]);

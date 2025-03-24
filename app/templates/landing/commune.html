@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{% block title %} {% translate "Commune" %} {% endblock title %}
+
+
+{% block head_block %}
+<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
+{% block index %}
+{% if not user.is_authenticated %}
+{% get_current_language as LANGUAGE_NAME %}
+<main>
+	<section class="commune2 section" id="hero" data-aos="fade-up">
+		<div>
+			<div class="commune2__text">
+				<h1>
+					{% translate "Expand your municipal heating plan with open-plan-tool" %}
+				</h1>
+				<a href="pages/signup.html" class="btn btn--medium">
+					{% translate "To open-plan-tool" %}
+				</a>
+			</div>
+			<div class="commune2__image">
+				<img src="{% static 'assets/illustrations/energy_system_gui.svg' %}" alt="Energy system GUI">
+			</div>
+		</div>
+	</section>
+	<section class="actors2">
+		<div>
+			<div class="actors2__heading">
+				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo">
+				<h2>{% translate "The open-plan-tool is targeted at:" %}</h2>
+			</div>
+			<div class="actors2__items">
+				<div class="actors2__item">
+					<img src="{% static 'assets/icons/i_small_hex.png' %}" alt="">
+					<h3>{% translate "Communes" %}</h3>
+				</div>
+				<div class="actors2__item">
+					<img src="{% static 'assets/icons/i_small_hex.png' %}" alt="">
+					<h3>{% translate "Energy suppliers" %}</h3>
+				</div>
+				<div class="actors2__item">
+					<img src="{% static 'assets/icons/i_small_hex.png' %}" alt="">
+					<h3>{% translate "Planning offices" %}</h3>
+				</div>
+				<div class="actors2__item">
+					<img src="{% static 'assets/icons/i_small_hex.png' %}" alt="">
+					<h3>{% translate "Actors involved in municipal heating planning" %}</h3>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="description2">
+		<div>
+			{% blocktranslate %}
+			<p>It is already possible to map <b>a municipality's energy system</b> (electricity, heat, mobility) in order to better plan the transformation under the current framework conditions.</p>
+			<p>As part of a three-year project <b>until the end of 2027</b>, the tool will be even better adapted to the <b>needs of municipal heating planning</b>. During this time, you will have the opportunity to test the tool and contribute your experiences to the development process. Subscribe to our newsletter to stay up to date on the project.</p>
+			<p>OpenPlan is easy to use thanks to its <b>graphical, web-based interface</b>. However, we also provide support ranging from introductory training to the initial creation of an energy system and a complete analysis.</p>
+			{% endblocktranslate %}
+		</div>
+	</section>
+
+
+	{% include 'landing/newsletter.html' %}
+	{% include 'landing/logos.html' %}
+
+
+</main>
+
+
+
+{% endif %}
+{% endblock index %}

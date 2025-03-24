@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="100px"
+   width="100px"
+   fill="#000000"
+   version="1.1"
+   viewBox="0 0 32 32"
+   x="0px"
+   y="0px"
+   id="svg6"
+   sodipodi:docname="noun_External Link_2176278.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1052"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="2.36"
+     inkscape:cx="50"
+     inkscape:cy="50"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <title
+     id="title2">external-link</title>
+  <path
+     d="M23.992 0.014c-0.005 0-0.010 0-0.016 0-0.631 0-1.142 0.512-1.142 1.142s0.511 1.142 1.142 1.142c0.006 0 0.011 0 0.017 0h4.094l-18.604 18.604c-0.207 0.207-0.335 0.492-0.335 0.808 0 0.631 0.512 1.142 1.142 1.142 0.315 0 0.601-0.128 0.807-0.334l18.604-18.604v4.094c0 0.005 0 0.010 0 0.016 0 0.631 0.511 1.142 1.142 1.142s1.142-0.511 1.142-1.142c0-0.006 0-0.011 0-0.017v0.001-6.666c0.010-0.055 0.015-0.12 0.015-0.185 0-0.631-0.511-1.142-1.142-1.142-0.005 0-0.010 0-0.016 0h-6.851zM1.155 6.865c-0.63 0-1.142 0.511-1.142 1.142v0 22.837c0 0.631 0.512 1.142 1.142 1.142h22.837c0.631 0 1.142-0.511 1.142-1.142v0-17.23c0-0.005 0-0.010 0-0.016 0-0.631-0.511-1.142-1.142-1.142s-1.142 0.511-1.142 1.142c0 0.006 0 0.011 0 0.017v-0.001 16.088h-20.554v-20.554h16.157c0.005 0 0.010 0 0.016 0 0.631 0 1.142-0.511 1.142-1.142s-0.511-1.142-1.142-1.142c-0.006 0-0.011 0-0.017 0z"
+     id="path4"
+     style="fill:#1f567d;fill-opacity:1" />
+</svg>

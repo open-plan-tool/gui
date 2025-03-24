@@ -4,6 +4,7 @@ import os
 import json
 import io
 import csv
+from django.db.models import Q
 from openpyxl import load_workbook
 import numpy as np
 
@@ -33,6 +34,10 @@ from projects.helpers import (
     PARAMETERS,
     DualNumberField,
     parse_input_timeseries,
+    TimeseriesField,
+    TS_SELECT_TYPE,
+    TS_UPLOAD_TYPE,
+    TS_MANUAL_TYPE,
 )
 
 
@@ -664,16 +669,19 @@ class AssetCreateForm(OpenPlanModelForm):
 
         super().__init__(*args, **kwargs)
         # which fields exists in the form are decided upon AssetType saved in the db
-        asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
+        self.asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
+
+        # remove the fields not needed for the AssetType
         [
             self.fields.pop(field)
             for field in list(self.fields)
-            if field not in asset_type.visible_fields
+            if field not in self.asset_type.visible_fields
         ]
 
         self.timestamps = None
         if self.existing_asset is not None:
             self.timestamps = self.existing_asset.timestamps
+            self.user = self.existing_asset.scenario.project.user
         elif scenario_id is not None:
             qs = Scenario.objects.filter(id=scenario_id)
             if qs.exists():
@@ -688,6 +696,21 @@ class AssetCreateForm(OpenPlanModelForm):
                 currency = qs.values_list("economic_data__currency", flat=True).get()
                 currency = CURRENCY_SYMBOLS[currency]
                 # TODO use mapping to display currency symbol
+                self.user = qs.get().user
+
+        # set the custom timeseries field for timeseries
+        # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
+        if "input_timeseries" in self.fields:
+            self.fields["input_timeseries"] = TimeseriesField(
+                qs_ts=Timeseries.objects.filter(
+                    Q(ts_type=self.asset_type.mvs_type)
+                    & (Q(open_source=True) | Q(user=self.user))
+                ),
+                default=0,
+                param_name="input_timeseries",
+                asset_type=self.asset_type_name,
+            )
+            # TODO here one can play with min, max, max_length as kwargs
 
         self.fields["inputs"] = forms.CharField(
             widget=forms.HiddenInput(), required=False
@@ -799,7 +822,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     )
                 if ":unit:" in self.fields[field].label:
                     self.fields[field].label = self.fields[field].label.replace(
-                        ":unit:", asset_type.unit
+                        ":unit:", self.asset_type.unit
                     )
 
         """ ----------------------------------------------------- """
@@ -810,11 +833,11 @@ class AssetCreateForm(OpenPlanModelForm):
         else:
             return True
 
-    def clean_input_timeseries(self):
+    def clean_input_timeseries_old(self):
         """Override built-in Form method which is called upon form validation"""
         try:
             input_timeseries_values = []
-            timeseries_file = self.files.get("input_timeseries", None)
+            timeseries_file = self.files.get("input_timeseries_file", None)
             # read the timeseries from file if any
             if timeseries_file is not None:
                 input_timeseries_values = parse_input_timeseries(timeseries_file)
@@ -899,7 +922,44 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
                 self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
+        if "input_timeseries" in cleaned_data:
+            # TODO add either a checkbox or a user setting to save ts to model
+            ts_data = json.loads(cleaned_data["input_timeseries"])
+            input_method = ts_data["input_method"]["type"]
+            if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
+                # replace the dict with a new timeseries instance
+                cleaned_data["input_timeseries"] = self.assign_timeseries_from_input(
+                    ts_data
+                )
+            if input_method == TS_SELECT_TYPE:
+                # return the timeseries instance
+                timeseries_id = ts_data["input_method"]["extra_info"]
+                cleaned_data["input_timeseries"] = Timeseries.objects.get(
+                    id=timeseries_id
+                )
+
         return cleaned_data
+
+    def assign_timeseries_from_input(self, input_timeseries):
+        # Assign the existing timeseries if already uploaded by the same user, else create a new instance
+        timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
+        timeseries_values = input_timeseries["values"]
+
+        if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
+            timeseries_name = f"constant value = {timeseries_values[0]}"
+            timeseries_values = len(self.timestamps) * timeseries_values
+
+        timeseries, created = Timeseries.objects.get_or_create(
+            values=timeseries_values,
+            user=self.user,
+            defaults={
+                "name": timeseries_name,
+                "ts_type": self.asset_type.mvs_type,
+                "open_source": False,
+            },
+        )
+
+        return timeseries
 
     def timeseries_same_as_timestamps(self, ts, param):
         if isinstance(ts, np.ndarray):
@@ -949,14 +1009,11 @@ class AssetCreateForm(OpenPlanModelForm):
             "lifetime": forms.NumberInput(
                 attrs={"placeholder": "e.g. 10 years", "min": "0", "step": "1"}
             ),
-            # TODO: Try changing this to FileInput
-            "input_timeseries": forms.FileInput(
+            "input_timeseries_old": forms.FileInput(
                 attrs={
                     "onchange": "plot_file_trace(obj=this.files, plot_id='timeseries_trace')"
                 }
             ),
-            # 'input_timeseries': forms.Textarea(attrs={'placeholder': 'e.g. [4,3,2,5,3,...]',
-            #                                           'style': 'font-weight:400; font-size:13px;'}),
             "crate": forms.NumberInput(
                 attrs={
                     "placeholder": "factor of total capacity (kWh), e.g. 0.7",

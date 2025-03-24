@@ -227,7 +227,18 @@ class FancyResults(models.Model):
     simulation = models.ForeignKey(Simulation, on_delete=models.CASCADE, default=None)
 
     def save(self, *args, **kwargs):
-        self.total_flow = np.array(self.flow_data).sum()
+        # for oemof 0.5.1 the last index is None for all timeseries
+        if self.flow_data[-1] is None:
+            self.flow_data = self.flow_data[:-1]
+        try:
+            self.total_flow = np.array(self.flow_data).sum()
+        except TypeError:
+            logging.error(
+                f"The flow data of the asset {self.asset} have some NaN value"
+            )
+            import pdb
+
+            pdb.set_trace()
         super().save(*args, **kwargs)
 
 
