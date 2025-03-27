@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-20 21:26+0100\n"
+"POT-Creation-Date: 2025-03-28 00:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr "Zeitreihenvariable(n)"
 msgid "Component(s)"
 msgstr "Komponente"
 
-#: dashboard/forms.py:176 projects/views.py:1419
+#: dashboard/forms.py:176 projects/views.py:1422
 #: templates/report/sensitivity_analysis.html:8
 msgid "Sensitivity analysis"
 msgstr "Sensitivitätsanalyse"
@@ -62,71 +62,71 @@ msgstr "Grafiktitel"
 msgid "Parameter of interest"
 msgstr "Parameter von Interesse"
 
-#: dashboard/helpers.py:409
+#: dashboard/helpers.py:413
 msgid "Timeseries graph"
 msgstr "Zeitreihen Grafik"
 
-#: dashboard/helpers.py:410
+#: dashboard/helpers.py:414
 msgid "Stacked timeseries graph"
 msgstr "Gestapelte Zeitreihen Grafik"
 
-#: dashboard/helpers.py:411
+#: dashboard/helpers.py:415
 msgid "Installed and optimized capacities"
 msgstr "Installierte und optimierte Leistungen"
 
-#: dashboard/helpers.py:412
+#: dashboard/helpers.py:416
 msgid "Bar chart"
 msgstr "Balkendiagramm"
 
-#: dashboard/helpers.py:413
+#: dashboard/helpers.py:417
 msgid "Cost breakdown"
 msgstr "Kostenaufschlüsselung"
 
-#: dashboard/helpers.py:414
+#: dashboard/helpers.py:418
 msgid "Pie chart"
 msgstr "Kreisdiagramm"
 
-#: dashboard/helpers.py:415
+#: dashboard/helpers.py:419
 msgid "Load duration curve"
 msgstr "Lastdauer-Kurve"
 
-#: dashboard/helpers.py:416
+#: dashboard/helpers.py:420
 msgid "Sankey diagram"
 msgstr "Sankey Diagramm"
 
-#: dashboard/helpers.py:462 dashboard/helpers.py:466
+#: dashboard/helpers.py:466 dashboard/helpers.py:470
 msgid "Time"
 msgstr "Zeit"
 
-#: dashboard/helpers.py:463 dashboard/helpers.py:467
+#: dashboard/helpers.py:467 dashboard/helpers.py:471
 msgid "Energy"
 msgstr "Energie"
 
-#: dashboard/helpers.py:470 dashboard/helpers.py:474
+#: dashboard/helpers.py:474 dashboard/helpers.py:478
 msgid "Component"
 msgstr "Komponente"
 
-#: dashboard/helpers.py:471
+#: dashboard/helpers.py:475
 msgid "Capacity"
 msgstr "Leistung"
 
-#: dashboard/helpers.py:475
+#: dashboard/helpers.py:479
 msgid "Costs"
 msgstr "Kosten"
 
-#: dashboard/models.py:1048
+#: dashboard/models.py:1066
 msgid "Installed Capacity"
 msgstr "Installierte Leistung"
 
-#: dashboard/models.py:1050
+#: dashboard/models.py:1068
 msgid "Inst. Cap."
 msgstr "Inst. Leis."
 
-#: dashboard/models.py:1054
+#: dashboard/models.py:1074
 msgid "Optimized Capacity"
 msgstr "Optimierte Leistung"
 
-#: dashboard/models.py:1056
+#: dashboard/models.py:1076
 msgid "Opt. Cap."
 msgstr "Opt. Leis."
 
@@ -173,15 +173,15 @@ msgstr "Szenario {scen_id} wurde ausgewählt"
 msgid "Scenarios were updated"
 msgstr "Szenarien wurden aktualisiert"
 
-#: dashboard/views.py:833
+#: dashboard/views.py:835
 msgid "Discharge"
 msgstr "Entladen"
 
-#: dashboard/views.py:837
+#: dashboard/views.py:839
 msgid "Charge"
 msgstr "Aufladen"
 
-#: dashboard/views.py:1355 projects/views.py:1220
+#: dashboard/views.py:1357 projects/views.py:1223
 msgid ""
 "No scenario was available in the cache, try refreshing the page and make "
 "sure one scenario is selected."
@@ -237,75 +237,75 @@ msgstr "Wärmepumpe"
 msgid "Chiller"
 msgstr ""
 
-#: projects/forms.py:154 projects/forms.py:270 projects/forms.py:736
+#: projects/forms.py:159 projects/forms.py:275 projects/forms.py:759
 msgid "eg. 0.1"
 msgstr "z. B. 0.1"
 
-#: projects/forms.py:158
+#: projects/forms.py:163
 msgid "Investment Discount factor."
 msgstr "Investitionsabzinsungsfaktor."
 
-#: projects/forms.py:182
+#: projects/forms.py:187
 msgid "Project Name"
 msgstr "Projektname"
 
-#: projects/forms.py:185
+#: projects/forms.py:190
 msgid "Name..."
 msgstr "Name..."
 
-#: projects/forms.py:187
+#: projects/forms.py:192
 msgid "A self explanatory name for the project."
 msgstr "Ein selbsterklärender Name für das Projekt."
 
-#: projects/forms.py:192
+#: projects/forms.py:197
 msgid "Project Description"
 msgstr "Projektbeschreibung"
 
-#: projects/forms.py:195
+#: projects/forms.py:200
 msgid "More detailed description here..."
 msgstr ""
 
-#: projects/forms.py:198
+#: projects/forms.py:203
 msgid "A description of what this project objectives or test cases."
 msgstr "Eine Beschreibung der Ziele oder Testfälle dieses Projekts."
 
-#: projects/forms.py:204
+#: projects/forms.py:209
 msgid "Country"
 msgstr "Land"
 
-#: projects/forms.py:209
+#: projects/forms.py:214
 msgid "Name of the country where the project is being deployed"
 msgstr "Name des Landes, in dem das Projekt eingesetzt werden soll"
 
-#: projects/forms.py:214
+#: projects/forms.py:219
 msgid "Location, longitude"
 msgstr "Standort, Längengrad"
 
-#: projects/forms.py:217 projects/forms.py:230
+#: projects/forms.py:222 projects/forms.py:235
 msgid "click on the map"
 msgstr ""
 
-#: projects/forms.py:221
+#: projects/forms.py:226
 msgid "Longitude coordinate of the project's geographical location."
 msgstr "Längengradkoordinate des geografischen Standorts des Projekts."
 
-#: projects/forms.py:227
+#: projects/forms.py:232
 msgid "Location, latitude"
 msgstr "Standort Breitengrad"
 
-#: projects/forms.py:234
+#: projects/forms.py:239
 msgid "Latitude coordinate of the project's geographical location."
 msgstr "Breitengrad-Koordinate des geografischen Standorts des Projekts."
 
-#: projects/forms.py:240
+#: projects/forms.py:245
 msgid "Project Duration"
 msgstr "Projektdauer"
 
-#: projects/forms.py:243
+#: projects/forms.py:248
 msgid "eg. 1"
 msgstr "z.B. 0.1"
 
-#: projects/forms.py:249
+#: projects/forms.py:254
 msgid ""
 "The number of years the project is intended to be operational. The project "
 "duration also sets the installation time of the assets used in the "
@@ -318,19 +318,19 @@ msgstr ""
 "'verkauft' und die Rückerstattung wird mit den ursprünglichen "
 "Investitionskosten verrechnet."
 
-#: projects/forms.py:255
+#: projects/forms.py:260
 msgid "Currency"
 msgstr "Währung"
 
-#: projects/forms.py:261
+#: projects/forms.py:266
 msgid "The currency of the country where the project is implemented."
 msgstr "Die Währung des Landes, in dem das Projekt durchgeführt wird."
 
-#: projects/forms.py:267
+#: projects/forms.py:272
 msgid "Discount Factor"
 msgstr "Abzinsungsfaktor"
 
-#: projects/forms.py:276
+#: projects/forms.py:281
 msgid ""
 "Discount factor is the factor which accounts for the depreciation in the "
 "value of money in the future, compared to the current value of the same "
@@ -343,53 +343,53 @@ msgstr ""
 "durchschnittlichen Kapitalkosten (WACC) und diese als Abzinsungsfaktor zu "
 "verwenden."
 
-#: projects/forms.py:282
+#: projects/forms.py:287
 msgid "Tax"
 msgstr "Steuer"
 
-#: projects/forms.py:285
+#: projects/forms.py:290
 msgid "eg. 0.3"
 msgstr "z.B. 0.1"
 
-#: projects/forms.py:290
+#: projects/forms.py:295
 msgid "Tax factor"
 msgstr "Steuerfaktor"
 
-#: projects/forms.py:317
+#: projects/forms.py:322
 msgid "Email address"
 msgstr "E-Mail Adresse"
 
-#: projects/forms.py:331
+#: projects/forms.py:336
 msgid "Select the user(s) for which you want to revoke access rights "
 msgstr ""
 "Wählen Sie den/die Benutzer aus, für den/die Sie die Zugriffsrechte "
 "entziehen möchten."
 
-#: projects/forms.py:334
+#: projects/forms.py:339
 msgid "Users currently having access to the project"
 msgstr "Benutzer, die derzeit Zugriff auf das Projekt haben"
 
-#: projects/forms.py:339
+#: projects/forms.py:344
 msgid "No users have access to this project"
 msgstr "Keine Benutzer haben Zugriff auf dieses Projekt"
 
-#: projects/forms.py:369
+#: projects/forms.py:374
 msgid "Select a use case (or"
 msgstr "Wählen Sie einen Anwendungsfall (oder"
 
-#: projects/forms.py:371
+#: projects/forms.py:376
 msgid "visit use cases page"
 msgstr "Seite Anwendungsfälle besuchen"
 
-#: projects/forms.py:401
+#: projects/forms.py:406
 msgid "Length of the time steps"
 msgstr "Länge der Zeitschritte"
 
-#: projects/forms.py:411
+#: projects/forms.py:416
 msgid "The number of days simulated with the energy system model."
 msgstr "Die Anzahl der Tage, die mit dem Energiesystemmodell simuliert wurden."
 
-#: projects/forms.py:420
+#: projects/forms.py:425
 msgid ""
 "A fixed cost to implement the asset, eg. planning costs which do not depend "
 "on the (optimized) asset capacity."
@@ -397,72 +397,72 @@ msgstr ""
 "Fixe Kosten für die Implementierung der Anlage, z.B. Planungskosten, die "
 "nicht von der (optimierten) Anlagenkapazität abhängen."
 
-#: projects/forms.py:427 templates/scenario/scenario_results_page.html:134
+#: projects/forms.py:432 templates/scenario/scenario_results_page.html:134
 #: templates/scenario/simulation/modified.html:56
 msgid "Project"
 msgstr "Projekt"
 
-#: projects/forms.py:428
+#: projects/forms.py:433
 msgid "Scenario name"
 msgstr "Name des Szenarios"
 
-#: projects/forms.py:429
+#: projects/forms.py:434
 msgid "Scenario description"
 msgstr "Szenariobeschreibung"
 
-#: projects/forms.py:430
+#: projects/forms.py:435
 msgid "Evaluated Period"
 msgstr "Ausgewerteter Zeitraum"
 
-#: projects/forms.py:431
+#: projects/forms.py:436
 msgid "Time Step"
 msgstr "Zeitschritt"
 
-#: projects/forms.py:432
+#: projects/forms.py:437
 msgid "Start Date"
 msgstr "Startdatum"
 
-#: projects/forms.py:433
+#: projects/forms.py:438
 msgid "Development costs"
 msgstr "Entwicklungskosten"
 
-#: projects/forms.py:647
+#: projects/forms.py:652
 msgid "The energy Vector of the connected assets."
 msgstr "Der Energievektor der angeschlossenen Anlagen."
 
-#: projects/forms.py:652 templates/scenario/scenario_results_page.html:65
+#: projects/forms.py:657 templates/scenario/scenario_results_page.html:65
 msgid "Name"
 msgstr "Name"
 
-#: projects/forms.py:652
+#: projects/forms.py:657
 msgid "Energy carrier"
 msgstr "Energieträger"
 
-#: projects/forms.py:709
+#: projects/forms.py:732
 msgid "Electrical efficiency with no heat extraction"
 msgstr "Elektrischer Wirkungsgrad ohne Wärmeauskopplung"
 
-#: projects/forms.py:720
+#: projects/forms.py:743
 msgid "Thermal efficiency with maximal heat extraction"
 msgstr "Thermischer Wirkungsgrad mit maximalem Wärmeentzug"
 
-#: projects/forms.py:723
+#: projects/forms.py:746
 msgid "Stromverlustkenzahl"
 msgstr "Stromverlustkenzahl"
 
-#: projects/forms.py:727
+#: projects/forms.py:750
 msgid "Efficiency gaz to electricity"
 msgstr "Wirkungsgrad gaz auf Strom"
 
-#: projects/forms.py:742
+#: projects/forms.py:765
 msgid "Efficiency gaz to heat"
 msgstr "Wirkungsgrad Gas zu Wärme"
 
-#: projects/forms.py:771
+#: projects/forms.py:794
 msgid "Click on the icon for more help"
 msgstr "Klicken Sie auf das Symbol für weitere Hilfe"
 
-#: projects/forms.py:832
+#: projects/forms.py:855
 msgid ""
 "File not properly formatted. Please ensure you upload a comma separated "
 "array of values. E.g. [1,2,0.32]"
@@ -470,7 +470,7 @@ msgstr ""
 "Datei nicht korrekt formatiert. Bitte stellen Sie sicher, dass Sie ein "
 "kommagetrenntes Array von Werten hochladen, z. B. [1,2,0.32]"
 
-#: projects/forms.py:840
+#: projects/forms.py:863
 #, python-brace-format
 msgid ""
 "Could not parse a file due to the following error: {ex}. Did you upload a "
@@ -478,17 +478,17 @@ msgid ""
 msgstr ""
 "Konnte keine Datei einlesen wegen Fehler: {ex}. Haben Sie eine hochgeladen?"
 
-#: projects/forms.py:868
+#: projects/forms.py:891
 msgid "If you have no installed capacity, age installed should also be 0"
 msgstr ""
 "Wenn Sie keine installierte Leistung haben, sollte auch das installierte "
 "Alter 0 sein"
 
-#: projects/forms.py:884
+#: projects/forms.py:907
 msgid "The sum of the efficiencies should not exceed 1"
 msgstr "Die Summe der Wirkungsgrade sollte 1 nicht überschreiten"
 
-#: projects/forms.py:896
+#: projects/forms.py:919
 msgid ""
 "Feed-in tariff > energy price for some of simulation's timesteps. This would "
 "cause an unbound solution and terminate the optimization. Please reconsider "
@@ -498,15 +498,15 @@ msgstr ""
 "würde eine ungebundene Lösung verursachen und die Optimierung beenden. Bitte "
 "überdenken Sie Ihre Einspeisevergütung und Ihren Energiepreis."
 
-#: projects/forms.py:913
+#: projects/forms.py:973
 msgid "The number of values of the parameter "
 msgstr "Die Anzahl der Werte des Parameters ist in der Tabelle angegeben."
 
-#: projects/forms.py:916
+#: projects/forms.py:976
 msgid " are not equal to the number of simulation timesteps"
 msgstr " ist nicht gleich der Anzahl der Simulationszeitschritte"
 
-#: projects/forms.py:919
+#: projects/forms.py:979
 msgid ""
 ". You can change the number of timesteps in the first step of scenario "
 "creation."
@@ -514,15 +514,15 @@ msgstr ""
 ". Sie können die Anzahl der Zeitschritte im ersten Schritt der "
 "Szenarienerstellung ändern."
 
-#: projects/forms.py:933
+#: projects/forms.py:993
 msgid "Asset Name"
 msgstr "Anlagensname"
 
-#: projects/forms.py:1025
+#: projects/forms.py:1082
 msgid "Timeseries vector"
 msgstr "Zeitreihenvektor"
 
-#: projects/forms.py:1028
+#: projects/forms.py:1085
 msgid ""
 "You can upload your timeseries as xls(x), csv or json format. Either there "
 "is one column with the values of the timeseries matching the scenario "
@@ -542,7 +542,7 @@ msgstr ""
 "berücksichtigt. Die Zeitreihe im csv-Format wird in kommagetrennten Werten "
 "mit Punkt als Dezimaltrennzeichen."
 
-#: projects/helpers.py:248 projects/helpers.py:430
+#: projects/helpers.py:253
 #, python-format
 msgid ""
 "Please provide either a number within %(boundaries) s or upload a timeseries "
@@ -551,7 +551,7 @@ msgstr ""
 "Please provide either a number within %(boundaries) s or upload a timeseries "
 "from a file. aus einer Datei"
 
-#: projects/helpers.py:281 projects/helpers.py:466
+#: projects/helpers.py:286 projects/helpers.py:464
 #, python-format
 msgid ""
 "Some values in the timeseries do not lie within %(boundaries) s, please "
@@ -560,13 +560,21 @@ msgstr ""
 "Einige Werte in der Zeitreihe liegen nicht innerhalb von %(boundaries) s, "
 "bitte überprüfen Sie Ihre Eingabe erneut."
 
-#: projects/helpers.py:292 projects/helpers.py:301 projects/helpers.py:477
-#: projects/helpers.py:486
+#: projects/helpers.py:297 projects/helpers.py:306 projects/helpers.py:475
+#: projects/helpers.py:484
 #, python-format
 msgid "Please enter a value within %(boundaries) s"
 msgstr "Bitte geben Sie einen Wert innerhalb von %(boundaries) s ein"
 
-#: projects/helpers.py:564
+#: projects/helpers.py:428
+msgid ""
+"Please provide either a number within %(boundaries) s, select a timeseries "
+"or upload a timeseries from a file"
+msgstr ""
+"Bitte geben Sie entweder eine Zahl innerhalb von %(boundaries) s an, wählen "
+"Sie eine Zeitreihe aus oder laden Sie eine Zeitreihe aus einer Datei hoch."
+
+#: projects/helpers.py:585
 #, python-brace-format
 msgid ""
 "Input timeseries file type of \"{timeseries_file.name}\" is not supported. "
@@ -576,7 +584,7 @@ msgstr ""
 "unterstützt. Die unterstützten Formate sind \"json\", \"csv\", \"txt\", "
 "\"xls\" und \"xlsx\"."
 
-#: projects/helpers.py:569
+#: projects/helpers.py:590
 #, python-format
 msgid "Input timeseries file \"%(fname)s\" is empty"
 msgstr "Eingabezeitreihen-Datei \"%(fname)s\" ist leer"
@@ -681,23 +689,15 @@ msgstr ""
 msgid "There is already a bus with this name in the scenario"
 msgstr "There is already a bus with this name in the scenario"
 
-#: projects/scenario_topology_helpers.py:150
+#: projects/scenario_topology_helpers.py:156
 msgid "There is already a storage with this name in the scenario"
 msgstr "Es gibt bereits einen Speicher mit diesem Namen im Szenario"
 
-#: projects/scenario_topology_helpers.py:323
+#: projects/scenario_topology_helpers.py:329
 msgid "There is already an asset with this name in the scenario"
 msgstr "Es gibt bereits eine Anlage mit diesem Namen im Szenario"
 
-#: projects/services.py:160
-msgid "Form - connection error:"
-msgstr "Formular - Verbindungsfehler:"
-
-#: projects/services.py:164
-msgid "Form - other error:"
-msgstr "Formular - sonstiger Fehler:"
-
-#: projects/services.py:182
+#: projects/services.py:131
 msgid "Form - mail sending error:"
 msgstr "Formular - Fehler beim Mailversand:"
 
@@ -761,13 +761,13 @@ msgstr ""
 "fördern' in der Navigationsleiste an. </br></br>Vielen Dank für die Nutzung "
 "von open-plan-tool</p>"
 
-#: projects/views.py:557 projects/views.py:607
+#: projects/views.py:557 projects/views.py:608
 #: templates/project/project_search.html:165
 #: templates/usecase/usecase_search.html:111
 msgid "Show scenarios"
 msgstr "Szenarien anzeigen"
 
-#: projects/views.py:558 projects/views.py:608
+#: projects/views.py:558 projects/views.py:609
 msgid "Hide scenarios"
 msgstr "Szenarien ausblenden"
 
@@ -779,159 +779,159 @@ msgstr ""
 "Sie können ein freigegebenes Projekt nicht duplizieren, ohne dass der "
 "Eigentümer Ihnen Bearbeitungsrechtegewährt."
 
-#: projects/views.py:713
+#: projects/views.py:714
 msgid "Scenario Setup"
 msgstr "Szenario-Einstellung"
 
-#: projects/views.py:714
+#: projects/views.py:715
 msgid "Energy system design"
 msgstr "Auslegung des Energiesystems"
 
-#: projects/views.py:715
+#: projects/views.py:716
 msgid "Constraints"
 msgstr "Randbedingungen"
 
-#: projects/views.py:716
+#: projects/views.py:717
 msgid "Simulation"
 msgstr "Simulation"
 
-#: projects/views.py:734
+#: projects/views.py:735
 msgid "Project selection"
 msgstr "Projektauswahl"
 
-#: projects/views.py:740
+#: projects/views.py:741
 msgid "You have currently no projects, please create one first"
 msgstr "Sie haben derzeit keine Projekte, bitte erstellen Sie zuerst eines"
 
-#: projects/views.py:889
+#: projects/views.py:890
 msgid "Electricity DSO"
 msgstr "Elektrizitätsversorger"
 
-#: projects/views.py:890
+#: projects/views.py:891
 msgid "Gas DSO"
 msgstr "Gasversorger"
 
-#: projects/views.py:891
+#: projects/views.py:892
 msgid "H2 DSO"
 msgstr "H2-Versorger"
 
-#: projects/views.py:892
+#: projects/views.py:893
 msgid "Heat DSO"
 msgstr "Wärmeversorger"
 
-#: projects/views.py:895
+#: projects/views.py:896
 msgid "PV Plant"
 msgstr "PV-Anlage"
 
-#: projects/views.py:896
+#: projects/views.py:897
 msgid "Wind Plant"
 msgstr "Windkraftanlage"
 
-#: projects/views.py:897
+#: projects/views.py:898
 msgid "Biogas Plant"
 msgstr "Biogasanlage"
 
-#: projects/views.py:898
+#: projects/views.py:899
 msgid "Geothermal Conversion"
 msgstr "Geothermische Umwandlung"
 
-#: projects/views.py:899
+#: projects/views.py:900
 msgid "Solar Thermal Plant"
 msgstr "Thermische Solaranlage"
 
-#: projects/views.py:902
+#: projects/views.py:903
 msgid "Transformer Station (in)"
 msgstr "Trafostation (in)"
 
-#: projects/views.py:903
+#: projects/views.py:904
 msgid "Transformer Station (out)"
 msgstr "Trafostation (aus)"
 
-#: projects/views.py:904
+#: projects/views.py:905
 msgid "Storage Charge Controller (in)"
 msgstr "Speicherladeregler (in)"
 
-#: projects/views.py:905
+#: projects/views.py:906
 msgid "Storage Charge Controller (out)"
 msgstr "Speicherladeregler (out)"
 
-#: projects/views.py:906
+#: projects/views.py:907
 msgid "Solar Inverter"
 msgstr "Solar-Wechselrichter"
 
-#: projects/views.py:907
+#: projects/views.py:908
 msgid "Diesel Generator"
 msgstr "Diesel-Generator"
 
-#: projects/views.py:908
+#: projects/views.py:909
 msgid " Fuel Cell"
 msgstr " Brennstoffzelle"
 
-#: projects/views.py:909
+#: projects/views.py:910
 msgid "Gas Boiler"
 msgstr "Gasboiler"
 
-#: projects/views.py:910
+#: projects/views.py:911
 msgid "Electrolyzer"
 msgstr "Elektrolyseur"
 
-#: projects/views.py:911
+#: projects/views.py:912
 msgid "Heat Pump"
 msgstr "Wärmepumpe"
 
-#: projects/views.py:912
+#: projects/views.py:913
 msgid "Combined Heat and Power"
 msgstr "Kraft-Wärme-Kopplung"
 
-#: projects/views.py:913
+#: projects/views.py:914
 msgid "CHP fixed ratio"
 msgstr "Kraft-Wärme-Kopplung festes Verhältnis"
 
-#: projects/views.py:916
+#: projects/views.py:917
 msgid "Electricity Storage"
 msgstr "Elektrizitätsspeicher"
 
-#: projects/views.py:918
+#: projects/views.py:919
 msgid "H2 Storage"
 msgstr "Wasserstoffspeicher"
 
-#: projects/views.py:919
+#: projects/views.py:920
 msgid "Heat Storage"
 msgstr "Wärmespeicher"
 
-#: projects/views.py:922
+#: projects/views.py:923
 msgid "Electricity Demand"
 msgstr "Elektrizitätsnachfrage"
 
-#: projects/views.py:924
+#: projects/views.py:925
 msgid "H2 Demand"
 msgstr "Wasserstoffbedarf"
 
-#: projects/views.py:925
+#: projects/views.py:926
 msgid "Heat Demand"
 msgstr "Wärmebedarf"
 
-#: projects/views.py:927
+#: projects/views.py:928
 msgid "Bus"
 msgstr "Bus"
 
-#: projects/views.py:998
+#: projects/views.py:999
 msgid "Minimal degree of autonomy"
 msgstr "Minimal Autarkiegrad"
 
-#: projects/views.py:999
+#: projects/views.py:1000
 msgid "Minimal share of renewables"
 msgstr "Minimal Anteil Erneuerbarer Energien"
 
-#: projects/views.py:1000
+#: projects/views.py:1001
 msgid "Maximal CO2 emissions"
 msgstr "Maximale CO2-Emissionen"
 
-#: projects/views.py:1001
+#: projects/views.py:1002
 msgid "Net zero energy system"
 msgstr "Netto-Nullenergie-System"
 
-#: projects/views.py:1170
+#: projects/views.py:1173
 msgid ""
 "The simulation was performed with an older MVS version which is not "
 "compatible with the result view anymore, please reset and rerun the "
@@ -941,11 +941,11 @@ msgstr ""
 "mehrmit der Ergebnisansicht kompatibel ist.Bitte setzen Sie die Simulation "
 "zurück und führen Sie sie erneut aus."
 
-#: projects/views.py:1377
+#: projects/views.py:1380
 msgid "Scenario changes successfully reversed!"
 msgstr "Szenarioänderungen erfolgreich rückgängig gemacht!"
 
-#: projects/views.py:1899
+#: projects/views.py:1915
 msgid ""
 "You do not have the permission to reset a simulation on a project shared "
 "with you"
@@ -953,66 +953,84 @@ msgstr ""
 "Sie haben nicht die Berechtigung, eine Simulation in einem gemeinsamen "
 "Projekt zurückzusetzen."
 
-#: templates/asset/asset_create_form.html:13
+#: templates/asset/asset_create_form.html:15
 #: templates/project/project_search.html:108
 #: templates/project/project_search.html:200
 #: templates/scenario/scenario_results_page.html:29
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: templates/asset/asset_create_form.html:17
+#: templates/asset/asset_create_form.html:19
 msgid "Optimized additional capacity"
 msgstr "Optimierte zusätzliche Leistung"
 
-#: templates/asset/asset_create_form.html:26
+#: templates/asset/asset_create_form.html:28
 #: templates/asset/storage_asset_create_form.html:27
 msgid "Aggregated flow"
 msgstr "Aggregierter Fluss"
 
-#: templates/asset/asset_create_form.html:35
+#: templates/asset/asset_create_form.html:37
 #: templates/asset/storage_asset_create_form.html:36
 msgid "See traces data"
 msgstr "Siehe Trace-Daten"
 
-#: templates/asset/asset_create_form.html:46
+#: templates/asset/asset_create_form.html:48
 msgid "Economical parameters"
 msgstr "Wirtschaftliche Parameter"
 
-#: templates/asset/asset_create_form.html:58
+#: templates/asset/asset_create_form.html:60
 msgid "Technical parameters"
 msgstr "Technische Parameter"
 
-#: templates/asset/asset_create_form.html:66
+#: templates/asset/asset_create_form.html:68
 msgid "Calculate COP from temperature"
 msgstr "COP aus Temperatur berechnen"
 
-#: templates/asset/asset_create_form.html:92
-msgid "uploaded data"
-msgstr "hochgeladene Daten"
+#: templates/asset/asset_create_form.html:96
+msgid ""
+"uploaded data (move somewhere else (now in asset/asset_create_form.html))"
+msgstr ""
+"uploaded data (move somewhere else (now in asset/asset_create_form.html))"
 
-#: templates/asset/ts_input_template.html:4
-msgid "Manual"
-msgstr "Manuell"
+#: templates/asset/timeseries_input.html:4
+msgid "Select a timeseries amongst the one below"
+msgstr "Wählen Sie eine Zeitreihe aus der folgenden aus"
 
-#: templates/asset/ts_input_template.html:7
-msgid "Upload"
-msgstr "Hochladen"
-
-#: templates/asset/ts_input_template.html:10
+#: templates/asset/timeseries_input.html:5
 msgid "Select"
 msgstr "Auswählen"
 
+#: templates/asset/timeseries_input.html:7
+msgid "Upload a timeseries from a file"
+msgstr "Zeitreihe aus einer Datei hochladen"
+
+#: templates/asset/timeseries_input.html:8
+msgid "Upload"
+msgstr "Hochladen"
+
+#: templates/asset/timeseries_input.html:10
+msgid ""
+"You can input a constant timeseries here: simply type in the number you want "
+"it will be turned into a timeseries upon save"
+msgstr ""
+"Hier können Sie eine konstante Zeitreihe eingeben: Geben Sie einfach die Zahl "
+"ein, die beim Speichern in eine Zeitreihe umgewandelt werden soll."
+
+#: templates/asset/timeseries_input.html:11
+msgid "Constant value"
+msgstr "Konstanter Wert"
+
 #: templates/base.html:84
 msgid "About"
-msgstr ""
+msgstr "Über uns"
 
 #: templates/base.html:85 templates/legal/contact.html:21
-#: templates/navbar.html:52 templates/navbar.html:90
+#: templates/navbar.html:53 templates/navbar.html:91
 msgid "Contact"
 msgstr "Kontakt"
 
 #: templates/base.html:86 templates/legal/license.html:13
-#: templates/navbar.html:89
+#: templates/navbar.html:90
 msgid "License"
 msgstr "Lizenz"
 
@@ -1055,7 +1073,7 @@ msgstr ""
 msgid "Refresh Page"
 msgstr "Seite aktualisieren"
 
-#: templates/feedback.html:50 templates/navbar.html:45
+#: templates/feedback.html:50 templates/navbar.html:46
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -1315,7 +1333,7 @@ msgstr "Kommune"
 
 #: templates/landing/commune.html:21
 msgid "Expand your municipal heating plan with open-plan-tool"
-msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mitopen-plan-tool"
+msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mit dem openPlan Tool"
 
 #: templates/landing/commune.html:36
 msgid "The open-plan-tool is targeted at:"
@@ -1439,19 +1457,19 @@ msgstr ""
 msgid "Target Groups"
 msgstr "Zielgruppen"
 
-#: templates/landing/default.html:183
+#: templates/landing/default.html:186
 msgid "Related content"
 msgstr "Weiterführende Inhalte"
 
-#: templates/landing/default.html:190
+#: templates/landing/default.html:193
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
-#: templates/landing/default.html:196
+#: templates/landing/default.html:199
 msgid "user Manual"
 msgstr "Handbuch"
 
-#: templates/landing/default.html:211
+#: templates/landing/default.html:214
 msgid "Video-Tutorials"
 msgstr "Video-Tutorials"
 
@@ -1639,7 +1657,7 @@ msgstr ""
 msgid "About us - open_plan"
 msgstr "Über uns - open_plan"
 
-#: templates/legal/about.html:21 templates/navbar.html:49
+#: templates/legal/about.html:21 templates/navbar.html:50
 msgid "About us"
 msgstr "Über uns"
 
@@ -2999,7 +3017,7 @@ msgstr ""
 msgid "Sponsor - open-plan-tool"
 msgstr "Fördern - open-plan-tool"
 
-#: templates/legal/sponsor_feature.html:13 templates/navbar.html:37
+#: templates/legal/sponsor_feature.html:13 templates/navbar.html:38
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
@@ -3007,44 +3025,40 @@ msgstr "Neue Funktionen fördern"
 msgid "You wish a feature would be added to open-plan-tool?"
 msgstr "Sie wünschen sich eine neue Funktion für das open-plan-tool?"
 
-#: templates/legal/sponsor_feature.html:22
-#, python-format
+#: templates/legal/sponsor_feature.html:23
 msgid ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tThe open-plan-tool was developed within the <a href=\"%(url_op)s\" "
-"target=\"_blank\">open_plan project</a> which ended in June 2023. Since then "
-"the tool has remained online but with limited to no budget to fix bugs or "
-"develop new features wished by users. If you are an enterprise and wish to "
-"use the open-plan-tool with an extra feature and are able to sponsor it "
-"(fully or partly),  please contact us at <a href=\"mailto:open_plan@rl-"
-"institut.de\">open_plan@rl-institut.de</a> or via our <a target=\"_blank\" "
-"href=\"%(url_feedback)s\">feedback page</a>\n"
-"\n"
+"\t\t\t\t\tThe open-plan-tool was developed within the <a "
+"href=\"%(url_op)s\" target=\"_blank\">open_plan 1.0 project</a> and "
+"successfully completed in June 2023. The tool is currently being funded by "
+"the open_plan 2.0 project in the 8th Energy Research Program of the Federal "
+"Ministry for Economic Affairs and Climate Protection and expanded to include "
+"functions for use in municipal heating planning.\n"
+"\t\t\t\t\tIf you are interested in adding additional functions to the open-"
+"plan tool that are optimally tailored to your needs, please feel free to "
+"contact us by email at <a href=\"mailto:open_plan@dgs-berlin."
+"de\">openplan@dgs-berlin.de</a> or via our <a target=\"_blank\" "
+"href=\"%(url_feedback)s\">feedback form</a>. We look forward to further "
+"exciting projects.\n"
+"\t\t\t\t</p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tDas open-plan-tool wurde im Rahmen des  <a href=\"%(url_op)s\" "
-"target=\"_blank\">Projekts open_plan</a> entwickelt, das im Juni 2023 "
-"endete. Seitdem ist das Tool online, aber mit einem begrenzten oder gar "
-"keinem Budget, um Fehler zu beheben oder neue, von den Nutzern gewünschte "
-"Funktionen, zu entwickeln. Wenn Sie ein Unternehmen sind und das open-plan-"
-"tool mit einer zusätzlichen Funktion nutzen möchten und in der Lage sind, es "
-"(ganz oder teilweise) zu finanzieren, kontaktieren Sie uns bitte unter <a "
-"href=\"mailto:open_plan@rl-institut.de\">open_plan@rl-institut.de</a> oder "
-"über unsere <a target=\"_blank\" href=\"%(url_feedback)s\">Feedback-Seite</"
-"a>\n"
-"\n"
+"\t\t\t\t\tDas open-plan-tool wurde im Rahmen des <a href=\"%(url_op)s\" "
+"target=\"_blank\">Projekts open_plan 1.0</a> entwickelt und im Juni 2023 "
+"erfolgreich abgeschlossen. Aktuell wird das Tool durch das Projekt open_plan "
+"2.0 im 8. Energieforschungsprogramm des Bundesministeriums für Wirtschaft "
+"und Klimaschutz gefördert und um Funktionen für den Einsatz in der "
+"kommunalen Wärmeplanung erweitert. Wenn Sie Interesse haben, das open-plan-"
+"tool um zusätzliche Funktionen zu erweitern, die optimal auf Ihre Bedarfe "
+"zugeschnitten sind, nehmen Sie gerne per E-Mail unter <a href=\"mailto:open"
+"_plan@dgs-berlin.de\">openplan@dgs-berlin.de</a>.de oder über unser "
+"<a target=\"_blank\" href=\"%(url_feedback)s\">Feedback-Formular</a> Kontakt "
+"mit uns auf. Wir freuen uns auf weitere spannende Projekte.\n"
+"\t\t\t\t</p>\n"
 "\t\t\t\t"
-
-#: templates/legal/sponsor_feature.html:33
-msgid ""
-"We also welcome ideas or wishes from users and would then list them on this "
-"page."
-msgstr ""
-"Wir freuen uns auch über Ideen oder Wünsche von Nutzern, die wir dann auf "
-"dieser Seite auflisten."
 
 #: templates/modal_template.html:41
 #: templates/scenario/scenario_results_page.html:48
@@ -3053,33 +3067,33 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/navbar.html:28
+#: templates/navbar.html:31
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: templates/navbar.html:31
+#: templates/navbar.html:32
 msgid "Video-tutorials"
 msgstr "Video-tutorials"
 
-#: templates/navbar.html:42 templates/usecase/usecase_search.html:25
+#: templates/navbar.html:43 templates/usecase/usecase_search.html:25
 msgid "Use cases"
 msgstr "Anwendungsbeispiele"
 
-#: templates/navbar.html:88
+#: templates/navbar.html:89
 msgid "Account"
 msgstr "Konto"
 
-#: templates/navbar.html:92
+#: templates/navbar.html:93
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:100
+#: templates/navbar.html:101
 #: templates/registration/password_reset_complete.html:10
 #: templates/registration/signup.html:23
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:104 templates/registration/login.html:23
+#: templates/navbar.html:105 templates/registration/login.html:23
 #: templates/registration/signup.html:28
 msgid "Sign up"
 msgstr "Registrieren"
@@ -3420,7 +3434,7 @@ msgid "Scenario step"
 msgstr "Schritt des Szenarios"
 
 #: templates/scenario/scenario_progression.html:56
-#: templates/scenario/scenario_step2.html:280
+#: templates/scenario/scenario_step2.html:281
 #: templates/scenario/scenario_step3.html:77
 #: templates/scenario/sensitivity_analysis.html:81
 #: templates/scenario/simulation/modified.html:133
@@ -3432,8 +3446,8 @@ msgstr "Zurück"
 #: templates/scenario/scenario_step0.html:68
 #: templates/scenario/scenario_step1.html:74
 #: templates/scenario/scenario_step1.html:81
-#: templates/scenario/scenario_step2.html:283
-#: templates/scenario/scenario_step2.html:285
+#: templates/scenario/scenario_step2.html:284
+#: templates/scenario/scenario_step2.html:286
 #: templates/scenario/scenario_step3.html:80
 #: templates/scenario/scenario_step3.html:83
 msgid "Next"
@@ -3500,7 +3514,7 @@ msgid "Send form"
 msgstr "Formular abschicken"
 
 #: templates/scenario/scenario_step1.html:86
-#: templates/scenario/scenario_step2.html:292
+#: templates/scenario/scenario_step2.html:293
 #: templates/scenario/scenario_step3.html:88
 msgid "Go to simulation"
 msgstr "Zur Simulation"
@@ -3510,7 +3524,7 @@ msgid "compute COP"
 msgstr "COP berechnen"
 
 #: templates/scenario/scenario_step2.html:74
-#: templates/scenario/scenario_step2.html:282
+#: templates/scenario/scenario_step2.html:283
 msgid "Save"
 msgstr "Speichern"
 
