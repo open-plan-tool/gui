@@ -23,14 +23,15 @@
 			<ul class="navbar-nav mb-2 mb-lg-0">
 				{% if not scenario_create %}
 				<li class="nav-item">
-					<select class="form-select">
-						<option>
-							<a class="nav-link" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a>
-						</option>
-						<option>
-							<a class="nav-link" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a>
-						</option>
-					</select>
+					<div class="dropdown dropdown--navbar">
+                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Documentation
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "Documentation" %}</a></li>
+                  <li><a class="dropdown-item" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a></li>
+                </ul>
+              </div>
 				</li>
 
 				<!--li class="nav-item">
