@@ -120,8 +120,11 @@
 			<div class="target2__heading">
 				<h2>{% translate 'Target Groups' %}</h2>
 			</div>
-			<!-- TODO make it lang dependent -->
-			<img src="{% static 'assets/illustrations/target-groups.png' %}" alt="Target groups categories" width="1280">
+			{% if "de" in LANGUAGE_NAME %}
+				<img src="{% static 'assets/illustrations/target_groups_de.png' %}" alt="Target groups categories" width="1280">
+			{% else %}
+				<img src="{% static 'assets/illustrations/target-groups.png' %}" alt="Target groups categories" width="1280">
+			{% endif %}
 		</div>
 	</section>
 
