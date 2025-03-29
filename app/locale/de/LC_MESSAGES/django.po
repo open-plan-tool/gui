@@ -664,10 +664,10 @@ msgstr ""
 
 #: projects/models/base_models.py:183
 msgid ""
-"The user(s) you selected seems to not be registered in the open-plan-tool"
+"The user(s) you selected seems to not be registered in the openPlan Tool "
 msgstr ""
-"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im open-"
-"plan-tool registriert zu sein."
+"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im open"
+"Plan Tool registriert zu sein."
 
 #: projects/models/simulation_models.py:84
 msgid ""
@@ -751,16 +751,16 @@ msgstr "Projektdatei"
 
 #: projects/views.py:539
 msgid ""
-"<p>Hello dear open-plan-tool user!</br></br> We would just like to let you "
+"<p>Hello dear openPlan Tool  user!</br></br> We would just like to let you "
 "know we are looking for your inputs in terms of features ideas or feature "
 "sponsor. Please check out the new navigation bar link 'Sponsor new features' "
-"for more information</br></br>Thank you for using open-plan-tool</p>"
+"for more information</br></br>Thank you for using openPlan Tool </p>"
 msgstr ""
-"<p>Hallo liebe open-plan-tool NutzerInnen</br></br> Wir möchten Ihnen "
+"<p>Hallo liebe openPlan Tool  NutzerInnen</br></br> Wir möchten Ihnen "
 "mitteilen, dass wir auf der Suche nach Ideen für neue Features oder Feature-"
 "Sponsoren sind. Bitte schauen Sie sich den neuen Link 'Neue Funktionen "
 "fördern' in der Navigationsleiste an. </br></br>Vielen Dank für die Nutzung "
-"von open-plan-tool</p>"
+"von openPlan Tool </p>"
 
 #: projects/views.py:557 projects/views.py:608
 #: templates/project/project_search.html:165
@@ -1098,16 +1098,16 @@ msgstr "Open-Source-Planungstool für die Energiewende"
 
 #: templates/index.html:18
 msgid ""
-"With the open-plan-tool, you can plan and design energy systems in an open "
+"With the openPlan Tool , you can plan and design energy systems in an open "
 "and free framework. "
 msgstr ""
-"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Mit dem openPlan Tool  können Sie in einem offenen und kostenlosen Framework "
 "Energiesysteme planen und auslegen."
 
 #: templates/index.html:19 templates/landing/cellular.html:21
 #: templates/landing/commune.html:24 templates/landing/default.html:27
-msgid "To open-plan-tool"
-msgstr "Zum open-plan-tool"
+msgid "To the openPlan Tool "
+msgstr "Zum openPlan Tool "
 
 #: templates/index.html:29
 msgid "Application areas"
@@ -1147,15 +1147,15 @@ msgid "Cellular"
 msgstr "Zellular"
 
 #: templates/landing/cellular.html:19
-msgid "Planning of cellular energy systems with the open-plan-tool"
-msgstr "Planung zellularer Energiesysteme mit dem open-plan-tool"
+msgid "Planning of cellular energy systems with the openPlan Tool "
+msgstr "Planung zellularer Energiesysteme mit dem openPlan Tool "
 
 #: templates/landing/cellular.html:20
 msgid ""
-"With the open-plan-tool, you can plan and design energy cells in the context "
+"With the openPlan Tool , you can plan and design energy cells in the context "
 "of the cellular approach."
 msgstr ""
-"Mit dem open-plan-tool können Sie in einem offenen und kostenlosen Framework "
+"Mit dem openPlan Tool  können Sie in einem offenen und kostenlosen Framework "
 "Energiesysteme planen und auslegen."
 
 #: templates/landing/cellular.html:32
@@ -1333,11 +1333,11 @@ msgid "Commune"
 msgstr "Kommune"
 
 #: templates/landing/commune.html:21
-msgid "Expand your municipal heating plan with open-plan-tool"
+msgid "Expand your municipal heating plan with openPlan Tool "
 msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mit dem openPlan Tool"
 
 #: templates/landing/commune.html:36
-msgid "The open-plan-tool is targeted at:"
+msgid "The openPlan Tool  is targeted at:"
 msgstr "Das OpenPlanTool richtet sich an:"
 
 #: templates/landing/commune.html:41
@@ -1395,15 +1395,15 @@ msgstr "Modellieren Sie Ihr lokales Energiesystem"
 
 #: templates/landing/default.html:25
 msgid ""
-"Use the open-plan-tool for a variety of different use cases in the context "
+"Use the openPlan Tool  for a variety of different use cases in the context "
 "of an energy system analysis"
 msgstr ""
-"Verwenden Sie das open-plan-tool für eine Vielzahl von unterschiedlichen "
+"Verwenden Sie das openPlan Tool  für eine Vielzahl von unterschiedlichen "
 "Anwendungsfällen im Rahmen einer Energiesystemanalyse"
 
 #: templates/landing/default.html:90
-msgid "Special features of the open-plan-tool"
-msgstr "Besonderheiten des open-plan-tools"
+msgid "Special features of the openPlan Tool "
+msgstr "Besonderheiten des openPlan Tool "
 
 #: templates/landing/default.html:95
 msgid "Easy to use"
@@ -1411,12 +1411,12 @@ msgstr "Einfache Bedienung"
 
 #: templates/landing/default.html:97
 msgid ""
-"The open-plan-tool offers an intuitive and user-friendly interface that "
+"The openPlan Tool  offers an intuitive and user-friendly interface that "
 "allows users to easily design energy systems using drag-and-drop functions. "
 "No programming knowledge is required, which makes it easy to get started and "
 "accessible for use in complex models."
 msgstr ""
-"Das open-plan-tool bietet eine intuitive und benutzerfreundliche Oberfläche, "
+"Das openPlan Tool  bietet eine intuitive und benutzerfreundliche Oberfläche, "
 "die es Nutzer:innen ermöglicht, Energiesysteme mithilfe von Drag-&-Drop-"
 "Funktionen einfach zu gestalten. Es sind keine Programmierkenntnisse "
 "erforderlich, was den Einstieg erleichtert und die Nutzung auch für komplexe "
@@ -1478,7 +1478,7 @@ msgstr "Video-Tutorials"
 msgid ""
 "Would you like to be involved in the further development of the open-plan "
 "tool?"
-msgstr "Sie möchten an der Weiterentwicklung des open-plan-tools mitwirken?"
+msgstr "Sie möchten an der Weiterentwicklung des openPlan Tool s mitwirken?"
 
 #: templates/landing/dev_section.html:16
 msgid ""
@@ -1748,13 +1748,13 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"\t\t\t\t<p>If you wish to sponsor a new feature of open-plan-tool, please "
+"\t\t\t\t<p>If you wish to sponsor a new feature of openPlan Tool , please "
 "visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
 "rel=\"noreferrer\">sponsoring page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Wenn Sie eine neue Funktion von open-plan-tool sponsern möchten, "
+"\t\t\t\t<p>Wenn Sie eine neue Funktion von openPlan Tool  sponsern möchten, "
 "besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
 "rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
 "\t\t\t\t"
@@ -1774,7 +1774,7 @@ msgstr ""
 "\n"
 "\t\t\t\t<p>Sie können die Entwicklung dieser <a href=\"%(url_github)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Benutzeroberfläche</a>, oder Ihres "
-"eigenen open-plan-tool (einschließlich <a href=\"%(url_simulation_server)s\" "
+"eigenen openPlan Tool  (einschließlich <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> und "
 "Benutzeroberfläche) unterstützen, indem Sie unsere <a href=\"%(url_gui)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Github-Seite</a> besuchen.</p>\n"
@@ -3015,23 +3015,23 @@ msgstr ""
 "verändern oder anzupassen. Diese Erklärung wurde zuletzt geändert am"
 
 #: templates/legal/sponsor_feature.html:5
-msgid "Sponsor - open-plan-tool"
-msgstr "Fördern - open-plan-tool"
+msgid "Sponsor - openPlan Tool "
+msgstr "Fördern - openPlan Tool "
 
 #: templates/legal/sponsor_feature.html:13 templates/navbar.html:38
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
 #: templates/legal/sponsor_feature.html:20
-msgid "You wish a feature would be added to open-plan-tool?"
-msgstr "Sie wünschen sich eine neue Funktion für das open-plan-tool?"
+msgid "You wish a feature would be added to openPlan Tool ?"
+msgstr "Sie wünschen sich eine neue Funktion für das openPlan Tool ?"
 
 #: templates/legal/sponsor_feature.html:23
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tThe open-plan-tool was developed within the <a href=\"%(url_op)s\" "
+"\t\t\t\t\tThe openPlan Tool  was developed within the <a href=\"%(url_op)s\" "
 "target=\"_blank\">open_plan 1.0 project</a> and successfully completed in "
 "June 2023. The tool is currently being funded by the open_plan 2.0 project "
 "in the 8th Energy Research Program of the Federal Ministry for Economic "
@@ -3048,7 +3048,7 @@ msgid ""
 msgstr ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tDas open-plan-tool wurde im Rahmen des <a href=\"%(url_op)s\" "
+"\t\t\t\t\tDas openPlan Tool  wurde im Rahmen des <a href=\"%(url_op)s\" "
 "target=\"_blank\">Projekts open_plan 1.0</a> entwickelt und im Juni 2023 "
 "erfolgreich abgeschlossen. Aktuell wird das Tool durch das Projekt open_plan "
 "2.0 im 8. Energieforschungsprogramm des Bundesministeriums für Wirtschaft "
@@ -3261,8 +3261,8 @@ msgid "Log In"
 msgstr "Anmelden"
 
 #: templates/registration/login.html:19 templates/registration/signup.html:20
-msgid "Welcome to the open-plan-tool"
-msgstr "Willkommen im open-plan-tool"
+msgid "Welcome to the openPlan Tool "
+msgstr "Willkommen im openPlan Tool "
 
 #: templates/registration/login.html:22
 msgid "Do you not have an account yet?"

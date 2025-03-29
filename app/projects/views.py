@@ -167,8 +167,8 @@ def user_feedback(request):
             except:
                 feedback.rating = None
             feedback.save()
-            subject = f"[open_plan] Feedback for open-plan-tool - {feedback.subject}"
-            body = f"Feedback form for open-plan-tool online api\n\nReceived Feedback\n-----------------\n\nTopic: {feedback.subject}\nContent: {feedback.feedback}\n\nInformation about sender\n------------------------\nName: {feedback.name}\n E-mail Address: {feedback.email}"
+            subject = f"[open_plan] Feedback for openPlan Tool  - {feedback.subject}"
+            body = f"Feedback form for openPlan Tool  online api\n\nReceived Feedback\n-----------------\n\nTopic: {feedback.subject}\nContent: {feedback.feedback}\n\nInformation about sender\n------------------------\nName: {feedback.name}\n E-mail Address: {feedback.email}"
             try:
                 send_feedback_email(subject, body)
                 messages.success(request, f"Thank you for your feedback.")
@@ -536,7 +536,7 @@ def project_search(request, proj_id=None, scen_id=None):
             request,
             mark_safe(
                 _(
-                    "<p>Hello dear open-plan-tool user!</br></br> We would just like to let you know we are looking for your inputs in terms of features ideas or feature sponsor. Please check out the new navigation bar link 'Sponsor new features' for more information</br></br>Thank you for using open-plan-tool</p>"
+                    "<p>Hello dear openPlan Tool  user!</br></br> We would just like to let you know we are looking for your inputs in terms of features ideas or feature sponsor. Please check out the new navigation bar link 'Sponsor new features' for more information</br></br>Thank you for using openPlan Tool </p>"
                 )
             ),
         )

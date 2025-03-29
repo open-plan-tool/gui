@@ -2,7 +2,7 @@
 {% load i18n %}
 
 
-{% block title %} {% translate "Sponsor - open-plan-tool" %} {% endblock title%}
+{% block title %} {% translate "Sponsor - openPlan Tool" %} {% endblock title%}
 
 <!-- WRITE HTML CODE WITHIN THESE block content TAGS -->
 {% block content %}
@@ -17,12 +17,12 @@
 	<section class="standard-layout">
 		<div>
 			<div class="standard-layout__paragraph standard-layout__paragraph--foreground">
-				<h2>{% translate "You wish a feature would be added to open-plan-tool?" %}</h2>
+				<h2>{% translate "You wish a feature would be added to openPlan Tool?" %}</h2>
 				{% url 'user_feedback' as url_feedback %}
 				{% url 'landing_cellular' as url_op %}
 				{% blocktranslate %}
 				<p>
-					The open-plan-tool was developed within the <a href="{{url_op}}" target="_blank">open_plan 1.0 project</a> and successfully completed in June 2023. The tool is currently being funded by the open_plan 2.0 project in the 8th Energy Research Program of the Federal Ministry for Economic Affairs and Climate Protection and expanded to include functions for use in municipal heating planning.
+					The openPlan Tool was developed within the <a href="{{url_op}}" target="_blank">open_plan 1.0 project</a> and successfully completed in June 2023. The tool is currently being funded by the open_plan 2.0 project in the 8th Energy Research Program of the Federal Ministry for Economic Affairs and Climate Protection and expanded to include functions for use in municipal heating planning.
 					If you are interested in adding additional functions to the open-plan tool that are optimally tailored to your needs, please feel free to contact us by email at <a href="mailto:open_plan@dgs-berlin.de">openplan@dgs-berlin.de</a> or via our <a target="_blank" href="{{url_feedback}}">feedback form</a>. We look forward to further exciting projects.
 				</p>
 				{% endblocktranslate %}

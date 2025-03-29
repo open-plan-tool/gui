@@ -3,6 +3,13 @@
 {% load i18n %}
 
 
+	{% block favicon %}
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/project/apple-touch-icon.png' %}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/project/favicon-32x32.png' %}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/project/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'assets/favicon/project/site.webmanifest' %}">
+	{% endblock favicon %}
+
 {% block title %} {% translate "Commune" %} {% endblock title %}
 
 
@@ -18,10 +25,10 @@
 		<div>
 			<div class="commune2__text">
 				<h1>
-					{% translate "Expand your municipal heating plan with open-plan-tool" %}
+					{% translate "Expand your municipal heating plan with openPlan Tool" %}
 				</h1>
 				<a href="{% url 'login' %}" class="btn btn--medium">
-					{% translate "To open-plan-tool" %}
+					{% translate "To the openPlan Tool" %}
 				</a>
 			</div>
 			<div class="commune2__image">
@@ -32,8 +39,8 @@
 	<section class="actors2">
 		<div>
 			<div class="actors2__heading">
-				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo">
-				<h2>{% translate "The open-plan-tool is targeted at:" %}</h2>
+				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo" height="100">
+				<h2>{% translate "The openPlan Tool is targeted at:" %}</h2>
 			</div>
 			<div class="actors2__items">
 				<div class="actors2__item">
