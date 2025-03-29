@@ -180,7 +180,7 @@ class Project(models.Model):
                 )
         else:
             message = _(
-                "The user(s) you selected seems to not be registered in the open-plan-tool"
+                "The user(s) you selected seems to not be registered in the openPlan Tool "
             )
         return success, message
 

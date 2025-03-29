@@ -4,7 +4,12 @@
 
 
 
-
+	{% block favicon %}
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/project/apple-touch-icon.png' %}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/project/favicon-32x32.png' %}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/project/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'assets/favicon/project/site.webmanifest' %}">
+	{% endblock favicon %}
 
 {% block head_block %}
 	<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
@@ -22,9 +27,9 @@
 					{% translate "Model your local energy system" %}
 				</h1>
 				<span>
-					{% translate "Use the open-plan-tool for a variety of different use cases in the context of an energy system analysis" %}
+					{% translate "Use the openPlan Tool for a variety of different use cases in the context of an energy system analysis" %}
 				</span>
-				<a href="{% url 'login' %}" class="btn btn--medium">{% translate "To open-plan-tool" %}</a>
+				<a href="{% url 'login' %}" class="btn btn--medium">{% translate "To the openPlan Tool" %}</a>
 			</div>
 			<div class="hero2__image">
 
@@ -86,15 +91,15 @@
 	<section class="special-features2">
 		<div>
 			<div class="special-features2__heading">
-				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo">
-				<h2>{% translate "Special features of the open-plan-tool" %}</h2>
+				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo"  height="100">
+				<h2>{% translate "Special features of the openPlan Tool" %}</h2>
 			</div>
 			<div class="special-features2__items">
 				<div class="special-features2__item">
 					<img src="{% static 'assets/icons/i_easy_use_hex.png' %}" alt="Snapping fingers">
 					<h3>{% translate "Easy to use" %}</h3>
 					<p>
-						{% translate "The open-plan-tool offers an intuitive and user-friendly interface that allows users to easily design energy systems using drag-and-drop functions. No programming knowledge is required, which makes it easy to get started and accessible for use in complex models." %}
+						{% translate "The openPlan Tool offers an intuitive and user-friendly interface that allows users to easily design energy systems using drag-and-drop functions. No programming knowledge is required, which makes it easy to get started and accessible for use in complex models." %}
 					</p>
 				</div>
 				<div class="special-features2__item">
