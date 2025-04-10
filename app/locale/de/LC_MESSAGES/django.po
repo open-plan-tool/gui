@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-28 01:20+0100\n"
+"POT-Creation-Date: 2025-04-10 23:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -664,10 +664,10 @@ msgstr ""
 
 #: projects/models/base_models.py:183
 msgid ""
-"The user(s) you selected seems to not be registered in the openPlan Tool "
+"The user(s) you selected seems to not be registered in the OpenPlan Tool "
 msgstr ""
-"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im open"
-"Plan Tool registriert zu sein."
+"Der/die von Ihnen ausgewählte(n) Benutzer scheint/scheinen nicht im OpenPlan "
+"Tool registriert zu sein."
 
 #: projects/models/simulation_models.py:84
 msgid ""
@@ -751,16 +751,16 @@ msgstr "Projektdatei"
 
 #: projects/views.py:539
 msgid ""
-"<p>Hello dear openPlan Tool  user!</br></br> We would just like to let you "
+"<p>Hello dear OpenPlan Tool  user!</br></br> We would just like to let you "
 "know we are looking for your inputs in terms of features ideas or feature "
 "sponsor. Please check out the new navigation bar link 'Sponsor new features' "
-"for more information</br></br>Thank you for using openPlan Tool </p>"
+"for more information</br></br>Thank you for using OpenPlan Tool </p>"
 msgstr ""
-"<p>Hallo liebe openPlan Tool  NutzerInnen</br></br> Wir möchten Ihnen "
+"<p>Hallo liebe OpenPlan Tool  NutzerInnen</br></br> Wir möchten Ihnen "
 "mitteilen, dass wir auf der Suche nach Ideen für neue Features oder Feature-"
 "Sponsoren sind. Bitte schauen Sie sich den neuen Link 'Neue Funktionen "
 "fördern' in der Navigationsleiste an. </br></br>Vielen Dank für die Nutzung "
-"von openPlan Tool </p>"
+"von OpenPlan Tool </p>"
 
 #: projects/views.py:557 projects/views.py:608
 #: templates/project/project_search.html:165
@@ -1021,25 +1021,25 @@ msgstr ""
 msgid "Constant value"
 msgstr "Konstanter Wert"
 
-#: templates/base.html:84
+#: templates/base.html:86
 msgid "About"
 msgstr "Über uns"
 
-#: templates/base.html:85 templates/legal/contact.html:21
+#: templates/base.html:87 templates/legal/contact.html:21
 #: templates/navbar.html:53 templates/navbar.html:91
 msgid "Contact"
 msgstr "Kontakt"
 
-#: templates/base.html:86 templates/legal/license.html:13
+#: templates/base.html:88 templates/legal/license.html:13
 #: templates/navbar.html:90
 msgid "License"
 msgstr "Lizenz"
 
-#: templates/base.html:87 templates/legal/imprint.html:12
+#: templates/base.html:89 templates/legal/imprint.html:12
 msgid "Imprint"
 msgstr "Impressum"
 
-#: templates/base.html:88
+#: templates/base.html:90
 msgid "Privacy"
 msgstr "Datenschutz"
 
@@ -1098,16 +1098,15 @@ msgstr "Open-Source-Planungstool für die Energiewende"
 
 #: templates/index.html:18
 msgid ""
-"With the openPlan Tool , you can plan and design energy systems in an open "
+"With the OpenPlan Tool, you can plan and design energy systems in an open "
 "and free framework. "
 msgstr ""
-"Mit dem openPlan Tool  können Sie in einem offenen und kostenlosen Framework "
+"Mit dem OpenPlan Tool können Sie in einem offenen und kostenlosen Framework "
 "Energiesysteme planen und auslegen."
 
-#: templates/index.html:19 templates/landing/cellular.html:21
-#: templates/landing/commune.html:24 templates/landing/default.html:27
-msgid "To the openPlan Tool "
-msgstr "Zum openPlan Tool "
+#: templates/index.html:19 templates/landing/cellular.html:28
+msgid "To OpenPlan Tool"
+msgstr "Zum OpenPlan Tool"
 
 #: templates/index.html:29
 msgid "Application areas"
@@ -1142,27 +1141,27 @@ msgstr ""
 "Wenn Sie mitarbeiten möchten oder sich für das Projekt interessieren, finden "
 "Sie weitere Informationen unter:"
 
-#: templates/landing/cellular.html:5
+#: templates/landing/cellular.html:12
 msgid "Cellular"
 msgstr "Zellular"
 
-#: templates/landing/cellular.html:19
-msgid "Planning of cellular energy systems with the openPlan Tool "
-msgstr "Planung zellularer Energiesysteme mit dem openPlan Tool "
+#: templates/landing/cellular.html:26
+msgid "Planning of cellular energy systems with the OpenPlan Tool"
+msgstr "Planung zellularer Energiesysteme mit dem OpenPlan Tool"
 
-#: templates/landing/cellular.html:20
+#: templates/landing/cellular.html:27
 msgid ""
-"With the openPlan Tool , you can plan and design energy cells in the context "
+"With the OpenPlan Tool, you can plan and design energy cells in the context "
 "of the cellular approach."
 msgstr ""
-"Mit dem openPlan Tool  können Sie in einem offenen und kostenlosen Framework "
+"Mit dem OpenPlan Tool können Sie in einem offenen und kostenlosen Framework "
 "Energiesysteme planen und auslegen."
 
-#: templates/landing/cellular.html:32
+#: templates/landing/cellular.html:39
 msgid "Energy cells explained"
 msgstr "Energiezellen erklärt"
 
-#: templates/landing/cellular.html:36
+#: templates/landing/cellular.html:43
 msgid ""
 "The cellular approach is a model framework for energy systems that is based "
 "on decentralized energy systems and sector coupling."
@@ -1170,7 +1169,7 @@ msgstr ""
 "Der zellulare Ansatz ist ein Modellrahmen für Energiesysteme, der auf "
 "dezentralen Energiesystemen und Sektorenkopplung basiert."
 
-#: templates/landing/cellular.html:37
+#: templates/landing/cellular.html:44
 msgid ""
 "The cellular approach describes an energy system that is organized into so-"
 "called energy cells."
@@ -1178,7 +1177,7 @@ msgstr ""
 "Der zellulare Ansatz beschreibt ein Energiesystem, das in sogenannte "
 "Energiezellen organisiert ist"
 
-#: templates/landing/cellular.html:48
+#: templates/landing/cellular.html:55
 msgid ""
 "The cellular approach is based on the principle of subsidiarity, with energy "
 "supply and demand being balanced as closely as possible at the local level."
@@ -1187,7 +1186,7 @@ msgstr ""
 "Energieangebot und -nachfrage so weit wie möglich auf lokaler Ebene "
 "ausgeglichen werden."
 
-#: templates/landing/cellular.html:49
+#: templates/landing/cellular.html:56
 msgid ""
 "An energy cell can contain and combine various energy sectors, such as "
 "electricity, heat, mobility, etc."
@@ -1195,7 +1194,7 @@ msgstr ""
 "Eine Energiezelle kann verschiedene Energiesektoren, wie Strom, Wärme, "
 "Mobilität, etc., enthalten und kombinieren."
 
-#: templates/landing/cellular.html:55
+#: templates/landing/cellular.html:62
 msgid ""
 "The adoption of the <a href='https://www.bmwi.de/Redaktion/DE/Downloads/G/"
 "gesetzentwurf-aenderung-erneuerbare-energien-gesetzes-und-weiterer-"
@@ -1215,7 +1214,7 @@ msgid ""
 "is the energy cell.' <a href='#footnote-1'>[1]</a>"
 msgstr ""
 
-#: templates/landing/cellular.html:56
+#: templates/landing/cellular.html:63
 msgid ""
 "This model was developed by the German Association for Electrical "
 "Engineering, VDE. It proposes a new way to organize future energy system "
@@ -1228,7 +1227,7 @@ msgid ""
 "and mobility thus embracing the concept of sector coupling."
 msgstr ""
 
-#: templates/landing/cellular.html:57
+#: templates/landing/cellular.html:64
 msgid ""
 "[1] VDE Verband der Elektrotechnik Elektronik Informationstechnik e.V.: "
 "Cellular Energy System - A Contribution to the Concretization of the "
@@ -1236,16 +1235,16 @@ msgid ""
 "2019"
 msgstr ""
 
-#: templates/landing/cellular.html:69
+#: templates/landing/cellular.html:76
 msgid "Cross-sector and open-source planning tool"
 msgstr "Sektorübergreifendes und quelloffenes Planungswerkzeug"
 
-#: templates/landing/cellular.html:74
+#: templates/landing/cellular.html:81
 #: templates/landing/features_section.html:12
 msgid "Sector coupling"
 msgstr "Sektorkopplung"
 
-#: templates/landing/cellular.html:75
+#: templates/landing/cellular.html:82
 msgid ""
 "The tool is used for the optimized planning of energy cells for the "
 "(partial) supply of electricity and heat to neighborhoods, commercial parks "
@@ -1261,11 +1260,11 @@ msgstr ""
 "Netzausbau erheblich reduzieren, da sie untereinander plan- und steuerbar "
 "sind."
 
-#: templates/landing/cellular.html:79 templates/landing/default.html:102
+#: templates/landing/cellular.html:86 templates/landing/default.html:107
 msgid "Open licence"
 msgstr "Offene Lizenz"
 
-#: templates/landing/cellular.html:80
+#: templates/landing/cellular.html:87
 msgid ""
 "The project follows the promising open science approach that RLI has already "
 "implemented in many projects, and all data, methods, and program codes are "
@@ -1282,11 +1281,11 @@ msgstr ""
 "können im Bereich der softwarebasierten Forschung reproduziert und "
 "vervielfältigt werden."
 
-#: templates/landing/cellular.html:84
+#: templates/landing/cellular.html:91
 msgid "Stakeholder dialogue"
 msgstr "Stakeholder-Dialog"
 
-#: templates/landing/cellular.html:85
+#: templates/landing/cellular.html:92
 msgid ""
 "Through close collaboration within the consortium and with a wide range of "
 "stakeholders and users, the research network was expanded and a broad range "
@@ -1298,65 +1297,69 @@ msgstr ""
 "Forschungsnetzwerk erweitert und ein breites Feld neuer, bedeutender und "
 "explizit anwendungsorientierter Forschungsfragen erschlossen."
 
-#: templates/landing/cellular.html:96
+#: templates/landing/cellular.html:103
 msgid "Related projects (NEED UPDATE)"
 msgstr "Verwandte Projekte"
 
-#: templates/landing/cellular.html:106
+#: templates/landing/cellular.html:113
 msgid ""
 "UPDATE Open and cross-sectoral planning of transmission and distribution "
 "grids"
 msgstr ""
 
-#: templates/landing/cellular.html:111 templates/landing/cellular.html:128
+#: templates/landing/cellular.html:118 templates/landing/cellular.html:135
 msgid "Visit website"
 msgstr "Webseite besuchen"
 
-#: templates/landing/cellular.html:123
+#: templates/landing/cellular.html:130
 msgid ""
 "UPDATE Toolbox for the low-carbon and climate-resistant transition of energy "
 "systems, which considers technical, social, and economic aspects equally"
 msgstr ""
 
-#: templates/landing/cellular.html:140
+#: templates/landing/cellular.html:147
 msgid ""
 "UPDATE Model experiment to compare and determine synergy potentials of open-"
 "source frameworks in energy system analysis"
 msgstr ""
 
-#: templates/landing/cellular.html:145
+#: templates/landing/cellular.html:152
 msgid "See project"
 msgstr "Projekt seite besuchen"
 
-#: templates/landing/commune.html:6
+#: templates/landing/commune.html:13
 msgid "Commune"
 msgstr "Kommune"
 
-#: templates/landing/commune.html:21
-msgid "Expand your municipal heating plan with openPlan Tool "
-msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mit dem openPlan Tool"
+#: templates/landing/commune.html:28
+msgid "Expand your municipal heating plan with the OpenPlan Tool"
+msgstr "Erweitern Sie Ihre kommunale Wärmeplanung mit dem OpenPlan Tool"
 
-#: templates/landing/commune.html:36
-msgid "The openPlan Tool  is targeted at:"
+#: templates/landing/commune.html:31 templates/landing/default.html:32
+msgid "To the OpenPlan Tool"
+msgstr "Zum OpenPlan Tool"
+
+#: templates/landing/commune.html:43
+msgid "The OpenPlan Tool is targeted at:"
 msgstr "Das OpenPlanTool richtet sich an:"
 
-#: templates/landing/commune.html:41
+#: templates/landing/commune.html:48
 msgid "Communes"
 msgstr "Kommunen"
 
-#: templates/landing/commune.html:45
+#: templates/landing/commune.html:52
 msgid "Energy suppliers"
 msgstr "Energieversorger"
 
-#: templates/landing/commune.html:49
+#: templates/landing/commune.html:56
 msgid "Planning offices"
 msgstr "Planungsbüros"
 
-#: templates/landing/commune.html:53
+#: templates/landing/commune.html:60
 msgid "Actors involved in municipal heating planning"
 msgstr "Akteure rund um die kommunale Wärmeplanung"
 
-#: templates/landing/commune.html:60
+#: templates/landing/commune.html:67
 msgid ""
 "\n"
 "\t\t\t<p>It is already possible to map <b>a municipality's energy system</b> "
@@ -1389,40 +1392,40 @@ msgstr ""
 "bis zur vollständigen Analyse bereit.</p>\n"
 "\t\t\t"
 
-#: templates/landing/default.html:22
+#: templates/landing/default.html:27
 msgid "Model your local energy system"
 msgstr "Modellieren Sie Ihr lokales Energiesystem"
 
-#: templates/landing/default.html:25
+#: templates/landing/default.html:30
 msgid ""
-"Use the openPlan Tool  for a variety of different use cases in the context "
-"of an energy system analysis"
+"Use the OpenPlan Tool for a variety of different use cases in the context of "
+"an energy system analysis"
 msgstr ""
-"Verwenden Sie das openPlan Tool  für eine Vielzahl von unterschiedlichen "
+"Verwenden Sie das OpenPlan Tool für eine Vielzahl von unterschiedlichen "
 "Anwendungsfällen im Rahmen einer Energiesystemanalyse"
 
-#: templates/landing/default.html:90
-msgid "Special features of the openPlan Tool "
-msgstr "Besonderheiten des openPlan Tool "
-
 #: templates/landing/default.html:95
+msgid "Special features of the OpenPlan Tool"
+msgstr "Besonderheiten des OpenPlan Tool"
+
+#: templates/landing/default.html:100
 msgid "Easy to use"
 msgstr "Einfache Bedienung"
 
-#: templates/landing/default.html:97
+#: templates/landing/default.html:102
 msgid ""
-"The openPlan Tool  offers an intuitive and user-friendly interface that "
+"The OpenPlan Tool offers an intuitive and user-friendly interface that "
 "allows users to easily design energy systems using drag-and-drop functions. "
 "No programming knowledge is required, which makes it easy to get started and "
 "accessible for use in complex models."
 msgstr ""
-"Das openPlan Tool  bietet eine intuitive und benutzerfreundliche Oberfläche, "
+"Das OpenPlan Tool bietet eine intuitive und benutzerfreundliche Oberfläche, "
 "die es Nutzer:innen ermöglicht, Energiesysteme mithilfe von Drag-&-Drop-"
 "Funktionen einfach zu gestalten. Es sind keine Programmierkenntnisse "
 "erforderlich, was den Einstieg erleichtert und die Nutzung auch für komplexe "
 "Modelle zugänglich macht."
 
-#: templates/landing/default.html:104
+#: templates/landing/default.html:109
 msgid ""
 "The open_plan project follows the open science approach and is based on the "
 "open energy modeling framework (oemof). All data, methods and source code "
@@ -1435,11 +1438,11 @@ msgstr ""
 "Transparenz, Reproduzierbarkeit und Nachvollziehbarkeit – entscheidende "
 "Aspekte für wissenschaftliches Arbeiten."
 
-#: templates/landing/default.html:109
+#: templates/landing/default.html:114
 msgid "Cooperation between research and practice"
 msgstr "Verknüpfung von Wissenschaft und Praxis"
 
-#: templates/landing/default.html:111
+#: templates/landing/default.html:116
 msgid ""
 "The open_plan community bridges the gap between scientific theory and "
 "practical application. Its ease of use makes it attractive for "
@@ -1454,23 +1457,23 @@ msgstr ""
 "bietet. So fördert das Tool die Entwicklung innovativer Energiesysteme für "
 "verschiedene Anwendungsbereiche."
 
-#: templates/landing/default.html:121
+#: templates/landing/default.html:126
 msgid "Target Groups"
 msgstr "Zielgruppen"
 
-#: templates/landing/default.html:186
+#: templates/landing/default.html:191
 msgid "Related content"
 msgstr "Weiterführende Inhalte"
 
-#: templates/landing/default.html:193
+#: templates/landing/default.html:198
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
-#: templates/landing/default.html:199
+#: templates/landing/default.html:204
 msgid "user Manual"
 msgstr "Handbuch"
 
-#: templates/landing/default.html:214
+#: templates/landing/default.html:219
 msgid "Video-Tutorials"
 msgstr "Video-Tutorials"
 
@@ -1478,7 +1481,7 @@ msgstr "Video-Tutorials"
 msgid ""
 "Would you like to be involved in the further development of the open-plan "
 "tool?"
-msgstr "Sie möchten an der Weiterentwicklung des openPlan Tool s mitwirken?"
+msgstr "Sie möchten an der Weiterentwicklung des OpenPlan Tool s mitwirken?"
 
 #: templates/landing/dev_section.html:16
 msgid ""
@@ -1748,13 +1751,13 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"\t\t\t\t<p>If you wish to sponsor a new feature of openPlan Tool , please "
+"\t\t\t\t<p>If you wish to sponsor a new feature of OpenPlan Tool, please "
 "visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
 "rel=\"noreferrer\">sponsoring page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Wenn Sie eine neue Funktion von openPlan Tool  sponsern möchten, "
+"\t\t\t\t<p>Wenn Sie eine neue Funktion von OpenPlan Tool sponsern möchten, "
 "besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
 "rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
 "\t\t\t\t"
@@ -1774,7 +1777,7 @@ msgstr ""
 "\n"
 "\t\t\t\t<p>Sie können die Entwicklung dieser <a href=\"%(url_github)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Benutzeroberfläche</a>, oder Ihres "
-"eigenen openPlan Tool  (einschließlich <a href=\"%(url_simulation_server)s\" "
+"eigenen OpenPlan Tool  (einschließlich <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> und "
 "Benutzeroberfläche) unterstützen, indem Sie unsere <a href=\"%(url_gui)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Github-Seite</a> besuchen.</p>\n"
@@ -3015,23 +3018,23 @@ msgstr ""
 "verändern oder anzupassen. Diese Erklärung wurde zuletzt geändert am"
 
 #: templates/legal/sponsor_feature.html:5
-msgid "Sponsor - openPlan Tool "
-msgstr "Fördern - openPlan Tool "
+msgid "Sponsor - OpenPlan Tool"
+msgstr "Fördern - OpenPlan Tool"
 
 #: templates/legal/sponsor_feature.html:13 templates/navbar.html:38
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
 #: templates/legal/sponsor_feature.html:20
-msgid "You wish a feature would be added to openPlan Tool ?"
-msgstr "Sie wünschen sich eine neue Funktion für das openPlan Tool ?"
+msgid "You wish a feature would be added to OpenPlan Tool?"
+msgstr "Sie wünschen sich eine neue Funktion für das OpenPlan Tool?"
 
 #: templates/legal/sponsor_feature.html:23
 #, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tThe openPlan Tool  was developed within the <a href=\"%(url_op)s\" "
+"\t\t\t\t\tThe OpenPlan Tool was developed within the <a href=\"%(url_op)s\" "
 "target=\"_blank\">open_plan 1.0 project</a> and successfully completed in "
 "June 2023. The tool is currently being funded by the open_plan 2.0 project "
 "in the 8th Energy Research Program of the Federal Ministry for Economic "
@@ -3048,7 +3051,7 @@ msgid ""
 msgstr ""
 "\n"
 "\t\t\t\t<p>\n"
-"\t\t\t\t\tDas openPlan Tool  wurde im Rahmen des <a href=\"%(url_op)s\" "
+"\t\t\t\t\tDas OpenPlan Tool wurde im Rahmen des <a href=\"%(url_op)s\" "
 "target=\"_blank\">Projekts open_plan 1.0</a> entwickelt und im Juni 2023 "
 "erfolgreich abgeschlossen. Aktuell wird das Tool durch das Projekt open_plan "
 "2.0 im 8. Energieforschungsprogramm des Bundesministeriums für Wirtschaft "
@@ -3222,7 +3225,7 @@ msgid "There are no scenarios"
 msgstr "Es gibt keine Szenarien"
 
 #: templates/project/project_search.html:239
-#: templates/usecase/usecase_search.html:156
+#: templates/usecase/usecase_search.html:144
 msgid "Export selected"
 msgstr "Export ausgewählt"
 
@@ -3261,8 +3264,8 @@ msgid "Log In"
 msgstr "Anmelden"
 
 #: templates/registration/login.html:19 templates/registration/signup.html:20
-msgid "Welcome to the openPlan Tool "
-msgstr "Willkommen im openPlan Tool "
+msgid "Welcome to the OpenPlan Tool"
+msgstr "Willkommen im OpenPlan Tool"
 
 #: templates/registration/login.html:22
 msgid "Do you not have an account yet?"
