@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-10 23:16+0200\n"
+"POT-Creation-Date: 2025-04-24 10:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,7 +235,7 @@ msgstr "Wärmepumpe"
 
 #: projects/constants.py:293
 msgid "Chiller"
-msgstr ""
+msgstr "Kühlgerät"
 
 #: projects/forms.py:159 projects/forms.py:275 projects/forms.py:759
 msgid "eg. 0.1"
@@ -283,7 +283,7 @@ msgstr "Standort, Längengrad"
 
 #: projects/forms.py:222 projects/forms.py:235
 msgid "click on the map"
-msgstr ""
+msgstr "Klick auf der Karte"
 
 #: projects/forms.py:226
 msgid "Longitude coordinate of the project's geographical location."
@@ -1661,133 +1661,144 @@ msgstr ""
 msgid "About us - open_plan"
 msgstr "Über uns - open_plan"
 
-#: templates/legal/about.html:21 templates/navbar.html:50
+#: templates/legal/about.html:23 templates/navbar.html:50
 msgid "About us"
 msgstr "Über uns"
 
-#: templates/legal/about.html:28
-msgid "open_plan 2.0 project consortium"
-msgstr "open_plan 2.0 Projektkonsortium"
+#: templates/legal/about.html:30
+msgid "OpenPlan 2.0 project consortium"
+msgstr "OpenPlan 2.0 Projektkonsortium"
 
-#: templates/legal/about.html:29
+#: templates/legal/about.html:32
 #, python-format
 msgid ""
 "\n"
-"          <p>The open_plan 2.0 project consortium is composed of the <a "
-"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
-"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
-"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
-"IFAM</a> (IFAM). It is funded within the framework of the \"Technology-"
-"oriented systems analysis\" funding area of the BMWK's ????th Energy "
-"Research Programme \"?????\".</p>\n"
-"\t\t\t\t"
+"          <p>The functions for applying the OpenPlan tool in the context of "
+"municipal heat planning are being developed in the OpenPlan 2.0 research "
+"project. The project consortium consists of the <a href=\"%(url_rli)s\" "
+"target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine Institut</a> (RLI), the "
+"<a href=\"%(url_dgs)s\" target=\"_blank\" rel=\"noreferrer\">German Solar "
+"Energy Society</a> (DGS), and <a href=\"%(url_ifam)s\" target=\"_blank\" "
+"rel=\"noreferrer\">the Fraunhofer IFAM</a>(IFAM). It will be funded from "
+"September 2024 to August 2027 as part of the 'Technology-oriented System "
+"Analysis' funding area of the 7th Energy Research Program of the BMWK.</p>\n"
+"\t\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
-"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
-"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
-"<a href=\"%(url_ifam)s\" target=\"_blank\" rel=\"noreferrer\">the Fraunhofer "
-"IFAM</a> (IFAM). Es wird im Rahmen des Programms ‚ \"Technologieorientierte "
-"Systemanalyse\" des ????????. Energieforschungsprogramms ‚ \"Innovation für "
-"die Energiewende\" des BMWi gefördert.</p>\n"
+"\t\t\t\t<p>Die Funktionen zur Anwendung des OpenPlan Tools im Kontext der "
+"Kommunalen Wärmeplanung werden im Forschungsvorhaben OpenPlan 2.0 entwickelt."
+"Das Projektkonsortium besteht aus dem <a href=\"%(url_rli)s\" "
+"target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine Institut</a> (RLI), <a "
+"href=\"%(url_dgs)s\" target=\"_blank\" rel=\"noreferrer\">Deutsche "
+"Gesellschaft für Sonnenenergie</a> (DGS) und dem <a href=\"%(url_ifam)s\" "
+"target=\"_blank\" rel=\"noreferrer\">the Fraunhofer IFAM</a> (IFAM). Es wird "
+"von September 2024 bis August 2027 im Rahmen des Förderbereichs "
+"'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms des "
+"BMWK gefördert.</p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:62
+#: templates/legal/about.html:58
+msgid "OpenPlan 2.0 project partners"
+msgstr "OpenPlan 2.0 Projektkonsortium"
+
+#: templates/legal/about.html:74
 msgid "open_plan 1.0 project consortium"
 msgstr "open_plan 1.0 Projektkonsortium"
 
-#: templates/legal/about.html:63
+#: templates/legal/about.html:76
 #, python-format
 msgid ""
 "\n"
-"\t\t\t\t<p>The open_plan project consortium is composed of the <a "
-"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
-"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the "
-"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
-"Institut für Klimafolgenforschung</a> (PIK). It is funded within the "
-"framework of the \"Technology-oriented systems analysis\" funding area of "
-"the BMWi's 7th Energy Research Programme \"Innovation for the energy "
-"transition\".</p>\n"
-"\t\t\t\t"
+"          <p>\n"
+"\t\t\t\t\t\tThe functions for planning cellular energy systems were "
+"developed in the context of the open_plan 1.0 research project. The project "
+"consortium consisted of the <a href=\"%(url_rli)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Reiner Lemoine Institut</a> (RLI), the <a "
+"href=\"%(url_dgs)s\" target=\"_blank\" rel=\"noreferrer\">German Solar "
+"Energy Society</a> (DGS) and the <a href=\"%(url_pik)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Potsdam Institute for Climate Impact Research</a> (PIK). "
+"It was funded from January 2020 to June 2023 as part of the 'Technology-"
+"oriented Systems Analysis' funding area of the BMWi's 7th Energy Research "
+"Program 'Innovation for the Energy Transition.'\n"
+"\t\t\t\t\t</p>\n"
+"\t\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Das open_plan Projektkonsortium besteht aus dem <a "
-"href=\"%(url_rli)s\" target=\"_blank\" rel=\"noreferrer\">Reiner Lemoine "
-"Institut</a> (RLI), <a href=\"%(url_dgs)s\" target=\"_blank\" "
-"rel=\"noreferrer\">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) und dem "
-"<a href=\"%(url_pik)s\" target=\"_blank\" rel=\"noreferrer\">Potsdam "
-"Institut für Klimafolgenforschung</a> (PIK). Es wird im Rahmen des Programms "
-"‚ \"Technologieorientierte Systemanalyse\" des 7. Energieforschungsprogramms "
-"‚ \"Innovation für die Energiewende\" des BMWi gefördert.</p>\n"
-"\t\t\t\t"
+"          <p>\n"
+"\t\t\t\t\t\tDie Funktionen zur Planung zellularer Energiesysteme wurden im "
+"Kontext des Forschungsvorhabens open_plan 1.0 entwickelt. Das "
+"Projektkonsortium bestand aus dem <a href=\"%(url_rli)s\" target=\"_blank\" "
+"rel=\"noreferrer\">Reiner Lemoine Institut</a> (RLI), the <a "
+"href=\"%(url_dgs)s\" target=\"_blank\" rel=\"noreferrer\">Deutschen "
+"Gesellschaftfür Sonnenenergie</a> (DGS) und dem <a href=\"%(url_pik)s\" "
+"target=\"_blank\" rel=\"noreferrer\">Potsdam Institut für "
+"Klimafolgenforschung</a> (PIK). Es wurde von Januar 2020 bis Juni 2023 im "
+"Rahmen des Förderbereichs 'Technologieorientierte Systemanalyse' des 7. "
+"Energieforschungsprogramms des BMWi 'Innovation für die Energiewende' "
+"gefördert.\n"
+"\t\t\t\t\t</p>\n"
+"\t\t\t\t\t"
 
-#: templates/legal/about.html:68 templates/legal/contact.html:34
+#: templates/legal/about.html:108 templates/legal/contact.html:34
 msgid "Feedback or question?"
 msgstr "Feedback oder Frage?"
 
-#: templates/legal/about.html:71 templates/legal/contact.html:37
-#, python-format
+#: templates/legal/about.html:115
 msgid ""
-"\n"
-"\t\t\t\t<p>You can always <a href=\"%(url_feedback)s\">leave us a comment or "
-"feedback</a> on things you would improve. You can also visit <a "
-"href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github "
-"project page</a> to see which bugs are being fixed and which new features "
-"are being developed.</p>\n"
-"\t\t\t\t"
+"You can always leave us a comment or feedback on things you would improve."
 msgstr ""
-"\n"
-"\t\t\t\t<p>Sie können uns jederzeit <a href=\"%(url_feedback)s\">einen "
-"Kommentar oder Feedback</a> zu Verbesserungen hinterlassen. Außerdem können "
-"Sie <a href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">unsere "
-"Github-Projektseite</a> besuchen, um zu sehen, welche Bugs behoben und "
-"welche neuen Features entwickelt werden.</p>\n"
-"\t\t\t\t"
+"Sie können uns jederzeit einen Kommentar oder Feedback zu Verbesserungen "
+"hinterlassen."
 
-#: templates/legal/about.html:74 templates/legal/contact.html:40
-#, python-format
+#: templates/legal/about.html:122
 msgid ""
-"\n"
-"\t\t\t\t<p>If you wish to sponsor a new feature of OpenPlan Tool, please "
-"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
-"rel=\"noreferrer\">sponsoring page</a></p>\n"
-"\t\t\t\t"
+"You can see which bugs are being fixed and which new features are being "
+"developed."
 msgstr ""
-"\n"
-"\t\t\t\t<p>Wenn Sie eine neue Funktion von OpenPlan Tool sponsern möchten, "
-"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
-"rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
-"\t\t\t\t"
+"Sie können sehen, welche Bugs behoben und welche neuen Features entwickelt "
+"werden."
 
-#: templates/legal/about.html:80
-#, python-format
+#: templates/legal/about.html:124
+msgid "GitHub Projectpage"
+msgstr "GitHub Projectseite"
+
+#: templates/legal/about.html:129
+msgid ""
+"If you wish to sponsor a new feature of OpenPlan Tool, please visit our "
+"sponsoring page."
+msgstr ""
+"Sie eine neue Funktion von OpenPlan Tool sponsern möchten, besuchen Sie "
+"bitte unsere Sponsoring-Seite"
+
+#: templates/legal/about.html:131
+msgid "Sponsoring page"
+msgstr "Sponsoring Seite"
+
+#: templates/legal/about.html:139
 msgid ""
 "\n"
-"\t\t\t\t<p>You can follow the development of this <a href=\"%(url_github)s\" "
+"\t\t\t\t<p>You can follow the development of this <a href=\"%(url_gui)s\" "
 "target=\"_blank\" rel=\"noreferrer\">user interface</a>, or deploy your own "
 "open-plan tool (including <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">simulation server</a> and user "
-"interface) by visiting our <a href=\"%(url_gui)s\" target=\"_blank\" "
+"interface) by visiting our <a href=\"%(url_github)s\" target=\"_blank\" "
 "rel=\"noreferrer\">github page</a></p>\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t<p>Sie können die Entwicklung dieser <a href=\"%(url_github)s\" "
+"\t\t\t\t<p>Sie können die Entwicklung dieser <a href=\"%(url_gui)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Benutzeroberfläche</a>, oder Ihres "
 "eigenen OpenPlan Tool  (einschließlich <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> und "
-"Benutzeroberfläche) unterstützen, indem Sie unsere <a href=\"%(url_gui)s\" "
+"Benutzeroberfläche) unterstützen, indem Sie unsere <a href=\"%(url_github)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Github-Seite</a> besuchen.</p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:85
+#: templates/legal/about.html:145
 msgid "Simulation server"
 msgstr "Simulationserver"
 
-#: templates/legal/about.html:87
+#: templates/legal/about.html:148
 #, python-format
 msgid ""
 "\n"
@@ -1813,13 +1824,9 @@ msgstr ""
 "Energiesystemmodell anhand technisch-ökonomischer Parameter zu simulieren.\n"
 "\t\t\t\t\t"
 
-#: templates/legal/about.html:94
+#: templates/legal/about.html:156
 msgid "This webapp design"
 msgstr "Auslegegung des Webapps"
-
-#: templates/legal/about.html:95
-msgid "Bryan Lancien from "
-msgstr "Bryan Lancien vom "
 
 #: templates/legal/contact.html:10
 msgid "Contact - open_plan"
@@ -1837,6 +1844,40 @@ msgstr ""
 "Sie können uns per E-Mail unter open_plan at rl-institut.de kontaktieren. "
 "Beachten Sie, dass diese Information nur sichtbar ist, wenn Sieangemeldet "
 "sind."
+
+#: templates/legal/contact.html:37
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\t<p>You can always <a href=\"%(url_feedback)s\">leave us a comment or "
+"feedback</a> on things you would improve. You can also visit <a "
+"href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">our github "
+"project page</a> to see which bugs are being fixed and which new features "
+"are being developed.</p>\n"
+"\t\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t\t<p>Sie können uns jederzeit <a href=\"%(url_feedback)s\">einen "
+"Kommentar oder Feedback</a> zu Verbesserungen hinterlassen. Außerdem können "
+"Sie <a href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">unsere "
+"Github-Projektseite</a> besuchen, um zu sehen, welche Bugs behoben und "
+"welche neuen Features entwickelt werden.</p>\n"
+"\t\t\t\t"
+
+#: templates/legal/contact.html:40
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\t<p>If you wish to sponsor a new feature of OpenPlan Tool, please "
+"visit our <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">sponsoring page</a></p>\n"
+"\t\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t\t<p>Wenn Sie eine neue Funktion von OpenPlan Tool sponsern möchten, "
+"besuchen Sie bitte <a href=\"%(url_sponsor)s\" target=\"_blank\" "
+"rel=\"noreferrer\">unsere Sponsoring-Seite<a></p>\n"
+"\t\t\t\t"
 
 #: templates/legal/imprint.html:4
 msgid "Imprint - open_plan"
@@ -3072,9 +3113,13 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/navbar.html:31
+#: templates/navbar.html:28
 msgid "Documentation"
 msgstr "Dokumentation"
+
+#: templates/navbar.html:31
+msgid "User Manual"
+msgstr "Handbuch"
 
 #: templates/navbar.html:32
 msgid "Video-tutorials"
@@ -3780,10 +3825,10 @@ msgid "Investment costs"
 msgstr "Investitionskosten"
 
 msgid "Fixed operational costs"
-msgstr ""
+msgstr "Feste Betriebskosten"
 
 msgid "Variable operational costs"
-msgstr ""
+msgstr "Variable Betriebskosten"
 
 msgid ""
 "The share of renewables in the generation mix of the energy supplied by "
