@@ -27,10 +27,10 @@
       </section>
 	      <section class="project2">
         <img class="project2__img" src="{% static 'assets/logos/openPlan logo - normal no text.png' %}" alt="">
-        <h2>{% translate "open_plan 2.0 project consortium" %}</h2>
+        <h2>{% translate "OpenPlan 2.0 project consortium" %}</h2>
         <div>
 					{% blocktranslate with url_rli="https://reiner-lemoine-institut.de/" url_dgs="https://www.dgs-berlin.de" url_ifam="https://www.ifam.fraunhofer.de" url_pik="https://www.pik-potsdam.de/de" %}
-          <p>The open_plan 2.0 project consortium is composed of the <a href="{{url_rli}}" target="_blank" rel="noreferrer">Reiner Lemoine Institut</a> (RLI), <a href="{{url_dgs}}" target="_blank" rel="noreferrer">Deutsche Gesellschaft für Sonnenenergie</a> (DGS) and the <a href="{{url_ifam}}" target="_blank" rel="noreferrer">the Fraunhofer IFAM</a> (IFAM). It is funded within the framework of the "Technology-oriented systems analysis" funding area of the BMWK's ????th Energy Research Programme "?????".</p>
+          <p>The functions for applying the OpenPlan tool in the context of municipal heat planning are being developed in the OpenPlan 2.0 research project. The project consortium consists of the <a href="{{url_rli}}" target="_blank" rel="noreferrer">Reiner Lemoine Institut</a> (RLI), the <a href="{{url_dgs}}" target="_blank" rel="noreferrer">German Solar Energy Society</a> (DGS), and <a href="{{url_ifam}}" target="_blank" rel="noreferrer">the Fraunhofer IFAM</a>(IFAM). It will be funded from September 2024 to August 2027 as part of the 'Technology-oriented System Analysis' funding area of the 7th Energy Research Program of the BMWK.</p>
 					{% endblocktranslate %}
 				</div>
         <div class="project2__logos">
@@ -53,14 +53,55 @@
 					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
 				</a>
 				{% endif %}
-          </div>.
+          </div>
         </div>
+					<h2>{% translate "OpenPlan 2.0 project partners" %}</h2>
+        <div>
+					<p>Some text about the partners</p>
+				</div>
+				<div class="project2__logos">
+          <div>
+					<a href="https://energielenker.de/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/EnergieLenker_logo.png' %}" alt="Energie Lenker logo" width="135" height="135">
+					</a>
+						<a href="https://oekozentrum.nrw/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/oeko_zentrum_NRW_logo.png' %}" alt="Öko Zentrum NRW logo" width="157" height="157">
+					</a>
+					</div>
+				</div>
       </section>
       <section class="project2">
         <h2>{% translate "open_plan 1.0 project consortium" %}</h2>
-        <div>
-				<p>{% translate "The functions for planning cellular energy systems were developed in the context of the open_plan 1.0 research project. The project consortium consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). It was funded from January 2020 to June 2023 as part of the 'Technology-oriented Systems Analysis' funding area of the BMWi's 7th Energy Research Program 'Innovation for the Energy Transition.' " %}</p>
+				<div>
+					{% blocktranslate with url_rli="https://reiner-lemoine-institut.de/" url_dgs="https://www.dgs-berlin.de" url_pik="https://www.pik-potsdam.de/de" %}
+          <p>
+						The functions for planning cellular energy systems were developed in the context of the open_plan 1.0 research project. The project consortium consisted of the <a href="{{url_rli}}" target="_blank" rel="noreferrer">Reiner Lemoine Institut</a> (RLI), the <a href="{{url_dgs}}" target="_blank" rel="noreferrer">German Solar Energy Society</a> (DGS) and the <a href="{{url_pik}}" target="_blank" rel="noreferrer">Potsdam Institute for Climate Impact Research</a> (PIK). It was funded from January 2020 to June 2023 as part of the 'Technology-oriented Systems Analysis' funding area of the BMWi's 7th Energy Research Program 'Innovation for the Energy Transition.'
+					</p>
+					{% endblocktranslate %}
 				</div>
+
+				<div class="project2__logos">
+          <div>
+					<a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo" width="196" height="76">
+					</a>
+					<a href="https://reiner-lemoine-institut.de/en/" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/rlilogo.png' %}" alt="Reiner Lemoine Institut logo" width="97" height="71">
+					</a>
+					<a href="https://www.pik-potsdam.de/en" target="_blank" rel="noopener noreferrer">
+						<img src="{% static 'assets/logos/logo_PIK.png' %}" alt="Potsdam Institute for Climate Impact Research logo">
+					</a>
+										{% if "de" in LANGUAGE_NAME %}
+				<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
+				</a>
+		    {% else %}
+				<a href="https://www.bmwi.de/Navigation/EN/Home/home.html" target="_blank" rel="noopener noreferrer">
+					<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
+				</a>
+				{% endif %}
+          </div>.
+        </div>
       </section>
       <section class="involvement2">
         <div>
@@ -95,8 +136,8 @@
       <section class="project2" style="padding-top: 6rem;">
         <h3>GitHub</h3>
         <div>
-				{% blocktranslate with url_github="https://github.com/open-plan-tool/gui" url_gui="https://github.com/open-plan-tool/gui" url_simulation_server="https://github.com/open-plan-tool/simulation-server"%}
-				<p>You can follow the development of this <a href="{{url_github}}" target="_blank" rel="noreferrer">user interface</a>, or deploy your own open-plan tool (including <a href="{{url_simulation_server}}" target="_blank" rel="noreferrer">simulation server</a> and user interface) by visiting our <a href="{{url_gui}}" target="_blank" rel="noreferrer">github page</a></p>
+				{% blocktranslate with url_github="https://github.com/open-plan-tool" url_gui="https://github.com/open-plan-tool/gui" url_simulation_server="https://github.com/open-plan-tool/simulation-server"%}
+				<p>You can follow the development of this <a href="{{url_gui}}" target="_blank" rel="noreferrer">user interface</a>, or deploy your own open-plan tool (including <a href="{{url_simulation_server}}" target="_blank" rel="noreferrer">simulation server</a> and user interface) by visiting our <a href="{{url_github}}" target="_blank" rel="noreferrer">github page</a></p>
 				{% endblocktranslate %}
 				</div>
       </section>
