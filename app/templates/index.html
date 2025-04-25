@@ -7,7 +7,17 @@
 {% endblock head_block %}
 
 {% block index %}
-{% get_current_language as LANGUAGE_NAME %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% if LANGUAGE_CODE == 'de' %}
+	{% url 'landing_commune_de' as landing_commune_url %}
+{% else %}
+  {% url 'landing_commune' as landing_commune_url %}
+{% endif %}
+
+
+
+
 <main class="landing-page">
 
 	<section class="cellular2 section" id="hero" data-aos="fade-up">
@@ -32,7 +42,7 @@
 			<div class="application2__cards">
 				<div class="application2__card">
 					<img src="{% static 'assets/icons/i_heating_hex.png' %}" alt="" width="60">
-					<a href="{% url 'landing_commune' %}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
+					<a href="{{ landing_commune_url }}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
 				</div>
 				<div class="application2__card">
 					<img src="{% static 'assets/icons/i_cells_hex.png' %}" alt="" width="60">
