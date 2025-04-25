@@ -1652,10 +1652,10 @@ msgstr "Abonnieren"
 #, python-format
 msgid ""
 " I have read and accept the <a target=\"_blank\" href=\"%(url)s\">privacy "
-"statement </a> from open_plan<span class=\"asteriskField\">*</span> "
+"statement </a> from OpenPlan<span class=\"asteriskField\">*</span> "
 msgstr ""
 "Ich habe die <a target='_blank' href=\"%(url)s\">Datenschutzbestimmungen</a> "
-"von open_plan gelesen und akzeptiert."
+"von OpenPlan gelesen und akzeptiert."
 
 #: templates/legal/about.html:10
 msgid "About us - open_plan"
@@ -3711,10 +3711,10 @@ msgstr "Es sind noch keine usecase vorhanden"
 #, python-format
 msgid ""
 "I have read and accept the <a target='_blank' href='%(privacy_url)s'>privacy "
-"statement</a> from open_plan"
+"statement</a> from OpenPlan"
 msgstr ""
 "Ich habe die <a target='_blank' "
-"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von open_plan gelesen "
+"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von OpenPlan gelesen "
 "und akzeptiert."
 
 #: users/views.py:35
