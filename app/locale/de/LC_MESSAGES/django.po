@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 10:47+0200\n"
+"POT-Creation-Date: 2025-04-25 22:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1699,13 +1699,38 @@ msgstr ""
 
 #: templates/legal/about.html:58
 msgid "OpenPlan 2.0 project partners"
-msgstr "OpenPlan 2.0 Projektkonsortium"
+msgstr "OpenPlan 2.0 Praxispartner"
 
-#: templates/legal/about.html:74
+#: templates/legal/about.html:60
+#, python-format
+msgid ""
+"\n"
+"          <p>The OpenPlan 2.0 project places particular emphasis on the "
+"practical applicability of the tool. <a href=\"%(url_el)s\" "
+"target=\"_blank\" rel=\"noreferrer\">energielenker projects GmbH</a> and <a "
+"href=\"%(url_oznrw)s\" target=\"_blank\" rel=\"noreferrer\">Öko-Zentrum NRW</"
+"a> are integral members of the project team as permanent practical partners. "
+"Through their involvement with real-life applications and their direct "
+"feedback on tool enhancements, they ensure that the OpenPlan tool can be "
+"used in the context of municipal heat planning.</p>\n"
+"\t\t\t\t\t"
+msgstr ""
+"\n"
+"          <p>Im Projekt OpenPlan 2.0 liegt ein besonderer Fokus auf der "
+"praktischen Anwendbarkeit des Tools. Die <a href=\"%(url_el)s\" "
+"target=\"_blank\" rel=\"noreferrer\">energielenker projects GmbH</a> and <a "
+"href=\"%(url_oznrw)s\" target=\"_blank\" rel=\"noreferrer\">Öko-Zentrum NRW</"
+"a> sind als feste Praxispartner ein integraler Bestandteil des Projektteams. "
+"Durch ihre Einbindung mit realen Anwendungsfällen und ihrem direkten "
+"Feedback zu den Toolerweiterungen stellen sie sicher, dass das OpenPlan Tool "
+"im Kontext der Kommunalen Wärmeplanung zum Einsatz kommen kann. </p>\n"
+"\t\t\t\t\t"
+
+#: templates/legal/about.html:76
 msgid "open_plan 1.0 project consortium"
 msgstr "open_plan 1.0 Projektkonsortium"
 
-#: templates/legal/about.html:76
+#: templates/legal/about.html:78
 #, python-format
 msgid ""
 "\n"
@@ -1739,18 +1764,18 @@ msgstr ""
 "\t\t\t\t\t</p>\n"
 "\t\t\t\t\t"
 
-#: templates/legal/about.html:108 templates/legal/contact.html:34
+#: templates/legal/about.html:110 templates/legal/contact.html:34
 msgid "Feedback or question?"
 msgstr "Feedback oder Frage?"
 
-#: templates/legal/about.html:115
+#: templates/legal/about.html:117
 msgid ""
 "You can always leave us a comment or feedback on things you would improve."
 msgstr ""
 "Sie können uns jederzeit einen Kommentar oder Feedback zu Verbesserungen "
 "hinterlassen."
 
-#: templates/legal/about.html:122
+#: templates/legal/about.html:124
 msgid ""
 "You can see which bugs are being fixed and which new features are being "
 "developed."
@@ -1758,11 +1783,11 @@ msgstr ""
 "Sie können sehen, welche Bugs behoben und welche neuen Features entwickelt "
 "werden."
 
-#: templates/legal/about.html:124
+#: templates/legal/about.html:126
 msgid "GitHub Projectpage"
 msgstr "GitHub Projectseite"
 
-#: templates/legal/about.html:129
+#: templates/legal/about.html:131
 msgid ""
 "If you wish to sponsor a new feature of OpenPlan Tool, please visit our "
 "sponsoring page."
@@ -1770,11 +1795,12 @@ msgstr ""
 "Sie eine neue Funktion von OpenPlan Tool sponsern möchten, besuchen Sie "
 "bitte unsere Sponsoring-Seite"
 
-#: templates/legal/about.html:131
+#: templates/legal/about.html:133
 msgid "Sponsoring page"
 msgstr "Sponsoring Seite"
 
-#: templates/legal/about.html:139
+#: templates/legal/about.html:141
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\t<p>You can follow the development of this <a href=\"%(url_gui)s\" "
@@ -1790,15 +1816,16 @@ msgstr ""
 "target=\"_blank\" rel=\"noreferrer\">Benutzeroberfläche</a>, oder Ihres "
 "eigenen OpenPlan Tool  (einschließlich <a href=\"%(url_simulation_server)s\" "
 "target=\"_blank\" rel=\"noreferrer\">Simulationsserver</a> und "
-"Benutzeroberfläche) unterstützen, indem Sie unsere <a href=\"%(url_github)s\" "
-"target=\"_blank\" rel=\"noreferrer\">Github-Seite</a> besuchen.</p>\n"
+"Benutzeroberfläche) unterstützen, indem Sie unsere <a "
+"href=\"%(url_github)s\" target=\"_blank\" rel=\"noreferrer\">Github-Seite</"
+"a> besuchen.</p>\n"
 "\t\t\t\t"
 
-#: templates/legal/about.html:145
+#: templates/legal/about.html:147
 msgid "Simulation server"
 msgstr "Simulationserver"
 
-#: templates/legal/about.html:148
+#: templates/legal/about.html:150
 #, python-format
 msgid ""
 "\n"
@@ -1824,7 +1851,7 @@ msgstr ""
 "Energiesystemmodell anhand technisch-ökonomischer Parameter zu simulieren.\n"
 "\t\t\t\t\t"
 
-#: templates/legal/about.html:156
+#: templates/legal/about.html:158
 msgid "This webapp design"
 msgstr "Auslegegung des Webapps"
 

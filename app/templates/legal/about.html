@@ -57,7 +57,9 @@
         </div>
 					<h2>{% translate "OpenPlan 2.0 project partners" %}</h2>
         <div>
-					<p>Some text about the partners</p>
+					{% blocktranslate with url_el="https://energielenker.de/" url_oznrw="https://oekozentrum.nrw/"  %}
+          <p>The OpenPlan 2.0 project places particular emphasis on the practical applicability of the tool. <a href="{{url_el}}" target="_blank" rel="noreferrer">energielenker projects GmbH</a> and <a href="{{url_oznrw}}" target="_blank" rel="noreferrer">Öko-Zentrum NRW</a> are integral members of the project team as permanent practical partners. Through their involvement with real-life applications and their direct feedback on tool enhancements, they ensure that the OpenPlan tool can be used in the context of municipal heat planning.</p>
+					{% endblocktranslate %}
 				</div>
 				<div class="project2__logos">
           <div>
