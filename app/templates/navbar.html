@@ -30,6 +30,8 @@
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "User Manual" %}</a></li>
                   <li><a class="dropdown-item" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a></li>
+                  <li><a class="dropdown-item" href="https://github.com/open-plan-tools" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'usecase_search' %}" target="_blank" rel="noreferrer">{% translate "Use cases" %}</a></li>
                 </ul>
               </div>
 				</li>
@@ -43,14 +45,23 @@
 					<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
 				</li>
 				<li class="nav-item">
+					<a class="nav-link" href="{% url 'project_search' %}">{% translate "My Projects" %}</a>
+				</li>
+				<li class="nav-item">
 					<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
 				</li>
 				{% else %}
 				<li class="nav-item">
-					<a class="nav-link" href="{% url 'about' %}">{% translate "About us" %}</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'contact' %}">{% translate "Contact" %}</a>
+					<div class="dropdown dropdown--navbar">
+                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% translate "About us" %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Overview" %}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'contact' %}">{% translate "Contact" %}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'sponsor_feature' %}">{% translate "Sponsoring" %}</a></li>
+                </ul>
+              </div>
 				</li>
 
 				{% endif %}
@@ -88,7 +99,8 @@
 					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 						<li><a class="dropdown-item" href="{% url 'user_info' %}">{% translate "Account" %}</a></li> <!-- account.html -->
 						<li><a class="dropdown-item" href="{% url 'license' %}">{% translate "License" %}</a></li>
-						<li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
+						<li><a class="dropdown-item" href="{% url 'about' %}">{% translate "About" %}</a></li> <!-- about.html -->
+						<li><a class="dropdown-item" href="{% url 'contact' %}">{% translate "Contact" %}</a></li> <!-- about.html -->
 						<li><hr class="dropdown-divider"></li>
 						<li><a class="dropdown-item" href="{% url 'logout' %}">{% translate "Log out" %}</a></li>
 					</ul>

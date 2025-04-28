@@ -25,10 +25,15 @@
 			<div class="cellular2__text">
 				<h1>{% translate "Planning of cellular energy systems with the OpenPlan Tool" %}</h1>
 				<span>{% translate "With the OpenPlan Tool, you can plan and design energy cells in the context of the cellular approach." %}</span>
-				<a href="{% url 'login' %}" class="btn btn--medium">{% translate "To OpenPlan Tool" %}</a>
+				<a href="{% url 'project_search' %}" class="btn btn--medium">{% translate "To OpenPlan Tool" %}</a>
 			</div>
-			<div class="cellular2__image">
-				<img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
+			<!--div class="cellular2__image"-->
+			<div class="hero2__image">
+								{% if "de" in LANGUAGE_NAME %}
+				<img src="{% static 'assets/illustrations/tool_de.png' %}" alt="Energy system GUI">
+				{% else %}
+				<img src="{% static 'assets/illustrations/tool_en.png' %}" alt="Energy system GUI">
+				{% endif %}
 			</div>
 		</div>
 	</section>

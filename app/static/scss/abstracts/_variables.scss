@@ -50,12 +50,19 @@ $xlarge-screen: 1500px;
 
 // Typography {
 $main-font-family: lato, Arial, Helvetica, sans-serif;
+$font-size-xxlarge: 3rem;
+$font-size-xlarge: 1.95rem;
 $font-size-large: 1.953rem; // 31.25px
 $font-size-medium-2: 1.563rem; // 25px
 $font-size-medium: 1.25rem; // 20px
 $font-size-normal: 1rem; // 16px
 $font-size-small: 0.875rem;
 $font-size-xsmall: 0.75rem;
+$font-size-mobile-xlarge: 1.7rem;
+$font-size-mobile-large: 1.3rem;
+$font-size-mobile-medium: 1.1rem;
+$font-size-mobile-text: .875rem;
+$font-size-mobile-small: .75rem;
 
 $line-height-normal: 1.75rem;
 $letter-spacing-small: 0.01rem;

@@ -65,10 +65,8 @@ def not_implemented(request):
 
 @require_http_methods(["GET"])
 def home(request, version=1):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("project_search"))
-    else:
-        return render(request, "index.html", {"version": version})
+    return render(request, "index.html", {"version": version})
+
 
 
 @require_http_methods(["GET"])

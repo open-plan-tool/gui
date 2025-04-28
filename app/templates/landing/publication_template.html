@@ -1,0 +1,24 @@
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% comment %}
+Here is a list of the parameters one can provide to this template
+
+label:
+    title of the publication item
+sub_text:
+    the text displayed below the publication
+file_link:
+    link to the publication file within the static files
+{% endcomment %}
+
+<div class="item">
+  <div class="item__img">
+    <img src="{% static 'assets/open_plan_publication.svg' %}" alt="Blatt Papier" width="60">
+  </div>
+  <div class="item__text">
+    <h2><a href="{% static 'assets/publications/' %}{{ file_link }}">{% translate label %}</a></h2>
+    <p>{% translate sub_text %}</p>
+  </div>
+</div>

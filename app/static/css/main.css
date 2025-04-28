@@ -2351,6 +2351,74 @@ nav.navbar {
       flex-direction: row;
       justify-content: center; }
 
+.publications {
+  width: 100%; }
+  .publications__wrap {
+    padding: 3rem 1rem 0;
+    display: flex;
+    flex-direction: column; }
+    @media screen and (min-width: 640px) {
+      .publications__wrap {
+        padding: 4rem 2rem 0; } }
+    @media screen and (min-width: 1280px) {
+      .publications__wrap {
+        max-width: 840px;
+        margin: 0 auto; } }
+  .publications .to-home-anchor {
+    padding-bottom: 2rem;
+    padding-top: 3rem; }
+    @media screen and (min-width: 640px) {
+      .publications .to-home-anchor {
+        padding-bottom: 3rem; } }
+    .publications .to-home-anchor::before {
+      background-image: url(../assets/icons/i_arrow_left.svg);
+      background-size: 12px 12px;
+      display: inline-block;
+      height: 12px;
+      width: 12px;
+      transform: translateY(1px) translateX(-3px);
+      content: ""; }
+  .publications__header h1 {
+    font-size: 1.3rem;
+    text-align: center;
+    padding-top: 3rem; }
+    @media screen and (min-width: 640px) {
+      .publications__header h1 {
+        font-size: 1.95rem; } }
+  .publications__img {
+    text-align: center; }
+    @media screen and (min-width: 640px) {
+      .publications__img img {
+        max-height: 14rem; } }
+  .publications__content {
+    padding-top: 3rem;
+    padding-bottom: 3rem; }
+    @media screen and (min-width: 640px) {
+      .publications__content {
+        padding-top: 5rem;
+        padding-bottom: 5rem; } }
+  @media screen and (min-width: 640px) {
+    .publications__content .item {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: 1rem; } }
+  .publications__content .item__img {
+    width: 2rem;
+    margin: 0 auto;
+    padding-bottom: .5rem; }
+    @media screen and (min-width: 640px) {
+      .publications__content .item__img {
+        width: 5rem;
+        margin-right: 1.5rem;
+        flex: 0 0 70px; } }
+  @media screen and (min-width: 640px) {
+    .publications__content .item__text {
+      flex-grow: 1; } }
+  .publications__content .item h2 {
+    font-size: 1.1rem; }
+    @media screen and (min-width: 640px) {
+      .publications__content .item h2 {
+        font-size: 1.953rem; } }
 /* ----------------------------- open_plan 2 ----------------------------- */
 /* ----------------------------- open_plan 2 ----------------------------- */
 .system-design {
@@ -3546,6 +3614,9 @@ nav.navbar {
       .involvement2__cards {
         flex-wrap: wrap; } }
   .involvement2__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: white;
     border-radius: 8px;
     padding: 2rem;
@@ -3613,6 +3684,58 @@ nav.navbar {
     .application2__card {
       width: 90%;
       max-width: 25rem; } }
+.project2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 6rem; }
+  .project2__img {
+    width: 8rem;
+    margin-bottom: 4rem; }
+  .project2 h2 {
+    font-size: 1.953rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center; }
+  .project2 h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center; }
+  .project2 p {
+    max-width: 38rem; }
+  .project2__logos {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: #fff;
+    text-align: center; }
+    .project2__logos > div {
+      width: 100%;
+      max-width: 82rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem; }
+      .project2__logos > div a {
+        display: flex;
+        justify-content: center;
+        align-items: center; }
+    @media (max-width: 1024px) {
+      .project2__logos > div {
+        justify-content: center; }
+      .project2__logos a {
+        width: 45%; } }
+    @media (max-width: 768px) {
+      .project2__logos > div {
+        flex-direction: column; }
+      .project2__logos a {
+        width: 100%; } }
 .newsletter2 {
   padding-top: 6rem;
   padding-bottom: 6rem;
