@@ -1093,8 +1093,8 @@ msgid "Submit"
 msgstr "Absenden"
 
 #: templates/index.html:17
-msgid "Open-source planning tool for the energy transition"
-msgstr "Open-Source-Planungstool für die Energiewende"
+msgid "The open-source planning tool for the energy transition"
+msgstr "Das Open-Source-Planungstool für die Energiewende"
 
 #: templates/index.html:18
 msgid ""
