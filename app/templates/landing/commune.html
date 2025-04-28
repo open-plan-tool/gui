@@ -31,10 +31,15 @@
 					{% translate "To the OpenPlan Tool" %}
 				</a>
 			</div>
-			<div class="commune2__image">
-				<img src="{% static 'assets/illustrations/energy_system_gui.svg' %}" alt="Energy system GUI">
+			<!--div class="commune2__image"-->
+				<div class="hero2__image">
+				{% if "de" in LANGUAGE_NAME %}
+				<img src="{% static 'assets/illustrations/tool_de.png' %}" alt="Energy system GUI">
+				{% else %}
+				<img src="{% static 'assets/illustrations/tool_en.png' %}" alt="Energy system GUI">
+				{% endif %}
 			</div>
-		</div>
+		</1--div>
 	</section>
 	<section class="actors2">
 		<div>
