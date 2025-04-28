@@ -734,6 +734,9 @@
   }
 
   &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: white;
     border-radius: $button-border-radius;
     padding: 2rem;
@@ -822,6 +825,79 @@
     &__card {
       width: 90%;
       max-width: 25rem;
+    }
+  }
+}
+
+.project2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 6rem;
+
+  &__img {
+    width: 8rem;
+    margin-bottom: 4rem;
+  }
+
+  h2 {
+    font-size: $font-size-large;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  h3 {
+    font-size: $font-size-medium;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  p {
+    max-width: 38rem;
+  }
+
+  &__logos {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    @include flex-row-justify-center;
+    background-color: #fff;
+    text-align: center;
+
+    & > div {
+      @include section-width;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+
+      a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      & > div {
+        justify-content: center;
+      }
+
+      a {
+        width: 45%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      & > div {
+        flex-direction: column;
+      }
+
+      a {
+        width: 100%;
+      }
     }
   }
 }
