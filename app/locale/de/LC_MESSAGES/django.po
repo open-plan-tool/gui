@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-25 22:58+0200\n"
+"POT-Creation-Date: 2025-04-28 16:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1770,18 +1770,18 @@ msgstr "Feedback oder Frage?"
 
 #: templates/legal/about.html:117
 msgid ""
-"You can always leave us a comment or feedback on things you would improve."
+"You can always leave us a comment or feedback on things you would improve"
 msgstr ""
 "Sie können uns jederzeit einen Kommentar oder Feedback zu Verbesserungen "
-"hinterlassen."
+"hinterlassen"
 
 #: templates/legal/about.html:124
 msgid ""
 "You can see which bugs are being fixed and which new features are being "
-"developed."
+"developed"
 msgstr ""
 "Sie können sehen, welche Bugs behoben und welche neuen Features entwickelt "
-"werden."
+"werden"
 
 #: templates/legal/about.html:126
 msgid "GitHub Projectpage"
