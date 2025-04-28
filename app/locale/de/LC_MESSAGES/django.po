@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-28 16:50+0200\n"
+"POT-Creation-Date: 2025-04-28 23:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1656,6 +1656,10 @@ msgid ""
 msgstr ""
 "Ich habe die <a target='_blank' href=\"%(url)s\">Datenschutzbestimmungen</a> "
 "von open_plan gelesen und akzeptiert."
+
+#: templates/landing/publications.html:5 templates/landing/publications.html:12
+msgid "OpenPlan - Publications"
+msgstr "OpenPlan - Veröffentlichungen"
 
 #: templates/legal/about.html:10
 msgid "About us - open_plan"
@@ -4653,3 +4657,30 @@ msgstr "Optimierung mit BHWK"
 
 msgid "Create project from usecase"
 msgstr "Projekt aus Anwendungsfall erstellen"
+
+msgid "Summary of the fourth stakeholder workshop on results section and thermal components"
+msgstr "Zusammenfassung des vierten Stakeholder-Workshops zu Ergebnisbereich und thermischen Komponenten"
+
+msgid "2021 annual report"
+msgstr "2021 Jahresbericht"
+
+msgid "2020 annual report"
+msgstr "2020 Jahresbericht"
+
+msgid "Summary of the goals achieved within the year"
+msgstr "Zusammenfassung der im Jahr erreichten Ziele"
+
+msgid "Summary of the third stakeholder workshop on tool's first release"
+msgstr "Zusammenfassung des dritten Stakeholder-Workshops zum ersten Release des Tools"
+
+msgid "Analyse der Auswirkungen auf die Netzanschlussleistung bei der Erhöhung der Eigenversorgung eines Industrieparks durch den Ausbau von erneuerbaren Energien und Speichern"
+msgstr "Analyse der Auswirkungen auf die Netzanschlussleistung bei der Erhöhung der Eigenversorgung eines Industrieparks durch den Ausbau von erneuerbaren Energien und Speichern"
+
+msgid "Analyzing the Application of Different Energy Cell Sizes as an Approach for the Integration of Decentralized Renewable Energy Sources"
+msgstr "Analyse des Einsatzes unterschiedlicher Energiezellengrößen als Ansatz zur Integration dezentraler erneuerbarer Energiequellen"
+
+msgid "Summary of the second stakeholder workshop on tool functionalities"
+msgstr "Zusammenfassung des zweiten Stakeholder-Workshops zu Tool-Funktionalitäten"
+
+msgid "Summary of the first stakeholder workshop on tool requirements"
+msgstr "Zusammenfassung des ersten Stakeholder-Workshops zu Werkzeuganforderungen"

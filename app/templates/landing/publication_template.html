@@ -18,7 +18,7 @@ file_link:
     <img src="{% static 'assets/open_plan_publication.svg' %}" alt="Blatt Papier" width="60">
   </div>
   <div class="item__text">
-    <h2><a href="{% static 'assets/publications/' %}{{ file_link }}">{{ label }}</a></h2>
-    <p>{{ sub_text }}</p>
+    <h2><a href="{% static 'assets/publications/' %}{{ file_link }}">{% translate label %}</a></h2>
+    <p>{% translate sub_text %}</p>
   </div>
 </div>
