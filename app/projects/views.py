@@ -71,26 +71,17 @@ def home(request, version=1):
 
 @require_http_methods(["GET"])
 def landing_commune(request, version=1):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("project_search"))
-    else:
-        return render(request, "landing/commune.html", {"version": version})
+    return render(request, "landing/commune.html", {"version": version})
 
 
 @require_http_methods(["GET"])
 def landing_cellular(request, version=1):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("project_search"))
-    else:
-        return render(request, "landing/cellular.html", {"version": version})
+    return render(request, "landing/cellular.html", {"version": version})
 
 
 @require_http_methods(["GET"])
 def landing_default(request, version=1):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("project_search"))
-    else:
-        return render(request, "landing/default.html", {"version": version})
+    return render(request, "landing/default.html", {"version": version})
 
 
 @login_required
