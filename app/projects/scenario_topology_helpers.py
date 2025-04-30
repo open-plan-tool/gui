@@ -13,6 +13,7 @@ from projects.models import (
     Simulation,
     ParameterChangeTracker,
     AssetChangeTracker,
+    Timeseries,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -564,6 +565,19 @@ def load_scenario_from_dict(model_data, user, project=None):
         )
 
         COP_parameters = asset_data.pop("COP_parameters", None)
+
+        input_timeseries = asset_data.get("input_timeseries", None)
+
+        if input_timeseries is not None:
+            if isinstance(input_timeseries, int):
+                input_ts = Timeseries.objects.filter(id=input_timeseries)
+                if input_ts.exists():
+                    asset_data["input_timeseries"] = input_ts
+                else:
+                    logger.error(
+                        f"No timeseries with id {input_timeseries} has been found for asset {asset_data['name']}, skipping it"
+                    )
+                    asset_data.pop("input_timeseries")
 
         asset = Asset(**asset_data)
         asset.scenario = scenario

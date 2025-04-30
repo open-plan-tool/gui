@@ -68,7 +68,6 @@ def home(request, version=1):
     return render(request, "index.html", {"version": version})
 
 
-
 @require_http_methods(["GET"])
 def landing_commune(request, version=1):
     return render(request, "landing/commune.html", {"version": version})
