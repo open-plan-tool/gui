@@ -1,3 +1,4 @@
+import datetime
 import json
 import uuid
 from datetime import timedelta
@@ -338,6 +339,23 @@ class Timeseries(models.Model):
         self.set_date_attributes_from_scenario()
         super().save(*args, **kwargs)
 
+    def export(self):
+        """
+        Returns
+        -------
+        A dict with the parameters describing an asset type model
+        """
+        dm = model_to_dict(self, exclude=["id"])
+
+        start_date = dm.get("start_date")
+        end_date = dm.get("end_date")
+        if isinstance(start_date, datetime.datetime):
+            dm["start_date"] = str(start_date)
+        if isinstance(end_date, datetime.datetime):
+            dm["end_date"] = str(end_date)
+
+        return dm
+
     @property
     def get_values(self):
         if self.ts_type == "scalar":
@@ -600,6 +618,12 @@ class Asset(TopologyNode):
         # check for parent assets
         if self.parent_asset is not None:
             dm["parent_asset"] = self.parent_asset.name
+
+        if self.input_timeseries is not None:
+            # TODO also consider efficiency, efficiency_multiple, energy_price, feedin_tariff
+            input_ts = Timeseries.objects.filter(id=dm["input_timeseries"])
+            if input_ts.exists():
+                dm["input_timeseries"] = input_ts.get().export()
 
         # TODO add connections here if True, then one can recreate the asset
 
