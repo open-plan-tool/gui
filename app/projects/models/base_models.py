@@ -336,7 +336,7 @@ class Timeseries(models.Model):
 
     def save(self, *args, **kwargs):
         # set time attributes
-        self.set_date_attributes_from_scenario()
+        # self.set_date_attributes_from_scenario()
         super().save(*args, **kwargs)
 
     def export(self):
