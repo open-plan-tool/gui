@@ -345,7 +345,7 @@ class Timeseries(models.Model):
         -------
         A dict with the parameters describing an asset type model
         """
-        dm = model_to_dict(self, exclude=["id"])
+        dm = model_to_dict(self, exclude=["id", "user", "scenario"])
 
         start_date = dm.get("start_date")
         end_date = dm.get("end_date")
