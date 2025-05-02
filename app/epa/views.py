@@ -30,6 +30,7 @@ def contact(request):
 def license(request):
     return render(request, "legal/license.html")
 
+
 @require_http_methods(["GET"])
 def publications(request):
     return render(request, "landing/publications.html")

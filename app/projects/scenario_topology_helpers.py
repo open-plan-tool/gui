@@ -1,5 +1,6 @@
 import uuid
 import numpy as np
+import datetime
 from django.shortcuts import get_object_or_404
 from projects.models import (
     Bus,
@@ -13,6 +14,7 @@ from projects.models import (
     Simulation,
     ParameterChangeTracker,
     AssetChangeTracker,
+    Timeseries,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -564,6 +566,48 @@ def load_scenario_from_dict(model_data, user, project=None):
         )
 
         COP_parameters = asset_data.pop("COP_parameters", None)
+
+        input_timeseries = asset_data.get("input_timeseries", None)
+
+        if input_timeseries is not None:
+            if isinstance(input_timeseries, int):
+                input_ts = Timeseries.objects.filter(id=input_timeseries)
+                if input_ts.exists():
+                    asset_data["input_timeseries"] = input_ts
+                else:
+                    logger.error(
+                        f"No timeseries with id {input_timeseries} has been found for asset {asset_data['name']}, skipping it"
+                    )
+                    asset_data.pop("input_timeseries")
+            elif isinstance(input_timeseries, dict):
+                # format the date timestamps as datetime objects
+                for k in ("start_date", "end_date"):
+                    if k in input_timeseries and input_timeseries[k] is not None:
+                        input_timeseries[k] = datetime.datetime.strptime(
+                            input_timeseries[k], "%Y-%m-%d %H:%M:%S"
+                        )
+                input_ts, created = Timeseries.objects.get_or_create(
+                    user=user, **input_timeseries
+                )
+                input_ts.save()
+                asset_data["input_timeseries"] = input_ts
+            elif isinstance(input_timeseries, str):
+                try:
+                    input_ts, created = Timeseries.objects.get_or_create(
+                        values=json.loads(input_timeseries),
+                        user=user,
+                        scenario=scenario,
+                        ts_type=asset_type["mvs_type"],
+                        name=f"{asset_data['name']}_ts",
+                    )
+                    asset_data["input_timeseries"] = input_ts
+                except json.decoder.JSONDecodeError:
+                    pass
+            else:
+                logger.error(
+                    f"The timeseries for asset {asset_data['name']} is neither an existing Timeseries instance's id nor a dict with Timeserie's attributes"
+                )
+                asset_data.pop("input_timeseries")
 
         asset = Asset(**asset_data)
         asset.scenario = scenario
