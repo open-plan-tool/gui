@@ -16,7 +16,6 @@
 {% endblock head_block %}
 
 {% block index %}
-  {% if not user.is_authenticated %}
 	{% get_current_language as LANGUAGE_NAME %}
 <main>
 
@@ -277,6 +276,4 @@
 </main>
 
 
-
-  {% endif %}
 {% endblock index %}

@@ -13,8 +13,23 @@ logger = logging.getLogger(__name__)
 class UseCase(Project):
     def assign(self, user):
         dm = self.export(bind_scenario_data=True)
-        ptr = dm.pop("project_ptr")
         return load_project_from_dict(dm, user)
+
+    def export(self, bind_scenario_data=True):
+        """
+        Parameters
+        ----------
+        bind_scenario_data : bool
+            when True, the scenarios of the project are saved
+            Default: False.
+        ...
+        Returns
+        -------
+        A dict with the parameters describing a project model
+        """
+        dm = super().export(bind_scenario_data)
+        dm.pop("project_ptr")
+        return dm
 
 
 def load_usecase_from_dict(model_data):
