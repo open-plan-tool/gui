@@ -14,7 +14,6 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 
 from jsonview.decorators import json_view
-from datetime import datetime
 from users.models import CustomUser
 from django.db.models import Q
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
@@ -1469,14 +1468,16 @@ def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
                 # Simulation.objects.filter(scenario_id=scen_id).delete()
                 # TODO the reference scenario should have its simulation replaced by this one if successful, this can be done via the mvs_token of the simulation
 
-                sa_item.end_date = datetime.now()
+                sa_item.end_date = datetime.datetime.now()
             else:  # PENDING
                 sa_item.status = response["status"]
                 # create a task which will update simulation status
                 # TODO check it does the right thing with sensitivity analysis
                 # create_or_delete_simulation_scheduler(mvs_token=sa_item.mvs_token)
 
-            sa_item.elapsed_seconds = (datetime.now() - sa_item.start_date).seconds
+            sa_item.elapsed_seconds = (
+                datetime.datetime.now() - sa_item.start_date
+            ).seconds
             sa_item.save()
             answer = HttpResponseRedirect(
                 reverse("sensitivity_analysis_review", args=[scen_id, sa_item.id])
@@ -1816,7 +1817,7 @@ def request_mvs_simulation(request, scen_id=0):
         Simulation.objects.filter(scenario_id=scen_id).delete()
 
         # Create empty Simulation model object
-        simulation = Simulation(start_date=datetime.now(), scenario_id=scen_id)
+        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
 
         simulation.mvs_token = results["id"] if results["id"] else None
 
@@ -1825,13 +1826,15 @@ def request_mvs_simulation(request, scen_id=0):
         ):
             simulation.status = results["status"]
             simulation.results = results["results"]
-            simulation.end_date = datetime.now()
+            simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
             # create a task which will update simulation status
             create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
 
-        simulation.elapsed_seconds = (datetime.now() - simulation.start_date).seconds
+        simulation.elapsed_seconds = (
+            datetime.datetime.now() - simulation.start_date
+        ).seconds
         simulation.save()
 
         answer = HttpResponseRedirect(
