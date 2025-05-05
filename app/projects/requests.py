@@ -106,7 +106,7 @@ def fetch_mvs_simulation_results(simulation):
 
         simulation.elapsed_seconds = (datetime.now() - simulation.start_date).seconds
         simulation.end_date = (
-            datetime.now() if response["status"] in [ERROR, DONE] else None
+            datetime.now() if simulation.status in [ERROR, DONE] else None
         )
         simulation.save()
 
