@@ -8,7 +8,7 @@ services:
     restart: always
     env_file:
       - .envs/db.postgres
-    expose:
+    ports:
       - 5432:5432
     volumes:
       - db_data_pg:/var/lib/postgresql/data/
