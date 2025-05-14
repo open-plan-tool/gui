@@ -1406,7 +1406,7 @@ msgstr ""
 
 #: templates/landing/default.html:94
 msgid "Special features of the OpenPlan Tool"
-msgstr "Besonderheiten des OpenPlan Tool"
+msgstr "Besonderheiten des OpenPlan Tools"
 
 #: templates/landing/default.html:99
 msgid "Easy to use"
@@ -1481,7 +1481,7 @@ msgstr "Video-Tutorials"
 msgid ""
 "Would you like to be involved in the further development of the open-plan "
 "tool?"
-msgstr "Sie möchten an der Weiterentwicklung des OpenPlan Tool s mitwirken?"
+msgstr "Sie möchten an der Weiterentwicklung des OpenPlan Tools mitwirken?"
 
 #: templates/landing/dev_section.html:16
 msgid ""
@@ -1521,7 +1521,7 @@ msgstr "Veröffentlichungen"
 
 #: templates/landing/features_section.html:7
 msgid "Features"
-msgstr "Funktionnen"
+msgstr "Funktionen"
 
 #: templates/landing/features_section.html:14
 msgid ""
