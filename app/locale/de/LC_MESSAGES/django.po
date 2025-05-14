@@ -4328,19 +4328,19 @@ msgid "Unit associated with the capacity of the component."
 msgstr "Einheit, die mit der Kapazität der Komponente verbunden ist."
 
 msgid "providers"
-msgstr "Anbieter"
+msgstr "Versorger"
 
 msgid "production"
-msgstr "Produktion"
+msgstr "Erzeuger"
 
 msgid "conversion"
-msgstr "Umwandlung"
+msgstr "Umwandler"
 
 msgid "storage"
-msgstr "Lagerung"
+msgstr "Speicher"
 
 msgid "demand"
-msgstr "Bedarf"
+msgstr "Verbraucher"
 
 msgid "Degree of Autonomy"
 msgstr "Autarkiegrad"
