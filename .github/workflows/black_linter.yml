@@ -6,7 +6,7 @@ env:
   SQL_USER: dummy_user
   SQL_PASSWORD: dummy_pw
   SQL_HOST: localhost
-  SQL_PORT: 5434
+  SQL_PORT: 5432
 
 on: 
   push:
