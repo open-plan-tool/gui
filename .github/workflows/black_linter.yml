@@ -5,7 +5,7 @@ env:
   SQL_DATABASE: dummy_db
   SQL_USER: dummy_user
   SQL_PASSWORD: dummy_pw
-  SQL_HOST: db_pg
+  SQL_HOST: localhost
   SQL_PORT: 5434
 
 on: 
