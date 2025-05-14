@@ -38,7 +38,8 @@ jobs:
       run: docker compose -f docker-compose-postgres.yml up db_pg -d
     - name: Analysing the code with pylint
       run: |
-        black --check .
+        black --version
+        black --check --diff .
     - name: Run unittests
       run: |
         cd app
