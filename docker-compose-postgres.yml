@@ -9,7 +9,7 @@ services:
     env_file:
       - .envs/db.postgres
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
     volumes:
       - db_data_pg:/var/lib/postgresql/data/
     networks:
