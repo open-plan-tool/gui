@@ -15,3 +15,4 @@ SQL_PASSWORD=dummy_pw
 SQL_HOST=db_pg
 SQL_PORT=5432
 DATABASE=postgres
+STARTUP_COMMAND=/start
