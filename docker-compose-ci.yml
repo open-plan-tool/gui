@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+
+  db_pg:
+    image: postgres:14.3-alpine
+    container_name: open_plan_pg
+    restart: always
+    env_file:
+      - .envs/db.postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db_data_pg:/var/lib/postgresql/data/
+    networks:
+      - open_plan_network_pg
+
+volumes:
+  db_data_pg:
+
+networks:
+  open_plan_network_pg:

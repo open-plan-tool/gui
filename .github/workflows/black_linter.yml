@@ -33,9 +33,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r app/requirements/local.txt
     - name: Pull postgres images
-      run: docker compose -f docker-compose-postgres.yml pull db_pg
+      run: docker compose -f docker-compose-ci.yml pull db_pg
     - name: Start PostgreSQL with Docker Compose
-      run: docker compose -f docker-compose-postgres.yml up db_pg -d
+      run: docker compose -f docker-compose-ci.yml up db_pg -d
     - name: Show running containers
       run: docker ps -a
     - name: Analysing the code with pylint
