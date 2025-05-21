@@ -10,30 +10,36 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import ast
-import os
-import environ
-
 from django.contrib.messages import constants as messages
+import environ
+from pathlib import Path
+import sys
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Import environment variables from .env file
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Root dir is a parent directory
+ROOT_DIR = environ.Path(__file__) - 2
+
+# Read environment variables
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(os.getenv("DEBUG", "False"))
+# Read .env file
+# OS environment variables take precedence over variables from .env file
+env.read_env(str(ROOT_DIR.path(".env")))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATICFILES_DIRS = (str(BASE_DIR / "static"),)
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "cdn_static_root")
+STATIC_ROOT = str(BASE_DIR / "cdn_static_root")
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+]
 
-STATICFILES_FINDERS = ["django.contrib.staticfiles.finders.FileSystemFinder"]
-
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool("DEBUG", default=False)
 if DEBUG is True:
     STATICFILES_FINDERS.append("sass_processor.finders.CssFinder")
     SASS_PROCESSOR_ROOT = STATIC_ROOT
@@ -42,16 +48,15 @@ if DEBUG is True:
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "EPA_SECRET_KEY", "v@p9^=@lc3#1u_xtx*^xhrv0l3li1(+8ik^k@g-_bzmexb0$7n"
+SECRET_KEY = env(
+    "EPA_SECRET_KEY", default="v@p9^=@lc3#1u_xtx*^xhrv0l3li1(+8ik^k@g-_bzmexb0$7n"
 )
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{os.getenv('TRUSTED_HOST')}",
-    f"http://{os.getenv('TRUSTED_HOST')}",
-]
+trusted_host = env("TRUSTED_HOST", default=None)
+if trusted_host is not None:
+    CSRF_TRUSTED_ORIGINS = [f"https://{trusted_host}", f"http://{trusted_host}"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -96,7 +101,7 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [str(BASE_DIR / "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -115,25 +120,22 @@ WSGI_APPLICATION = "epa.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 # SQLite is used if no other database system is set via environment variables.
-DATABASES = {
-    "default": (
-        {
-            "ENGINE": os.environ.get("SQL_ENGINE"),
-            "NAME": os.environ.get("SQL_DATABASE"),
-            "USER": os.environ.get("SQL_USER"),
-            "PASSWORD": os.environ.get("SQL_PASSWORD"),
-            "HOST": os.environ.get("SQL_HOST"),
-            "PORT": os.environ.get("SQL_PORT"),
-        }
-        if os.environ.get("SQL_ENGINE")
-        else {
-            "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-            "NAME": os.environ.get(
-                "SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")
-            ),
-        }
-    )
-}
+engine = env("SQL_ENGINE", default=None)
+if engine is None:
+    engine = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": env("SQL_DATABASE", default="db.sqlite3"),
+    }
+else:
+    engine = {
+        "ENGINE": engine,
+        "NAME": env("SQL_DATABASE"),
+        "USER": env("SQL_USER", default=None),
+        "PASSWORD": env("SQL_PASSWORD", default=None),
+        "HOST": env("SQL_HOST", default=None),
+        "PORT": env.int("SQL_PORT", default=5432),
+    }
+DATABASES = {"default": engine}
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -154,7 +156,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en"
 
-LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
+LOCALE_PATHS = (BASE_DIR / "locale",)
 
 LANGUAGES = [("de", "German"), ("en", "English")]
 
@@ -178,17 +180,16 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Please note, we don't use Django's internal email system,
 # we implement our own, using exchangelib
-USE_EXCHANGE_EMAIL_BACKEND = ast.literal_eval(
-    os.getenv("USE_EXCHANGE_EMAIL_BACKEND", "True")
-)
+USE_EXCHANGE_EMAIL_BACKEND = env.bool("USE_EXCHANGE_EMAIL_BACKEND", default=True)
+
 # The Exchange account which sends emails
-EXCHANGE_ACCOUNT = os.getenv("EXCHANGE_ACCOUNT", "dummy@dummy.com")
-EXCHANGE_PW = os.getenv("EXCHANGE_PW", "dummypw")
-EXCHANGE_EMAIL = os.getenv("EXCHANGE_EMAIL", "dummy@dummy.com")
-EXCHANGE_SERVER = os.getenv("EXCHANGE_SERVER", "dummy.com")
+EXCHANGE_ACCOUNT = env("EXCHANGE_ACCOUNT", default="dummy@dummy.com")
+EXCHANGE_PW = env("EXCHANGE_PW", default="dummypw")
+EXCHANGE_EMAIL = env("EXCHANGE_EMAIL", default="dummy@dummy.com")
+EXCHANGE_SERVER = env("EXCHANGE_SERVER", default="dummy.com")
 # Email addresses to which feedback emails will be sent
-RECIPIENTS = os.getenv("RECIPIENTS", "dummy@dummy.com,dummy2@dummy.com").split(",")
-EMAIL_SUBJECT_PREFIX = os.getenv("EMAIL_SUBJECT_PREFIX", "[open_plan] ")
+RECIPIENTS = env.list("RECIPIENTS", default=["dummy@dummy.com", "dummy2@dummy.com"])
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[open_plan] ")
 
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-info",
@@ -198,15 +199,15 @@ MESSAGE_TAGS = {
     messages.ERROR: "alert-danger",
 }
 
-USE_PROXY = ast.literal_eval(os.getenv("USE_PROXY", "True"))
-PROXY_ADDRESS_LINK = os.getenv("PROXY_ADDRESS", "http://proxy:port")
+USE_PROXY = env.bool("USE_PROXY", default=True)
+PROXY_ADDRESS_LINK = env("PROXY_ADDRESS", default="http://proxy:port")
 PROXY_CONFIG = (
     ({"http://": PROXY_ADDRESS_LINK, "https://": PROXY_ADDRESS_LINK})
     if USE_PROXY
-    else ({})
+    else (dict())
 )
 
-MVS_API_HOST = os.getenv("MVS_API_HOST", "https://mvs-eland.rl-institut.de")
+MVS_API_HOST = env("MVS_API_HOST", default="https://mvs-eland.rl-institut.de")
 MVS_POST_URL = f"{MVS_API_HOST}/sendjson/"
 MVS_GET_URL = f"{MVS_API_HOST}/check/"
 MVS_LP_FILE_URL = f"{MVS_API_HOST}/get_lp_file/"
@@ -215,8 +216,6 @@ MVS_SA_GET_URL = f"{MVS_API_HOST}/check-sensitivity-analysis/"
 
 # Allow iframes to show in page
 X_FRAME_OPTIONS = "SAMEORIGIN"
-
-import sys
 
 LOGGING = {
     "version": 1,
