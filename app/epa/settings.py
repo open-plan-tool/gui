@@ -12,14 +12,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import ast
 import os
+import environ
 
 from django.contrib.messages import constants as messages
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(os.getenv("DEBUG", "False"))
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Import environment variables from .env file
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = ast.literal_eval(os.getenv("DEBUG", "False"))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
