@@ -48,9 +48,7 @@ if DEBUG is True:
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env(
-    "EPA_SECRET_KEY", default="v@p9^=@lc3#1u_xtx*^xhrv0l3li1(+8ik^k@g-_bzmexb0$7n"
-)
+SECRET_KEY = env("EPA_SECRET_KEY")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -160,7 +158,7 @@ LOCALE_PATHS = (BASE_DIR / "locale",)
 
 LANGUAGES = [("de", "German"), ("en", "English")]
 
-TIME_ZONE = "Europe/Copenhagen"
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
