@@ -35,7 +35,7 @@ SQL_PASSWORD=<your password>
 SQL_HOST=localhost
 SQL_PORT=5432
 DEBUG=(True|False)
-MVS_HOST_API=https://mvs-open-plan.rl-institut.de
+MVS_HOST_API=<the simulation server you wish to use>
 ```
 6. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
 7. Start the local server with `python manage.py runserver`
