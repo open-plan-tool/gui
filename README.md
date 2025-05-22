@@ -27,6 +27,7 @@ Prior to be able to develop locally, you might need to install postgres, simply 
 4. Install local development dependencies with `pip install -r requirements/local.txt`
 5. Create a `.env` file (inside `app`) and define the following environment variables (only replace content surrounded by `<>`).
 ```
+EPA_SECRET_KEY=<randomly generated string>
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=<your db name>
 SQL_USER=<your user name>
@@ -57,7 +58,7 @@ You need to be able to run docker-compose inside your terminal. If you can't you
    * Define an environment variable `MVS_HOST_API` in `.envs/epa.postgres` and set the url of the simulation server
    you wish to use for your models (for example `MVS_API_HOST="<url to your favorite simulation server>"`), you can deploy your own [simulation server](https://github.com/open-plan-tool/simulation-server) locally if you need
 
-    * Assign the domain of your website (without `http://` or `https://`) to `TRUSTED_HOST` , see https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins for more information
+    * Assign the domain of your website (including `http://` or `https://`) to `TRUSTED_HOST` , see https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins for more information
 
 Next you can either provide the following commands inside a terminal (with ubuntu you might have to prepend `sudo`)
 * `docker-compose --file=docker-compose-postgres.yml up -d --build` (you can replace `postgres` by `mysql` if you want to use mysql)

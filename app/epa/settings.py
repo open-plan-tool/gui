@@ -48,13 +48,13 @@ if DEBUG is True:
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("EPA_SECRET_KEY")
+SECRET_KEY = env(
+    "EPA_SECRET_KEY", default="v@p9^=@lc3#1u_xtx*^xhrv0l3li1(+8ik^k@g-_bzmexb0$7n"
+)
 
 ALLOWED_HOSTS = ["*"]
 
-trusted_host = env("TRUSTED_HOST", default=None)
-if trusted_host is not None:
-    CSRF_TRUSTED_ORIGINS = [f"https://{trusted_host}", f"http://{trusted_host}"]
+CSRF_TRUSTED_ORIGINS = env.list("TRUSTED_HOST", default=[])
 # Application definition
 
 INSTALLED_APPS = [
