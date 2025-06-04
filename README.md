@@ -34,6 +34,7 @@ SQL_USER=<your user name>
 SQL_PASSWORD=<your password>
 SQL_HOST=localhost
 SQL_PORT=5432
+TRUSTED_HOST=http://127.0.0.1:8000
 DEBUG=(True|False)
 MVS_HOST_API=<the simulation server you wish to use>
 ```
