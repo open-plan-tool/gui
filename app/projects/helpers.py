@@ -379,7 +379,9 @@ class TimeseriesField(forms.MultiValueField):
             forms.DecimalField(required=False),
             forms.CharField(required=False),
             forms.ModelChoiceField(
-                queryset=qs_ts, required=False, empty_label="Select a timeseries below"
+                queryset=qs_ts,
+                required=False,
+                empty_label=_("Select a timeseries below"),
             ),
         )
         kwargs.pop("max_length", None)

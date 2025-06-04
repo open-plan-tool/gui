@@ -116,7 +116,7 @@ msgstr "Kosten"
 
 #: dashboard/models.py:1066
 msgid "Installed Capacity"
-msgstr "Installierte Leistung"
+msgstr "Installierte Anlagengröße"
 
 #: dashboard/models.py:1068
 msgid "Inst. Cap."
@@ -4011,8 +4011,17 @@ msgstr "Investitionskosten"
 msgid "Fixed operational costs"
 msgstr "Feste Betriebskosten"
 
+msgid "Fix operational costs"
+msgstr "Feste Betriebskosten"
+
 msgid "Variable operational costs"
 msgstr "Variable Betriebskosten"
+
+msgid "Select a timeseries below"
+msgstr "Wählen Sie unten eine Zeitreihe aus"
+
+msgid "Choose..."
+msgstr "Wählen Sie einen Energieträger aus"
 
 msgid ""
 "The share of renewables in the generation mix of the energy supplied by "
@@ -4022,7 +4031,7 @@ msgstr ""
 "(Versorgungsunternehmen) gelieferten Energie."
 
 msgid "Optimize cap"
-msgstr "Kapazität optimieren"
+msgstr "Anlagengröße optimieren"
 
 msgid "Dispatchable"
 msgstr "Versendbar"
@@ -4032,6 +4041,12 @@ msgstr "Erneuerbare Anlage"
 
 msgid "Asset Lifetime"
 msgstr "Anlagenlebensdauer"
+
+msgid "Installed capacity"
+msgstr "Installierte Anlagengröße"
+
+msgid "Maximum capacity"
+msgstr "Maximale Anlagengröße"
 
 msgid "C-Rate"
 msgstr "Ladegeschwindigkeit"
@@ -4059,6 +4074,9 @@ msgstr "Zeitraum der Spitzenlastbepreisung"
 
 msgid "Renewable share electricity mix"
 msgstr "Anteil erneuerbarer Energien im Strommix"
+
+msgid "Renewable share of generation mix"
+msgstr "Anteil erneuerbarer Energien am Energiemix"
 
 msgid "Age of the installed plant"
 msgstr "Alter der installierten Anlage"
@@ -4265,7 +4283,13 @@ msgstr ""
 "Anzahl der Bezugszeiträume in einem Jahr für den Spitzenbedarfspreis."
 
 msgid "times per year (1,2,3,4,6,12)"
-msgstr "mal pro Jahr (1,2,3,4,6,12)"
+msgstr "Mal pro Jahr (1,2,3,4,6,12)"
+
+msgid "times per year"
+msgstr "Mal pro Jahr"
+
+msgid "Input timeseries"
+msgstr "Eingabe von Zeitreihen"
 
 msgid "Years"
 msgstr "Jahre"
@@ -4463,10 +4487,10 @@ msgid "The minimum share of energy supplied by renewable generation that needs t
 msgstr "Der Mindestanteil an Energie aus erneuerbarer Erzeugung, der durch die Optimierung erfüllt werden muss"
 
 msgid "Temperature high"
-msgstr "Vorlauftemperatur"
+msgstr "Oberes Temperaturniveau"
 
 msgid "Temperature low"
-msgstr "Verdampfungstemperatur"
+msgstr "Unteres Temperaturniveau"
 
 msgid "Factor icing"
 msgstr "Vereisungsfaktor"
@@ -4507,7 +4531,7 @@ msgid "Specifies whether optimization needs to result into a net zero energy sys
 msgstr "Gibt an, ob die Optimierung zu einem Netto-Nullenergie-System führen muss (True) oder nicht (False)"
 
 msgid "Optimize capacity"
-msgstr "Kapazität optimieren"
+msgstr "Anlagengröße optimieren"
 
 msgid "Choose if capacity optimization should be performed for this asset."
 msgstr "Wählen Sie, ob für diese Anlage eine Kapazitätsoptimierung durchgeführt werden soll."
