@@ -612,6 +612,7 @@ class SensitivityAnalysisForm(ModelForm):
 
 class COPCalculatorForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
+        # TODO these fields dont get translated currently
         super().__init__(*args, **kwargs)
         self.fields["temperature_high"] = DualNumberField(
             default=60, min=-273, param_name="temperature_high"
