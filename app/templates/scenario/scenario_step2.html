@@ -57,12 +57,11 @@
 						<div class="row collapse modal-body" id="form-computeCOP">
 									<div class="col"></div>
 									<div class="col">
-									<button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
-
 									 <form id="copForm">
 											{% csrf_token %}
 											<div class="modal-addendum"></div>
 									 </form>
+                                    <button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
 									</div>
 						</div>
 					</div>
