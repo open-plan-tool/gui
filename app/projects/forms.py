@@ -106,6 +106,31 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
     if default_value is not None:
         field.initial = default_value
 
+def add_help_text_icon(field):
+
+    if field.help_text is not None:
+        help_text = (
+                field.help_text
+                + ". "
+                + _("Click on the icon for more help")
+                + "."
+        )
+        field.help_text = None
+    else:
+        help_text = ""
+    if field.label is not None:
+        RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
+        if field in PARAMETERS:
+            param_ref = PARAMETERS[field]["ref"]
+        else:
+            param_ref = ""
+        if field != "name":
+            question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+        else:
+            question_icon = ""
+        field.label = field.label + question_icon
+    return
+
 
 class OpenPlanModelForm(ModelForm):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
@@ -612,7 +637,6 @@ class SensitivityAnalysisForm(ModelForm):
 
 class COPCalculatorForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
-        # TODO these fields dont get translated currently
         super().__init__(*args, **kwargs)
         self.fields["temperature_high"] = DualNumberField(
             default=60, min=-273, param_name="temperature_high"
@@ -620,6 +644,12 @@ class COPCalculatorForm(OpenPlanModelForm):
         self.fields["temperature_low"] = DualNumberField(
             default=40, min=-273, param_name="temperature_low"
         )
+        # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
+        for field in ["temperature_low", "temperature_high"]:
+            set_parameter_info(field, self.fields[field])
+
+        for field in self.fields:
+            add_help_text_icon(self.fields[field])
 
     class Meta:
         model = COPCalculator
@@ -781,6 +811,7 @@ class AssetCreateForm(OpenPlanModelForm):
             !! This addition doesn't affect the previous behavior !!
         """
         for field in self.fields:
+            add_help_text_icon(self.fields[field])
             if field == "renewable_asset" and self.asset_type_name in RENEWABLE_ASSETS:
                 self.fields[field].initial = True
             self.fields[field].widget.attrs.update({f"df-{field}": ""})
@@ -788,28 +819,6 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.fields[field].required = self.is_input_timeseries_empty()
             if view_only is True:
                 self.fields[field].disabled = True
-            if self.fields[field].help_text is not None:
-                help_text = (
-                    self.fields[field].help_text
-                    + ". "
-                    + _("Click on the icon for more help")
-                    + "."
-                )
-                self.fields[field].help_text = None
-            else:
-                help_text = ""
-            if self.fields[field].label is not None:
-                RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
-                if field in PARAMETERS:
-                    param_ref = PARAMETERS[field]["ref"]
-                else:
-                    param_ref = ""
-                if field != "name":
-                    question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
-                else:
-                    question_icon = ""
-                self.fields[field].label = self.fields[field].label + question_icon
-
                 if "capex_fix" in field:
                     self.fields[field].label = (
                         self.fields[field]
