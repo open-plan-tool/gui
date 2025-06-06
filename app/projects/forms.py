@@ -106,15 +106,11 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
     if default_value is not None:
         field.initial = default_value
 
+
 def add_help_text_icon(field):
 
     if field.help_text is not None:
-        help_text = (
-                field.help_text
-                + ". "
-                + _("Click on the icon for more help")
-                + "."
-        )
+        help_text = field.help_text + ". " + _("Click on the icon for more help") + "."
         field.help_text = None
     else:
         help_text = ""
