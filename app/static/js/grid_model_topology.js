@@ -1,3 +1,6 @@
+/*jshint esversion: 8 */
+/*jshint sub:true*/
+
 // Constants
 const ASSET_TYPE_NAME = 'asset_type_name';
 const BUS = "bus";
@@ -16,7 +19,7 @@ if(copCollapseDOM){
     if(tHighDOM){tHighDOM.dispatchEvent(new Event('change'));}
     tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
     if(tLowDOM){tLowDOM.dispatchEvent(new Event('change'));}
-})
+});
 }
 
 
@@ -62,9 +65,9 @@ editor.on('connectionCreated', function (connection) {
     var nodeOut = editor.getNodeFromId(connection['output_id']);
     if ((nodeIn['name'] !== BUS && nodeOut['name'] !== BUS) || (nodeIn['name'] === BUS && nodeOut['name'] === BUS)) {
         editor.removeSingleConnection(connection['output_id'], connection['input_id'], connection['output_class'], connection['input_class']);
-        Swal.fire('Unexpected Connection', 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.', 'error')
+        Swal.fire('Unexpected Connection', 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.', 'error');
     }
-})
+});
 
 // might be redundant
 editor.on('nodeCreated', function (nodeID) {
@@ -86,12 +89,12 @@ editor.on('nodeCreated', function (nodeID) {
     //         nodeIdInstalledCapInput.closest("#FormGroup").querySelector("input[name='age_installed']").readOnly = true;
     // }
     // endregion
-})
+});
 
 editor.on('nodeRemoved', function (nodeID) {
     // remove nodeID from nodesToDB
     nodesToDB.delete('node-'+nodeID);
-})
+});
 
 
 async function addNodeToDrawFlow(name, pos_x, pos_y, nodeInputs = 1, nodeOutputs = 1, nodeData = {}) {
@@ -99,7 +102,7 @@ async function addNodeToDrawFlow(name, pos_x, pos_y, nodeInputs = 1, nodeOutputs
         return false;
     pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
     pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
-    return createNodeObject(name, nodeInputs, nodeOutputs, nodeData, pos_x, pos_y);
+    return createNodeObject(name, pos_x, pos_y, nodeInputs, nodeOutputs, nodeData);
 }
 
 // TODO potentially remove this function
@@ -147,7 +150,7 @@ function getInputOutputMapping(nodeId){
 					guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
 					//make this invisible then
 			},
-	 })
+	 });
 	}
 
     // function to compute the COP of a heat pump linked with the button of id="btn-computeCOP" in templates/scenario//scenario_step2.html
@@ -158,12 +161,12 @@ function getInputOutputMapping(nodeId){
 		const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
 
         const copForm = event.target.closest('.modal-content').querySelector('#copForm');
-        console.log(assetForm)
+        console.log(assetForm);
         const formData = new FormData(copForm);
 
 	  // copPostUrl is defined in scenario_step2.html
-		const postUrl = copPostUrl + assetTypeName
-				+ (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
+		const postUrl = copPostUrl + assetTypeName +
+				(nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
 		// send the form of the asset to be saved in database (projects/views.py::asset_cops_create_or_update)
 		$.ajax({
@@ -187,7 +190,7 @@ function getInputOutputMapping(nodeId){
                     }
                     copDOM = guiModalDOM.querySelector('input[name="copId"]');
                     if(copDOM){
-                        copDOM.value = jsonRes.cop_id
+                        copDOM.value = jsonRes.cop_id;
                     }
 
                 } else {
@@ -198,7 +201,7 @@ function getInputOutputMapping(nodeId){
             },
             error: function (err) {
                     guiModalDOM.querySelector('form .modal-body').innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
-		})
+		});
 	}
 
 
@@ -235,15 +238,15 @@ const dblClick = (e) => {
                 guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
                 editor.editor_mode = "fixed";
 
-                updateInputTimeseries()
+                updateInputTimeseries();
 
                 guiModal.show();
                 if(copCollapseDOM){
                     copCollapse.hide();
                 }
-                $('[data-bs-toggle="tooltip"]').tooltip()
+                $('[data-bs-toggle="tooltip"]').tooltip();
             },
-         })
+         });
     }
 };
 // endregion
@@ -265,15 +268,15 @@ const submitForm = (e) => {
     const formData = new FormData(assetForm);
 
     // add the XY position of the node to the form data
-    const nodePosX = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_x
-    const nodePosY = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_y
+    const nodePosX = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_x;
+    const nodePosY = editor.drawflow.drawflow.Home.data[drawflowNodeId].pos_y;
     formData.set('pos_x', nodePosX);
     formData.set('pos_y', nodePosY);
 
     // if the asset is a bus, add the input and output ports to the form data
     if (assetTypeName === BUS) {
-        const nodeInputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].inputs).length
-        const nodeOutputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].outputs).length
+        const nodeInputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].inputs).length;
+        const nodeOutputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].outputs).length;
         formData.set('input_ports', nodeInputs);
         formData.set('output_ports', nodeOutputs);
     }
@@ -285,8 +288,8 @@ const submitForm = (e) => {
     }
 
     // formPostUrl is defined in scenario_step2.html
-    const postUrl = formPostUrl + assetTypeName
-        + (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
+    const postUrl = formPostUrl + assetTypeName +
+        (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
     // send the form of the asset to be saved in database (projects/views.py::asset_create_or_update)
     $.ajax({
@@ -319,8 +322,8 @@ const submitForm = (e) => {
         },
         error: function (err) {
             guiModalDOM.querySelector('form .modal-body').innerHTML = err.responseJSON.form_html;}, //err => {alert("Modal form JS Error: " + err);console.log(err);}
-    })
-}
+    });
+};
 
 
 
@@ -341,43 +344,43 @@ $("#guiModal").on('shown.bs.modal', function (event) {
 	 // look only for the form with the provided class to be extra safe
 	 document.querySelectorAll("input[name$='_scalar']").forEach(node => { node.dispatchEvent(evt); });
 
- })
+ });
 
 /* Triggered before the modal opens */
 $("#guiModal").on('show.bs.modal', function (event) {
-  var modal = $(event.target)
+  var modal = $(event.target);
   // rename the node on the fly (to avoid the need of refreshing the page)
   const nodeName = guiModalDOM.querySelector('input[df-name]');
   if(nodeName){
     modal.find('.modal-title').text(nodeName.value.replaceAll("_", " "));
   }
-})
+});
 
 /* Triggered before the modal hides */
 $("#guiModal").on('hide.bs.modal', function (event) {
   // reset the modal form to empty
   guiModalDOM.querySelector('form .modal-body').innerHTML = "";
   editor.editor_mode = "edit";
-})
+});
 
 
 /* Create node on the gui */
-async function createNodeObject(nodeName, connectionInputs = 1, connectionOutputs = 1, nodeData = {}, pos_x, pos_y) {
+async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, connectionOutputs = 1, nodeData = {}) {
 
     // automate the naming of assets to avoid name duplicates
     const editorData = editor.export().drawflow.Home.data;
     const node_list = Object.values(editorData);
     const node_classes = node_list.map(obj => obj.class);
     let existing_items = 0;
-    node_classes.map(name => {if(name.includes(nodeName)){++existing_items}});
+    node_classes.map(name => {if(name.includes(nodeName)){++existing_items;}});
 
     let shownName;
     if(typeof nodeData.name === "undefined"){
         if(existing_items == 0){
-            shownName = nodeName + "-0"
+            shownName = nodeName + "-0";
         }
         else{
-            shownName = nodeName + "-" + existing_items
+            shownName = nodeName + "-" + existing_items;
         }
         nodeData.name = shownName;
     }
@@ -406,13 +409,13 @@ async function createNodeObject(nodeName, connectionInputs = 1, connectionOutput
 /* Html of asset modification is provided in grid_model_topology.js:createNodeObject function */
 const addBusses = async (data) =>
     await Promise.all(data.map(async nodeData => {
-        const result = await createNodeObject(nodeData.name, nodeData.input_ports, nodeData.output_ports, nodeData.data, nodeData.pos_x, nodeData.pos_y);
+        const result = await createNodeObject(nodeData.name, nodeData.pos_x, nodeData.pos_y, nodeData.input_ports, nodeData.output_ports, nodeData.data);
         nodesToDB.set(`node-${result.editorNodeId}`, {uid:nodeData.data.databaseId, assetTypeName: "bus" });
     }));
 
 const addAssets = async (data) =>
     await Promise.all(data.map(async nodeData => {
-        const result = await createNodeObject(nodeData.name, 1, 1, nodeData.data, nodeData.pos_x, nodeData.pos_y);
+        const result = await createNodeObject(nodeData.name, nodeData.pos_x, nodeData.pos_y, 1, 1, nodeData.data);
         nodesToDB.set(`node-${result.editorNodeId}`, {uid:nodeData.data.unique_id, assetTypeName: nodeData.name });
     }));
 
@@ -422,5 +425,35 @@ const addLinks = async (data) => data.map(async linkData => {
     const assetNodeId = [...nodesToDB.entries()].filter(([key,val])=>val.uid===linkData.asset_id).map(([k,v])=>k)[0].split("-").pop();
     (linkData.flow_direction === "B2A") ?
         editor.addConnection(busNodeId, assetNodeId, linkData.bus_connection_port, 'input_1')
-        : editor.addConnection(assetNodeId, busNodeId, 'output_1', linkData.bus_connection_port);
+        : editor.addConnection(assetNodeId, busNodeId, 'output_1', linkData.bus_connection_port); // jshint ignore:line
 });
+
+
+function zoomToFit() {
+    const canvas = editor; // .drawflow div
+    const parent = canvas.parentElement;    // Container that holds the canvas
+
+
+    // Get size of the entire canvas (flow content)
+    const contentRect = canvas.getBoundingClientRect();
+
+    // Calculate zoom factors
+    const xFactor = parent.clientWidth / canvas.scrollWidth;
+    const yFactor = parent.clientHeight / canvas.scrollHeight;
+
+    // Use the smaller factor to ensure all content fits
+    const zoomFactor = Math.min(xFactor, yFactor, 1); // Don't zoom above 100%
+
+    // Reset any previous zoom/position
+    editor.zoom_reset();
+
+    // Apply zoom
+    editor.zoom_value(zoomFactor); // zoom_zoom takes percent (e.g. 100 = 100%)
+
+    // Center the content
+    /* const newScrollLeft = (canvas.scrollWidth - parentWidth) / 2;
+    const newScrollTop = (canvas.scrollHeight - parentHeight) / 2;
+
+    parent.scrollLeft = newScrollLeft;
+    parent.scrollTop = newScrollTop; */
+}
