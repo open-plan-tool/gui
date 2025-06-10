@@ -435,30 +435,37 @@ const addLinks = async (data) => data.map(async linkData => {
 
 
 function zoomToFit() {
-    const canvas = editor; // .drawflow div
-    const parent = canvas.parentElement;    // Container that holds the canvas
+    const nodeWidth = 152;
+    const nodeHeight = 128;
 
+    const nodes = Object.values(editor.drawflow.drawflow.Home.data); // Array with all nodes
 
-    // Get size of the entire canvas (flow content)
-    const contentRect = canvas.getBoundingClientRect();
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-    // Calculate zoom factors
-    const xFactor = parent.clientWidth / canvas.scrollWidth;
-    const yFactor = parent.clientHeight / canvas.scrollHeight;
+    // get outer most node bounding box edges
+    nodes.forEach(node => {
+        minX = Math.min(minX, node.pos_x);
+        minY = Math.min(minY, node.pos_y);
+        maxX = Math.max(maxX, node.pos_x + nodeWidth);
+        maxY = Math.max(maxY, node.pos_y + nodeHeight);
+    });
+    const nodesWidth = maxX - minX;
+    const nodesHeight = maxY - minY;
 
-    // Use the smaller factor to ensure all content fits
-    const zoomFactor = Math.min(xFactor, yFactor, 1); // Don't zoom above 100%
+    // get space of editor
+    const editorElem = document.querySelector('.drawflow');
+    const editorWidth = editorElem.clientWidth;
+    const editorHeight = editorElem.clientHeight;
 
-    // Reset any previous zoom/position
-    editor.zoom_reset();
+    // calculate zoom
+    const zoomX = editorWidth / (nodesWidth + 2);
+    const zoomY = editorHeight / (nodesHeight + 2);
+    const zoom = Math.min(zoomX, zoomY, 1); // Maximal 1 (kein Hineinzoomen)
+    editor.zoom = zoom;
 
-    // Apply zoom
-    editor.zoom_value(zoomFactor); // zoom_zoom takes percent (e.g. 100 = 100%)
+    // center editor
+    const offsetX = (editorWidth - nodesWidth * zoom) / 2 - minX * zoom;
+    const offsetY = (editorHeight - nodesHeight * zoom) / 2 - minY * zoom;
+    editor.precanvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
 
-    // Center the content
-    /* const newScrollLeft = (canvas.scrollWidth - parentWidth) / 2;
-    const newScrollTop = (canvas.scrollHeight - parentHeight) / 2;
-
-    parent.scrollLeft = newScrollLeft;
-    parent.scrollTop = newScrollTop; */
 }
