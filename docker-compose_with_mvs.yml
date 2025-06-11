@@ -2,16 +2,15 @@ version: "3.7"
 
 services:
   db:
-    image: mysql:5.7
-    container_name: mysqlDB
-    ports:
-      - "3306:3306"
+    image: postgres:14.3-alpine
+    container_name: open_plan_pg
     restart: always
-    environment:
-      MYSQL_DATABASE: "epa-app-db"
-      MYSQL_ROOT_PASSWORD: "4kFDg@G@*G,#)Fa"
+    env_file:
+      - .envs/db.postgres
+    expose:
+      - 5432
     volumes:
-      - db_data:/var/lib/mysql/
+      - db_data:/var/lib/postgresql/data/
   app:
     build: ./app
     container_name: django-gunicorn
