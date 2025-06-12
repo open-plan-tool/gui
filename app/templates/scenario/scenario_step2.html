@@ -167,6 +167,7 @@
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
                 .then(async () => addLinks(data['links']))
+                .then(() => zoomToFit())
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
         });
 </script>
