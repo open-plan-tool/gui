@@ -214,7 +214,7 @@ class DualInputWidget(forms.MultiWidget):
 
 
 class DualNumberField(forms.MultiValueField):
-    def __init__(self, default=None, param_name=None, **kwargs):
+    def __init__(self, default=None, label="", param_name=None, **kwargs):
         fields = (forms.DecimalField(required=False), forms.CharField(required=False))
         kwargs.pop("max_length", None)
         self.min = kwargs.pop("min", None)
@@ -222,6 +222,7 @@ class DualNumberField(forms.MultiValueField):
         kwargs["widget"] = DualInputWidget(default=default, param_name=param_name)
 
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
+        self.label=label
 
     def clean(self, values):
         """If a file is provided it will be considered over the scalar"""
@@ -372,7 +373,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
 
 class TimeseriesField(forms.MultiValueField):
     def __init__(
-        self, default=None, param_name=None, asset_type=None, qs_ts=None, **kwargs
+        self, default=None, label="", param_name=None, asset_type=None, qs_ts=None, **kwargs
     ):
 
         fields = (
@@ -395,6 +396,7 @@ class TimeseriesField(forms.MultiValueField):
         )
 
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
+        self.label=label
 
     def clean(self, values):
         """If a file is provided it will be considered over the other fields"""
