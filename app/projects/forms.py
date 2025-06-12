@@ -735,12 +735,13 @@ class AssetCreateForm(OpenPlanModelForm):
                 ),
                 default=0,
                 param_name="input_timeseries",
+                label=self.fields["input_timeseries"].label,
                 asset_type=self.asset_type_name,
             )
             # TODO here one can play with min, max, max_length as kwargs
 
         self.fields["inputs"] = forms.CharField(
-            widget=forms.HiddenInput(), required=False
+            widget=forms.HiddenInput(), required=False, label=""
         )
 
         if self.asset_type_name == "heat_pump":
@@ -821,15 +822,14 @@ class AssetCreateForm(OpenPlanModelForm):
                         .label.replace("project", "")
                         .replace("Feste Projektkosten", "Fixkosten")
                     )
-
-                if "€" in self.fields[field].label and currency is not None:
-                    self.fields[field].label = self.fields[field].label.replace(
-                        "€", currency
-                    )
-                if ":unit:" in self.fields[field].label:
-                    self.fields[field].label = self.fields[field].label.replace(
-                        ":unit:", self.asset_type.unit
-                    )
+            if "€" in self.fields[field].label and currency is not None:
+                self.fields[field].label = self.fields[field].label.replace(
+                    "€", currency
+                )
+            if ":unit:" in self.fields[field].label:
+                self.fields[field].label = self.fields[field].label.replace(
+                    ":unit:", self.asset_type.unit
+                )
 
         """ ----------------------------------------------------- """
 
