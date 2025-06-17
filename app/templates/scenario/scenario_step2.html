@@ -162,11 +162,9 @@
 
         $(window).on('load', async function () {
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
-            console.log("here")
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
                 .then(async () => addLinks(data['links']))
                 .then(() => zoomToFit())
-                .then(() => console.log("after zoom"))
                 .then(() => changeOrderOfClasses())
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
         });
