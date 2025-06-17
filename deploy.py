@@ -3,7 +3,7 @@ import os
 import warnings
 
 LOGS = {"gui": "app", "server": "nginx", "queues": "djangoq"}
-DB = "POSTGRES"
+DB = "postgres"
 
 parser = argparse.ArgumentParser(
     prog="python deploy.py",
