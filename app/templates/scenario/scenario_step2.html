@@ -153,10 +153,7 @@
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
-
-
-
-				guiModal = new bootstrap.Modal(guiModalDOM, {backdrop: 'static'});
+		guiModal = new bootstrap.Modal(guiModalDOM, {backdrop: 'static'});
 
         // activate the double click function provided in grid_model_topology
         document.querySelector('.drawflow').addEventListener("dblclick", dblClick);
@@ -165,11 +162,25 @@
 
         $(window).on('load', async function () {
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
+            console.log("here")
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
                 .then(async () => addLinks(data['links']))
                 .then(() => zoomToFit())
+                .then(() => console.log("after zoom"))
+                .then(() => changeOrderOfClasses())
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
         });
+        window.changeOrderOfClasses = function() {
+        const drawflowDiv = document.getElementById('drawflow');
+        const classes = Array.from(drawflowDiv.classList);
+        const parentIndex = classes.indexOf('parent-drawflow');
+        if (parentIndex > -1) {
+            classes.splice(parentIndex, 1);
+            classes.unshift('parent-drawflow');
+        }
+        drawflowDiv.className = classes.join(' ');
+        }
+
 </script>
 
 <script defer>
