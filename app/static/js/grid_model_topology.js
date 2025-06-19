@@ -145,7 +145,12 @@ function getInputOutputMapping(nodeId){
 			success: function (formContent) {
 					// assign the content of the form to the form tag of the modal
 					guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
-					//make this invisible then
+                    // Manually re-initialize tooltips
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+                      if (!bootstrap.Tooltip.getInstance(el)) {
+                        new bootstrap.Tooltip(el);
+                      }
+                    });
 			},
 	 })
 	}

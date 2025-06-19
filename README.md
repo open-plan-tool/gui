@@ -25,20 +25,21 @@ Prior to be able to develop locally, you might need to install postgres, simply 
 2. Activate your virtual environment
 3. Move to the `app` folder with `cd app`
 4. Install local development dependencies with `pip install -r requirements/local.txt`
-5. Create environment variables (only replace content surrounded by `<>`)
+5. Create a `.env` file (inside `app`) and define the following environment variables (only replace content surrounded by `<>`).
 ```
-SQL_ENGINE=django.db.backends.postgresql
+EPA_SECRET_KEY=<randomly generated string>
 SQL_DATABASE=<your db name>
 SQL_USER=<your user name>
 SQL_PASSWORD=<your password>
 SQL_HOST=localhost
 SQL_PORT=5432
+TRUSTED_HOST=http://127.0.0.1:8000
 DEBUG=(True|False)
+MVS_HOST_API=<the simulation server you wish to use>
 ```
-6. Add an environment variable `MVS_HOST_API` and set the url of the simulation server you wish to use for your models
-7. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
-8. Start the local server with `python manage.py runserver`
-9. You can then login with `testUser` and `ASas12,.` or create your own account
+6. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
+7. Start the local server with `python manage.py runserver`
+8. You can then login with `testUser` and `ASas12,.` or create your own account
 
 ## Deploy using Docker Compose
 The following commands should get everything up and running, using the web based version of the MVS API.
@@ -57,28 +58,23 @@ You need to be able to run docker-compose inside your terminal. If you can't you
    * Define an environment variable `MVS_HOST_API` in `.envs/epa.postgres` and set the url of the simulation server
    you wish to use for your models (for example `MVS_API_HOST="<url to your favorite simulation server>"`), you can deploy your own [simulation server](https://github.com/open-plan-tool/simulation-server) locally if you need
 
-    * Assign the domain of your website (without `http://` or `https://`) to `TRUSTED_HOST` , see https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins for more information
+    * Assign the domain of your website (including `http://` or `https://`) to `TRUSTED_HOST` , see https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins for more information
 
 Next you can either provide the following commands inside a terminal (with ubuntu you might have to prepend `sudo`)
-* `docker-compose --file=docker-compose-postgres.yml up -d --build` (you can replace `postgres` by `mysql` if you want to use mysql)
+* `docker-compose --file=docker-compose-postgres.yml up -d --build`
 * `docker-compose --file=docker-compose-postgres.yml exec -u root app_pg sh initial_setup.sh` (this will also load a default testUser account with sample scenario).
 
 Or you can run a python script with the following command
-* `python deploy.py -db postgres`
+* `python deploy.py`
 
 Finally
-* Open browser and navigate to http://localhost:8080 (or to http://localhost:8090 if you chose to use `mysql` instead of `postgres`): you should see the login page of the open_plan app
+* Open browser and navigate to http://localhost:8080: you should see the login page of the open_plan app
 * You can then login with `testUser` and `ASas12,.` or create your own account
 
 ### Proxy settings (optional)
 If you use a proxy you will need to set `USE_PROXY=True` and edit `PROXY_ADDRESS=http://proxy_address:port` with your proxy settings in `.envs/epa.postgres`.
 
->**_NOTE:_** If you wish to use mysql instead of postgres, simply replace `postgres` by `mysql` and `app_pg` by `app` in the above commands or filenames
 <hr>
-
->**_NOTE:_** Grab a cup of coffee or tea for this...
-<hr>
-
 >**_NOTE:_** Grab a cup of coffee or tea for this...
 <hr>
 
@@ -95,4 +91,4 @@ you can add `--rmi local` if you wish to also remove the images (this will take 
 
 Or you can run a python script with the following command
 
-`python deploy.py -db postgres --down`
+`python deploy.py --down`
