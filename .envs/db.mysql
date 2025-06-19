@@ -1,5 +1,0 @@
-MYSQL_DATABASE=dummy_db
-MYSQL_USER=dummy_user
-MYSQL_PASSWORD=dummy_pw
-MYSQL_ROOT_PASSWORD=dummy_root_pw
-MYSQL_TCP_PORT=3306

@@ -311,7 +311,7 @@ def project_update(request, proj_id):
 
     if (project.user != request.user) and (
         project.viewers.filter(
-            user__email=request.user.email, share_right="edit"
+            user__email=request.user.email, share_rights="edit"
         ).exists()
         is False
     ):

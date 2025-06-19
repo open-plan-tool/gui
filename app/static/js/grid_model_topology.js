@@ -133,13 +133,21 @@ function toggle_cop_modal(event){
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
 
+    let getUrl = copGetUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        getUrl += "/" + nodesToDB.get(topologyNodeId).uid;
 
-    const getUrl = copGetUrl + assetTypeName +
-        (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
-
-    fetch(getUrl).then(formContent => {
+    fetch(getUrl).then(response => response.text()).then(formContent => {
         // assign the content of the form to the form tag of the modal
         guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+        // Manually re-initialize tooltips
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            if (!bootstrap.Tooltip.getInstance(el)) {
+                new bootstrap.Tooltip(el);
+            }
+        });
+    }).catch(error => {
+        console.error(error);
     });
 }
 
@@ -149,9 +157,7 @@ function computeCOP(event){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
-
     const copForm = event.target.closest('.modal-content').querySelector('#copForm');
-    console.log(assetForm);
     const formData = new FormData(copForm);
 
   // copPostUrl is defined in scenario_step2.html
@@ -164,7 +170,7 @@ function computeCOP(event){
         method: 'POST',
         headers: {'X-CSRFToken': csrfToken},
         body: formData,
-    }).then(response => repsonse.json()).then(jsonRes => {
+    }).then(response => response.json()).then(jsonRes => {
         if (jsonRes.success) {
             console.log(jsonRes.cops);
             console.log(jsonRes.cop_id);
@@ -192,7 +198,7 @@ function computeCOP(event){
 
 
 // one needs to add this function as event with eventListener (<some jquery div>.addEventListener("dblclick", dblClick))
-const dblClick = (e) => {
+function dblClick(e) {
 
     const closestNode = e.target.closest('.drawflow-node');
 
@@ -232,7 +238,7 @@ const dblClick = (e) => {
             console.error(error);
         });
     }
-};
+}
 // endregion
 
 

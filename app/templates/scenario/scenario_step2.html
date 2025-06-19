@@ -44,36 +44,37 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-					<div class="container">
-						<div class="row align-item-start">
-							<div class="col">
-								<form id="assetForm">
-									{% csrf_token %}
-									<div class="modal-body">
-									</div>
-					 			</form>
-							</div>
-						</div>
-						<div class="row collapse modal-body" id="form-computeCOP">
-									<div class="col"></div>
-									<div class="col">
-									<button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
-
-									 <form id="copForm">
-											{% csrf_token %}
-											<div class="modal-addendum"></div>
-									 </form>
-									</div>
-						</div>
-					</div>
-
-
+                <div class="container">
+                    <div class="row align-item-start">
+                        <div class="col">
+                            <form id="assetForm">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row collapse modal-body" id="form-computeCOP">
+                        <div class="col"></div>
+                        <div class="col">
+                            <form id="copForm">
+                                {% csrf_token %}
+                                <div class="modal-addendum"></div>
+                            </form>
+                            <button
+                                id="btn-computeCOP"
+                                class="btn btn--medium"
+                                onclick="computeCOP(event)">
+                                {% translate "compute COP" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
                 {% if user_has_right_to_save %}
                 <button class="btn btn--medium" onclick="submitForm(event)">{% translate "Save" %}</button>
                 {% endif %}
-
             </div>
         </div>
     </div>
@@ -89,12 +90,7 @@
                 </div>
             </div>
 
-
-
-
-
             <div class="components__content">
-
                 {% for group_name, group_components in components.items %}
                     <div class="section section--{{ group_name }}">
                         <div class="section__title">
@@ -105,8 +101,6 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
-
-
             </div>
         </div>
         <div id="drawflow" class="gui" ondrop="drop(event)" ondragover="allowDrop(event)">
@@ -125,15 +119,12 @@
                 <span>{% translate "Drag and drop components to build your energy system" %}</span>
             </div>-->
         </div>
-
     </section>
 </main>
-
 {% endblock progression_content %}
 
 
 {% block end_body_scripts %}
-
 <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/3.1.0/jquery.serializejson.min.js"

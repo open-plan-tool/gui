@@ -117,23 +117,17 @@ WSGI_APPLICATION = "epa.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# SQLite is used if no other database system is set via environment variables.
-engine = env("SQL_ENGINE", default=None)
-if engine is None:
-    engine = {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": env("SQL_DATABASE", default="db.sqlite3"),
-    }
-else:
-    engine = {
-        "ENGINE": engine,
+# SQLite does not support ArrayField, so PostgreSQL is needed as engine
+DATABASES = {
+    "default": {
+        "ENGINE": env("SQL_ENGINE", default="django.db.backends.postgresql"),
         "NAME": env("SQL_DATABASE"),
         "USER": env("SQL_USER", default=None),
         "PASSWORD": env("SQL_PASSWORD", default=None),
         "HOST": env("SQL_HOST", default=None),
         "PORT": env.int("SQL_PORT", default=5432),
     }
-DATABASES = {"default": engine}
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
