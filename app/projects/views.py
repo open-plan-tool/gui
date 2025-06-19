@@ -1541,8 +1541,8 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
-        "inputs": json.loads(request.POST.get("inputs", "[]")),
-        "outputs": json.loads(request.POST.get("outputs", "[]")),
+        "inputs": json.loads(request.GET.get("inputs", "[]")),
+        "outputs": json.loads(request.GET.get("outputs", "[]")),
     }
 
     if asset_type_name == "bus":
