@@ -211,7 +211,7 @@
         // A missing entry usually stems from missing values and blocks creation of drawflowData
         const nodesNotInDB = node_list.filter(node => !nodesToDB.has('node-'+node.id));
         if (nodesNotInDB.length) {
-            alert('There are nodes without a DB entry:\n' + nodesNotInDB.map(node => node.data.name).join(', ') + '\nPlease correct them.');
+            alert('There are components not saved yet:\n' + nodesNotInDB.map(node => node.data.name).join(', ') + '\nPlease click on them and save them to fix this error (it might be possible that some arguments are missing).');
             return;
         }
 
