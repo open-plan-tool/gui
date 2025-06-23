@@ -137,7 +137,7 @@ function toggle_cop_modal(event){
     const getUrl = copGetUrl + assetTypeName +
         (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
-    fetch(getUrl).then(formContent => {
+    fetch(getUrl).then(response => response.text()).then(formContent => {
         // assign the content of the form to the form tag of the modal
         guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
     });
