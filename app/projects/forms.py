@@ -140,6 +140,10 @@ class OpenPlanModelForm(ModelForm):
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field)
 
+    def add_help_text_icon(self, param_name, RTD_link=True):
+        if param_name in self.fields:
+            add_help_text_icon(self.fields[param_name], param_name, RTD_link)
+
 
 class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
@@ -750,7 +754,8 @@ class AssetCreateForm(OpenPlanModelForm):
                 default=1, min=1, param_name="efficiency"
             )
             self.fields["efficiency"].label = "COP"
-
+            self.fields["efficiency"].help_text = "This is the custom help text for COP"
+            self.add_help_text_icon("efficiency", RTD_link=False)
             value = self.fields.pop("efficiency")
             self.fields["efficiency"] = value
         if self.asset_type_name == "chp":
@@ -764,7 +769,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
-
+            self.add_help_text_icon("efficiency", RTD_link=False)
             self.fields["efficiency_multiple"] = DualNumberField(
                 default=1, min=0, max=1, param_name="efficiency_multiple"
             )
@@ -772,7 +777,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 "Thermal efficiency with maximal heat extraction"
             )
 
-            self.fields["thermal_loss_rate"].label = _("Stromverlustkenzahl")
+            self.fields["thermal_loss_rate"].label = _("Power loss index")
 
         if self.asset_type_name == "chp_fixed_ratio":
 
@@ -782,6 +787,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
+            self.add_help_text_icon("efficiency", RTD_link=False)
 
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
                 attrs={
@@ -1109,12 +1115,23 @@ class StorageForm(AssetCreateForm):
             self.fields["thermal_loss_rate"].widget = forms.HiddenInput()
             self.fields["thermal_loss_rate"].initial = 0
         else:
-            self.fields["fixed_thermal_losses_relative"] = DualNumberField(
-                default=0.1, min=0, max=1, param_name="fixed_thermal_losses_relative"
+            field_name = "fixed_thermal_losses_relative"
+            help_text = self.fields[field_name].help_text
+            label = self.fields[field_name].label
+            self.fields[field_name] = DualNumberField(
+                default=0.1, min=0, max=1, param_name=field_name
             )
-            self.fields["fixed_thermal_losses_absolute"] = DualNumberField(
-                default=0.1, min=0, param_name="fixed_thermal_losses_absolute"
+            self.fields[field_name].help_text = help_text
+            self.fields[field_name].label = label
+
+            field_name = "fixed_thermal_losses_absolute"
+            help_text = self.fields[field_name].help_text
+            label = self.fields[field_name].label
+            self.fields[field_name] = DualNumberField(
+                default=0.1, min=0, param_name=field_name
             )
+            self.fields[field_name].help_text = help_text
+            self.fields[field_name].label = label
 
     field_order = [
         "name",
