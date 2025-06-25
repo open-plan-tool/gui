@@ -52,7 +52,12 @@ function drop(ev) {
     ev.preventDefault();
     // corresponds to data-node defined in templates/scenario/topology_drag_items.html
     const nodeName = ev.dataTransfer.getData("node");
-    addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY);
+    addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY).then(node => {
+        // after adding node, try to save node with default data
+        // populate form and submit
+        node = document.getElementById('node-' + node.editorNodeId);
+        populateForm(node, submit=true);
+    });
 }
 
 
@@ -166,8 +171,6 @@ function computeCOP(event){
         body: formData,
     }).then(response => response.json()).then(jsonRes => {
         if (jsonRes.success) {
-            console.log(jsonRes.cops);
-            console.log(jsonRes.cop_id);
             // close the cop area
             copCollapse.hide();
 
@@ -191,53 +194,59 @@ function computeCOP(event){
 }
 
 
-// one needs to add this function as event with eventListener (<some jquery div>.addEventListener("dblclick", dblClick))
-function dblClick(e) {
+function populateForm(node, submit=false) {
+    // populate modal form with node data
+    // optionally immediately submit form without showing
+    if (!node)
+        return;
+    const nodeType = node.querySelector('.box').getAttribute(ASSET_TYPE_NAME);
+    const topologyNodeId = node.id;
 
-    const closestNode = e.target.closest('.drawflow-node');
+    const nodeId = parseInt(topologyNodeId.split("-").pop());
+    const input_output_mapping = getInputOutputMapping(nodeId);
+    // formGetUrl is defined in scenario_step2.html
+    let getUrl = formGetUrl + nodeType;
+    if (nodesToDB.has(topologyNodeId))
+        getUrl += "/" + nodesToDB.get(topologyNodeId).uid;
+    // add input_output_mapping as GET parameters
+    getUrl += '?' + new URLSearchParams(input_output_mapping);
 
-    if (closestNode) {
-        const nodeType = closestNode.querySelector('.box').getAttribute(ASSET_TYPE_NAME);
-        const topologyNodeId = closestNode.id;
+    // get the form of the asset of the type "nodeType" (projects/views.py::get_asset_create_form)
+    fetch(getUrl).then(response => response.text()).then(formContent => {
+        // assign the content of the form to the form tag of the modal
+        guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
 
-        const nodeId = parseInt(topologyNodeId.split("-").pop());
-        const input_output_mapping = getInputOutputMapping(nodeId);
-        // formGetUrl is defined in scenario_step2.html
-        let getUrl = formGetUrl + nodeType;
-        if (nodesToDB.has(topologyNodeId))
-            getUrl += "/" + nodesToDB.get(topologyNodeId).uid;
-        // add input_output_mapping as GET parameters
-        getUrl += '?' + new URLSearchParams(input_output_mapping);
+        // set parameters which uniquely identify the asset
+        guiModalDOM.setAttribute("data-node-type", nodeType);
+        guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
+        guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
 
-        // get the form of the asset of the type "nodeType" (projects/views.py::get_asset_create_form)
-        fetch(getUrl).then(response => response.text()).then(formContent => {
-            // assign the content of the form to the form tag of the modal
-            guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
+        updateInputTimeseries();
 
-            // set parameters which uniquely identify the asset
-            guiModalDOM.setAttribute("data-node-type", nodeType);
-            guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
-            guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
-            editor.editor_mode = "fixed";
-
-            updateInputTimeseries();
-
+        if (submit)
+            submitForm();
+        else
             guiModal.show();
-            if(copCollapseDOM){
-                copCollapse.hide();
-            }
-            $('[data-bs-toggle="tooltip"]').tooltip();
-        }).catch(error => {
-            alert("Could not open node:\n"+error.message);
-            console.error(error);
-        });
-    }
-}
-// endregion
 
+        if(copCollapseDOM){
+            copCollapse.hide();
+        }
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    }).catch(error => {
+        alert("Could not open node:\n"+error.message);
+        console.error(error);
+    });
+}
+
+// callback for double-clicking on node in editor
+// add with eventListener (<some jquery div>.addEventListener("dblclick", dblClick))
+function dblClick(e) {
+    const closestNode = e.target.closest('.drawflow-node');
+    populateForm(closestNode);
+}
 
 /* onclick method associated to the save button of the modal */
-function submitForm(e) {
+function submitForm() {
 
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
@@ -248,7 +257,7 @@ function submitForm(e) {
     const nodeName = document.getElementById(topologyNodeId).querySelector(".nodeName");
     const nodeNameValue = guiModalDOM.querySelector('input[df-name]').value;
     // get the data of the form
-    const assetForm = e.target.closest('.modal-content').querySelector('form');
+    const assetForm = document.getElementById('assetForm');
     const formData = new FormData(assetForm);
 
     // add the XY position of the node to the form data
@@ -297,13 +306,14 @@ function submitForm(e) {
         } else {
             // assign the content of the form to the form tag of the modal
             guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
+            // make certain to show form
+            guiModal.show();
         }
     }).catch(error => {
         console.error(error);
         alert(error.message);
     });
 }
-
 
 $("#guiModal").on('shown.bs.modal', _ => {
      var formDiv = document.getElementsByClassName("form-group");
@@ -331,6 +341,7 @@ $("#guiModal").on('show.bs.modal', function (event) {
   if(nodeName){
     modal.find('.modal-title').text(nodeName.value.replaceAll("_", " "));
   }
+  editor.editor_mode = "fixed";
 });
 
 /* Triggered before the modal hides */
