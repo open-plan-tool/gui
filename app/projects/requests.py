@@ -105,6 +105,13 @@ def fetch_mvs_simulation_results(simulation):
             simulation.results = None
 
         simulation.elapsed_seconds = (datetime.now() - simulation.start_date).seconds
+
+        # Cancel simulation if it has been going on > 48h
+        max_simulation_seconds = 48 * 60 * 60
+        if simulation.elapsed_seconds > max_simulation_seconds:
+            simulation.status = ERROR
+            simulation.results = None
+
         simulation.end_date = (
             datetime.now() if simulation.status in [ERROR, DONE] else None
         )
