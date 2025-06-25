@@ -128,7 +128,6 @@ function getInputOutputMapping(nodeId){
 
 // COP calculation from temperature
 function toggle_cop_modal(event){
-
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
@@ -140,12 +139,6 @@ function toggle_cop_modal(event){
     fetch(getUrl).then(response => response.text()).then(formContent => {
         // assign the content of the form to the form tag of the modal
         guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
-        // Manually re-initialize tooltips
-        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-            if (!bootstrap.Tooltip.getInstance(el)) {
-                new bootstrap.Tooltip(el);
-            }
-        });
     }).catch(error => {
         console.error(error);
     });
@@ -157,6 +150,7 @@ function computeCOP(event){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
     const copForm = event.target.closest('.modal-content').querySelector('#copForm');
     const formData = new FormData(copForm);
 
