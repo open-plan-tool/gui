@@ -904,7 +904,8 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.timeseries_same_as_timestamps(efficiency, "efficiency")
 
         if self.asset_type_name == "chp_fixed_ratio":
-            if "efficiency" not in self.errors:
+            # efficiency and efficiency_multiple must have been cleaned (no errors)
+            if self.errors.keys().isdisjoint({"efficiency", "efficiency_multiple"}):
                 if (
                     float(cleaned_data["efficiency"])
                     + float(cleaned_data["efficiency_multiple"])

@@ -133,19 +133,17 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script>
-        const csrfToken = '{{ csrf_token }}';
-        const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
-        const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
-        const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
-        const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
-        const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
-        const tsGetUrl = `{% url 'get_timeseries' %}`;
-    </script>
+    const csrfToken = '{{ csrf_token }}';
+    const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
+    const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
+    const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
+    const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
+    const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
+    const tsGetUrl = `{% url 'get_timeseries' %}`;
+</script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
-        guiModal = new bootstrap.Modal(guiModalDOM, {backdrop: 'static'});
-
         // activate the double click function provided in grid_model_topology
         document.querySelector('.drawflow').addEventListener("dblclick", dblClick);
 
@@ -155,8 +153,21 @@
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
                 .then(async () => addLinks(data['links']))
+                .then(() => zoomToFit())
+                .then(() => changeOrderOfClasses())
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
         });
+        window.changeOrderOfClasses = function() {
+        const drawflowDiv = document.getElementById('drawflow');
+        const classes = Array.from(drawflowDiv.classList);
+        const parentIndex = classes.indexOf('parent-drawflow');
+        if (parentIndex > -1) {
+            classes.splice(parentIndex, 1);
+            classes.unshift('parent-drawflow');
+        }
+        drawflowDiv.className = classes.join(' ');
+        }
+
 </script>
 
 <script defer>

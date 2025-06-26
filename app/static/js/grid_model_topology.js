@@ -1,24 +1,28 @@
+/*jshint esversion: 8 */
+/*jshint sub:true*/
+
 // Constants
 const ASSET_TYPE_NAME = 'asset_type_name';
 const BUS = "bus";
 // UUID to Drawflow Id Mapping
 // const nodeToDbId = { 'bus': [], 'asset': [] };
 const nodesToDB = new Map();
-var guiModalDOM = document.getElementById("guiModal");
-var guiModal = new bootstrap.Modal(guiModalDOM);
+const guiModalDOM = document.getElementById("guiModal");
+const guiModal = new bootstrap.Modal(guiModalDOM, {backdrop: 'static'});
 
 var copCollapseDOM = document.getElementById('form-computeCOP');
 if(copCollapseDOM){
     var copCollapse = new bootstrap.Collapse(copCollapseDOM);
     // refresh the field of the projects/forms.py::COPCalculatorForm to plot the data if any
     copCollapseDOM.addEventListener('shown.bs.collapse', function () {
-        tHighDOM = guiModalDOM.querySelector('input[name="temperature_high_scalar"]');
-        if(tHighDOM){tHighDOM.dispatchEvent(new Event('change'));}
-        tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
-        if(tLowDOM){tLowDOM.dispatchEvent(new Event('change'));}
+        const tHighDOM = guiModalDOM.querySelector('input[name="temperature_high_scalar"]');
+        if(tHighDOM)
+            tHighDOM.dispatchEvent(new Event('change'));
+        const tLowDOM = guiModalDOM.querySelector('input[name="temperature_low_scalar"]');
+         if(tLowDOM)
+            tLowDOM.dispatchEvent(new Event('change'));
     });
 }
-
 
 
 // Initialize Drawflow
@@ -29,16 +33,15 @@ editor.start();
 // editor.drawflow.drawflow.Home.data; // All node level data are saved here
 
 /* Mouse and Touch Actions */
-var elements = document.getElementsByClassName('drag-drawflow');
-for (let i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('touchend', drop, false);
-    elements[i].addEventListener('touchstart', drag, false);
+for (let element of document.getElementsByClassName('drag-drawflow')) {
+    element.addEventListener('touchend', drop, false);
+    element.addEventListener('touchstart', drag, false);
 }
-var elements = document.getElementsByClassName('section__component');
-for (let i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('touchend', drop, false);
-    elements[i].addEventListener('touchstart', drag, false);
+for (let element of document.getElementsByClassName('section__component')) {
+    element.addEventListener('touchend', drop, false);
+    element.addEventListener('touchstart', drag, false);
 }
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -104,7 +107,7 @@ async function addNodeToDrawFlow(name, pos_x, pos_y, nodeInputs = 1, nodeOutputs
         return false;
     pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
     pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
-    return createNodeObject(name, nodeInputs, nodeOutputs, nodeData, pos_x, pos_y);
+    return createNodeObject(name, pos_x, pos_y, nodeInputs, nodeOutputs, nodeData);
 }
 
 // TODO potentially remove this function
@@ -353,7 +356,7 @@ $("#guiModal").on('hide.bs.modal', function (event) {
 
 
 /* Create node on the gui */
-async function createNodeObject(nodeName, connectionInputs, connectionOutputs, nodeData, pos_x, pos_y) {
+async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, connectionOutputs = 1, nodeData = {}) {
     // automate the naming of assets to avoid name duplicates
     const editorData = editor.export().drawflow.Home.data;
     const node_list = Object.values(editorData);
@@ -393,24 +396,62 @@ async function createNodeObject(nodeName, connectionInputs, connectionOutputs, n
 
 /* Script to retrieve nodes (assets and busses) and links data from the backend. */
 /* Html of asset modification is provided in grid_model_topology.js:createNodeObject function */
-const addBusses = async (data) =>
+async function addBusses(data) {
     await Promise.all(data.map(async nodeData => {
-        const result = await createNodeObject(nodeData.name, nodeData.input_ports, nodeData.output_ports, nodeData.data, nodeData.pos_x, nodeData.pos_y);
+        const result = await createNodeObject(nodeData.name, nodeData.pos_x, nodeData.pos_y, nodeData.input_ports, nodeData.output_ports, nodeData.data);
         nodesToDB.set(`node-${result.editorNodeId}`, {uid:nodeData.data.databaseId, assetTypeName: "bus" });
     }));
-
-const addAssets = async (data) =>
+}
+async function addAssets(data) {
     await Promise.all(data.map(async nodeData => {
-        const result = await createNodeObject(nodeData.name, 1, 1, nodeData.data, nodeData.pos_x, nodeData.pos_y);
+        const result = await createNodeObject(nodeData.name, nodeData.pos_x, nodeData.pos_y, 1, 1, nodeData.data);
         nodesToDB.set(`node-${result.editorNodeId}`, {uid:nodeData.data.unique_id, assetTypeName: nodeData.name });
     }));
+}
 
 /* 'editor' is the variable name of the DrawFlow instance used here as a global variable */
-const addLinks = async (data) => data.map(async linkData => {
-    const busNodeId = [...nodesToDB.entries()].filter(([key,val])=>val.uid===linkData.bus_id).map(([k,v])=>k)[0].split("-").pop();
-    const assetNodeId = [...nodesToDB.entries()].filter(([key,val])=>val.uid===linkData.asset_id).map(([k,v])=>k)[0].split("-").pop();
-    if (linkData.flow_direction === "B2A")
-        editor.addConnection(busNodeId, assetNodeId, linkData.bus_connection_port, 'input_1');
-    else
-        editor.addConnection(assetNodeId, busNodeId, 'output_1', linkData.bus_connection_port);
-});
+async function addLinks(data) {
+    data.map(async linkData => {
+        const busNodeId = [...nodesToDB.entries()].filter(([key,val])=>val.uid===linkData.bus_id).map(([k,v])=>k)[0].split("-").pop();
+        const assetNodeId = [...nodesToDB.entries()].filter(([key,val])=>val.uid===linkData.asset_id).map(([k,v])=>k)[0].split("-").pop();
+        if (linkData.flow_direction === "B2A")
+            editor.addConnection(busNodeId, assetNodeId, linkData.bus_connection_port, 'input_1');
+        else
+            editor.addConnection(assetNodeId, busNodeId, 'output_1', linkData.bus_connection_port);
+    });
+}
+
+function zoomToFit() {
+    const nodeWidth = 152;
+    const nodeHeight = 128;
+
+    const nodes = Object.values(editor.drawflow.drawflow.Home.data); // Array with all nodes
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    // get outer most node bounding box edges
+    nodes.forEach(node => {
+        minX = Math.min(minX, node.pos_x);
+        minY = Math.min(minY, node.pos_y);
+        maxX = Math.max(maxX, node.pos_x + nodeWidth);
+        maxY = Math.max(maxY, node.pos_y + nodeHeight);
+    });
+    const nodesWidth = maxX - minX;
+    const nodesHeight = maxY - minY;
+
+    // get space of editor
+    const editorElem = document.querySelector('.drawflow');
+    const editorWidth = editorElem.clientWidth;
+    const editorHeight = editorElem.clientHeight;
+
+    // calculate zoom
+    const zoomX = editorWidth / (nodesWidth + 2);
+    const zoomY = editorHeight / (nodesHeight + 2);
+    const zoom = Math.min(zoomX, zoomY, 1); // max 1 (no zoom)
+    editor.zoom = zoom;
+
+    // center editor
+    const offsetX = (editorWidth - nodesWidth * zoom) / 2 - minX * zoom;
+    const offsetY = (editorHeight - nodesHeight * zoom) / 2 - minY * zoom;
+    editor.precanvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+}
