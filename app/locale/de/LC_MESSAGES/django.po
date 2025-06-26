@@ -451,7 +451,7 @@ msgid "Thermal efficiency with maximal heat extraction"
 msgstr "Thermischer Wirkungsgrad mit maximalem Wärmeentzug"
 
 #: projects/forms.py:774
-msgid "Stromverlustkenzahl"
+msgid "Power loss index"
 msgstr "Stromverlustkenzahl"
 
 #: projects/forms.py:778
@@ -4608,9 +4608,6 @@ msgstr "Geben Sie den Typ der OEMOF-Komponente ein. Zum Beispiel wäre eine PV-A
 
 msgid "Unit associated with the capacity of the component"
 msgstr "Mit der Kapazität der Komponente verbundene Einheit"
-
-msgid "Power loss index"
-msgstr "Verlustleistungsindex"
 
 msgid "beta"
 msgstr "beta"
