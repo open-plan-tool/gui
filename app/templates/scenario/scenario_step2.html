@@ -44,35 +44,37 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-					<div class="container">
-						<div class="row align-item-start">
-							<div class="col">
-								<form id="assetForm">
-									{% csrf_token %}
-									<div class="modal-body">
-									</div>
-					 			</form>
-							</div>
-						</div>
-						<div class="row collapse modal-body" id="form-computeCOP">
-									<div class="col"></div>
-									<div class="col">
-									 <form id="copForm">
-											{% csrf_token %}
-											<div class="modal-addendum"></div>
-									 </form>
-                                    <button id="btn-computeCOP" class="btn btn--medium" onclick="computeCOP(event)">{% translate "compute COP" %}</button>
-									</div>
-						</div>
-					</div>
-
-
+                <div class="container">
+                    <div class="row align-item-start">
+                        <div class="col">
+                            <form id="assetForm">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row collapse modal-body" id="form-computeCOP">
+                        <div class="col"></div>
+                        <div class="col">
+                            <form id="copForm">
+                                {% csrf_token %}
+                                <div class="modal-addendum"></div>
+                            </form>
+                            <button
+                                id="btn-computeCOP"
+                                class="btn btn--medium"
+                                onclick="computeCOP(event)">
+                                {% translate "compute COP" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
                 {% if user_has_right_to_save %}
                 <button class="btn btn--medium" onclick="submitForm(event)">{% translate "Save" %}</button>
                 {% endif %}
-
             </div>
         </div>
     </div>
@@ -88,12 +90,7 @@
                 </div>
             </div>
 
-
-
-
-
             <div class="components__content">
-
                 {% for group_name, group_components in components.items %}
                     <div class="section section--{{ group_name }}">
                         <div class="section__title">
@@ -104,8 +101,6 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
-
-
             </div>
         </div>
         <div id="drawflow" class="gui" ondrop="drop(event)" ondragover="allowDrop(event)">
@@ -124,15 +119,12 @@
                 <span>{% translate "Drag and drop components to build your energy system" %}</span>
             </div>-->
         </div>
-
     </section>
 </main>
-
 {% endblock progression_content %}
 
 
 {% block end_body_scripts %}
-
 <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/3.1.0/jquery.serializejson.min.js"
@@ -141,19 +133,17 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script>
-        const csrfToken = '{{ csrf_token }}';
-        const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
-        const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
-        const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
-        const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
-        const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
-        const tsGetUrl = `{% url 'get_timeseries' %}`;
-    </script>
+    const csrfToken = '{{ csrf_token }}';
+    const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
+    const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
+    const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
+    const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
+    const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
+    const tsGetUrl = `{% url 'get_timeseries' %}`;
+</script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
-		guiModal = new bootstrap.Modal(guiModalDOM, {backdrop: 'static'});
-
         // activate the double click function provided in grid_model_topology
         document.querySelector('.drawflow').addEventListener("dblclick", dblClick);
 
@@ -181,106 +171,110 @@
 </script>
 
 <script defer>
-$(document).ready(function () {
-    disabled_assets = [];//["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
-    disabled_assets.forEach(asset_name => {document.querySelector(`[data-node='${asset_name}']`).classList.add("greyed_out"); document.querySelector(`[data-node='${asset_name}']`).setAttribute("title", "This is disabled")});
-})
-        function clearGridModel() {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, clear everything!",
-                cancelButtonText: "Cancel",
-            }).then((result) => result.value && editor.clearModuleSelected());
+    $(document).ready(function () {
+        disabled_assets = [];//["gas_dso", "h2_dso", "biogas_plant", "geothermal_conversion", "diesel_generator", "fuel_cell", "gas_boiler", "electrolyzer", "hess"];
+        disabled_assets.forEach(asset_name => {document.querySelector(`[data-node='${asset_name}']`).classList.add("greyed_out"); document.querySelector(`[data-node='${asset_name}']`).setAttribute("title", "This is disabled")});
+    });
+    function clearGridModel() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, clear everything!",
+            cancelButtonText: "Cancel",
+        }).then((result) => result.value && editor.clearModuleSelected());
+    }
+
+    function move_step(){
+        window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+    };
+
+    /*
+     * Export Topology to JSON and send to back-end.
+     * Used by the Save and Next buttons at page footer
+    */
+    function save_topology(move_step=false) {
+        // Data Pre-check
+        const editorData = editor.export().drawflow.Home.data;
+        const node_list = Object.values(editorData)
+        const node_names = node_list.map(obj => obj.data.name);
+        // warn in case of empty model
+        if (node_list.length == 0 && !confirm('No components in model. Continue?'))
+            return;
+        // Check if there are duplicate node names in the model
+        // and prevent user from saving the model if there are.
+        // Might also be handled in backend when saving names.
+        const duplicate_names = node_names.filter((name, i, a) => a.indexOf(name) !== i);
+        if (duplicate_names.length != 0) {
+            alert('There are nodes with duplicate names.\nRename nodes with names: ' + duplicate_names.toString());
+            return;
+        }
+        // Check for nodes to in nodesToDB
+        // A missing entry usually stems from missing values and blocks creation of drawflowData
+        const nodesNotInDB = node_list.filter(node => !nodesToDB.has('node-'+node.id));
+        if (nodesNotInDB.length) {
+            alert('There are components not saved yet:\n' + nodesNotInDB.map(node => node.data.name).join(', ') + '\nPlease click on them and save them to fix this error (it might be possible that some arguments are missing).');
+            return;
         }
 
-				function move_step(){
-					window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
-				};
-
-
-        /*
-         * Export Topology to JSON and send to back-end.
-         * Used by the Save and Next buttons at page footer
-        */
-        function save_topology(move_step=false) {
-            // Data Pre-check
-            /*
-            /* Check if there are duplicate node names in the model
-            /* and prevent user from saving the model if there are.
-            */
-            let editorData = editor.export().drawflow.Home.data;
-            const node_list = Object.values(editorData)
-            const node_names = node_list.map(obj => obj.data.name);
-            const duplicate_names = node_names.filter((name, i, a) => a.indexOf(name) !== i);
-
-            if (duplicate_names.length != 0)
-                return Swal.fire('Grid Model Error',
-                    `There are nodes with duplicate names. \n Rename nodes with names: ${duplicate_names.toString()}`, 'error');
-            // End Data Pre-check
-            else {
-                const transformIOs = (obj, entry) => {
-                    const [key, io] = entry;
-                    obj[key] = io.connections.map(conn =>
-                        ("output" in conn) ?
-                        ({ node: nodesToDB.get('node-' + conn.node).uid, output: conn.output }) :
-                        ({ node: nodesToDB.get('node-' + conn.node).uid, input: conn.input }));
-                    return obj;
-                }
-                const drawflowData = Object.values(editorData)
-                    .map(obj=>({
-                        db_id: nodesToDB.get('node-'+obj.id).uid,
-                        name: obj.name,
-                        inputs: Object.entries(obj.inputs).reduce(transformIOs, {}),
-                        outputs: Object.entries(obj.outputs).reduce(transformIOs, {}),
-                        data: obj.data,
-                        pos_x: obj.pos_x,
-                        pos_y: obj.pos_y,
-                    }));
-
-                 $.ajax({
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    type: "POST",
-                    url: "{% url 'scenario_create_topology' proj_id scenario.id %}",
-                    data: JSON.stringify(drawflowData),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                     success: function (resp) {
-                        // var node = resp.data;
-                        // $.each(node, function (key, val) {
-                        //     // add database id to the node data dictionary, in order to discriminate among existing and new nodes.
-                        //     editor.drawflow.drawflow.Home.data[`${key}`].data['databaseId'] = val;
-                        // });
-                        // TODO change this to perfom these action within views.py
-                        if(move_step == true){
-                            window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
-                        }
-                    },
-
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        const jsonData = XMLHttpRequest.responseJSON;
-                        if(move_step == true){
-                            window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
-                        }
-                        if (jsonData.specific_obj_type) {
-                            Swal.fire('Grid Model Error', `Please fill in all ${jsonData.specific_obj_type.bold()} fields. \n
-                       Asset ${jsonData.obj_name.bold()} has empty fields or fields with wrong values.`, 'error');
-                       console.log(jsonData.full_error);
-                       //console.log(Object.keys(JSON.parse(a.full_error.replaceAll('\'','"'))));
-                        } else {
-                            Swal.fire('Grid Model Error', `Asset ${jsonData.obj_name.bold()} has empty fields or fields with wrong values.`, 'error');
-                        }
-                    }
+        try {
+            const transformIOs = (obj, entry) => {
+                const [key, io] = entry;
+                obj[key] = io.connections.map(conn => {
+                    let value = { node: nodesToDB.get('node-' + conn.node).uid};
+                    if ('output' in conn)
+                        value.output = conn.output;
+                    else
+                        value.input = conn.input;
+                    return value;
                 });
+                return obj;
             }
-        };
-    </script>
+            const drawflowData = node_list.map(obj=>({
+                db_id: nodesToDB.get('node-'+obj.id).uid,
+                name: obj.name,
+                inputs: Object.entries(obj.inputs).reduce(transformIOs, {}),
+                outputs: Object.entries(obj.outputs).reduce(transformIOs, {}),
+                data: obj.data,
+                pos_x: obj.pos_x,
+                pos_y: obj.pos_y,
+            }));
 
-
+            fetch("{% url 'scenario_create_topology' proj_id scenario.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(drawflowData),
+            }).then(_ => {
+                // success: may move to next step
+                 if(move_step == true){
+                    window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+                }
+            }).catch(error => {
+                error.json().then(jsonData => {
+                    if (jsonData.specific_obj_type) {
+                        Swal.fire('Grid Model Error', `Please fill in all ${jsonData.specific_obj_type.bold()} fields. \n
+                        Asset ${jsonData.obj_name.bold()} has empty fields or fields with wrong values.`, 'error');
+                        console.log(jsonData.full_error);
+                    } else {
+                        Swal.fire('Grid Model Error', `Asset ${jsonData.obj_name.bold()} has empty fields or fields with wrong values.`, 'error');
+                    }
+                }).catch(_ => {
+                    console.error(error);
+                });
+            });
+        } catch (error) {
+            console.error('Error while saving topology. ' + error);
+            return Swal.fire('Grid Model Error',
+                'There are empty assets.\n Make sure all assets are filled in with data.', 'error');
+        }
+    }
+</script>
 {% endblock end_body_scripts %}
-
 
 {% block footer %}
 <footer class="step-footer">
@@ -288,18 +282,33 @@ $(document).ready(function () {
     <div class="step-footer__left"></div>
     <div class="step-footer__center">
         <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
-			  {% if user_has_right_to_save %}
-        <button class="btn btn--medium btn--transparent" onclick="javascript:save_topology()">{% translate "Save" %}</button>
-        <button onclick="javascript:save_topology(move_step=true)" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+        {% if user_has_right_to_save %}
+            <button
+                class="btn btn--medium btn--transparent"
+                onclick="javascript:save_topology()">
+                {% translate "Save" %}
+            </button>
+            <button
+                onclick="javascript:save_topology(move_step=true)"
+                id="next_btn" class="btn btn--medium" >
+                {% translate "Next" %}
+            </button>
         {% else %}
-				<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
-
-				{% endif %}
-		</div>
+            <button
+                onclick="javascript:move_step()"
+                id="next_btn"
+                class="btn btn--medium" >
+                {% translate "Next" %}
+            </button>
+        {% endif %}
+    </div>
     <div class="step-footer__right">
-
         {% if scen_id %}
-        <a class="btn btn--medium btn--transparent" href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">{% translate "Go to simulation" %}</a>
+            <a
+                class="btn btn--medium btn--transparent"
+                href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">
+                {% translate "Go to simulation" %}
+            </a>
         {% endif %}
     </div>
   </div>
