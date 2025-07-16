@@ -1,4 +1,4 @@
-/*jshint esversion: 8 */
+/*jshint esversion: 11 */
 /*jshint sub:true*/
 
 // Constants
@@ -72,33 +72,30 @@ editor.on('connectionCreated', function (connection) {
         editor.removeSingleConnection(connection.output_id, connection.input_id, connection.output_class, connection.input_class);
         Swal.fire('Unexpected Connection', 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.', 'error');
     }
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
-// might be redundant
-editor.on('nodeCreated', function (nodeID) {
-    // region bind installed_capacity to age_installed Changes
-    // const nodeIdInstalledCapInput = document.getElementById(`node-${nodeID}`).querySelector("input[name='installed_capacity']");
-    // if (nodeIdInstalledCapInput) {
-    //     nodeIdInstalledCapInput.addEventListener('change', function (e) {
-    //         const ageInstalledElement = e.target.closest("#FormGroup").querySelector("input[name='age_installed']");
-    //         if (e.target.value === '0') {
-    //             ageInstalledElement.value = '0';
-    //             ageInstalledElement.readOnly = true;
-    //             let notifyAgeInputEvent = new Event("input", { bubbles: true });
-    //             ageInstalledElement.dispatchEvent(notifyAgeInputEvent);
-    //         } else
-    //             ageInstalledElement.readOnly = false;
-    //     });
-    //     // for existing nodes check if installed cap is zero and set age_installed to read only
-    //     if (nodeIdInstalledCapInput.value === '0')
-    //         nodeIdInstalledCapInput.closest("#FormGroup").querySelector("input[name='age_installed']").readOnly = true;
-    // }
-    // endregion
+editor.on('connectionRemoved', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
+});
+
+editor.on('nodeCreated', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
+});
+
+editor.on('nodeMoved', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
 editor.on('nodeRemoved', function (nodeID) {
     // remove nodeID from nodesToDB
     nodesToDB.delete('node-'+nodeID);
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
 
