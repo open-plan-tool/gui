@@ -1,0 +1,31 @@
+.conn-electricity {
+  stroke: gold !important;
+}
+
+.conn-heat {
+  stroke: crimson !important;
+}
+
+.conn-gas {
+  stroke: gray !important;
+}
+
+.conn-h2 {
+  stroke: deepskyblue !important;
+}
+
+.busnode-electricity {
+  border-bottom-color: gold !important;
+}
+
+.busnode-heat {
+  border-bottom-color: crimson !important;
+}
+
+.busnode-gas {
+  border-bottom-color: gray !important;
+}
+
+.busnode-h2 {
+  border-bottom-color: deepskyblue !important;
+}
