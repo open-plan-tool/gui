@@ -427,6 +427,9 @@ function zoomToFit() {
 
     const nodes = Object.values(editor.drawflow.drawflow.Home.data); // Array with all nodes
 
+    if (!nodes.length)
+        return;  // only zoom if there are nodes, ignore new/empty project
+
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     // get outer most node bounding box edges
