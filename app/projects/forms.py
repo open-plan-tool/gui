@@ -126,7 +126,6 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
 
     if help_text is not None:
         field.help_text = _(help_text)
-        add_help_text_icon(field, param_name)
 
     if default_value is not None:
         field.initial = default_value
@@ -704,11 +703,11 @@ class AssetCreateForm(OpenPlanModelForm):
         self.asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
 
         # remove the fields not needed for the AssetType
-        [
-            self.fields.pop(field)
-            for field in list(self.fields)
-            if field not in self.asset_type.visible_fields
-        ]
+        for field in list(self.fields):
+            if field not in self.asset_type.visible_fields:
+                self.fields.pop(field)
+            else:
+                self.add_help_text_icon(field)
 
         self.timestamps = None
         if self.existing_asset is not None:
