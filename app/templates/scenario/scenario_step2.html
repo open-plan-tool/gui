@@ -11,6 +11,7 @@
 <!--<script src="{% static 'js/plotly.min.js' %}"></script>-->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="{% static 'css/quick_fix.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/editor.css' %}"/>
 {% endblock head_block %}
 
 
@@ -158,7 +159,10 @@
                 // disable save button (populating editor may have enabled button)
                 document.getElementById('btn-save')?.classList.add('disabled');
             })
-            .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
+            .catch(err=>{
+                    console.error(err);
+                    Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error');
+            });
     });
     window.changeOrderOfClasses = function() {
         const drawflowDiv = document.getElementById('drawflow');
