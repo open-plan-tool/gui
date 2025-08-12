@@ -296,37 +296,41 @@
 <footer class="step-footer">
   <div>
     <div class="step-footer__left"></div>
-    <div class="step-footer__center">
-        <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
-        {% if user_has_right_to_save %}
-            <button
-                id="btn-save"
-                class="btn btn--medium btn--transparent disabled"
-                onclick="javascript:save_topology()">
+        <div class="sticky-footer">
+            <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
+            {% if user_has_right_to_save %}
+                <button
+                    onclick="javascript:save_topology(move_step=true)"
+                    id="next_btn" class="btn btn--medium" >
+                    {% translate "Next" %}
+                </button>
+            {% else %}
+                <button
+                    onclick="javascript:move_step()"
+                    id="next_btn"
+                    class="ms-2 btn btn--medium" >
+                    {% translate "Next" %}
+                </button>
+            {% endif %}
+            {% if scen_id %}
+                <a
+                    class="ms-2 btn btn--medium btn--transparent"
+                    href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">
+                    {% translate "Go to simulation" %}
+                </a>
+            {% endif %}
+            {% if user_has_right_to_save %}
+                <button
+                    id="btn-save"
+                    class="btn btn--medium btn--transparent ms-auto disabled"
+                    onclick="javascript:save_topology()">
+                <span id="saveSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
                 {% translate "Save" %}
-            </button>
-            <button
-                onclick="javascript:save_topology(move_step=true)"
-                id="next_btn" class="btn btn--medium" >
-                {% translate "Next" %}
-            </button>
-        {% else %}
-            <button
-                onclick="javascript:move_step()"
-                id="next_btn"
-                class="btn btn--medium" >
-                {% translate "Next" %}
-            </button>
-        {% endif %}
-    </div>
+                </button>
+            {% endif %}
+        </div>
+
     <div class="step-footer__right">
-        {% if scen_id %}
-            <a
-                class="btn btn--medium btn--transparent"
-                href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">
-                {% translate "Go to simulation" %}
-            </a>
-        {% endif %}
     </div>
   </div>
 </footer>

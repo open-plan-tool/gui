@@ -1100,6 +1100,20 @@ a.dropdown-item:active {
     border: none; }
   .step-footer__right a {
     float: right; }
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  z-index: 1030;
+}
 
 .simulation-footer {
   background-color: #fff;
