@@ -367,8 +367,14 @@ class TimeseriesInputWidget(forms.MultiWidget):
         answer = [value, None, None]
         if not isinstance(value, int):
             logging.error("The value of timeseries index is not an integer")
-        if Timeseries.objects.filter(id=value).exists():
-            answer = [value, value, ""]
+        ts_qs = Timeseries.objects.filter(id=value)
+        if ts_qs.exists():
+            ts_name = ts_qs.values_list("name", flat=True).get()
+            if "constant value = " in ts_name:
+                scalar_value = float(ts_name.replace("constant value = ", ""))
+            else:
+                scalar_value = None
+            answer = [scalar_value, value, ""]
         return answer
 
 
