@@ -1647,15 +1647,15 @@ msgstr ""
 "'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms des "
 "BMWi 'Innovation für die Energiewende' gefördert. "
 
-#: templates/landing/newsletter.html:6
+#: templates/landing/newsletter_insert.html:6
 msgid "Register to our Newsletter"
 msgstr "Newsletter abonnieren"
 
-#: templates/landing/newsletter.html:12
+#: templates/landing/newsletter_insert.html:12
 msgid "Register"
 msgstr "Abonnieren"
 
-#: templates/landing/newsletter.html:18
+#: templates/landing/newsletter_insert.html:18
 #, python-format
 msgid ""
 " I have read and accept the <a target=\"_blank\" href=\"%(url)s\">privacy "
