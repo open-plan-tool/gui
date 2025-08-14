@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+	{% block favicon %}
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/project/apple-touch-icon.png' %}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/project/favicon-32x32.png' %}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/project/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'assets/favicon/project/site.webmanifest' %}">
+	{% endblock favicon %}
+
+{% block head_block %}
+	<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
+{% block index %}
+	{% get_current_language as LANGUAGE_NAME %}
+<main>
+
+	<section class="involvement2">
+	<div>
+		<h2>{% translate "Here are the courses we provide" %}</h2>
+		<p>
+			Do we want the courses do then expand the description below once selected?
+			What should be the displayed information for a course?
+		</p>
+		<div class="involvement2__cards">
+			<div class="involvement2__card">
+				<img src="{% static 'assets/icons/i_github_hex.png' %}" alt="" width="60">
+				<p>{% translate "Basic introduction" %}</p>
+				<a href="#" target="_blank" rel="noreferrer" class="btn btn--hollow">{% translate "To the course" %}</a>
+			</div>
+			<div class="involvement2__card">
+				<img src="{% static 'assets/icons/i_features_hex.png' %}" alt="" width="60">
+				<p>{% translate "Advanced course 1" %}</p>
+				<a href="#" class="btn btn--hollow">{% translate "To the course" %}</a>
+			</div>
+			<div class="involvement2__card">
+				<img src="{% static 'assets/icons/i_reports_hex.png' %}" alt="" width="60">
+				<p>{% translate "Advanced course 2" %}</p>
+				<a href="#" class="btn btn--hollow">{% translate "To the course" %}</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+	{% include 'landing/newsletter_insert.html' %}
+
+	{% include 'landing/logos.html' %}
+
+</main>
+
+
+{% endblock index %}
