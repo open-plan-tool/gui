@@ -1,4 +1,4 @@
-/*jshint esversion: 8 */
+/*jshint esversion: 11 */
 /*jshint sub:true*/
 
 // Constants
@@ -64,43 +64,95 @@ function drop(ev) {
 }
 
 
-// Disallow Any Connection to be created without a bus.
 editor.on('connectionCreated', function (connection) {
-    var nodeIn = editor.getNodeFromId(connection.input_id);
-    var nodeOut = editor.getNodeFromId(connection.output_id);
-    if ((nodeIn.name !== BUS && nodeOut.name !== BUS) || (nodeIn.name === BUS && nodeOut.name === BUS)) {
+    // check that exactly one end is connected to a bus
+    let nodeIn = editor.getNodeFromId(connection.input_id);
+    let nodeOut = editor.getNodeFromId(connection.output_id);
+    let busIn = nodeIn.name === BUS? nodeIn : null;
+    let busOut = nodeOut.name === BUS? nodeOut : null;
+    if (Boolean(busIn) ^ Boolean(busOut)) {
+        // success
+        let bus = busIn || busOut;
+        let busType = bus.data.bustype;
+        let busHtml = document.getElementsByClassName('node_in_node-' + nodeIn.id + ' node_out_node-' + nodeOut.id);
+        updateBusConnections(busHtml, busType);
+    } else {
+        // fail: either no end is connected to a bus, or both are
+        // remove faulty connection
         editor.removeSingleConnection(connection.output_id, connection.input_id, connection.output_class, connection.input_class);
         Swal.fire('Unexpected Connection', 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.', 'error');
     }
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
-// might be redundant
+
+editor.on('connectionRemoved', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
+});
+
+editor.on('nodeCreated', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
+});
+
+editor.on('nodeMoved', _ => {
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
+});
+
+// on select/deselect connection, update classList to show selection
+var selectedElement = null;
+editor.on('connectionSelected', function (connection) {
+    const elems = document.getElementsByClassName('node_in_node-' + connection.input_id + ' node_out_node-' + connection.output_id);
+    // HTMLCollection should consist of exactly one element (the line)
+    const elem = elems.item(0);
+    elem.firstElementChild.classList.remove("conn-" + elem.getAttribute("bustype"));
+    selectedElement = elem;
+});
+
+editor.on('connectionUnselected', _ => {
+    if (selectedElement) {
+        selectedElement.firstElementChild.classList.add("conn-" + selectedElement.getAttribute("bustype"));
+    }
+    selectedElement = null;
+});
+
 editor.on('nodeCreated', function (nodeID) {
-    // region bind installed_capacity to age_installed Changes
-    // const nodeIdInstalledCapInput = document.getElementById(`node-${nodeID}`).querySelector("input[name='installed_capacity']");
-    // if (nodeIdInstalledCapInput) {
-    //     nodeIdInstalledCapInput.addEventListener('change', function (e) {
-    //         const ageInstalledElement = e.target.closest("#FormGroup").querySelector("input[name='age_installed']");
-    //         if (e.target.value === '0') {
-    //             ageInstalledElement.value = '0';
-    //             ageInstalledElement.readOnly = true;
-    //             let notifyAgeInputEvent = new Event("input", { bubbles: true });
-    //             ageInstalledElement.dispatchEvent(notifyAgeInputEvent);
-    //         } else
-    //             ageInstalledElement.readOnly = false;
-    //     });
-    //     // for existing nodes check if installed cap is zero and set age_installed to read only
-    //     if (nodeIdInstalledCapInput.value === '0')
-    //         nodeIdInstalledCapInput.closest("#FormGroup").querySelector("input[name='age_installed']").readOnly = true;
-    // }
-    // endregion
+    const node = editor.getNodeFromId(nodeID);
+    if (node.name === BUS) {
+        // update color of bus icon
+        const elem = document.getElementById("node-" + nodeID);
+        let busType = node.data.bustype;
+        if (busType) {
+            busType = busType.toLowerCase();
+            elem.setAttribute("bustype", busType);
+            elem.classList.add("busnode-" + busType);
+        }
+    }
 });
 
 editor.on('nodeRemoved', function (nodeID) {
     // remove nodeID from nodesToDB
     nodesToDB.delete('node-'+nodeID);
+    // change: enable save button
+    document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
+function updateBusConnections(htmlCollection, busType) {
+    // adjust color of all items in htmlCollection according to busType (change classes)
+    if (!busType)
+        return;
+    busType = busType.toLowerCase();
+    for (let elem of htmlCollection) {
+        const svg = elem.firstElementChild;
+        // remove old connection class
+        svg.classList.remove("conn-" + elem.getAttribute("bustype"));
+        svg.classList.add("conn-" + busType);
+        elem.setAttribute("bustype", busType);
+    }
+}
 
 async function addNodeToDrawFlow(name, pos_x, pos_y, nodeInputs = 1, nodeOutputs = 1, nodeData = {}) {
     if (editor.editor_mode === 'fixed')
@@ -275,6 +327,20 @@ function submitForm() {
         const nodeOutputs = Object.keys(editor.drawflow.drawflow.Home.data[drawflowNodeId].outputs).length;
         formData.set('input_ports', nodeInputs);
         formData.set('output_ports', nodeOutputs);
+        // update editor
+        let busType = formData.get('type');
+        const bus = editor.getNodeFromId(drawflowNodeId);
+        editor.updateNodeDataFromId(drawflowNodeId, Object.assign({}, bus.data, {"bustype": busType}));
+        busType = busType.toLowerCase();
+        // update connection colors
+        updateBusConnections(document.getElementsByClassName('node_in_node-' + drawflowNodeId), busType);
+        updateBusConnections(document.getElementsByClassName('node_out_node-' + drawflowNodeId), busType);
+        // update bus node color
+        const elem = document.getElementById("node-" + drawflowNodeId);
+        const oldBusType = elem.getAttribute("bustype");
+        elem.classList.remove("busnode-" + oldBusType);
+        elem.classList.add("busnode-" + busType);
+        elem.setAttribute("bustype", busType);
     }
     else {
         const nodeId = parseInt(topologyNodeId.split("-").pop());
@@ -426,6 +492,9 @@ function zoomToFit() {
     const nodeHeight = 128;
 
     const nodes = Object.values(editor.drawflow.drawflow.Home.data); // Array with all nodes
+
+    if (!nodes.length)
+        return;  // only zoom if there are nodes, ignore new/empty project
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
