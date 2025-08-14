@@ -35,9 +35,11 @@ def license(request):
 def publications(request):
     return render(request, "landing/publications.html")
 
+
 @require_http_methods(["GET"])
 def newsletter(request):
     return render(request, "landing/newsletter.html")
+
 
 @require_http_methods(["GET"])
 def courses(request):
