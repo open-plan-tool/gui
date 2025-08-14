@@ -415,17 +415,14 @@ class TimeseriesField(forms.MultiValueField):
         """If a file is provided it will be considered over the other fields"""
         scalar_value, timeseries_id, timeseries_file = values
 
+        if scalar_value is None:
+            scalar_value = ""
+
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
             input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
-        elif timeseries_id != "":
-            ts = Timeseries.objects.get(id=timeseries_id)
-            answer = ts.get_values
-            input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
-        else:
-            if scalar_value is None:
-                scalar_value = ""
+        elif scalar_value != "":
             # check the input string is a number or a list
             if scalar_value != "":
                 try:
@@ -449,6 +446,15 @@ class TimeseriesField(forms.MultiValueField):
                 )
             else:
                 input_dict = dict(type=TS_MANUAL_TYPE)
+        elif timeseries_id != "":
+
+            ts = Timeseries.objects.get(id=timeseries_id)
+            answer = ts.get_values
+            input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
+
+        # input_ts, created = Timeseries.objects.get_or_create(
+        #     user=user, **input_timeseries
+        # )
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
