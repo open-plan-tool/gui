@@ -3103,11 +3103,8 @@ nav.navbar {
     .hero2__image img,
     .cellular2__image img,
     .commune2__image img {
-      max-width: calc(82rem / 2); }
-  .hero2 a.btn,
-  .cellular2 a.btn,
-  .commune2 a.btn {
-    width: 100%; }
+      max-width: calc(82rem / 2);
+      width: 500px; }
   @media (max-width: 1200px) {
     .hero2__image img,
     .cellular2__image img,

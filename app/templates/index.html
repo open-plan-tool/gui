@@ -25,7 +25,7 @@
 			<div class="cellular2__text">
 				<h1>{% translate "The open-source planning tool for the energy transition" %}</h1>
 				<span>{% translate "With the OpenPlan Tool, you can plan and design energy systems in an open and free framework. " %}</span>
-				<a href="{% url 'project_search' %}" class="btn btn--medium">{% translate "To OpenPlan Tool" %}</a>
+				<a href="{% url 'project_search' %}" class="btn btn--medium">{% translate "To the OpenPlan Tool" %}</a>
 			</div>
 			<div class="cellular2__image">
 				<img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
@@ -66,6 +66,6 @@
 
 
 	{% include 'landing/newsletter.html' %}
-	{% include 'landing/logos.html' %}
+	{% include 'landing/logos.html' with extra=True %}
 </main>
 {% endblock index %}
