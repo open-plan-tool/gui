@@ -17,6 +17,11 @@
 		<a href="https://oekozentrum.nrw/" target="_blank" rel="noopener noreferrer">
 			<img src="{% static 'assets/logos/oeko_zentrum_NRW_logo.png' %}" alt="Oeko Zentrum NRW logo" width="157" height="157">
 		</a>
+		{% if extra is True %}
+			<a href="#" target="_blank" rel="noopener noreferrer">
+			<img src="{% static '/assets/logos/H2CE_Logo_Standard.svg' %}" alt="H2CE logo" width="230">
+			</a>
+		{% endif %}
 		{% if "de" in LANGUAGE_NAME %}
 		<a href="https://www.bmwi.de/Navigation/DE/Home/home.html" target="_blank" rel="noopener noreferrer">
 			<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_de.svg' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
@@ -26,5 +31,6 @@
 			<img src="{% static 'assets/logos/BMWK_Fz_2017_WebSVG_en.png' %}" alt="Federal Ministry for Economic Affairs and Energy logo" width="140" height="145">
 		</a>
 		{% endif %}
+
 	</div>
 </section>
