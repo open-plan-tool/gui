@@ -1028,17 +1028,17 @@ msgstr ""
 msgid "Constant value"
 msgstr "Konstanter Wert"
 
-#: templates/base.html:86 templates/navbar.html:102
+#: templates/base.html:86 templates/navbar.html:112
 msgid "About"
 msgstr "Über uns"
 
 #: templates/base.html:87 templates/legal/contact.html:21
-#: templates/navbar.html:61 templates/navbar.html:103
+#: templates/navbar.html:71 templates/navbar.html:113
 msgid "Contact"
 msgstr "Kontakt"
 
 #: templates/base.html:88 templates/legal/license.html:13
-#: templates/navbar.html:101
+#: templates/navbar.html:111
 msgid "License"
 msgstr "Lizenz"
 
@@ -1081,7 +1081,7 @@ msgstr ""
 msgid "Refresh Page"
 msgstr "Seite aktualisieren"
 
-#: templates/feedback.html:50 templates/navbar.html:51
+#: templates/feedback.html:50 templates/navbar.html:61
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -1099,11 +1099,11 @@ msgstr "Wie gefällt es Ihnen?"
 msgid "Submit"
 msgstr "Absenden"
 
-#: templates/index.html:26
+#: templates/index.html:28
 msgid "The open-source planning tool for the energy transition"
 msgstr "Das Open-Source-Planungstool für die Energiewende"
 
-#: templates/index.html:27
+#: templates/index.html:29
 msgid ""
 "With the OpenPlan Tool, you can plan and design energy systems in an open "
 "and free framework. "
@@ -1111,15 +1111,15 @@ msgstr ""
 "Mit dem OpenPlan Tool können Sie in einem offenen und kostenlosen Framework "
 "Energiesysteme planen und auslegen."
 
-#: templates/index.html:28 templates/landing/cellular.html:27
+#: templates/index.html:30 templates/landing/cellular.html:27
 msgid "To OpenPlan Tool"
 msgstr "Zum OpenPlan Tool"
 
-#: templates/index.html:38
+#: templates/index.html:40
 msgid "Application areas"
 msgstr "Anwendungsbereiche"
 
-#: templates/index.html:40 templates/landing/dev_section.html:10
+#: templates/index.html:42 templates/landing/dev_section.html:10
 msgid ""
 "Use the GUI to include sector-coupling and optimize the energy system model "
 "subject to equality constraints"
@@ -1128,19 +1128,19 @@ msgstr ""
 "einzubeziehen und das Energiesystemmodell zu optimieren unter "
 "Berücksichtigung von Gleichheitsbeschränkungen"
 
-#: templates/index.html:45
+#: templates/index.html:47
 msgid "Municipal heating planning"
 msgstr "Kommunale Wärmeplanung"
 
-#: templates/index.html:49
+#: templates/index.html:51
 msgid "Cellular energy systems"
 msgstr "Zellulare Energiesysteme"
 
-#: templates/index.html:53
+#: templates/index.html:55
 msgid "General energy system analysis"
 msgstr "Allgemeine Energiesystemanalyse"
 
-#: templates/index.html:57
+#: templates/index.html:59
 msgid ""
 "If you want to collaborate or are interested in the project, you can find "
 "more information on:"
@@ -1672,7 +1672,7 @@ msgstr "OpenPlan - Veröffentlichungen"
 msgid "About us - open_plan"
 msgstr "Über uns - open_plan"
 
-#: templates/legal/about.html:23 templates/navbar.html:57
+#: templates/legal/about.html:23 templates/navbar.html:67
 msgid "About us"
 msgstr "Über uns"
 
@@ -3240,7 +3240,7 @@ msgstr ""
 msgid "Sponsor - OpenPlan Tool"
 msgstr "Fördern - OpenPlan Tool"
 
-#: templates/legal/sponsor_feature.html:13 templates/navbar.html:40
+#: templates/legal/sponsor_feature.html:13 templates/navbar.html:50
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
@@ -3291,54 +3291,58 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/navbar.html:28
-msgid "Documentation"
-msgstr "Dokumentation"
+#: templates/navbar.html:37
+msgid "Resources"
+msgstr ""
 
-#: templates/navbar.html:31
+#: templates/navbar.html:40
 msgid "User Manual"
 msgstr "Handbuch"
 
-#: templates/navbar.html:32
+#: templates/navbar.html:41
 msgid "Video-tutorials"
 msgstr "Video-tutorials"
 
-#: templates/navbar.html:33
+#: templates/navbar.html:42
+msgid "Courses and workshops"
+msgstr ""
+
+#: templates/navbar.html:43
 msgid "Github"
 msgstr ""
 
-#: templates/navbar.html:34 templates/navbar.html:45
+#: templates/navbar.html:44 templates/navbar.html:55
 #: templates/usecase/usecase_search.html:25
 msgid "Use cases"
 msgstr "Anwendungsbeispiele"
 
-#: templates/navbar.html:48 templates/project/project_search.html:37
+#: templates/navbar.html:58 templates/project/project_search.html:37
 msgid "My Projects"
 msgstr "Meine Projekte"
 
-#: templates/navbar.html:60
+#: templates/navbar.html:70
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/navbar.html:62
+#: templates/navbar.html:72
 msgid "Sponsoring"
 msgstr "Sponsoring"
 
-#: templates/navbar.html:100
+#: templates/navbar.html:110
 msgid "Account"
 msgstr "Konto"
 
-#: templates/navbar.html:105
+#: templates/navbar.html:115
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:113
+#: templates/navbar.html:123
 #: templates/registration/password_reset_complete.html:10
 #: templates/registration/signup.html:23
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:117 templates/registration/login.html:23
+#: templates/navbar.html:127 templates/registration/login.html:23
 #: templates/registration/signup.html:28
 msgid "Sign up"
 msgstr "Registrieren"
