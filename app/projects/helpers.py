@@ -344,7 +344,8 @@ class TimeseriesInputWidget(forms.MultiWidget):
             "scalar": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "onchange": f"changeTimeseriesManualValue(obj=this.value, param_name='{self.param_name}')",
+                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
+                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
                 }
             ),
             "select": select_widget,
