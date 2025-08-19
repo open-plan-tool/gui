@@ -1400,63 +1400,74 @@ msgstr ""
 "\t\t\t"
 
 #: templates/landing/courses.html:22
-msgid "Offer of courses, workshops and webinars"
-msgstr "Angebot an Schulungen, Workshops und Webinaren"
+msgid "Courses, workshops and webinars"
+msgstr "Schulungen, Workshops und Webinare"
 
 #: templates/landing/courses.html:24
 msgid ""
-"The OpenPlan 2.0 research project includes the development of various "
-"courses. An introductory course on using the OpenPlan Tool is already "
-"available. The range of courses on offer will be gradually expanded until "
-"the end of the project in September 2027."
+"As part of our OpenPlan 2.0 research project, we offer various training "
+"courses. Our introductory course on how to use the OpenPlan Tool will be "
+"available starting in January 2026. Our range of courses will be gradually "
+"expanded until the end of the project in September 2027."
 msgstr ""
-"Das Forschungsprojekt OpenPlan 2.0 umfasst die Entwicklung verschiedener "
-"Schulungen. Ein Einführungskurs zur Nutzung des OpenPlan-Tools ist bereits "
-"verfügbar. Das Kursangebot wird bis zum "
-"Projektende im September 2027 schrittweise erweitert."
+"Im Rahmen unseres Forschungsprojekts OpenPlan 2.0 bieten wir verschiedene "
+"Schulungen an. Unser Einführungskurs zur Bedienung des OpenPlan Tools ist "
+"ab Januar 2026 verfügbar. Bis zum Projektende im September 2027 wird unser "
+"Kursangebot schrittweise erweitert."
 
 #: templates/landing/courses.html:27
 msgid ""
-"The events are organized by the German Solar Energy Society in the Berlin-"
-"Brandenburg State Association (DGS Berlin). Once you have selected a course, "
-"you will be redirected to the corresponding DGS Berlin website."
+"Regular stakeholder workshops give you the opportunity to learn about new "
+"tool features, discuss the current state of development, and provide us "
+"with feedback on potential enhancements."
 msgstr ""
-"Die Veranstaltungen werden von der Deutschen Gesellschaft für Solare Energie "
-"e. V. in Berlin-Brandenburg (DGS Berlin) organisiert. Sobald Sie eine Schulung "
-"ausgewählt haben, werden Sie auf die entsprechende Website der DGS Berlin "
+"Regelmäßige Stakeholder-Workshops geben Ihnen die Gelegenheit, neue "
+"Tool-Funktionen kennenzulernen, den aktuellen Entwicklungsstand zu "
+"diskutieren und uns Feedback zu potenziellen Erweiterungen zu geben."
+
+#: templates/landing/courses.html:30
+msgid ""
+"All events are organized by the German Solar Energy Society in the Berlin-"
+"Brandenburg State Association (DGS Berlin). If you decide to take a course, "
+"you will be redirected to the DGS Berlin website."
+msgstr ""
+"Alle Veranstaltungen werden von der Deutschen Gesellschaft für Sonnenenergie "
+"im Landesverband Berlin-Brandenburg (DGS Berlin) organisiert. Wenn Sie sich "
+"für einen Kurs entscheiden, werden Sie direkt zur Webseite der DGS Berlin "
 "weitergeleitet."
 
-#: templates/landing/courses.html:32
+#: templates/landing/courses.html:35
 msgid "Introduction to using the OpenPlan Tool"
-msgstr "Einführung in die Verwendung des OpenPlan-Tools"
+msgstr "Einführung in die Bedienung des OpenPlan Tools"
 
-#: templates/landing/courses.html:33
+#: templates/landing/courses.html:36
 msgid ""
 "In this interactive course, participants are introduced to using the "
 "OpenPlan Tool through practical exercises."
 msgstr ""
-"In dieser interaktiven Schulung werden die Teilnehmer anhand praktischer "
-"Übungen in die Verwendung des OpenPlan Tool eingeführt."
+"In dieser interaktiven Schulung werden die Teilnehmenden anhand praktischer "
+"Übungen in die Bedienung des OpenPlan Tools eingeführt."
 
-#: templates/landing/courses.html:34
-msgid "To the course"
-msgstr "Zu der Schulung"
+#: templates/landing/courses.html:37
+msgid "Available from January 2026"
+msgstr "Verfügbar ab Januar 2026"
 
-#: templates/landing/courses.html:38
-msgid "Stakeholder-Workshops"
-msgstr "Stakeholder-Workshops"
+#: templates/landing/courses.html:41
+msgid "Stakeholder-Workshop"
+msgstr "Stakeholder-Workshop"
 
-#: templates/landing/courses.html:39
+#: templates/landing/courses.html:42
 msgid ""
-"New features are presented and feedback is gathered in interactive "
-"stakeholder workshops."
+"New features are presented, the current state of development is "
+"discussed, and feedback is gathered in interactive stakeholder workshops."
 msgstr ""
-"In interaktiven Workshops mit den Beteiligten werden neue Funktionen "
-"vorgestellt und Feedback gesammelt."
+"In den interaktiven Workshops werden neue Funktionen vorgestellt, der "
+"aktuelle Entwicklungsstand diskutiert und Feedback eingeholt."
 
-#: templates/landing/courses.html:40
+
+#: templates/landing/courses.html:43
 msgid "To the workshop"
-msgstr "Zu der Workshops"
+msgstr "Zum Workshop"
 
 #: templates/landing/default.html:26
 msgid "Model your local energy system"
