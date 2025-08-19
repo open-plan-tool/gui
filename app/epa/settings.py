@@ -182,7 +182,7 @@ EXCHANGE_EMAIL = env("EXCHANGE_EMAIL", default="dummy@dummy.com")
 EXCHANGE_SERVER = env("EXCHANGE_SERVER", default="dummy.com")
 # Email addresses to which feedback emails will be sent
 RECIPIENTS = env.list("RECIPIENTS", default=["dummy@dummy.com", "dummy2@dummy.com"])
-EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[open_plan] ")
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[OpenPlan] ")
 
 MESSAGE_TAGS = {
     messages.DEBUG: "alert-info",
