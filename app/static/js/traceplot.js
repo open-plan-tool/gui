@@ -41,10 +41,10 @@ function makePlotly( x, y, plot_id="",userLayout=null){
         // only replace the x values with timestamps if they match the y values, otherwise the error
         // will be confusing to the enduser
         if(ts_timestamps.length == y.length){
-            x = ts_timestamps
+            x = ts_timestamps;
         }
         else{
-            alert("The number of values in your uploaded timeseries (" + y.length + ") does not match the scenario timestamps (" + ts_timestamps.length + ").\nPlease change the scenario settings or upload a new timeseries")
+            alert("The number of values in your uploaded timeseries (" + y.length + ") does not match the scenario timestamps (" + ts_timestamps.length + ").\nPlease change the scenario settings or upload a new timeseries");
         }
     }
 
@@ -57,14 +57,14 @@ function makePlotly( x, y, plot_id="",userLayout=null){
         plotLayout.xaxis.type = "date";
     }
     plotLayout.xaxis.autorange = "true";
-    plotLayout["yaxis"] = {autorange: "true"};
+    plotLayout.yaxis = {autorange: "true"};
     plotLayout = {...plotLayout, ...userLayout};
     var traces = [{type: "scatter", x: x, y: y}];
 
     Plotly.newPlot(plotDiv, traces, plotLayout, config);
     // simulate a click on autoscale
-    plotDiv.querySelector('[data-title="Autoscale"]').click()
-};
+    plotDiv.querySelector('[data-title="Autoscale"]').click();
+}
 
 
 function getTimeseriesValues(ts_id, param_name=""){
@@ -74,14 +74,13 @@ function getTimeseriesValues(ts_id, param_name=""){
         url: tsGetUrl + "/" + ts_id,
         success: function (resp) {
 
-            ts_values = resp["values"];
-            console.log("retrieved values")
-            console.log(ts_values)
-            plotTimeseriesInputTrace(ts_values, param_name=param_name)
+            ts_values = resp.values;
+            console.log("retrieved values");
+            console.log(ts_values);
+            plotTimeseriesInputTrace(ts_values, param_name=param_name);
         },
     });
 }
-
 
 
 var PLOT_ID = "";
@@ -122,19 +121,18 @@ function plotTimeseriesInputTrace(ts_values,param_name=""){
 
     var graphDOM = document.getElementById(PLOT_ID);
     if(Array.isArray(ts_values)){
-        myarray = []
-        ts_values.forEach(el => myarray.push([el]))
+        let myarray = [];
+        ts_values.forEach(el => myarray.push([el]));
         processData(myarray);
         graphDOM.style.display = "block";
     }
     else{
-     graphDOM.style.display = "none";
-     // reset file in memory if the user inputs a scalar after uploading a file
-     var fileID = "id_" + param_name + "_2";
-     var file_input = document.getElementById(fileID);
-     file_input.value = "";
-    };
-
+        graphDOM.style.display = "none";
+        // reset file in memory if the user inputs a scalar after uploading a file
+        var fileID = "id_" + param_name + "_2";
+        var file_input = document.getElementById(fileID);
+        file_input.value = "";
+    }
 }
 
 
@@ -148,17 +146,16 @@ function plotDualInputTrace(obj, param_name=""){
 
     var graphDOM = document.getElementById(PLOT_ID);
     if(Array.isArray(jsObj)){
-        myarray = []
-        jsObj.forEach(el => myarray.push([el]))
+        let myarray = [];
+        jsObj.forEach(el => myarray.push([el]));
         processData(myarray);
         graphDOM.style.display = "block";
     }
     else{
-     var fileID = "id_" + param_name + "_1";
-     var file_input = document.getElementById(fileID);
-     file_input.value = "";
-    };
-
+        var fileID = "id_" + param_name + "_1";
+        var file_input = document.getElementById(fileID);
+        file_input.value = "";
+    }
 }
 
 function updateScalarInput(array,param_name){
@@ -185,12 +182,9 @@ function uploadDualInputTrace(obj, param_name="") {
                 Promise.resolve(getAsExcel(myfile, plot=false)).then(async (array) => {updateScalarInput(array,param_name);});
             }
         }
-
     } else {
-      alert('FileReader are not supported in this browser.');
+        alert('FileReader are not supported in this browser.');
     }
-
-
 }
 
 function plot_file_trace(obj, plot_id="") {
@@ -199,18 +193,15 @@ function plot_file_trace(obj, plot_id="") {
         PLOT_ID = plot_id;
 
         var trace_plots = document.getElementById(plot_id);
-
         var flist = obj;
-
         var myfile = flist[0];
         if (myfile) {
-        if(myfile.name.includes(".csv")){getAsText(myfile);}
-        else if (myfile.name.includes(".txt")){getAsText(myfile);}
-        else if (myfile.name.includes(".xls")){getAsExcel(myfile);}
+            if(myfile.name.includes(".csv")){getAsText(myfile);}
+            else if (myfile.name.includes(".txt")){getAsText(myfile);}
+            else if (myfile.name.includes(".xls")){getAsExcel(myfile);}
         }
-
     } else {
-      alert('FileReader are not supported in this browser.');
+        alert('FileReader are not supported in this browser.');
     }
 }
 function getAsExcel(fileToRead, plot=true){
@@ -220,43 +211,35 @@ function getAsExcel(fileToRead, plot=true){
         // return a Promise of the file parsed as a d3 csv array
         return new Promise((resolve, reject) => {
             reader.onloadend = () => {
-              resolve(parseExcelData(reader.result));
+                resolve(parseExcelData(reader.result));
             };
             // Read file into memory as UTF-8
             reader.readAsBinaryString(fileToRead);
           });
-      }
-      else{
+    }else{
         reader.onload = function(e) {
             processData(parseExcelData(e.target.result));
         };
         reader.readAsBinaryString(fileToRead);
-      }
+    }
 
-    reader.onerror = function(ex) {
-      console.log(ex);
-    };
-
-
-
-  };
+    reader.onerror = error => console.log(error);
+}
 
 /* given the output of FileReader.result parse the data */
 function parseExcelData(data){
     var wb = XLSX.read(data, {
-    type: 'binary'
-  });
-   var ws = wb.Sheets[wb.SheetNames[0]];
-   const nsheets = wb.SheetNames.length;
-   if (nsheets > 1){
-     alert("Your file has more than one sheet, only the sheet " + wb.SheetNames[0] + " will be parsed." );
-   }
-   var XL_row_object = XLSX.utils.sheet_to_row_object_array(ws);
-   // TODO support column names (now it is ignored, info is in Object.keys)
-
-   return XL_row_object.map(row => Object.values(row))
+        type: 'binary'
+    });
+    var ws = wb.Sheets[wb.SheetNames[0]];
+    const nsheets = wb.SheetNames.length;
+    if (nsheets > 1){
+        alert("Your file has more than one sheet, only the sheet " + wb.SheetNames[0] + " will be parsed." );
+    }
+    var XL_row_object = XLSX.utils.sheet_to_row_object_array(ws);
+    // TODO support column names (now it is ignored, info is in Object.keys)
+    return XL_row_object.map(row => Object.values(row));
 }
-
 
 
 // taken from https://github.com/MounirMesselmeni/html-fileapi
@@ -270,54 +253,50 @@ function parseExcelData(data){
         // return a Promise of the file parsed as a d3 csv array
         return new Promise((resolve, reject) => {
             reader.onloadend = () => {
-              resolve(d3.csvParseRows(reader.result));
+                resolve(d3.csvParseRows(reader.result));
             };
             // Read file into memory as UTF-8
             reader.readAsText(fileToRead);
-          });
-      }
-      else{
-
+        });
+    }else{
         reader.onload = loadHandler;
         // Read file into memory as UTF-8
         reader.readAsText(fileToRead);
-      }
-
-
-    function loadHandler(event) {
-      var csv = event.target.result;
-      d3array = d3.csvParseRows(csv);
-      processData(d3array);
     }
 
+    function loadHandler(event) {
+        var csv = event.target.result;
+        d3array = d3.csvParseRows(csv);
+        processData(d3array);
+    }
 
     function errorHandler(evt) {
-      if(evt.target.error.name == "NotReadableError") {
-          alert("Cannot read file !");
-      }
+        if(evt.target.error.name == "NotReadableError") {
+            alert("Cannot read file !");
+        }
     }
 }
 
 
 function processData(array_2D) {
     const ncols = array_2D[0].length;
-    var dateFormat = d3.timeParse("%Y-%m-%d %H:%M:%S")
-    var x = [], y = [];
+    var dateFormat = d3.timeParse("%Y-%m-%d %H:%M:%S");
+    var x = [], y = [], i, line;
     // there are only the timeseries values
     if (ncols == 1){
-        for (var i=0; i<array_2D.length; i++) {
-            var line = array_2D[i];
-                x.push(String(i));
-                y.push(line[0]);
-                }
+        for (i=0; i<array_2D.length; i++) {
+            line = array_2D[i];
+            x.push(String(i));
+            y.push(line[0]);
+        }
     }
     // it is assumed here that first column is timestamp and second column is timeseries values
     else if (ncols == 2){
-        for (var i=0; i<array_2D.length; i++) {
-            var line = array_2D[i];
-                x.push(line[0]);
-                y.push(line[1]);
-                }
+        for (i=0; i<array_2D.length; i++) {
+            line = array_2D[i];
+            x.push(line[0]);
+            y.push(line[1]);
+        }
     }
     else{
         alert("File has more than 2 columns.\nIt is expected one column: the timeseries values\nOr two columns: the first one with timestamps and the second one with the timeseries values");
