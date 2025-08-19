@@ -1109,7 +1109,7 @@ a.dropdown-item:active {
   border-top: 1px solid #dee2e6;
   padding: 12px 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
   z-index: 1030;
