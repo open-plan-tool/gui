@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+	{% block favicon %}
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/project/apple-touch-icon.png' %}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/project/favicon-32x32.png' %}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/project/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'assets/favicon/project/site.webmanifest' %}">
+	{% endblock favicon %}
+
+{% block head_block %}
+	<!--link rel="stylesheet" href="{% static 'css/landing.css' %}"-->
+{% endblock head_block %}
+
+{% block index %}
+	{% get_current_language as LANGUAGE_NAME %}
+<main>
+
+	<section class="involvement2">
+	<div>
+		<h2>{% translate "Courses, workshops and webinars" %}</h2>
+		<p>
+			{% translate "As part of our OpenPlan 2.0 research project, we offer various training courses. Our introductory course on how to use the OpenPlan Tool will be available starting in January 2026. Our range of courses will be gradually expanded until the end of the project in September 2027." %}
+		</p>
+		<p>
+			{% translate "Regular stakeholder workshops give you the opportunity to learn about new tool features, discuss the current state of development, and provide us with feedback on potential enhancements." %}
+		</p>
+		<p>
+			{% translate "All events are organized by the German Solar Energy Society in the Berlin-Brandenburg State Association (DGS Berlin). If you decide to take a course, you will be redirected to the DGS Berlin website." %}
+		</p>
+		<div class="involvement2__cards">
+			<!--div class="involvement2__card">
+				<img src="{% static 'assets/icons/i_features_hex.png' %}" alt="" width="60">
+				<p>{% translate "Introduction to using the OpenPlan Tool" %}</p>
+				<p>{% translate "In this interactive course, participants are introduced to using the OpenPlan Tool through practical exercises." %}</p>
+				<a href="#" class="btn btn--hollow">{% translate "Available from January 2026" %}</a>
+			</div-->
+			<div class="involvement2__card">
+				<img src="{% static 'assets/icons/i_coop_hex.png' %}" alt="" width="60">
+				<p>{% translate "Stakeholder-Workshop" %}</p>
+				<p>{% translate "New features are presented, the current state of development is discussed, and feedback is gathered in interactive stakeholder workshops." %}</p>
+				<a href="https://events.teams.microsoft.com/event/752ae133-c3e4-4d88-96ff-bb2e904b00ec@039d85e5-be25-4a36-8a01-d480397b8e69" class="btn btn--hollow">{% translate "To the workshop" %}</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+	{% include 'landing/newsletter_insert.html' %}
+
+	{% include 'landing/logos.html' %}
+
+</main>
+
+
+{% endblock index %}
