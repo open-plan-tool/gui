@@ -90,7 +90,6 @@ function getTimeseriesValues(ts_id, param_name=""){
 
 function getConstantTimeseriesId(value){
     //findtsGetUrl is defined in scenario_step2.html
-    /
     $.ajax({
         type: "GET",
         url: findtsGetUrl + "/" + value,
@@ -145,7 +144,12 @@ function updateTimeseriesManualValue(value, param_name="") {
     // deselect uploaded timeseries field
     var selectID = "id_" + param_name + "_1";
     var select_input = document.getElementById(selectID);
-    select_input.value = "";
+    fetch(findtsGetUrl + "/" + ts_length +"/value/" + value).then(resp => resp.json()).then(data => {
+        console.log(data)
+        let ts_id = data["id"];
+        if(ts_id){select_input.value = ts_id;}
+        else{select_input.value = "";}
+    });
 }
 
 
