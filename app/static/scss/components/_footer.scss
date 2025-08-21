@@ -49,6 +49,12 @@
 		flex: 1;
 	}
 
+	&__right {
+		display: flex;
+    	justify-content: flex-end;
+		margin-right: 1.5rem; //same spacing as the toast container
+	}
+
 	.btn--previous {
 		border: none;
 	}
