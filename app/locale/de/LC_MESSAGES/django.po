@@ -1028,17 +1028,17 @@ msgstr ""
 msgid "Constant value"
 msgstr "Konstanter Wert"
 
-#: templates/base.html:86 templates/navbar.html:102
+#: templates/base.html:86 templates/navbar.html:112
 msgid "About"
 msgstr "Über uns"
 
 #: templates/base.html:87 templates/legal/contact.html:21
-#: templates/navbar.html:61 templates/navbar.html:103
+#: templates/navbar.html:71 templates/navbar.html:113
 msgid "Contact"
 msgstr "Kontakt"
 
 #: templates/base.html:88 templates/legal/license.html:13
-#: templates/navbar.html:101
+#: templates/navbar.html:111
 msgid "License"
 msgstr "Lizenz"
 
@@ -1081,7 +1081,7 @@ msgstr ""
 msgid "Refresh Page"
 msgstr "Seite aktualisieren"
 
-#: templates/feedback.html:50 templates/navbar.html:51
+#: templates/feedback.html:50 templates/navbar.html:61
 msgid "Feedback"
 msgstr "Feedback"
 
@@ -1399,6 +1399,75 @@ msgstr ""
 "bis zur vollständigen Analyse bereit.</p>\n"
 "\t\t\t"
 
+#: templates/landing/courses.html:22
+msgid "Courses, workshops and webinars"
+msgstr "Schulungen, Workshops und Webinare"
+
+#: templates/landing/courses.html:24
+msgid ""
+"As part of our OpenPlan 2.0 research project, we offer various training "
+"courses. Our introductory course on how to use the OpenPlan Tool will be "
+"available starting in January 2026. Our range of courses will be gradually "
+"expanded until the end of the project in September 2027."
+msgstr ""
+"Im Rahmen unseres Forschungsprojekts OpenPlan 2.0 bieten wir verschiedene "
+"Schulungen an. Unser Einführungskurs zur Bedienung des OpenPlan Tools ist ab "
+"Januar 2026 verfügbar. Bis zum Projektende im September 2027 wird unser "
+"Kursangebot schrittweise erweitert."
+
+#: templates/landing/courses.html:27
+msgid ""
+"Regular stakeholder workshops give you the opportunity to learn about new "
+"tool features, discuss the current state of development, and provide us with "
+"feedback on potential enhancements."
+msgstr ""
+"Regelmäßige Stakeholder-Workshops geben Ihnen die Gelegenheit, neue Tool-"
+"Funktionen kennenzulernen, den aktuellen Entwicklungsstand zu diskutieren "
+"und uns Feedback zu potenziellen Erweiterungen zu geben."
+
+#: templates/landing/courses.html:30
+msgid ""
+"All events are organized by the German Solar Energy Society in the Berlin-"
+"Brandenburg State Association (DGS Berlin). If you decide to take a course, "
+"you will be redirected to the DGS Berlin website."
+msgstr ""
+"Alle Veranstaltungen werden von der Deutschen Gesellschaft für Sonnenenergie "
+"im Landesverband Berlin-Brandenburg (DGS Berlin) organisiert. Wenn Sie sich "
+"für einen Kurs entscheiden, werden Sie direkt zur Webseite der DGS Berlin "
+"weitergeleitet."
+
+#: templates/landing/courses.html:35
+msgid "Introduction to using the OpenPlan Tool"
+msgstr "Einführung in die Bedienung des OpenPlan Tools"
+
+#: templates/landing/courses.html:36
+msgid ""
+"In this interactive course, participants are introduced to using the "
+"OpenPlan Tool through practical exercises."
+msgstr ""
+"In dieser interaktiven Schulung werden die Teilnehmenden anhand praktischer "
+"Übungen in die Bedienung des OpenPlan Tools eingeführt."
+
+#: templates/landing/courses.html:37
+msgid "Available from January 2026"
+msgstr "Verfügbar ab Januar 2026"
+
+#: templates/landing/courses.html:41
+msgid "Stakeholder-Workshop"
+msgstr "Stakeholder-Workshop"
+
+#: templates/landing/courses.html:42
+msgid ""
+"New features are presented, the current state of development is discussed, "
+"and feedback is gathered in interactive stakeholder workshops."
+msgstr ""
+"In den interaktiven Workshops werden neue Funktionen vorgestellt, der "
+"aktuelle Entwicklungsstand diskutiert und Feedback eingeholt."
+
+#: templates/landing/courses.html:43
+msgid "To the workshop"
+msgstr "Zum Workshop"
+
 #: templates/landing/default.html:26
 msgid "Model your local energy system"
 msgstr "Modellieren Sie Ihr lokales Energiesystem"
@@ -1434,12 +1503,12 @@ msgstr ""
 
 #: templates/landing/default.html:108
 msgid ""
-"The open_plan project follows the open science approach and is based on the "
+"The OpenPlan project follows the open science approach and is based on the "
 "open energy modeling framework (oemof). All data, methods and source code "
 "are available under open licenses. This ensures transparency, "
 "reproducibility and traceability – crucial aspects for scientific work."
 msgstr ""
-"Das Vorhaben open_plan verfolgt den Open-Science-Ansatz und basiert auf dem "
+"Das Vorhaben OpenPlan verfolgt den Open-Science-Ansatz und basiert auf dem "
 "open energy modelling framework (oemof). Alle Daten, Methoden und der "
 "Quellcode stehen unter offenen Lizenzen zur Verfügung. Das gewährleistet "
 "Transparenz, Reproduzierbarkeit und Nachvollziehbarkeit – entscheidende "
@@ -1451,13 +1520,13 @@ msgstr "Verknüpfung von Wissenschaft und Praxis"
 
 #: templates/landing/default.html:115
 msgid ""
-"The open_plan community bridges the gap between scientific theory and "
+"The OpenPlan community bridges the gap between scientific theory and "
 "practical application. Its ease of use makes it attractive for "
 "practitioners, while the integration of current scientific approaches offers "
 "researchers a valuable platform. In this way, the tool promotes the "
 "development of innovative energy systems for various application areas."
 msgstr ""
-"Mit der open_plan-Community wird eine Brücke zwischen wissenschaftlicher "
+"Mit der OpenPlan-Community wird eine Brücke zwischen wissenschaftlicher "
 "Theorie und praktischer Anwendung geschlagen. Die einfache Bedienung macht "
 "es für Anwender:innen aus der Praxis attraktiv, während die Integration "
 "aktueller wissenschaftlicher Ansätze Forschenden eine wertvolle Plattform "
@@ -1647,32 +1716,32 @@ msgstr ""
 "'Technologieorientierte Systemanalyse' des 7. Energieforschungsprogramms des "
 "BMWi 'Innovation für die Energiewende' gefördert. "
 
-#: templates/landing/newsletter.html:6
+#: templates/landing/newsletter_insert.html:6
 msgid "Register to our Newsletter"
 msgstr "Newsletter abonnieren"
 
-#: templates/landing/newsletter.html:12
+#: templates/landing/newsletter_insert.html:12
 msgid "Register"
 msgstr "Abonnieren"
 
-#: templates/landing/newsletter.html:18
+#: templates/landing/newsletter_insert.html:18
 #, python-format
 msgid ""
 " I have read and accept the <a target=\"_blank\" href=\"%(url)s\">privacy "
-"statement </a> from open_plan<span class=\"asteriskField\">*</span> "
+"statement </a> from OpenPlan<span class=\"asteriskField\">*</span> "
 msgstr ""
 "Ich habe die <a target='_blank' href=\"%(url)s\">Datenschutzbestimmungen</a> "
-"von open_plan gelesen und akzeptiert."
+"von OpenPlan gelesen und akzeptiert."
 
 #: templates/landing/publications.html:5 templates/landing/publications.html:12
 msgid "OpenPlan - Publications"
 msgstr "OpenPlan - Veröffentlichungen"
 
 #: templates/legal/about.html:10
-msgid "About us - open_plan"
-msgstr "Über uns - open_plan"
+msgid "About us - OpenPlan"
+msgstr "Über uns - OpenPlan"
 
-#: templates/legal/about.html:23 templates/navbar.html:57
+#: templates/legal/about.html:23 templates/navbar.html:67
 msgid "About us"
 msgstr "Über uns"
 
@@ -1867,8 +1936,8 @@ msgid "This webapp design"
 msgstr "Auslegegung des Webapps"
 
 #: templates/legal/contact.html:10
-msgid "Contact - open_plan"
-msgstr "Kontakt - open_plan"
+msgid "Contact - OpenPlan"
+msgstr "Kontakt - OpenPlan"
 
 #: templates/legal/contact.html:29
 msgid "Contact us"
@@ -1876,11 +1945,11 @@ msgstr "Kontakt"
 
 #: templates/legal/contact.html:30
 msgid ""
-"You can contact us by email at open_plan at rl-institut.de. Note that this "
+"You can contact us by email at openplan at dgs-berlin.de. Note that this "
 "information is only visible if you are logged in."
 msgstr ""
-"Sie können uns per E-Mail unter open_plan at rl-institut.de kontaktieren. "
-"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sieangemeldet "
+"Sie können uns per E-Mail unter openplan at dgs-berlin.de kontaktieren. "
+"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sie angemeldet "
 "sind."
 
 #: templates/legal/contact.html:37
@@ -1918,8 +1987,8 @@ msgstr ""
 "\t\t\t\t"
 
 #: templates/legal/imprint.html:4
-msgid "Imprint - open_plan"
-msgstr "Impressum - open_plan"
+msgid "Imprint - OpenPlan"
+msgstr "Impressum - OpenPlan"
 
 #: templates/legal/imprint.html:22
 msgid "Published by:"
@@ -2090,8 +2159,8 @@ msgstr ""
 "Dokumentes in ihrem Inhalt und ihrer Gültigkeit davon unberührt."
 
 #: templates/legal/license.html:5
-msgid "License - open_plan"
-msgstr "Lizenz - open_plan"
+msgid "License - OpenPlan"
+msgstr "Lizenz - OpenPlan"
 
 #: templates/legal/license.html:21
 #, python-format
@@ -2111,8 +2180,8 @@ msgstr ""
 "a></p>"
 
 #: templates/legal/privacy.html:5 templates/legal/privacy_DE.html:5
-msgid "Privacy - open_plan"
-msgstr "Datenschutz - open_plan"
+msgid "Privacy - OpenPlan"
+msgstr "Datenschutz - OpenPlan"
 
 #: templates/legal/privacy.html:13
 msgid "Privacy (Stand"
@@ -3240,7 +3309,7 @@ msgstr ""
 msgid "Sponsor - OpenPlan Tool"
 msgstr "Fördern - OpenPlan Tool"
 
-#: templates/legal/sponsor_feature.html:13 templates/navbar.html:40
+#: templates/legal/sponsor_feature.html:13 templates/navbar.html:50
 msgid "Sponsor new features"
 msgstr "Neue Funktionen fördern"
 
@@ -3261,7 +3330,7 @@ msgid ""
 "municipal heating planning.\n"
 "\t\t\t\t\tIf you are interested in adding additional functions to the open-"
 "plan tool that are optimally tailored to your needs, please feel free to "
-"contact us by email at <a href=\"mailto:open_plan@dgs-berlin."
+"contact us by email at <a href=\"mailto:openplan@dgs-berlin."
 "de\">openplan@dgs-berlin.de</a> or via our <a target=\"_blank\" "
 "href=\"%(url_feedback)s\">feedback form</a>. We look forward to further "
 "exciting projects.\n"
@@ -3278,7 +3347,7 @@ msgstr ""
 "kommunalen Wärmeplanung erweitert. Wenn Sie Interesse haben, das open-plan-"
 "tool um zusätzliche Funktionen zu erweitern, die optimal auf Ihre Bedarfe "
 "zugeschnitten sind, nehmen Sie gerne per E-Mail unter <a href=\"mailto:"
-"open_plan@dgs-berlin.de\">openplan@dgs-berlin.de</a>.de oder über unser <a "
+"openplan@dgs-berlin.de\">openplan@dgs-berlin.de</a>.de oder über unser <a "
 "target=\"_blank\" href=\"%(url_feedback)s\">Feedback-Formular</a> Kontakt "
 "mit uns auf. Wir freuen uns auf weitere spannende Projekte.\n"
 "\t\t\t\t</p>\n"
@@ -3291,54 +3360,58 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/navbar.html:28
-msgid "Documentation"
-msgstr "Dokumentation"
+#: templates/navbar.html:37
+msgid "Resources"
+msgstr "Ressourcen"
 
-#: templates/navbar.html:31
+#: templates/navbar.html:40
 msgid "User Manual"
 msgstr "Handbuch"
 
-#: templates/navbar.html:32
+#: templates/navbar.html:41
 msgid "Video-tutorials"
 msgstr "Video-tutorials"
 
-#: templates/navbar.html:33
+#: templates/navbar.html:42
+msgid "Courses and workshops"
+msgstr "Schulungen und Workshops"
+
+#: templates/navbar.html:43
 msgid "Github"
 msgstr ""
 
-#: templates/navbar.html:34 templates/navbar.html:45
+#: templates/navbar.html:44 templates/navbar.html:55
 #: templates/usecase/usecase_search.html:25
 msgid "Use cases"
 msgstr "Anwendungsbeispiele"
 
-#: templates/navbar.html:48 templates/project/project_search.html:37
+#: templates/navbar.html:58 templates/project/project_search.html:37
 msgid "My Projects"
 msgstr "Meine Projekte"
 
-#: templates/navbar.html:60
+#: templates/navbar.html:70
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/navbar.html:62
+#: templates/navbar.html:72
 msgid "Sponsoring"
 msgstr "Sponsoring"
 
-#: templates/navbar.html:100
+#: templates/navbar.html:110
 msgid "Account"
 msgstr "Konto"
 
-#: templates/navbar.html:105
+#: templates/navbar.html:115
 msgid "Log out"
 msgstr "Abmelden"
 
-#: templates/navbar.html:113
+#: templates/navbar.html:123
 #: templates/registration/password_reset_complete.html:10
 #: templates/registration/signup.html:23
 msgid "Log in"
 msgstr "Anmelden"
 
-#: templates/navbar.html:117 templates/registration/login.html:23
+#: templates/navbar.html:127 templates/registration/login.html:23
 #: templates/registration/signup.html:28
 msgid "Sign up"
 msgstr "Registrieren"
@@ -3924,8 +3997,8 @@ msgid "Download LP files"
 msgstr "LP files speichern"
 
 #: templates/usecase/usecase_search.html:13
-msgid "Usecases - open_plan"
-msgstr "Anwendungsfälle - open_plan"
+msgid "Usecases - OpenPlan"
+msgstr "Anwendungsfälle - OpenPlan"
 
 #: templates/usecase/usecase_search.html:38
 msgid "Show"
@@ -3947,10 +4020,10 @@ msgstr "Es sind noch keine usecase vorhanden"
 #, python-format
 msgid ""
 "I have read and accept the <a target='_blank' href='%(privacy_url)s'>privacy "
-"statement</a> from open_plan"
+"statement</a> from OpenPlan"
 msgstr ""
 "Ich habe die <a target='_blank' "
-"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von open_plan gelesen "
+"href=\"%(privacy_url)s\">Datenschutzbestimmungen</a> von OpenPlan gelesen "
 "und akzeptiert."
 
 #: users/views.py:35

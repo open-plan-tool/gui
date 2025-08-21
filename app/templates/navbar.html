@@ -11,6 +11,15 @@
 {% setvar "" as navbar_class %}
 {% endif %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
+{% if LANGUAGE_CODE == 'de' %}
+	{% url 'courses_de' as courses_url %}
+{% else %}
+  {% url 'courses' as courses_url %}
+{% endif %}
+
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }} navbar2">
 	<div class="container-fluid">
 		<a class="navbar-brand" href="{% url 'home' %}">
@@ -25,12 +34,13 @@
 				<li class="nav-item">
 					<div class="dropdown dropdown--navbar">
                 <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% translate "Documentation" %}
+                  {% translate "Resources" %}
                 </button>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "User Manual" %}</a></li>
                   <li><a class="dropdown-item" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a></li>
-                  <li><a class="dropdown-item" href="https://github.com/open-plan-tool" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
+                  <li><a class="dropdown-item" href="{{ courses_url }}" target="_blank" rel="noreferrer">{% translate "Courses and workshops" %}</a></li>
+									<li><a class="dropdown-item" href="https://github.com/open-plan-tool" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
                   <li><a class="dropdown-item" href="{% url 'usecase_search' %}" target="_blank" rel="noreferrer">{% translate "Use cases" %}</a></li>
                 </ul>
               </div>
