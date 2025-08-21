@@ -70,21 +70,21 @@
 	right: 1.5rem;
 	z-index: 1050;
 
-	&__toast-body {
-		display: inline-flex;
-		width: 100%;
-		padding: 0.5rem 1rem;
-		align-items: center;
-		gap: 1rem;
-		border-radius: 0.25rem;
-		border: 1px solid #C8E5E8;
-		background: $white;
+	.toast-body {
+		display: inline-flex !important;
+		width: 100% !important;
+		padding: 0.5rem 1rem !important;
+		align-items: center !important;
+		gap: 1rem !important;
+		border-radius: 0.25rem !important;
+		border: 1px solid #C8E5E8 !important;
+		background: $white !important;
 
 		span {
-			color: #24838E;
-			font-size: 1rem;
-			font-weight: 600;
-			letter-spacing: 0.03rem;
+			color: $primary-color-1 !important;
+			font-size: 1rem !important;
+			font-weight: 600 !important;
+			letter-spacing: 0.03rem !important;
 		}
 	}
 }
