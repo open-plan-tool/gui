@@ -1534,20 +1534,23 @@ def get_timeseries(request, ts_id=None):
 @json_view
 @login_required
 @require_http_methods(["GET"])
-def get_constant_timeseries_id(request, value=None):
+def get_constant_timeseries_id(request, ts_length=None, value=None):
     if request.method == "GET":
         # TODO in future prevent user to get it is no access rights to this timeseries
         # ts.user = request.user
         if value is not None:
-            ts_name = f"constant value = {value}"
-
-            ts_qs = Timeseries.objects.filter(name=ts_name)
-
+            ts_name = f"constant value = {float(value)}"
+            ts_qs = Timeseries.objects.filter(name=ts_name).filter(
+                values__len=ts_length
+            )
             if ts_qs.exists():
-                return JsonResponse({"id": ts_qs.get().id})
+                if ts_qs.count() > 1:
+                    logging.error(
+                        f"There are more than one timeseries of constant value ({float(value)}) with a length of {ts_length}"
+                    )
+                return JsonResponse({"id": ts_qs.first().id})
             else:
                 return JsonResponse({"id": None})
-
 
 
 # region Asset
