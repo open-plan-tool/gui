@@ -58,6 +58,32 @@
 	}
 }
 
+.custom-toast-container {
+	position: fixed;
+	bottom: 80px; // above footer
+	right: 1.5rem;
+	z-index: 1050;
+
+	&__toast-body {
+		display: inline-flex;
+		width: 100%;
+		padding: 0.5rem 1rem;
+		align-items: center;
+		gap: 1rem;
+		border-radius: 0.25rem;
+		border: 1px solid #C8E5E8;
+		background: $white;
+
+		span {
+			color: #24838E;
+			font-size: 1rem;
+			font-weight: 600;
+			letter-spacing: 0.03rem;
+		}
+	}
+}
+
+
 .simulation-footer {
 	background-color: $white;
 	height: $footer-scenario-height;
