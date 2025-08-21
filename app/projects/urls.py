@@ -149,6 +149,9 @@ urlpatterns = [
     path("upload/timeseries", upload_timeseries, name="upload_timeseries"),
     path("get/timeseries", get_timeseries, name="get_timeseries"),
     path("get/timeseries/<int:ts_id>", get_timeseries, name="get_timeseries"),
+    path("get/constant/timeseries/id", get_constant_timeseries_id,
+            name="get_constant_timeseries_id"),
+    re_path("get/constant/timeseries/id/(?P<value>\d+(\.\d+)?)/$", get_constant_timeseries_id, name="get_constant_timeseries_id"),
     # Grid Model (Assets Creation)
     re_path(
         r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
