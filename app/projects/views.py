@@ -1531,6 +1531,25 @@ def get_timeseries(request, ts_id=None):
             return JsonResponse({"values": ts.get_values})
 
 
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def get_constant_timeseries_id(request, value=None):
+    if request.method == "GET":
+        # TODO in future prevent user to get it is no access rights to this timeseries
+        # ts.user = request.user
+        if value is not None:
+            ts_name = f"constant value = {value}"
+
+            ts_qs = Timeseries.objects.filter(name=ts_name)
+
+            if ts_qs.exists():
+                return JsonResponse({"id": ts_qs.get().id})
+            else:
+                return JsonResponse({"id": None})
+
+
+
 # region Asset
 
 
