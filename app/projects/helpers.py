@@ -344,7 +344,8 @@ class TimeseriesInputWidget(forms.MultiWidget):
             "scalar": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "onchange": f"changeTimeseriesManualValue(obj=this.value, param_name='{self.param_name}')",
+                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
+                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
                 }
             ),
             "select": select_widget,
@@ -363,11 +364,20 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
+        """The value will ALWAYS be stored as as timeseries,
+        thus only the index of the timeseries is to decompress"""
+
         answer = [value, None, None]
         if not isinstance(value, int):
             logging.error("The value of timeseries index is not an integer")
-        if Timeseries.objects.filter(id=value).exists():
-            answer = [value, value, ""]
+        ts_qs = Timeseries.objects.filter(id=value)
+        if ts_qs.exists():
+            ts_name = ts_qs.values_list("name", flat=True).get()
+            if "constant value = " in ts_name:
+                scalar_value = float(ts_name.replace("constant value = ", ""))
+            else:
+                scalar_value = None
+            answer = [scalar_value, value, ""]
         return answer
 
 
@@ -408,40 +418,44 @@ class TimeseriesField(forms.MultiValueField):
         """If a file is provided it will be considered over the other fields"""
         scalar_value, timeseries_id, timeseries_file = values
 
+        if scalar_value is None:
+            scalar_value = ""
+
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
             input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
         elif timeseries_id != "":
+
             ts = Timeseries.objects.get(id=timeseries_id)
             answer = ts.get_values
             input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
-        else:
-            if scalar_value is None:
-                scalar_value = ""
-            # check the input string is a number or a list
-            if scalar_value != "":
-                try:
-                    answer = [float(scalar_value)]
-                except ValueError:
-                    try:
-                        answer = json.loads(scalar_value)
-                        if not isinstance(answer, list):
-                            scalar_value = ""
-                    except json.decoder.JSONDecodeError:
-                        scalar_value = ""
 
-            if scalar_value == "":
-                self.set_widget_error()
-                raise ValidationError(
-                    _(
-                        "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
-                    ),
-                    code="required",
-                    params={"boundaries": self.boundaries},
-                )
-            else:
-                input_dict = dict(type=TS_MANUAL_TYPE)
+        elif scalar_value != "":
+            # check the input string is a number or a list
+            try:
+                answer = [float(scalar_value)]
+            except ValueError:
+                try:
+                    answer = json.loads(scalar_value)
+                    if not isinstance(answer, list):
+                        scalar_value = ""
+                except json.decoder.JSONDecodeError:
+                    scalar_value = ""
+            input_dict = dict(type=TS_MANUAL_TYPE)
+        elif scalar_value == "":
+            self.set_widget_error()
+            raise ValidationError(
+                _(
+                    "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
+                ),
+                code="required",
+                params={"boundaries": self.boundaries},
+            )
+
+        # input_ts, created = Timeseries.objects.get_or_create(
+        #     user=user, **input_timeseries
+        # )
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
