@@ -386,6 +386,11 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
+class ConnectionPort
+    num (0 -> may_ports)
+    direction (in or out)
+    label (same as facade)
+
 class AssetType(models.Model):
     asset_type = models.CharField(
         max_length=30, choices=ASSET_TYPE, null=False, unique=True
@@ -405,8 +410,20 @@ class AssetType(models.Model):
     #     validators=[validate_non_empty_array],
     #
     # )
+    # connection_port models.JsonField()
+    # {
+    #     input_1: name_of_input_1,
+    #     input_2: name_of_input_2,
+    #     input_3: name_of_input_3,
+    #     output_1: name_of_output_1,
+    #     output_2: name_of_output_2,
+    # }
+    # or model.ForeignKey(ConnectionPort)
     unit = models.CharField(max_length=30, null=True)
 
+    def import_facade(self):
+        """create a new AssetType/Facade from a datapackage.json file"""
+        pass
     def export(self):
         """
         Returns
@@ -758,6 +775,7 @@ class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
+    asset_connection_port = models.CharField(null=False, max_length=12)
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 
