@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
@@ -29,6 +30,11 @@ from projects.constants import (
     TIMESERIES_TYPES,
 )
 from users.models import CustomUser
+
+
+def validate_non_empty_array(value):
+    if not value or len(value) == 0:
+        raise ValidationError("This list cannot be empty.")
 
 
 class Feedback(models.Model):
@@ -387,8 +393,18 @@ class AssetType(models.Model):
     asset_category = models.CharField(max_length=30, choices=ASSET_CATEGORY)
     energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
     mvs_type = models.CharField(max_length=20, choices=MVS_TYPE)
-    # TODO Could be listCharField ...
+    # TODO Could be ArrayField of CharField ...
     asset_fields = models.TextField(null=True)
+    # List of short strings:
+    # busses = ArrayField(
+    #     base_field=models.CharField(max_length=30),
+    #     size=10,            # optional: max items allowed (enforced by Django)
+    #     blank=False,
+    #     default=list,
+    #     null=False,         # keep it non-null; use [] when empty
+    #     validators=[validate_non_empty_array],
+    #
+    # )
     unit = models.CharField(max_length=30, null=True)
 
     def export(self):
@@ -597,6 +613,30 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    def to_datapackage(self):
+        dp = {}
+
+        for field in self.visible_fields:
+            print(f"{field}: {getattr(self,field)}")
+            dp[field] = getattr(self,field)
+
+        # TODO add the busses
+        # Problem: how do I know which bus the asset is connected to must go to the facade attribute?
+        # Say I have 3 busses, 1 in (fuel) and 2 out (heat and elec) like a CHP, then the facade might expect
+        # something like heat_bus, fuel_bus and elec_bus. But I only implicitly know that heat_bus must be connected to heat
+        # and I don't know how to get the right bus from the connections: from the string alone I don't know if the first outgoing bus
+        # is supposed to be elec_bus or fuel_bus. In is easy to distinguish between in and out but not between in_1, and in_2. Adding
+        # an energy carrier to the bus might help, however in the case of in_1 and in_2 with both electricity, then we don't know how to
+        # distinguish
+
+        # we need to explicitly track this at the ConnectionLink level and with the asset_type's busses (i.e. one need to know which port of
+        # the asset was connected, and it each port is correctly labelled, then everything works
+
+        # inbound = self.connectionlink_set.filter(flow_direction="in")
+        # outbound = self.connectionlink_set.filter(flow_direction="out")
+
+        return dp
+
     def export(self, connections=False):
         """
         Returns
@@ -704,6 +744,15 @@ class Bus(TopologyNode):
     input_ports = models.IntegerField(null=False, default=1)
     output_ports = models.IntegerField(null=False, default=1)
 
+    def to_datapackage(self):
+        """
+        Returns
+        -------
+        A dict with the parameters describing a connectionlink model
+        """
+        dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
+        dm["asset"] = self.asset.name
+        return dm
 
 class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
@@ -721,6 +770,12 @@ class ConnectionLink(models.Model):
         dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
         dm["asset"] = self.asset.name
         return dm
+
+    def __str__(self):
+        if self.flow_direction == "A2B":
+            return f"{self.asset.name} → {self.bus.name} (port {self.bus_connection_port}, scenario {self.scenario.name})"
+        else:
+            return f"{self.bus.name} → {self.asset.name} (port {self.bus_connection_port}, scenario {self.scenario.name})"
 
 
 class Constraint(models.Model):
