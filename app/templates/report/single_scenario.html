@@ -135,7 +135,7 @@ parameters specific to this graph type only, other parameters are available in t
 {% block results_end_body_scripts %}
 <script>
 
-
+const tsGetUrl = `{% url 'get_timeseries' %}`;
 document.getElementById('single-scenario-link').classList.add('active');
 
 var dropdownElement = new Choices('#results-scenarios', {
@@ -143,18 +143,19 @@ var dropdownElement = new Choices('#results-scenarios', {
 	itemSelectText: '',
 });
 
+// keep track of currently selected scenario
+var current_scen_id = "{{ scen_id }}";
+var current_proj_id = "{{ proj_id }}";
 $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
-    const scen_id = "{{ scen_id }}";
-    const proj_id = "{{ proj_id }}";
     // update the kpi table
-    update_kpi_table_style(scen_id);
-    scenario_visualize_timeseries(scen_id);
-    scenario_visualize_stacked_timeseries(scen_id);
-    scenario_visualize_sankey(scen_id);
-    scenario_visualize_capacities(scen_id);
-    scenario_visualize_costs(scen_id);
+    update_kpi_table_style(current_scen_id);
+    scenario_visualize_timeseries(current_scen_id);
+    scenario_visualize_stacked_timeseries(current_scen_id);
+    scenario_visualize_sankey(current_scen_id);
+    scenario_visualize_capacities(current_scen_id);
+    scenario_visualize_costs(current_scen_id);
     // Highlight only the selected scenario
     //$(".scenario-select__item").map((i, item) => {item.classList.remove("selected");});
     // todo select the correct_scenario
@@ -162,36 +163,44 @@ $(document).ready(function () {
 });
 
 function update_selected_single_scenario(target){
-    const proj_id = target.split("-")[1];
-    const scen_id = target.split("-")[2];
+    const [name, proj_id, scen_id] = target.split('-');
 
     // call the list and the success should then call other function which collect the data in the session's cache and plot it(session cache should use mvs tokens to know if a simulation was updated or not)
-    if(scen_id != null){
+    if (scen_id === null)
+        return;
 
-        $.ajax({
-            url: "{% url 'update_selected_single_scenario' proj_id %}" + scen_id,
-            type: "GET",
-            success: async (data) => {
+    if (scen_id === current_scen_id && proj_id === current_proj_id)
+        return;  // no change: no update required
 
-                /* Update the kpi table */
-                update_kpi_table_style(scen_id);
+    $.ajax({
+        url: "{% url 'update_selected_single_scenario' proj_id %}" + scen_id,
+        type: "GET",
+        success: async (data) => {
 
-                scenario_visualize_timeseries(scen_id);
-                scenario_visualize_stacked_timeseries(scen_id);
-                scenario_visualize_sankey(scen_id);
-                scenario_visualize_capacities(scen_id);
-                scenario_visualize_costs(scen_id);
-            },
-            error: function (xhr, errmsg) {
-                if (xhr.status != 405){
-                    console.log("backend_error!")
-                    //Show the error message
-                    $('#message-div').html("<div class='alert-error'>" +
-                        "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
-                }
-            }
-        });
-    }
+            // Update the kpi table
+            update_kpi_table_style(scen_id);
+
+            scenario_visualize_timeseries(scen_id);
+            scenario_visualize_stacked_timeseries(scen_id);
+            scenario_visualize_sankey(scen_id);
+            scenario_visualize_capacities(scen_id);
+            scenario_visualize_costs(scen_id);
+            updateDrawflow(data.topology_data_list);
+
+            // set new state
+            current_scen_id = scen_id;
+            current_proj_id = proj_id;
+        },
+        error: function (xhr, errmsg) {
+            if (xhr.status != 405){
+                console.error("backend_error!")
+                //Show the error message
+                $('#message-div').html("<div class='alert-error'>" +
+                    "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
+            } else
+                console.error(errmsg);
+        }
+    });
 }
 </script>
 
@@ -207,12 +216,21 @@ function update_selected_single_scenario(target){
 <script>
 
         /* First retrieve the busses and assets, then draw the links */
-        $(window).on('load', async function () {
+        $(window).on('load', _ => {
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
+            updateDrawflow(data);
+        });
+
+        async function updateDrawflow(data) {
+            // reset drawflow editor
+            editor.clearModuleSelected();
+            // remove old node lookup table (nodes no longer exist)
+            nodesToDB.clear();
+            // add new data
             Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
                 .then(async () => addLinks(data['links']))
                 .catch(err=>Swal.fire('Grid Model Error', 'Could not retrieve grid nodes.', 'error'));
-        });
+        }
 
         // assign double click on the energy system area
         document.querySelector('.drawflow').addEventListener("dblclick", function (e) {
