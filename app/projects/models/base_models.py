@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
@@ -29,6 +30,11 @@ from projects.constants import (
     TIMESERIES_TYPES,
 )
 from users.models import CustomUser
+
+
+def validate_non_empty_array(value):
+    if not value or len(value) == 0:
+        raise ValidationError("This list cannot be empty.")
 
 
 class Feedback(models.Model):
@@ -380,6 +386,39 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
+
+
+class ConnectionPort(models.Model):
+    IN = "input"
+    OUT = "output"
+    DIRECTION_CHOICES = [(IN, "Asset Input"), (OUT, "Asset Output")]
+
+    asset_type = models.ForeignKey(
+        "AssetType",
+        on_delete=models.CASCADE,
+        related_name="ports",
+    )
+    num = models.PositiveSmallIntegerField(
+        help_text="Port number (0 … n), order within given direction"
+    )
+    direction = models.CharField(
+        max_length=6, choices=DIRECTION_CHOICES, help_text="Input or output"
+    )
+    label = models.CharField(
+        max_length=60,
+        help_text="Human-readable label, e.g. same as name of attribute of facade"
+    )
+
+    class Meta:
+        unique_together = ("asset_type", "direction", "num")
+        ordering = ["asset_type", "direction", "num"]
+
+    def __str__(self):
+        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: {self.label}"
+
+    def to_dict(self):
+        return {f"{self.direction}_{self.num}": self.label}
+
 class AssetType(models.Model):
     asset_type = models.CharField(
         max_length=30, choices=ASSET_TYPE, null=False, unique=True
@@ -387,9 +426,41 @@ class AssetType(models.Model):
     asset_category = models.CharField(max_length=30, choices=ASSET_CATEGORY)
     energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
     mvs_type = models.CharField(max_length=20, choices=MVS_TYPE)
-    # TODO Could be listCharField ...
+    # TODO Could be ArrayField of CharField ...
     asset_fields = models.TextField(null=True)
+    # List of short strings:
+    # busses = ArrayField(
+    #     base_field=models.CharField(max_length=30),
+    #     size=10,            # optional: max items allowed (enforced by Django)
+    #     blank=False,
+    #     default=list,
+    #     null=False,         # keep it non-null; use [] when empty
+    #     validators=[validate_non_empty_array],
+    #
+    # )
+    # connection_port models.JsonField()
+    # {
+    #     input_1: name_of_input_1,
+    #     input_2: name_of_input_2,
+    #     input_3: name_of_input_3,
+    #     output_1: name_of_output_1,
+    #     output_2: name_of_output_2,
+    # }
+    # or model.ForeignKey(ConnectionPort)
     unit = models.CharField(max_length=30, null=True)
+
+    def import_facade(self):
+        """create a new AssetType/Facade from a datapackage.json file"""
+        pass
+
+    @property
+    def connection_ports(self):
+        port_mapping = {}
+        for port in self.ports.all():
+            port_mapping.update(port.to_dict())
+        print(port_mapping)
+        import pdb;pdb.set_trace()
+        return port_mapping
 
     def export(self):
         """
@@ -403,6 +474,8 @@ class AssetType(models.Model):
     @property
     def visible_fields(self):
         return self.asset_fields.replace("[", "").replace("]", "").split(",")
+
+    @property
 
     def add_field(self, field_name):
         temp = self.visible_fields
@@ -597,6 +670,30 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    def to_datapackage(self):
+        dp = {}
+
+        for field in self.visible_fields:
+            print(f"{field}: {getattr(self,field)}")
+            dp[field] = getattr(self,field)
+
+        # TODO add the busses
+        # Problem: how do I know which bus the asset is connected to must go to the facade attribute?
+        # Say I have 3 busses, 1 in (fuel) and 2 out (heat and elec) like a CHP, then the facade might expect
+        # something like heat_bus, fuel_bus and elec_bus. But I only implicitly know that heat_bus must be connected to heat
+        # and I don't know how to get the right bus from the connections: from the string alone I don't know if the first outgoing bus
+        # is supposed to be elec_bus or fuel_bus. In is easy to distinguish between in and out but not between in_1, and in_2. Adding
+        # an energy carrier to the bus might help, however in the case of in_1 and in_2 with both electricity, then we don't know how to
+        # distinguish
+
+        # we need to explicitly track this at the ConnectionLink level and with the asset_type's busses (i.e. one need to know which port of
+        # the asset was connected, and it each port is correctly labelled, then everything works
+
+        # inbound = self.connectionlink_set.filter(flow_direction="in")
+        # outbound = self.connectionlink_set.filter(flow_direction="out")
+
+        return dp
+
     def export(self, connections=False):
         """
         Returns
@@ -704,11 +801,21 @@ class Bus(TopologyNode):
     input_ports = models.IntegerField(null=False, default=1)
     output_ports = models.IntegerField(null=False, default=1)
 
+    def to_datapackage(self):
+        """
+        Returns
+        -------
+        A dict with the parameters describing a connectionlink model
+        """
+        dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
+        dm["asset"] = self.asset.name
+        return dm
 
 class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
+    asset_connection_port = models.CharField(null=False, default="no_mapping", max_length=12)
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 
@@ -721,6 +828,12 @@ class ConnectionLink(models.Model):
         dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
         dm["asset"] = self.asset.name
         return dm
+
+    def __str__(self):
+        if self.flow_direction == "A2B":
+            return f"{self.asset.name} → {self.bus.name} (port {self.bus_connection_port}, scenario {self.scenario.name})"
+        else:
+            return f"{self.bus.name} → {self.asset.name} (port {self.bus_connection_port}, scenario {self.scenario.name})"
 
 
 class Constraint(models.Model):

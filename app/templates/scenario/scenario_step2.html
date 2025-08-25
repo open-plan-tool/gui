@@ -103,6 +103,19 @@
                     </div>
                 {% endfor %}
             </div>
+
+            <!--div class="components__content">
+                {% for group_name, group_components in components.items %}
+                    <div class="section section--{{ group_name }}">
+                        <div class="section__title">
+                            <h3>{{ group_names|get_item:group_name|title }}</h3>
+                        </div>
+                        {% for component_id, component_name in group_components.items %}
+                            {% include 'scenario/topology_drag_items.html' with name=component_name alt=component_name|add:" icon" image=component_id|add:".svg" data_node=component_name %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div-->
         </div>
         <div id="drawflow" class="gui" ondrop="drop(event)" ondragover="allowDrop(event)">
             <div class="gui__clear">
