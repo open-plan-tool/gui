@@ -386,10 +386,38 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
-class ConnectionPort
-    num (0 -> may_ports)
-    direction (in or out)
-    label (same as facade)
+
+
+class ConnectionPort(models.Model):
+    IN = "input"
+    OUT = "output"
+    DIRECTION_CHOICES = [(IN, "Asset Input"), (OUT, "Asset Output")]
+
+    asset_type = models.ForeignKey(
+        "AssetType",
+        on_delete=models.CASCADE,
+        related_name="ports",
+    )
+    num = models.PositiveSmallIntegerField(
+        help_text="Port number (0 … n), order within given direction"
+    )
+    direction = models.CharField(
+        max_length=6, choices=DIRECTION_CHOICES, help_text="Input or output"
+    )
+    label = models.CharField(
+        max_length=60,
+        help_text="Human-readable label, e.g. same as name of attribute of facade"
+    )
+
+    class Meta:
+        unique_together = ("asset_type", "direction", "num")
+        ordering = ["asset_type", "direction", "num"]
+
+    def __str__(self):
+        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: {self.label}"
+
+    def to_dict(self):
+        return {f"{self.direction}_{self.num}": self.label}
 
 class AssetType(models.Model):
     asset_type = models.CharField(
