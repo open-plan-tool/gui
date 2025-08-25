@@ -872,9 +872,15 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 @require_http_methods(["GET", "POST"])
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
+    import pdb;pdb.set_trace()
+
+
+    # TODO add the info to the connection here, one need to get this easily form assets
+    # need to work on the form
+    # one could have a fetch also...
     components = {
         "providers": {
-            "dso": _("Electricity DSO"),
+            # "dso": {"facade": "dso", "label": _("Electricity DSO"), "ports": {'output_1': 'to_bus'}},
             "gas_dso": _("Gas DSO"),
             "h2_dso": _("H2 DSO"),
             "heat_dso": _("Heat DSO"),
@@ -902,13 +908,13 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         },
         "storage": {
             "bess": _("Electricity Storage"),
-            # "gess": _("Gas Storage"),
+            "gess": _("Gas Storage"),
             "h2ess": _("H2 Storage"),
             "hess": _("Heat Storage"),
         },
         "demand": {
             "demand": _("Electricity Demand"),
-            # "gas_demand": _("Gas Demand"),
+            "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
         },

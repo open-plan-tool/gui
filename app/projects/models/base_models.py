@@ -475,6 +475,8 @@ class AssetType(models.Model):
     def visible_fields(self):
         return self.asset_fields.replace("[", "").replace("]", "").split(",")
 
+    @property
+
     def add_field(self, field_name):
         temp = self.visible_fields
         if field_name not in temp:
@@ -813,7 +815,7 @@ class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
-    asset_connection_port = models.CharField(null=False, max_length=12)
+    asset_connection_port = models.CharField(null=False, default="no_mapping", max_length=12)
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 

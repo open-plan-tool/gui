@@ -53,8 +53,12 @@ function drag(ev) {
 
 function drop(ev) {
     ev.preventDefault();
+    // TODO edit here
+    //"{'id':'gas_dso', 'ports': {'output_1': 'to_bus'}}"
     // corresponds to data-node defined in templates/scenario/topology_drag_items.html
     const nodeName = ev.dataTransfer.getData("node");
+    console.log("dropNode")
+    console.log(nodeName);
     addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY).then(node => {
         // after adding node, try to save node with default data
         // populate form and submit
@@ -177,6 +181,7 @@ function updateInputTimeseries(){
 
 // find out the name of the other nodes the given node is connected to
 function getInputOutputMapping(nodeId){
+    //TODO this is important here
     var input_output_mapping = {"inputs": {}, "outputs": {}};
     editor.getNodeFromId(nodeId).inputs.input_1.connections.map(c => {const nodeIn = editor.getNodeFromId(parseInt(c.node)); input_output_mapping.inputs[nodeIn.data.bustype] = nodeIn.data.name;});
     editor.getNodeFromId(nodeId).outputs.output_1.connections.map(c => {const nodeOut = editor.getNodeFromId(parseInt(c.node)); input_output_mapping.outputs[nodeOut.data.bustype] = nodeOut.data.name;});

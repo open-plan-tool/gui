@@ -679,6 +679,10 @@ class NodeObject:
         """Create ConnectionLink from the node object (asset or bus) to all of its outputs"""
         for port_key, connections_list in self.outputs.items():
             for output_connection in connections_list:
+
+                # TODO here with the exception of load scenario from dict is the only place where ConnectionLink are created
+                import pdb;pdb.set_trace()
+
                 # node_obj is a bus connecting to asset(s)
                 if self.node_obj_type == "bus" and isinstance(
                     output_connection["node"], str
