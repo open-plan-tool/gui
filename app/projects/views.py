@@ -1684,6 +1684,14 @@ def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=No
         answer = handle_asset_form_post(request, scen_id, asset_type_name, asset_uuid)
     return answer
 
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports(request, asset_type_name):
+    asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+    return JsonResponse(asset_type.connection_ports, status=200)
+
+
 
 @login_required
 @require_http_methods(["GET"])

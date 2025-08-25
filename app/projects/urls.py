@@ -170,6 +170,11 @@ urlpatterns = [
         asset_create_or_update,
         name="asset_create_or_update",
     ),
+    path(
+        "asset/get_connection_ports/<str:asset_type_name>",
+        asset_connection_ports,
+        name="asset_connection_ports",
+    ),
     re_path(
         r"^asset/get_cops_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         get_asset_cops_form,

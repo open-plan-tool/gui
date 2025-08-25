@@ -452,6 +452,16 @@ class AssetType(models.Model):
     def import_facade(self):
         """create a new AssetType/Facade from a datapackage.json file"""
         pass
+
+    @property
+    def connection_ports(self):
+        port_mapping = {}
+        for port in self.ports.all():
+            port_mapping.update(port.to_dict())
+        print(port_mapping)
+        import pdb;pdb.set_trace()
+        return port_mapping
+
     def export(self):
         """
         Returns
