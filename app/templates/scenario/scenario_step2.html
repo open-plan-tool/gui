@@ -367,10 +367,10 @@
                 {% translate "Next" %}
             </button>
         {% endif %}
-        {% if scen_id %}
+        {% if scen_id and existing_simulation %}
             <a
                 class="btn btn--medium btn--transparent"
-                href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">
+                href="{% url 'scenario_steps_edit' proj_id scen_id max_step|add:'-1' %}">
                 {% translate "Go to simulation" %}
             </a>
         {% endif %}

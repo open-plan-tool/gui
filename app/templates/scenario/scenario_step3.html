@@ -80,8 +80,8 @@
         {% else %}
             <button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
         {% endif %}
-        {% if scen_id %}
-            <a class="btn btn--medium btn--transparent" href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">{% translate "Go to simulation" %}</a>
+        {% if scen_id and existing_simulation %}
+            <a class="btn btn--medium btn--transparent" href="{% url 'scenario_steps_edit' proj_id scen_id max_step|add:'-1' %}">{% translate "Go to simulation" %}</a>
         {% endif %}
     </div>
     <div class="step-footer__right">
