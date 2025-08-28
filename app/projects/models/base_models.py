@@ -748,6 +748,9 @@ class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
+    asset_connection_port = models.CharField(
+        null=False, default="no_mapping", max_length=12
+    )
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 
@@ -760,6 +763,18 @@ class ConnectionLink(models.Model):
         dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
         dm["asset"] = self.asset.name
         return dm
+
+    def __str__(self):
+        asset_connection_port = self.asset_connection_port
+        if self.flow_direction == "A2B":
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "output_1"
+
+            return f"{self.asset.name}.{asset_connection_port} → {self.bus.name}.{self.bus_connection_port} (scenario {self.scenario.name})"
+        else:
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "input_1"
+            return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
 
 
 class Constraint(models.Model):
