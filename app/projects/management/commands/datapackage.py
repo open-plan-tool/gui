@@ -71,7 +71,7 @@ class Command(BaseCommand):
                         asset.to_datapackage()
                     )
                     resource_records.append(resource_rec)
-                    # those constitute the foreign keys to busses and sequences
+                    # those constitute the busses and sequences used by this asset
                     bus_resource_records.extend(bus_resource_rec)
                     profile_resource_records.update(profile_resource_rec)
 
@@ -81,12 +81,14 @@ class Command(BaseCommand):
                     df = pd.DataFrame(resource_records)
                     df.to_csv(out_path, index=False)
 
+            # Save all unique busses to a elements resource
             if bus_resource_records:
                 out_path = elements_folder / f"bus.csv"
                 Path(out_path).parent.mkdir(parents=True, exist_ok=True)
                 df = pd.DataFrame(bus_resource_records)
                 df.drop_duplicates("name").to_csv(out_path, index=False)
 
+            # Save all profiles to a sequences resource
             if profile_resource_records:
                 out_path = sequences_folder / f"profiles.csv"
                 Path(out_path).parent.mkdir(parents=True, exist_ok=True)

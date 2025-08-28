@@ -599,6 +599,7 @@ class Asset(TopologyNode):
 
     def to_datapackage(self):
         dp = {"facade": self.asset_type.asset_type}
+        # to collect the timeseries used by the asset
         profile_resource_rec = {}
         for field in self.asset_type.visible_fields:
             value = getattr(self, field)
@@ -616,6 +617,7 @@ class Asset(TopologyNode):
 
             dp[field] = value
 
+        # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
         if hasattr(self.asset_type, "connection_ports"):
@@ -626,7 +628,7 @@ class Asset(TopologyNode):
                     direction = "A2B"
                 elif "input" in port:
                     direction = "B2A"
-                # find out which bus is actually connected to the given asset's port
+                # find out which bus is actually connected to the given asset's port on the GUI
                 qs_bus = self.connectionlink_set.filter(
                     flow_direction=direction, asset_connection_port=port
                 )
@@ -636,7 +638,7 @@ class Asset(TopologyNode):
                     bus_resource_rec.append(bus.to_datapackage())
                 else:
                     dp[field] = None
-                    # here for DSO one might need to make the in and out connexions explicit or arrange things here
+                    # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here
         else:
             connections = self.connectionlink_set.all()
             # here assets only have maximum one input port and/or one output port in the GUI. One can still connect several link to a single port,
