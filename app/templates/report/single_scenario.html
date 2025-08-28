@@ -207,8 +207,8 @@ function update_selected_single_scenario(target){
 {% if scen_id > 0 %}
 <script>
         const csrfToken = '{{ csrf_token }}';
-        const formGetUrl = `{% url 'view_asset_parameters' scen_id %}`;
-        const formPostUrl = "";
+        const getAssetFormUrl = `{% url 'view_asset_parameters' scen_id %}`;
+        const postAssetFormUrl = "";
         const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
 </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
