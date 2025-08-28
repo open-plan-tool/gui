@@ -782,6 +782,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
                     max_step = 3
         else:
             scenario = None
+            existing_simulation = False
         answer = render(
             request,
             f"scenario/scenario_step{step_id}.html",
