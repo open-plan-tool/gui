@@ -40,44 +40,51 @@ class Command(BaseCommand):
         if create_folder:
             # create subfolders
             (scenario_folder / "scripts").mkdir(parents=True)
-            elements_folder = (scenario_folder / "data" / "elements")
+            elements_folder = scenario_folder / "data" / "elements"
             elements_folder.mkdir(parents=True)
-            sequences_folder = (scenario_folder / "data" / "sequences")
+            sequences_folder = scenario_folder / "data" / "sequences"
             sequences_folder.mkdir(parents=True)
 
         print(elements_folder)
 
-
-
-        AssetType.objects.filter(id__in=[1,2])
+        AssetType.objects.filter(id__in=[1, 2])
         qs_assets = Asset.objects.filter(scenario__id=scen_id)
-        facade_names = qs_assets.distinct().values_list("asset_type__asset_type",flat=True)
+        facade_names = qs_assets.distinct().values_list(
+            "asset_type__asset_type", flat=True
+        )
 
         # TODO busses
 
-
-
+        bus_resource_records = []
         for facade_name in facade_names:
             resource_records = []
-            for i, asset in enumerate(qs_assets.filter(asset_type__asset_type=facade_name)):
-                resource_records.append(asset.to_datapackage())
+            for i, asset in enumerate(
+                qs_assets.filter(asset_type__asset_type=facade_name)
+            ):
+                resource_rec, bus_resource_rec = asset.to_datapackage()
+                resource_records.append(resource_rec)
+                bus_resource_records.extend(bus_resource_rec)
                 if i == 0:
                     cols = [c for c in resource_records[i].keys()]
                     print("columns", cols)
                 # for link in asset.to_datapackage():
                 #     print(link)
-                # TODO check the timeseries (by field or by type of field (this cannot be done currently as some timeseries field are json strings like efficiency, efficiency_multiple, energy_price, feedin_tariff) and move them to sequences
-            import pdb
-
-            pdb.set_trace()
+                # TODO check the timeseries (by field or by type of field
+                # TODO (this cannot be done currently as some timeseries field
+                #  are json strings like efficiency, efficiency_multiple, energy_price,
+                #  feedin_tariff) and move them to sequences
             if resource_records:
                 out_path = elements_folder / f"{facade_name}.csv"
                 Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-                with open(out_path, "w", newline="", encoding="utf-8") as f:
-                    w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
-                    w.writeheader()
-                    for r in resource_records:
-                        w.writerow({c: r.get(c, None) for c in cols})
+                df = pd.DataFrame(resource_records)
+                df.to_csv(out_path, index=False)
+
+        if bus_resource_records:
+            out_path = elements_folder / f"bus.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            df = pd.DataFrame(bus_resource_records)
+            df.drop_duplicates("name").to_csv(out_path, index=False)
+
         # the asset_fields correspond only to the asset's fields, however oemof-tabular needs to have attributes of the facade for the connection to busses
 
         # TODO iterate through the asset_types maybe? As each asset_type gets a csv file
