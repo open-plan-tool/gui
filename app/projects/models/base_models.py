@@ -616,25 +616,44 @@ class Asset(TopologyNode):
         # we need to explicitly track this at the ConnectionLink level and with the asset_type's busses (i.e. one need to know which port of
         # the asset was connected, and it each port is correctly labelled, then everything works
 
-        # port mapping contains the information to what bus is expected to be connected to which port
+        connections = self.connectionlink_set.all()
+        print(connections)
+
+        bus_resource_rec = []
+
         if hasattr(self.asset_type, "connection_ports"):
+            # port mapping contains the information to what bus is expected to be connected to which port
             port_mapping = self.asset_type.connection_ports
-            print(port_mapping)
             for port, field in port_mapping.items():
                 if "output" in port:
                     direction = "A2B"
                 elif "input" in port:
                     direction = "B2A"
                 # find out which bus is actually connected to the given asset's port
-                qs_bus_name = self.connectionlink_set.filter(
+                qs_bus = self.connectionlink_set.filter(
                     flow_direction=direction, asset_connection_port=port
-                ).values_list("bus__name", flat=True)
-                if qs_bus_name.exists():
-                    dp[field] = qs_bus_name.get()
+                )
+                if qs_bus.exists():
+                    bus = qs_bus.get()
+                    dp[field] = bus.name
+                    bus_resource_rec.append(bus.to_datapackage())
                 else:
                     dp[field] = None
                     # here for DSO one might need to make the in and out connexions explicit or arrange things here
-        return dp
+        else:
+            # here assets only have maximum one input port and/or one output port in the GUI. One can still connect several link to a single port,
+            # however the information to which port should be connected a given bus is not accessible.
+            for i, c in enumerate(connections.filter(flow_direction="A2B")):
+                field = f"output_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+            for i, c in enumerate(connections.filter(flow_direction="B2A")):
+                field = f"input_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+        return dp, bus_resource_rec
 
     def export(self, connections=False):
         """
@@ -743,6 +762,14 @@ class Bus(TopologyNode):
     input_ports = models.IntegerField(null=False, default=1)
     output_ports = models.IntegerField(null=False, default=1)
 
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name"])
+        dm["type"] = "bus"
+        dm["balanced"] = "True"
+        dm["excess"] = "False"
+        dm["excess_costs"] = "0.0"
+        return dm
+
 
 class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
@@ -769,7 +796,6 @@ class ConnectionLink(models.Model):
         if self.flow_direction == "A2B":
             if asset_connection_port == "no_mapping":
                 asset_connection_port = "output_1"
-
             return f"{self.asset.name}.{asset_connection_port} → {self.bus.name}.{self.bus_connection_port} (scenario {self.scenario.name})"
         else:
             if asset_connection_port == "no_mapping":
