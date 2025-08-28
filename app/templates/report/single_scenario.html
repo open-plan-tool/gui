@@ -222,6 +222,7 @@ function update_selected_single_scenario(target){
         });
 
         async function updateDrawflow(data) {
+        		// data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
             // reset drawflow editor
             editor.clearModuleSelected();
             // remove old node lookup table (nodes no longer exist)
@@ -240,8 +241,8 @@ function update_selected_single_scenario(target){
 
             if (closestNode) {
                 const topologyNodeId = closestNode.id;
-                // formGetUrl is defined above
-                const getUrl = formGetUrl + nodeType +
+                // getAssetFormUrl is defined above
+                const getUrl = getAssetFormUrl + nodeType +
                     (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
                 // get the form of the asset of the type "nodeType" (dashboard/views.py::view_asset_parameters)
