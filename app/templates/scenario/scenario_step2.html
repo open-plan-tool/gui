@@ -154,6 +154,7 @@
 
     /* First retrieve the busses and assets, then draw the links */
     $(window).on('load', async function () {
+    		// data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
         const data = JSON.parse(`{{topology_data_list| escapejs }}`);
         Promise.all([addBusses(data['busses']), addAssets(data['assets'])])
             .then(async () => addLinks(data['links']))
@@ -204,6 +205,7 @@
      * Export Topology to JSON and send to back-end.
      * Used by the Save and Next buttons at page footer
     */
+    /* POST information (which assets and how they are connected) to the DB */
     function save_topology(move_step=false) {
         // Data Pre-check
         const save_button = document.getElementById('btn-save');
@@ -236,26 +238,13 @@
         save_spinner.classList.remove('d-none');
 
         try {
-            const transformIOs = (obj, entry) => {
-                const [key, io] = entry;
-                obj[key] = io.connections.map(conn => {
-                    let value = { node: nodesToDB.get('node-' + conn.node).uid};
-                    if ('output' in conn)
-                        value.output = conn.output;
-                    else
-                        value.input = conn.input;
-                    return value;
-                });
-                return obj;
-            }
             const drawflowData = node_list.map(obj=>({
                 db_id: nodesToDB.get('node-'+obj.id).uid,
                 name: obj.name,
-                inputs: Object.entries(obj.inputs).reduce(transformIOs, {}),
-                outputs: Object.entries(obj.outputs).reduce(transformIOs, {}),
                 data: obj.data,
                 pos_x: obj.pos_x,
                 pos_y: obj.pos_y,
+                ... getNodePortsConnections(obj.id)
             }));
 
             fetch("{% url 'scenario_create_topology' proj_id scenario.id %}", {
