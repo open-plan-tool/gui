@@ -901,6 +901,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 @require_http_methods(["GET", "POST"])
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
+    # TODO List facades from placade here
     components = {
         "providers": {
             "dso": _("Electricity DSO"),

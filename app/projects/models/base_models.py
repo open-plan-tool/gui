@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
@@ -29,6 +30,11 @@ from projects.constants import (
     TIMESERIES_TYPES,
 )
 from users.models import CustomUser
+
+
+def validate_non_empty_array(value):
+    if not value or len(value) == 0:
+        raise ValidationError("This list cannot be empty.")
 
 
 class Feedback(models.Model):
@@ -419,9 +425,32 @@ class AssetType(models.Model):
     asset_category = models.CharField(max_length=30, choices=ASSET_CATEGORY)
     energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
     mvs_type = models.CharField(max_length=20, choices=MVS_TYPE)
-    # TODO Could be listCharField ...
+    # TODO Could be ArrayField of CharField ...
     asset_fields = models.TextField(null=True)
+    # List of short strings:
+    # busses = ArrayField(
+    #     base_field=models.CharField(max_length=30),
+    #     size=10,            # optional: max items allowed (enforced by Django)
+    #     blank=False,
+    #     default=list,
+    #     null=False,         # keep it non-null; use [] when empty
+    #     validators=[validate_non_empty_array],
+    #
+    # )
+    # connection_port models.JsonField()
+    # {
+    #     input_1: name_of_input_1,
+    #     input_2: name_of_input_2,
+    #     input_3: name_of_input_3,
+    #     output_1: name_of_output_1,
+    #     output_2: name_of_output_2,
+    # }
+    # or model.ForeignKey(ConnectionPort)
     unit = models.CharField(max_length=30, null=True)
+
+    def import_facade(self):
+        """create a new AssetType/Facade from a datapackage.json file"""
+        pass
 
     @property
     def connection_ports(self):

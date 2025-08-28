@@ -375,11 +375,13 @@ def load_scenario_topology_from_db(scen_id):
     bus_nodes_list = db_bus_nodes_to_list(scen_id)
     asset_nodes_list = db_asset_nodes_to_list(scen_id)
     connection_links_list = db_connection_links_to_list(scen_id)
-    return {
+    answer = {
         "busses": bus_nodes_list,
         "assets": asset_nodes_list,
         "links": connection_links_list,
     }
+    print(answer)
+    return answer
 
 
 def db_bus_nodes_to_list(scen_id):
@@ -454,6 +456,8 @@ def db_connection_links_to_list(scen_id):
             "asset_connection_port": asset_connection_port,
         }
         connections_list.append(db_connection_dict)
+    # print(json.dumps(connections_list, indent=4))
+    # import pdb;pdb.set_trace()
     return connections_list
 
 
