@@ -599,25 +599,22 @@ class Asset(TopologyNode):
 
     def to_datapackage(self):
         dp = {"facade": self.asset_type.asset_type}
-        print(self.name)
+        profile_resource_rec = {}
         for field in self.asset_type.visible_fields:
-            # print(f"{field}: {getattr(self,field)}")
-            dp[field] = getattr(self, field)
+            value = getattr(self, field)
+            # if the field is a candidate for a scalar/list
+            if isinstance(value, str) and field != "name":
+                value = json.loads(value)
+                if isinstance(value, list):
+                    col = f"{self.name}__{field}"
+                    profile_resource_rec[col] = value
+                    value = col
+            elif isinstance(value, Timeseries):
+                col = value.name
+                profile_resource_rec[col] = value.values
+                value = col
 
-        # TODO add the busses
-        # Problem: how do I know which bus the asset is connected to must go to the facade attribute?
-        # Say I have 3 busses, 1 in (fuel) and 2 out (heat and elec) like a CHP, then the facade might expect
-        # something like heat_bus, fuel_bus and elec_bus. But I only implicitly know that heat_bus must be connected to heat
-        # and I don't know how to get the right bus from the connections: from the string alone I don't know if the first outgoing bus
-        # is supposed to be elec_bus or fuel_bus. In is easy to distinguish between in and out but not between in_1, and in_2. Adding
-        # an energy carrier to the bus might help, however in the case of in_1 and in_2 with both electricity, then we don't know how to
-        # distinguish
-
-        # we need to explicitly track this at the ConnectionLink level and with the asset_type's busses (i.e. one need to know which port of
-        # the asset was connected, and it each port is correctly labelled, then everything works
-
-        connections = self.connectionlink_set.all()
-        print(connections)
+            dp[field] = value
 
         bus_resource_rec = []
 
@@ -641,6 +638,7 @@ class Asset(TopologyNode):
                     dp[field] = None
                     # here for DSO one might need to make the in and out connexions explicit or arrange things here
         else:
+            connections = self.connectionlink_set.all()
             # here assets only have maximum one input port and/or one output port in the GUI. One can still connect several link to a single port,
             # however the information to which port should be connected a given bus is not accessible.
             for i, c in enumerate(connections.filter(flow_direction="A2B")):
@@ -653,7 +651,7 @@ class Asset(TopologyNode):
                 dp[field] = c.bus.name
                 bus_resource_rec.append(c.bus.to_datapackage())
 
-        return dp, bus_resource_rec
+        return dp, bus_resource_rec, profile_resource_rec
 
     def export(self, connections=False):
         """
@@ -764,7 +762,7 @@ class Bus(TopologyNode):
 
     def to_datapackage(self):
         dm = model_to_dict(self, fields=["type", "name"])
-        dm["type"] = "bus"
+        dm["facade"] = "bus"
         dm["balanced"] = "True"
         dm["excess"] = "False"
         dm["excess_costs"] = "0.0"
