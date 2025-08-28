@@ -597,6 +597,45 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    def to_datapackage(self):
+        dp = {"facade": self.asset_type.asset_type}
+        print(self.name)
+        for field in self.asset_type.visible_fields:
+            # print(f"{field}: {getattr(self,field)}")
+            dp[field] = getattr(self, field)
+
+        # TODO add the busses
+        # Problem: how do I know which bus the asset is connected to must go to the facade attribute?
+        # Say I have 3 busses, 1 in (fuel) and 2 out (heat and elec) like a CHP, then the facade might expect
+        # something like heat_bus, fuel_bus and elec_bus. But I only implicitly know that heat_bus must be connected to heat
+        # and I don't know how to get the right bus from the connections: from the string alone I don't know if the first outgoing bus
+        # is supposed to be elec_bus or fuel_bus. In is easy to distinguish between in and out but not between in_1, and in_2. Adding
+        # an energy carrier to the bus might help, however in the case of in_1 and in_2 with both electricity, then we don't know how to
+        # distinguish
+
+        # we need to explicitly track this at the ConnectionLink level and with the asset_type's busses (i.e. one need to know which port of
+        # the asset was connected, and it each port is correctly labelled, then everything works
+
+        # port mapping contains the information to what bus is expected to be connected to which port
+        if hasattr(self.asset_type, "connection_ports"):
+            port_mapping = self.asset_type.connection_ports
+            print(port_mapping)
+            for port, field in port_mapping.items():
+                if "output" in port:
+                    direction = "A2B"
+                elif "input" in port:
+                    direction = "B2A"
+                # find out which bus is actually connected to the given asset's port
+                qs_bus_name = self.connectionlink_set.filter(
+                    flow_direction=direction, asset_connection_port=port
+                ).values_list("bus__name", flat=True)
+                if qs_bus_name.exists():
+                    dp[field] = qs_bus_name.get()
+                else:
+                    dp[field] = None
+                    # here for DSO one might need to make the in and out connexions explicit or arrange things here
+        return dp
+
     def export(self, connections=False):
         """
         Returns
