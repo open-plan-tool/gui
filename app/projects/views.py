@@ -1697,6 +1697,59 @@ def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=No
     return answer
 
 
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_mapping(request, asset_type_name=None):
+    if asset_type_name is not None:
+        asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+        return JsonResponse(asset_type.connection_ports, status=200)
+    else:
+        return JsonResponse({"success": False}, status=422)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_number(request, asset_type_name=None):
+    if asset_type_name is not None:
+        asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+        return JsonResponse(
+            {"inputs": asset_type.n_inputs, "outputs": asset_type.n_outputs}, status=200
+        )
+    else:
+        return JsonResponse({"success": False}, status=422)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_info(request, asset_type_name=None):
+
+    if asset_type_name is not None:
+        if asset_type_name == "bus":
+            answer = JsonResponse(
+                {
+                    "nodeInputs": 1,
+                    "nodeOutputs": 1,
+                },
+                status=200,
+            )
+        else:
+            asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+            answer = JsonResponse(
+                {
+                    "nodeInputs": asset_type.n_inputs,
+                    "nodeOutputs": asset_type.n_outputs,
+                    "portMapping": asset_type.connection_ports,
+                },
+                status=200,
+            )
+    else:
+        answer = JsonResponse({"success": False}, status=422)
+    return answer
+
+
 @login_required
 @require_http_methods(["GET"])
 def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
