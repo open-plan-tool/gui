@@ -135,8 +135,11 @@
 
 <script>
     const csrfToken = '{{ csrf_token }}';
-    const formGetUrl = `{% url 'get_asset_create_form' scenario.id %}`;
-    const formPostUrl = `{% url 'asset_create_or_update' scenario.id %}`;
+    const getAssetFormUrl = `{% url 'get_asset_create_form' scenario.id %}`;
+    const assetPortMappingUrl = `{% url 'asset_connection_ports_mapping' %}`;
+    const assetPortNumberUrl = `{% url 'asset_connection_ports_number' %}`;
+    const assetPortInfoUrl = `{% url 'asset_connection_ports_info' %}`;
+    const postAssetFormUrl = `{% url 'asset_create_or_update' scenario.id %}`;
     const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
     const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
     const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
