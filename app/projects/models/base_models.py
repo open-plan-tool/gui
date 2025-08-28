@@ -597,6 +597,64 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    def to_datapackage(self):
+        dp = {"facade": self.asset_type.asset_type}
+        # to collect the timeseries used by the asset
+        profile_resource_rec = {}
+        for field in self.asset_type.visible_fields:
+            value = getattr(self, field)
+            # if the field is a candidate for a scalar/list
+            if isinstance(value, str) and field != "name":
+                value = json.loads(value)
+                if isinstance(value, list):
+                    col = f"{self.name}__{field}"
+                    profile_resource_rec[col] = value
+                    value = col
+            elif isinstance(value, Timeseries):
+                col = value.name
+                profile_resource_rec[col] = value.values
+                value = col
+
+            dp[field] = value
+
+        # to collect the bus(ses) used by the asset
+        bus_resource_rec = []
+
+        if hasattr(self.asset_type, "connection_ports"):
+            # port mapping contains the information to what bus is expected to be connected to which port
+            port_mapping = self.asset_type.connection_ports
+            for port, field in port_mapping.items():
+                if "output" in port:
+                    direction = "A2B"
+                elif "input" in port:
+                    direction = "B2A"
+                # find out which bus is actually connected to the given asset's port on the GUI
+                qs_bus = self.connectionlink_set.filter(
+                    flow_direction=direction, asset_connection_port=port
+                )
+                if qs_bus.exists():
+                    bus = qs_bus.get()
+                    dp[field] = bus.name
+                    bus_resource_rec.append(bus.to_datapackage())
+                else:
+                    dp[field] = None
+                    # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here
+        else:
+            connections = self.connectionlink_set.all()
+            # here assets only have maximum one input port and/or one output port in the GUI. One can still connect several link to a single port,
+            # however the information to which port should be connected a given bus is not accessible.
+            for i, c in enumerate(connections.filter(flow_direction="A2B")):
+                field = f"output_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+            for i, c in enumerate(connections.filter(flow_direction="B2A")):
+                field = f"input_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+        return dp, bus_resource_rec, profile_resource_rec
+
     def export(self, connections=False):
         """
         Returns
@@ -704,11 +762,22 @@ class Bus(TopologyNode):
     input_ports = models.IntegerField(null=False, default=1)
     output_ports = models.IntegerField(null=False, default=1)
 
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name"])
+        dm["facade"] = "bus"
+        dm["balanced"] = "True"
+        dm["excess"] = "False"
+        dm["excess_costs"] = "0.0"
+        return dm
+
 
 class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
+    asset_connection_port = models.CharField(
+        null=False, default="no_mapping", max_length=12
+    )
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 
@@ -721,6 +790,17 @@ class ConnectionLink(models.Model):
         dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
         dm["asset"] = self.asset.name
         return dm
+
+    def __str__(self):
+        asset_connection_port = self.asset_connection_port
+        if self.flow_direction == "A2B":
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "output_1"
+            return f"{self.asset.name}.{asset_connection_port} → {self.bus.name}.{self.bus_connection_port} (scenario {self.scenario.name})"
+        else:
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "input_1"
+            return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
 
 
 class Constraint(models.Model):
