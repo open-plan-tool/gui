@@ -70,21 +70,21 @@
     <div>
         <div class="step-footer__left"></div>
         <div class="step-footer__center">
-				{% if proj_id|has_viewer_edit_rights:request.user %}
-					<button onclick="javascript:next_btn_clicked()" class="btn btn--medium" >{% translate "Next" %} </button>
-        {% else %}
-					<script>
-								function move_step(){
-									window.location.href = "{% url 'scenario_create_topology' proj_id scen_id %}";
-								};
-					</script>
-					<button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
-				{% endif %}
+            {% if proj_id|has_viewer_edit_rights:request.user %}
+                <button onclick="javascript:next_btn_clicked()" class="btn btn--medium" >{% translate "Next" %} </button>
+            {% else %}
+                <script>
+                            function move_step(){
+                                window.location.href = "{% url 'scenario_create_topology' proj_id scen_id %}";
+                            };
+                </script>
+                <button onclick="javascript:move_step()" id="next_btn" class="btn btn--medium" >{% translate "Next" %} </button>
+			{% endif %}
+            {% if scen_id and existing_simulation %}
+                <a class="btn btn--medium btn--transparent" href="{% url 'scenario_steps_edit' proj_id scen_id max_step|add:'-1' %}">{% translate "Go to simulation" %}</a>
+            {% endif %}
         </div>
         <div class="step-footer__right">
-            {% if scen_id %}
-            <a class="btn btn--medium btn--transparent" href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">{% translate "Go to simulation" %}</a>
-            {% endif %}
         </div>
     </div>
 </footer>
