@@ -1,20 +1,25 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
 from django.contrib.auth.decorators import login_required
-import json
-import logging
-import traceback
-from django.http import HttpResponseForbidden, JsonResponse
+import datetime
+from django.http import (
+    HttpResponseForbidden,
+    JsonResponse,
+    HttpResponseRedirect,
+    HttpResponse,
+)
 from django.http.response import Http404
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.shortcuts import *
+
+# from django.shortcuts import *
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+from django.template.loader import get_template
 
 from jsonview.decorators import json_view
-from users.models import CustomUser
 from django.db.models import Q
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
 from .forms import *
@@ -25,7 +30,27 @@ from .requests import (
     fetch_mvs_sa_results,
     parse_mvs_results,
 )
-from projects.models import *
+from projects.models import (
+    Project,
+    EconomicData,
+    Comment,
+    ConnectionLink,
+    AssetType,
+    UseCase,
+    Scenario,
+    Simulation,
+    ParameterChangeTracker,
+    AssetChangeTracker,
+    SensitivityAnalysis,
+    Asset,
+    Bus,
+    COPCalculator,
+    Timeseries,
+    MinDOAConstraint,
+    MinRenewableConstraint,
+    MaxEmissionConstraint,
+    NZEConstraint,
+)
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
     handle_storage_unit_form_post,
