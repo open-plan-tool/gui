@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
@@ -29,6 +30,11 @@ from projects.constants import (
     TIMESERIES_TYPES,
 )
 from users.models import CustomUser
+
+
+def validate_non_empty_array(value):
+    if not value or len(value) == 0:
+        raise ValidationError("This list cannot be empty.")
 
 
 class Feedback(models.Model):
@@ -380,6 +386,38 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
+class ConnectionPort(models.Model):
+    IN = "input"
+    OUT = "output"
+    DIRECTION_CHOICES = [(IN, "Asset Input"), (OUT, "Asset Output")]
+
+    asset_type = models.ForeignKey(
+        "AssetType",
+        on_delete=models.CASCADE,
+        related_name="ports",
+    )
+    num = models.PositiveSmallIntegerField(
+        help_text="Port number (0 … n), order within given direction"
+    )
+    direction = models.CharField(
+        max_length=6, choices=DIRECTION_CHOICES, help_text="Input or output"
+    )
+    label = models.CharField(
+        max_length=60,
+        help_text="Human-readable label, e.g. same as name of attribute of facade",
+    )
+
+    class Meta:
+        unique_together = ("asset_type", "direction", "num")
+        ordering = ["asset_type", "direction", "num"]
+
+    def __str__(self):
+        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: {self.label}"
+
+    def to_dict(self):
+        return {f"{self.direction}_{self.num}": self.label}
+
+
 class AssetType(models.Model):
     asset_type = models.CharField(
         max_length=30, choices=ASSET_TYPE, null=False, unique=True
@@ -387,9 +425,47 @@ class AssetType(models.Model):
     asset_category = models.CharField(max_length=30, choices=ASSET_CATEGORY)
     energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
     mvs_type = models.CharField(max_length=20, choices=MVS_TYPE)
-    # TODO Could be listCharField ...
+    # TODO Could be ArrayField of CharField ...
     asset_fields = models.TextField(null=True)
+    # List of short strings:
+    # busses = ArrayField(
+    #     base_field=models.CharField(max_length=30),
+    #     size=10,            # optional: max items allowed (enforced by Django)
+    #     blank=False,
+    #     default=list,
+    #     null=False,         # keep it non-null; use [] when empty
+    #     validators=[validate_non_empty_array],
+    #
+    # )
+    # connection_port models.JsonField()
+    # {
+    #     input_1: name_of_input_1,
+    #     input_2: name_of_input_2,
+    #     input_3: name_of_input_3,
+    #     output_1: name_of_output_1,
+    #     output_2: name_of_output_2,
+    # }
+    # or model.ForeignKey(ConnectionPort)
     unit = models.CharField(max_length=30, null=True)
+
+    def import_facade(self):
+        """create a new AssetType/Facade from a datapackage.json file"""
+        pass
+
+    @property
+    def connection_ports(self):
+        port_mapping = {}
+        for port in self.ports.all():
+            port_mapping.update(port.to_dict())
+        return port_mapping
+
+    @property
+    def n_inputs(self):
+        return self.ports.filter(direction="input").count()
+
+    @property
+    def n_outputs(self):
+        return self.ports.filter(direction="output").count()
 
     def export(self):
         """
@@ -597,6 +673,64 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    def to_datapackage(self):
+        dp = {"facade": self.asset_type.asset_type}
+        # to collect the timeseries used by the asset
+        profile_resource_rec = {}
+        for field in self.asset_type.visible_fields:
+            value = getattr(self, field)
+            # if the field is a candidate for a scalar/list
+            if isinstance(value, str) and field != "name":
+                value = json.loads(value)
+                if isinstance(value, list):
+                    col = f"{self.name}__{field}"
+                    profile_resource_rec[col] = value
+                    value = col
+            elif isinstance(value, Timeseries):
+                col = value.name
+                profile_resource_rec[col] = value.values
+                value = col
+
+            dp[field] = value
+
+        # to collect the bus(ses) used by the asset
+        bus_resource_rec = []
+
+        if hasattr(self.asset_type, "connection_ports"):
+            # port mapping contains the information to what bus is expected to be connected to which port
+            port_mapping = self.asset_type.connection_ports
+            for port, field in port_mapping.items():
+                if "output" in port:
+                    direction = "A2B"
+                elif "input" in port:
+                    direction = "B2A"
+                # find out which bus is actually connected to the given asset's port on the GUI
+                qs_bus = self.connectionlink_set.filter(
+                    flow_direction=direction, asset_connection_port=port
+                )
+                if qs_bus.exists():
+                    bus = qs_bus.get()
+                    dp[field] = bus.name
+                    bus_resource_rec.append(bus.to_datapackage())
+                else:
+                    dp[field] = None
+                    # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here
+        else:
+            connections = self.connectionlink_set.all()
+            # here assets only have maximum one input port and/or one output port in the GUI. One can still connect several link to a single port,
+            # however the information to which port should be connected a given bus is not accessible.
+            for i, c in enumerate(connections.filter(flow_direction="A2B")):
+                field = f"output_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+            for i, c in enumerate(connections.filter(flow_direction="B2A")):
+                field = f"input_{i + 1}"
+                dp[field] = c.bus.name
+                bus_resource_rec.append(c.bus.to_datapackage())
+
+        return dp, bus_resource_rec, profile_resource_rec
+
     def export(self, connections=False):
         """
         Returns
@@ -704,11 +838,22 @@ class Bus(TopologyNode):
     input_ports = models.IntegerField(null=False, default=1)
     output_ports = models.IntegerField(null=False, default=1)
 
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name"])
+        dm["facade"] = "bus"
+        dm["balanced"] = "True"
+        dm["excess"] = "False"
+        dm["excess_costs"] = "0.0"
+        return dm
+
 
 class ConnectionLink(models.Model):
     bus = models.ForeignKey(Bus, on_delete=models.CASCADE, null=False)
     bus_connection_port = models.CharField(null=False, max_length=12)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, null=False)
+    asset_connection_port = models.CharField(
+        null=False, default="no_mapping", max_length=12
+    )
     flow_direction = models.CharField(max_length=15, choices=FLOW_DIRECTION, null=False)
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
 
@@ -721,6 +866,17 @@ class ConnectionLink(models.Model):
         dm = model_to_dict(self, exclude=["id", "scenario", "bus"])
         dm["asset"] = self.asset.name
         return dm
+
+    def __str__(self):
+        asset_connection_port = self.asset_connection_port
+        if self.flow_direction == "A2B":
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "output_1"
+            return f"{self.asset.name}.{asset_connection_port} → {self.bus.name}.{self.bus_connection_port} (scenario {self.scenario.name})"
+        else:
+            if asset_connection_port == "no_mapping":
+                asset_connection_port = "input_1"
+            return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
 
 
 class Constraint(models.Model):
