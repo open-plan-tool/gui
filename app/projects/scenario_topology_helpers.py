@@ -416,12 +416,15 @@ def db_asset_nodes_to_list(scen_id):
             "name": asset_type_obj.asset_type,
             "pos_x": db_asset.pos_x,
             "pos_y": db_asset.pos_y,
+            "input_ports": asset_type_obj.n_inputs,
+            "output_ports": asset_type_obj.n_outputs,
             "data": {
                 "name": db_asset.name,
                 "unique_id": db_asset.unique_id,
                 "parent_asset_id": (
                     db_asset.parent_asset_id if db_asset.parent_asset_id else ""
                 ),
+                "portMapping": asset_type_obj.connection_ports,
             },
         }
         asset_nodes_list.append(db_asset_dict)
@@ -432,11 +435,23 @@ def db_connection_links_to_list(scen_id):
     all_db_connection_links = ConnectionLink.objects.filter(scenario_id=scen_id)
     connections_list = list()
     for db_connection in all_db_connection_links:
+        asset_connection_port = db_connection.asset_connection_port
+        flow_direction = db_connection.flow_direction
+        if asset_connection_port == "no_mapping":
+            logging.warning(
+                "A connection had no mapping, probably old scenario, assigning a mapping"
+            )
+            if flow_direction == "A2B":
+                asset_connection_port = "output_1"
+            elif flow_direction == "B2A":
+                asset_connection_port = "input_1"
+
         db_connection_dict = {
             "bus_id": db_connection.bus_id,
             "asset_id": db_connection.asset.unique_id,
-            "flow_direction": db_connection.flow_direction,
+            "flow_direction": flow_direction,
             "bus_connection_port": db_connection.bus_connection_port,
+            "asset_connection_port": asset_connection_port,
         }
         connections_list.append(db_connection_dict)
     return connections_list
@@ -676,33 +691,47 @@ class NodeObject:
             return None
 
     def create_connection_links(self, scen_id):
-        """Create ConnectionLink from the node object (asset or bus) to all of its outputs"""
-        for port_key, connections_list in self.outputs.items():
-            for output_connection in connections_list:
-                # node_obj is a bus connecting to asset(s)
-                if self.node_obj_type == "bus" and isinstance(
-                    output_connection["node"], str
-                ):  # i.e. unique_id
+        """Create connections between a bus and the assets connected as inputs and outputs
+
+        Parameters
+        ----------
+        scen_id
+
+        Returns
+        -------
+
+        """
+        # TODO here with the exception of load scenario from dict is the only place where ConnectionLink are created
+        if self.node_obj_type == "bus":
+            bus_obj = get_object_or_404(Bus, pk=self.db_obj_id)
+            for asset_connection in self.outputs:
+                if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
                     ConnectionLink.objects.create(
-                        bus=get_object_or_404(Bus, pk=self.db_obj_id),
+                        bus=bus_obj,
                         asset=get_object_or_404(
-                            Asset, unique_id=output_connection["node"]
+                            Asset, unique_id=asset_connection["to"]["id"]
                         ),
                         flow_direction="B2A",
-                        bus_connection_port=port_key,
+                        bus_connection_port=asset_connection["port"],
+                        asset_connection_port=asset_connection["to"]["port"],
                         scenario=get_object_or_404(Scenario, pk=scen_id),
                     )
-                # node_obj is an asset connecting to bus(ses)
-                elif self.node_obj_type != "bus" and isinstance(
-                    output_connection["node"], int
-                ):
+            for asset_connection in self.inputs:
+                if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
                     ConnectionLink.objects.create(
-                        bus=get_object_or_404(Bus, pk=output_connection["node"]),
-                        asset=get_object_or_404(Asset, pk=self.db_obj_id),
+                        bus=bus_obj,
+                        asset=get_object_or_404(
+                            Asset, unique_id=asset_connection["to"]["id"]
+                        ),
                         flow_direction="A2B",
-                        bus_connection_port=output_connection["output"],
+                        bus_connection_port=asset_connection["port"],
+                        asset_connection_port=asset_connection["to"]["port"],
                         scenario=get_object_or_404(Scenario, pk=scen_id),
                     )
+        else:
+            logger.debug(
+                f"The node with asset type {self.name} is not a bus, therefore no connection will be created"
+            )
         logger.debug(
             f"Nodes interconnection links for {self.name} '{self.data['name']}' were created successfully in scenario: {scen_id}."
         )
