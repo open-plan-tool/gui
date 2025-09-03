@@ -30,52 +30,48 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mb-2 mb-lg-0">
-				{% if not scenario_create %}
 				<li class="nav-item">
 					<div class="dropdown dropdown--navbar">
-                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% translate "Resources" %}
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "User Manual" %}</a></li>
-                  <li><a class="dropdown-item" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a></li>
-                  <li><a class="dropdown-item" href="{{ courses_url }}" target="_blank" rel="noreferrer">{% translate "Courses and workshops" %}</a></li>
-									<li><a class="dropdown-item" href="https://github.com/open-plan-tool" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
-                  <li><a class="dropdown-item" href="{% url 'usecase_search' %}" target="_blank" rel="noreferrer">{% translate "Use cases" %}</a></li>
-                </ul>
-              </div>
+					<button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+						{% translate "Resources" %}
+					</button>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="{{ documentation_url }}" target="_blank" rel="noreferrer">{% translate "User Manual" %}</a></li>
+						<li><a class="dropdown-item" href="https://www.youtube.com/@open_plan2303/videos" target="_blank" rel="noreferrer">{% translate "Video-tutorials" %}</a></li>
+						<li><a class="dropdown-item" href="{{ courses_url }}" target="_blank" rel="noreferrer">{% translate "Courses and workshops" %}</a></li>
+						<li><a class="dropdown-item" href="https://github.com/open-plan-tool" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
+						<li><a class="dropdown-item" href="{% url 'usecase_search' %}" target="_blank" rel="noreferrer">{% translate "Use cases" %}</a></li>
+					</ul>
+				</div>
 				</li>
-
 				<!--li class="nav-item">
 <a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
 </li-->
 				{% if user.is_authenticated %}
-
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'project_search' %}">{% translate "My Projects" %}</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
-				</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'project_search' %}">{% translate "My Projects" %}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
+					</li>
 				{% else %}
-				<li class="nav-item">
+					<li class="nav-item">
 					<div class="dropdown dropdown--navbar">
-                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% translate "About us" %}
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Overview" %}</a></li>
-                  <li><a class="dropdown-item" href="{% url 'contact' %}">{% translate "Contact" %}</a></li>
-                  <li><a class="dropdown-item" href="{% url 'sponsor_feature' %}">{% translate "Sponsoring" %}</a></li>
-                </ul>
-              </div>
-				</li>
-
+						<button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							{% translate "About us" %}
+						</button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Overview" %}</a></li>
+							<li><a class="dropdown-item" href="{% url 'contact' %}">{% translate "Contact" %}</a></li>
+							<li><a class="dropdown-item" href="{% url 'sponsor_feature' %}">{% translate "Sponsoring" %}</a></li>
+						</ul>
+					</div>
+					</li>
 				{% endif %}
-				{% elif signup %}
+				{% if signup %}
 				<!--For user signup the nav bar does not display all options-->
 				{% endif %}
 
@@ -115,8 +111,6 @@
 						<li><a class="dropdown-item" href="{% url 'logout' %}">{% translate "Log out" %}</a></li>
 					</ul>
 				</li>
-
-
 				{% else %}
 				<li class="nav-item">
 					<!-- pages/projects-view-empty.html -->
