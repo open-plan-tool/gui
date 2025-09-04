@@ -141,6 +141,7 @@
     const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
     const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
     const tsGetUrl = `{% url 'get_timeseries' %}`;
+    const findtsGetUrl = `{% url 'get_constant_timeseries_id' %}`;
 </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
@@ -203,6 +204,8 @@
     function save_topology(move_step=false) {
         // Data Pre-check
         const save_button = document.getElementById('btn-save');
+        const save_spinner = document.getElementById('saveSpinner');
+        const save_toast = document.getElementById('saveToast');
         const editorData = editor.export().drawflow.Home.data;
         const node_list = Object.values(editorData)
         const node_names = node_list.map(obj => obj.data.name);
@@ -227,6 +230,7 @@
 
         // (temporarily) disable save button
         save_button.classList.add('disabled');
+        save_spinner.classList.remove('d-none');
 
         try {
             const transformIOs = (obj, entry) => {
@@ -261,11 +265,21 @@
                 body: JSON.stringify(drawflowData),
             }).then(_ => {
                 // success: may move to next step
+                save_spinner.classList.add('d-none');
+                save_toast.classList.remove('d-none');
+                save_toast.classList.add('show');
+                setTimeout(() => {
+                    save_toast.classList.remove('show');
+                    save_toast.classList.add('d-none');
+                }, 3000);
+
                  if (move_step){
                     window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
                 }
                 // save button should still be disabled until next change
             }).catch(error => {
+                save_spinner.classList.add('d-none');
+                save_button.disabled = false;
                 error.json().then(jsonData => {
                     if (jsonData.specific_obj_type) {
                         Swal.fire('Grid Model Error', `Please fill in all ${jsonData.specific_obj_type.bold()} fields. \n
@@ -282,28 +296,64 @@
             });
         } catch (error) {
             console.error('Error while saving topology. ' + error);
-            return Swal.fire('Grid Model Error',
-                'There are empty assets.\n Make sure all assets are filled in with data.', 'error');
             // re-enable save button
             save_button.classList.remove('disabled');
+            save_spinner.classList.add('d-none');
+            save_button.disabled = false;
+            return Swal.fire('Grid Model Error',
+                'There are empty assets.\n Make sure all assets are filled in with data.', 'error');
         }
+        // add feedback message to save button
+
+
+        save_button.addEventListener('click', () => {
+        save_button.disabled = true;
+        save_spinner.classList.remove('d-none');
+
+        // Simulate save delay
+        setTimeout(() => {
+            save_spinner.classList.add('d-none');
+            save_button.disabled = false;
+
+            // Show toast
+            save_toast.classList.remove('d-none');
+            save_toast.classList.add('show');
+
+            // Auto-hide
+            setTimeout(() => {
+            save_toast.classList.remove('show');
+            save_toast.classList.add('d-none');
+            }, 3000);
+        }, 1500);
+        });
     }
 </script>
 {% endblock end_body_scripts %}
 
 {% block footer %}
+<!-- Toast container (above footer) -->
+<div class="custom-toast-container">
+    <div id="saveToast"
+        class="toast align-items-center text-bg-success border-0 d-none"
+        role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <svg width="16" height="16" version="1.1" viewBox="0 0 100 100" fill="#1F567D" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m65.691 35.762-21.68 21.668-9.6992-9.6992c-1.25-1.25-3.2891-1.25-4.5391 0s-1.25 3.2891 0 4.5391l11.969 11.969c0.62891 0.62891 1.4492 0.94141 2.2695 0.94141 0.82031 0 1.6406-0.30859 2.2695-0.94141l23.949-23.938c1.25-1.25 1.25-3.2891 0-4.5391-1.2617-1.2617-3.2891-1.2617-4.5391 0z"/>
+                    <path d="m50 10c-22.059 0-40 17.941-40 40s17.941 40 40 40 40-17.941 40-40-17.941-40-40-40zm0 73.578c-18.512 0-33.578-15.059-33.578-33.578s15.066-33.578 33.578-33.578 33.578 15.059 33.578 33.578-15.066 33.578-33.578 33.578z"/>
+                </svg>
+                <span>Saved successfully</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer class="step-footer">
   <div>
     <div class="step-footer__left"></div>
     <div class="step-footer__center">
         <a class="btn btn--medium btn--hollow btn--previous" href="{% url 'scenario_steps_edit' proj_id scen_id step_id|add:'-1' %}" aria-disabled="true">{% translate "Previous" %}</a>
         {% if user_has_right_to_save %}
-            <button
-                id="btn-save"
-                class="btn btn--medium btn--transparent disabled"
-                onclick="javascript:save_topology()">
-                {% translate "Save" %}
-            </button>
             <button
                 onclick="javascript:save_topology(move_step=true)"
                 id="next_btn" class="btn btn--medium" >
@@ -317,14 +367,23 @@
                 {% translate "Next" %}
             </button>
         {% endif %}
-    </div>
-    <div class="step-footer__right">
-        {% if scen_id %}
+        {% if scen_id and existing_simulation %}
             <a
                 class="btn btn--medium btn--transparent"
-                href="{% url 'scenario_steps_edit' proj_id scen_id 4 %}">
+                href="{% url 'scenario_steps_edit' proj_id scen_id max_step|add:'-1' %}">
                 {% translate "Go to simulation" %}
             </a>
+        {% endif %}
+    </div>
+    <div class="step-footer__right">
+        {% if user_has_right_to_save %}
+            <button
+                id="btn-save"
+                class="btn btn--medium btn--transparent disabled"
+                onclick="javascript:save_topology()">
+                <span id="saveSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                {% translate "Save" %}
+            </button>
         {% endif %}
     </div>
   </div>

@@ -49,6 +49,12 @@
 		flex: 1;
 	}
 
+	&__right {
+		display: flex;
+    	justify-content: flex-end;
+		margin-right: 1.5rem; //same spacing as the toast container
+	}
+
 	.btn--previous {
 		border: none;
 	}
@@ -57,6 +63,32 @@
 		float: right;
 	}
 }
+
+.custom-toast-container {
+	position: fixed;
+	bottom: 80px; // above footer
+	right: 1.5rem;
+	z-index: 1050;
+
+	.toast-body {
+		display: inline-flex !important;
+		width: 100% !important;
+		padding: 0.5rem 1rem !important;
+		align-items: center !important;
+		gap: 1rem !important;
+		border-radius: 0.25rem !important;
+		border: 1px solid #C8E5E8 !important;
+		background: $white !important;
+
+		span {
+			color: $primary-color-1 !important;
+			font-size: 1rem !important;
+			font-weight: 600 !important;
+			letter-spacing: 0.03rem !important;
+		}
+	}
+}
+
 
 .simulation-footer {
 	background-color: $white;

@@ -964,8 +964,8 @@ class AssetCreateForm(OpenPlanModelForm):
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
             user=self.user,
+            name=timeseries_name,
             defaults={
-                "name": timeseries_name,
                 "ts_type": self.asset_type.mvs_type,
                 "open_source": False,
             },

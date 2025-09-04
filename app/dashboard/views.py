@@ -561,35 +561,33 @@ def ajax_get_sensitivity_analysis_parameters(request):
 @json_view
 @require_http_methods(["GET"])
 def update_selected_single_scenario(request, proj_id, scen_id):
-    proj_id = str(proj_id)
-    scen_id = str(scen_id)
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        status_code = 200
-        selected_scenarios_per_project = request.session.get("selected_scenarios", {})
-        selected_scenario = selected_scenarios_per_project.get(proj_id, [])
-
-        if scen_id in selected_scenario:
-            if len(selected_scenario) > 1:
-                selected_scenario.pop(selected_scenario.index(scen_id))
-                msg = _(f"Scenario {scen_id} was deselected")
-            else:
-                msg = _(f"At least one scenario need to be selected")
-                status_code = 405
-        else:
-            selected_scenario = [scen_id]
-            msg = _(f"Scenario {scen_id} was selected")
-        selected_scenarios_per_project[proj_id] = selected_scenario
-        request.session["selected_scenarios"] = selected_scenarios_per_project
-        answer = JsonResponse(
-            {"success": msg}, status=status_code, content_type="application/json"
-        )
-    else:
-        answer = JsonResponse(
+    if request.headers.get("x-requested-with") != "XMLHttpRequest":
+        return JsonResponse(
             {"error": "This url is only for AJAX calls"},
             status=405,
-            content_type="application/json",
         )
-    return answer
+    selected_scenarios_per_project = request.session.get("selected_scenarios", {})
+    selected_scenario = selected_scenarios_per_project.get(proj_id, [])
+
+    if scen_id in selected_scenario:
+        if len(selected_scenario) > 1:
+            selected_scenario.pop(selected_scenario.index(scen_id))
+            msg = _(f"Scenario {scen_id} was deselected")
+        else:
+            msg = _(f"At least one scenario need to be selected")
+            return JsonResponse({"success": msg}, status=405)
+    else:
+        selected_scenario = [scen_id]
+        msg = _(f"Scenario {scen_id} was selected")
+    selected_scenarios_per_project[proj_id] = selected_scenario
+    request.session["selected_scenarios"] = selected_scenarios_per_project
+    topology_data_list = load_scenario_topology_from_db(int(scen_id))
+    return JsonResponse(
+        {
+            "success": msg,
+            "topology_data_list": topology_data_list,
+        }
+    )
 
 
 @login_required

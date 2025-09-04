@@ -67,21 +67,43 @@ function makePlotly( x, y, plot_id="",userLayout=null){
 };
 
 
+var ts_length = null;  // get length of timeseries after first retrieval
 function getTimeseriesValues(ts_id, param_name=""){
     //tsGetUrl is defined in scenario_step2.html
-    $.ajax({
-        type: "GET",
-        url: tsGetUrl + "/" + ts_id,
-        success: function (resp) {
-
-            ts_values = resp["values"];
-            console.log("retrieved values")
-            console.log(ts_values)
-            plotTimeseriesInputTrace(ts_values, param_name=param_name)
-        },
+    fetch(tsGetUrl + "/" + ts_id).then(resp => resp.json()).then(data => {
+        let ts_values = data["values"];
+        ts_length = ts_values.length;
+        console.log("retrieved values", ts_values);
+        plotTimeseriesInputTrace(ts_values, param_name=param_name);
+        // update scalar field value for scalar data
+        ts_set = new Set(ts_values);
+        if (ts_set.size == 1) {
+            // constant / scalar timeseries
+            let scalar_id = "id_" + param_name + "_0";
+            let scalar_input = document.getElementById(scalar_id);
+            if (scalar_input)
+                scalar_input.value = ts_values[0];
+        }
     });
 }
 
+
+function getConstantTimeseriesId(value){
+    //findtsGetUrl is defined in scenario_step2.html
+    $.ajax({
+        type: "GET",
+        url: findtsGetUrl + "/" + value,
+        success: function (resp) {
+            // url return {"id": None} or {"id": <id of the timeseries>}
+            ts_values = resp["id"];
+            console.log("retrieved values")
+            //console.log(ts_values)
+            //plotTimeseriesInputTrace(ts_values, param_name=param_name)
+            return ts_values
+        },
+    });
+
+}
 
 
 var PLOT_ID = "";
@@ -107,12 +129,27 @@ function changeTimeseriesUploadValue(obj, param_name=""){
     var manual_input = document.getElementById(manualID);
     manual_input.value = "";
 }
-function changeTimeseriesManualValue(obj, param_name=""){
-    console.log("widget: manual");
-    // this is hacky as select does not get triggered as changed
+function initTimeseriesManualValue(param_name="") {
+    // trigger plot timeseries, as this retrieves timeseries from DB and sets TS length
+    console.log("init widget:manual");
     var selectID = "id_" + param_name + "_1";
     var select_input = document.getElementById(selectID);
+    // this is hacky as select does not get triggered as changed
     select_input.dispatchEvent(new Event('change'));
+}
+function updateTimeseriesManualValue(value, param_name="") {
+    console.log("update widget:manual");
+    let ts_values = (new Array(ts_length)).fill(Number(value));
+    plotTimeseriesInputTrace(ts_values, param_name=param_name);
+    // deselect uploaded timeseries field
+    var selectID = "id_" + param_name + "_1";
+    var select_input = document.getElementById(selectID);
+    fetch(findtsGetUrl + "/" + ts_length +"/value/" + value).then(resp => resp.json()).then(data => {
+        console.log(data)
+        let ts_id = data["id"];
+        if(ts_id){select_input.value = ts_id;}
+        else{select_input.value = "";}
+    });
 }
 
 

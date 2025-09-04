@@ -1096,10 +1096,34 @@ a.dropdown-item:active {
     width: 100%; }
   .step-footer__left, .step-footer__right {
     flex: 1; }
+  .step-footer__right {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 1.5rem; }
   .step-footer .btn--previous {
     border: none; }
   .step-footer__right a {
     float: right; }
+
+.custom-toast-container {
+  position: fixed;
+  bottom: 80px;
+  right: 1.5rem;
+  z-index: 1050; }
+  .custom-toast-container .toast-body {
+    display: inline-flex !important;
+    width: 100% !important;
+    padding: 0.5rem 1rem !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    border-radius: 0.25rem !important;
+    border: 1px solid #C8E5E8 !important;
+    background: #fff !important; }
+    .custom-toast-container .toast-body span {
+      color: #1F567D !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.03rem !important; }
 
 .simulation-footer {
   background-color: #fff;
@@ -1942,12 +1966,7 @@ nav.navbar {
     -moz-transform: translateY(3px);
     -ms-transform: translateY(3px);
     -o-transform: translateY(3px); }
-  .navbar.navbar--signup .nav-item.locale::before {
-    content: ''; }
-  .navbar.navbar--scenario {
-    position: relative; }
-    .navbar.navbar--scenario .nav-item.locale::before {
-      content: ''; } }
+  }
 
 .wizard {
   position: relative;
