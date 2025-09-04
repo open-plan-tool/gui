@@ -20,6 +20,7 @@ class Command(BaseCommand):
         assets = df.to_dict(orient="records")
 
         for asset_params in assets:
+            print(asset_params["asset_type"])
             qs = AssetType.objects.filter(asset_type=asset_params["asset_type"])
             asset_ports = asset_params.pop("ports", None)
 
@@ -33,17 +34,17 @@ class Command(BaseCommand):
             asset_type = AssetType.objects.get(asset_type=asset_params["asset_type"])
 
             if asset_ports is not None:
-
-                # TODO delete potential existing connexion ports
-                print()
+                # delete potential existing connexion ports
                 asset_type.ports.all().delete()
 
                 asset_ports = json.loads(asset_ports.replace("'", '"'))
-                for key, label in asset_ports.items():
+                for key, info in asset_ports.items():
+                    label, energy_vector = info
                     direction, num = key.split("_")
                     port, created = ConnectionPort.objects.get_or_create(
                         direction=direction,
                         num=int(num),
                         label=label,
                         asset_type=asset_type,
+                        energy_vector=energy_vector,
                     )
