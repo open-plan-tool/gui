@@ -1966,8 +1966,7 @@ nav.navbar {
     -moz-transform: translateY(3px);
     -ms-transform: translateY(3px);
     -o-transform: translateY(3px); }
-  .navbar.navbar--signup .nav-item.locale::before {
-    content: ''; }}
+  }
 
 .wizard {
   position: relative;

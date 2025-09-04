@@ -97,10 +97,6 @@ nav.navbar {
         @include translateY(3px);
       }
     }
-
-    &.navbar--signup .nav-item.locale::before {
-      content: '';
-    }
   }
 }
 
