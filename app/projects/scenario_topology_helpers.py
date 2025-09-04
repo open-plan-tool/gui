@@ -439,13 +439,39 @@ def db_connection_links_to_list(scen_id):
         flow_direction = db_connection.flow_direction
         if asset_connection_port == "no_mapping":
             logging.warning(
-                "A connection had no mapping, probably old scenario, assigning a mapping"
+                "A connection had no mapping to asset port, probably old scenario, assigning a mapping ..."
             )
+
+            energy_vector = db_connection.bus.type
+            asset_type = db_connection.asset.asset_type
             if flow_direction == "A2B":
                 asset_connection_port = "output_1"
+                if asset_type.n_outputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="output"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No output port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+
             elif flow_direction == "B2A":
                 asset_connection_port = "input_1"
-
+                if asset_type.n_inputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="input"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No input port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+            logging.warning(
+                f"... the asset {db_connection.asset.name} port to connect to the bus {db_connection.bus.name} was set to {asset_connection_port}"
+            )
         db_connection_dict = {
             "bus_id": db_connection.bus_id,
             "asset_id": db_connection.asset.unique_id,
