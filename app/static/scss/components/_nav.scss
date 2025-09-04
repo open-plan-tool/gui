@@ -101,14 +101,6 @@ nav.navbar {
     &.navbar--signup .nav-item.locale::before {
       content: '';
     }
-
-    &.navbar--scenario {
-      position: relative;
-
-      .nav-item.locale::before {
-        content: '';
-      }
-    }
   }
 }
 
