@@ -126,17 +126,35 @@ function getNodePortsConnections(nodeId){
       Object.values(input.connections).forEach(c =>{
       const n = editor.getNodeFromId(parseInt(c.node));
       const busNodeId = nodesToDB.get('node-' + c.node).uid;
-      input_output_mapping.inputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: {name: n.data.name, port:c.input, id: busNodeId}}); // n.id ????
+      input_output_mapping.inputs.push({
+          port: key,
+          label: node.data.portMapping?.[key]?.[0] ?? "NA",
+          energy_carrier: node.data.portMapping?.[key]?.[1] ?? n.data.bustype,
+          to: {
+            name: n.data.name,
+            port: c.input,
+            id: busNodeId
+          }
+        });
       });
     });
     Object.entries(node.outputs).forEach(([key, output]) => {
       Object.values(output.connections).forEach(c =>{
       const n = editor.getNodeFromId(parseInt(c.node));
       const busNodeId = nodesToDB.get('node-' + c.node).uid;
-      input_output_mapping.outputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: {name: n.data.name, port:c.output, id: busNodeId}});
+      input_output_mapping.outputs.push({
+          port: key,
+          label: node.data.portMapping?.[key]?.[0] ?? "NA",
+          energy_carrier: node.data.portMapping?.[key]?.[1] ?? n.data.bustype,
+          to: {
+            name: n.data.name,
+            port: c.output,
+            id: busNodeId
+          }
+        });
       });
     });
-
+    console.log(input_output_mapping);
     return input_output_mapping;
 }
 
