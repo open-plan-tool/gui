@@ -117,7 +117,7 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
 // find out the name of the other nodes the given node is connected to
 function getNodePortsConnections(nodeId){
 
-    const node = editor.getNodeFromId(nodeId)
+    const node = editor.getNodeFromId(nodeId);
     const inputs = node?.inputs || {};
     const outputs = node?.outputs || {};
     var input_output_mapping = {"inputs": [], "outputs": []};
@@ -126,15 +126,15 @@ function getNodePortsConnections(nodeId){
       Object.values(input.connections).forEach(c =>{
       const n = editor.getNodeFromId(parseInt(c.node));
       const busNodeId = nodesToDB.get('node-' + c.node).uid;
-      input_output_mapping.inputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: n.id, to: {name: n.data.name, port:c.input, id: busNodeId}})
-      })
+      input_output_mapping.inputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: {name: n.data.name, port:c.input, id: busNodeId}}); // n.id ????
+      });
     });
     Object.entries(node.outputs).forEach(([key, output]) => {
       Object.values(output.connections).forEach(c =>{
       const n = editor.getNodeFromId(parseInt(c.node));
       const busNodeId = nodesToDB.get('node-' + c.node).uid;
-      input_output_mapping.outputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: n.id, to: {name: n.data.name, port:c.output, id: busNodeId}})
-      })
+      input_output_mapping.outputs.push({port: key, label:node.data.portMapping?.[key] ?? "NA", energy_carrier: n.data.bustype, to: {name: n.data.name, port:c.output, id: busNodeId}});
+      });
     });
 
     return input_output_mapping;
@@ -157,8 +157,8 @@ function populateForm(node, submit=false) {
     const nodeId = parseInt(topologyNodeId.split("-").pop());
     // this we could get from the node data
     let nodePortsConnections = getNodePortsConnections(nodeId);
-    nodePortsConnections.inputs = JSON.stringify(nodePortsConnections.inputs)
-    nodePortsConnections.outputs = JSON.stringify(nodePortsConnections.outputs)
+    nodePortsConnections.inputs = JSON.stringify(nodePortsConnections.inputs);
+    nodePortsConnections.outputs = JSON.stringify(nodePortsConnections.outputs);
     // getAssetFormUrl is defined in scenario_step2.html
     let getUrl = getAssetFormUrl + nodeType;
     if (nodesToDB.has(topologyNodeId))
@@ -576,6 +576,3 @@ function computeCOP(event){
         alert(error.message);
     });
 }
-
-
-
