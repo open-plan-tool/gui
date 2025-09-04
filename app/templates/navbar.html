@@ -42,23 +42,9 @@
 						<li><a class="dropdown-item" href="https://github.com/open-plan-tool" target="_blank" rel="noreferrer">{% translate "Github" %}</a></li>
 						<li><a class="dropdown-item" href="{% url 'usecase_search' %}" target="_blank" rel="noreferrer">{% translate "Use cases" %}</a></li>
 					</ul>
-				</div>
+					</div>
 				</li>
-				<!--li class="nav-item">
-<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
-</li-->
-				{% if user.is_authenticated %}
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'project_search' %}">{% translate "My Projects" %}</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a>
-					</li>
-				{% else %}
-					<li class="nav-item">
+				<li class="nav-item">
 					<div class="dropdown dropdown--navbar">
 						<button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 							{% translate "About us" %}
@@ -67,14 +53,13 @@
 							<li><a class="dropdown-item" href="{% url 'about' %}">{% translate "Overview" %}</a></li>
 							<li><a class="dropdown-item" href="{% url 'contact' %}">{% translate "Contact" %}</a></li>
 							<li><a class="dropdown-item" href="{% url 'sponsor_feature' %}">{% translate "Sponsoring" %}</a></li>
+							<li><a class="dropdown-item" href="{% url 'user_feedback' %}">{% translate "Feedback" %}</a></li>
 						</ul>
 					</div>
-					</li>
-				{% endif %}
-				{% if signup %}
-				<!--For user signup the nav bar does not display all options-->
-				{% endif %}
-
+				</li>
+				<!--li class="nav-item">
+<a class="nav-link" href="{% url 'sponsor_feature' %}"><span class="badge bg-secondary">New</span> {% translate "Sponsor new features" %} </a>
+</li-->
 				<li class="nav-item dropdown locale" id="language-switcher">
 					<form action="{% url 'set_language' %}" method="post">
 						{% csrf_token %}
@@ -96,6 +81,18 @@
 						</select>
 					</form>
 				</li>
+				{% if user.is_authenticated %}
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'usecase_search' %}">{% translate "Use cases" %}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'project_search' %}">{% translate "My Projects" %}</a>
+					</li>
+				{% else %}
+				{% endif %}
+				{% if signup %}
+				<!--For user signup the nav bar does not display all options-->
+				{% endif %}
 
 				{% if user.is_authenticated %}
 				<li class="nav-item dropdown profile">
