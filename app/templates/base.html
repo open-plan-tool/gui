@@ -51,7 +51,7 @@
 {% setvar "https://open-plan-documentation.readthedocs.io/en/latest/" as documentation_url %}
 
 {% block navbar %}
-{% include "navbar.html" with user=user documentation_url=documentation_url %}
+	{% include "navbar.html" with user=user documentation_url=documentation_url %}
 {% endblock navbar %}
 
 {% block topology %}{% endblock %}

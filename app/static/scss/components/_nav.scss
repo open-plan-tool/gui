@@ -97,18 +97,6 @@ nav.navbar {
         @include translateY(3px);
       }
     }
-
-    &.navbar--signup .nav-item.locale::before {
-      content: '';
-    }
-
-    &.navbar--scenario {
-      position: relative;
-
-      .nav-item.locale::before {
-        content: '';
-      }
-    }
   }
 }
 
@@ -120,6 +108,7 @@ nav.navbar {
 
   @include flex-row-justify-center;
   padding-bottom: 2rem;
+  margin-top: 59.3667px;
 
   &> div {
     @include flex-column-align-justify-center;
