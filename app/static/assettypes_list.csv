@@ -18,7 +18,7 @@ gas_boiler,energy_conversion,Gas,transformer,"[name,age_installed,installed_capa
 electrolyzer,energy_conversion,H2,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
 heat_pump,energy_conversion,Heat,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
 pv_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWp
-wind_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWh
+wind_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kW
 biogas_plant,energy_production,Gas,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
 geothermal_conversion,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWh
 solar_thermal_plant,energy_production,Heat,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",m³

@@ -869,7 +869,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                     total_flows.append(
                         {
                             "value": round(y_vals["total_flow"], 2),
-                            "unit": y_vals["unit"],
+                            "unit": "kWh",
                             "label": y_vals["name"],
                         }
                     )
