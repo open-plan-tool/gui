@@ -674,7 +674,8 @@ class Asset(TopologyNode):
         if hasattr(self.asset_type, "connection_ports"):
             # port mapping contains the information to what bus is expected to be connected to which port
             port_mapping = self.asset_type.connection_ports
-            for port, field in port_mapping.items():
+            for port, info in port_mapping.items():
+                field, energy_vector = info
                 if "output" in port:
                     direction = "A2B"
                 elif "input" in port:
