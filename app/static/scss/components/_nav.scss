@@ -108,6 +108,7 @@ nav.navbar {
 
   @include flex-row-justify-center;
   padding-bottom: 2rem;
+  margin-top: 59.3667px;
 
   &> div {
     @include flex-column-align-justify-center;

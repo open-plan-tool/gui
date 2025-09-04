@@ -3,14 +3,6 @@
 {% load custom_template_tags %}
 
 
-{% if signup %}
-{% setvar "navbar--signup" as navbar_class %}
-{% elif scenario_create %}
-{% setvar "navbar--scenario" as navbar_class %}
-{% else %}
-{% setvar "" as navbar_class %}
-{% endif %}
-
 {% get_current_language as LANGUAGE_CODE %}
 
 {% if LANGUAGE_CODE == 'de' %}
