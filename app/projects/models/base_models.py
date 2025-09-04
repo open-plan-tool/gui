@@ -390,26 +390,30 @@ class ConnectionPort(models.Model):
         on_delete=models.CASCADE,
         related_name="ports",
     )
-    num = models.PositiveSmallIntegerField(
-        help_text="Port number (0 … n), order within given direction"
-    )
+    num = models.PositiveSmallIntegerField(help_text="Port number (0 … n)")
     direction = models.CharField(
         max_length=6, choices=DIRECTION_CHOICES, help_text="Input or output"
     )
     label = models.CharField(
         max_length=60,
-        help_text="Human-readable label, e.g. same as name of attribute of facade",
+        help_text="e.g. name of attribute of facade",
     )
+
+    energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
 
     class Meta:
         unique_together = ("asset_type", "direction", "num")
         ordering = ["asset_type", "direction", "num"]
 
     def __str__(self):
-        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: {self.label}"
+        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: ({self.label}, {self.energy_vector})"
+
+    @property
+    def port_key(self):
+        return f"{self.direction}_{self.num}"
 
     def to_dict(self):
-        return {f"{self.direction}_{self.num}": self.label}
+        return {f"{self.port_key}": (self.label, self.energy_vector)}
 
 
 class AssetType(models.Model):
