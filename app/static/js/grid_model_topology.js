@@ -100,7 +100,11 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
 
     const source_html = `<div class="box" ${ASSET_TYPE_NAME}="${nodeName}">
     </div>
-
+    <button class="node__delete" type="button" aria-label="Delete node">
+      <svg viewBox="0 0 20 20" width="12" height="12" aria-hidden="true">
+        <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
     <div class="drawflow-node__name nodeName">
         <span>
           ${shownName}
