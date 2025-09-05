@@ -118,21 +118,6 @@ $space-between-project-elements-small: 0.5rem;
 
 // GUI
 $gui-component-radius: 8px;
-$component-border-color--providers: #A4ADFB;
-$component-border-color--production: #FFEF9F;
-$component-border-color--conversion: #7BF1A8;
-$component-border-color--storage: #90F1EF;
-$component-border-color--demand: #FFD6E0;
-$component-border-color--bus: #F4CC9E;
-$component-categories: (
-  'providers': $component-border-color--providers,
-  'production': $component-border-color--production,
-  'conversion': $component-border-color--conversion,
-  'storage': $component-border-color--storage,
-  'demand': $component-border-color--demand,
-  'bus': $component-border-color--bus
-);
-
 $component-categories-mapping: (
     "dso": "providers",
     "gas_dso": "providers",
@@ -167,9 +152,8 @@ $component-categories-mapping: (
 );
 $gui-component-bg-size: 4.5rem;
 $gui-component-img-size: 3rem;
-$gui-component-node-size: 0.75rem;
-$gui-component-position-btm: 2rem;
-$gui-component-position-side: 0.9rem;
+$gui-component-node-size: 1rem;
+$gui-component-position-side: -8px;
 
 // Dashboard
 $dashboard-chart-height: 32rem;
