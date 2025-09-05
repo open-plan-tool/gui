@@ -1,5 +1,5 @@
-@import '../abstracts/variables';
-@import '../abstracts/mixins';
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
 
 .system-design {
   @include flex-row;
@@ -46,11 +46,25 @@
         border-radius: $gui-component-radius;
         box-shadow: $box-shadow-frame;
         background-color: $white;
-        border-left: 4px solid #A4ADFB;
         padding: .5rem;
         margin-bottom: .5rem;
         @include user-select-none;
         cursor: move;
+        &--bus-electricity {
+          border-left: 4px solid #FBC02D;
+        }
+
+        &--bus-gas {
+          border-left: 4px solid #55B068;
+        }
+
+        &--bus-heat {
+          border-left: 4px solid #E28785;
+        }
+
+        &--bus-h2 {
+          border-left: 4px solid #2C92B5;
+        }
       }
 
       .img {
@@ -68,12 +82,6 @@
       .drag {
         flex: 1;
         text-align: right;
-      }
-
-      @each $component-category, $component-color in $component-categories {
-        &--#{$component-category} .section__component{
-          border-left-color: $component-color;
-        }
       }
     }
   }
@@ -145,7 +153,30 @@
   }
 
   .drawflow .connection .main-path {
-    width: 2px;
+    width: 3px;
+  }
+
+  .drawflow .connection {
+
+    &.connection--electricity path {
+      stroke: #FBC02D;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.20));
+    }
+
+    &.connection--heat path {
+      stroke: #55B068;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.20));
+    }
+
+    &.connection--fuel path {
+      stroke: #E28785;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.20));
+    }
+
+    &.connection--h2 path {
+      stroke: #2C92B5;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.20));
+    }
   }
 
   .parent-node .drawflow-delete {
@@ -167,15 +198,13 @@
 
   .drawflow .drawflow-node {
     position: absolute;
-    height: 8rem;
+    height: 4.5rem;
     width: 9.5rem;
     border-radius: $gui-component-radius;
-    background-color: $primary-gray-color-1;
+    background-color: $white;
+    border: 1px solid $primary-gray-color-3;
     font-size: 12px;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-bottom: 4px solid #A4ADFB;
+    box-shadow: 0 4px 16px 0 rgba(31, 86, 125, 0.08);
     cursor: move;
     padding: 0 0.5rem 0.5rem;
 
@@ -195,81 +224,100 @@
     }
 
     .inputs {
-      bottom: $gui-component-position-btm;
       left: $gui-component-position-side;
+      top: 0;
     }
 
     .outputs {
-      bottom: $gui-component-position-btm;
       right: $gui-component-position-side;
+      top: 0;
     }
 
     .inputs,
     .outputs {
       position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
 
       .input,
       .output {
         width: $gui-component-node-size;
         height: $gui-component-node-size;
-        border-radius: 100%;
-        margin: .25rem 0;
-        border: 1px solid $white;
         cursor: pointer;
       }
-
-      .input {
-        background-color: #4EC4C4;
-        left: -22px;
-
-      }
-
-      .output {
-        background-color: #C46A4E;
-        right: -10px;
-
-      }
     }
-
-     @each $component-name, $component-category in $component-categories-mapping {
-              @if $component-category == "providers" or $component-category == "production" {
-                  &.#{$component-name} .input{
-                    display: none;
-                  }
-              }
-            }
-
-    @each $component-name, $component-category in $component-categories-mapping {
-              @if $component-category == "demand" {
-                &.#{$component-name} .output {
-                  display: none;
-                }
-              }
-            }
-
 
     .img {
       position: relative;
       width: $gui-component-bg-size;
       height: $gui-component-bg-size;
-      background-color: $white;
-      border-radius: 100%;
-    }
 
-    /* section colors */
-
-
-    // components images
-    @each $component-name, $component-category in $component-categories-mapping {
-              &.#{$component-name} {
-                      border-bottom-color: map-get($component-categories, $component-category);
-                    }
-
-      &.#{$component-name} .img::before {
-        @include gui-component-image(url('/static/assets/gui/#{$component-name}.svg'));
+      &::before {
+        content: '';
+        position: absolute;
+        top: 1.5rem;
+        right: calc((4.5rem - 2rem) / 2);
+        transform: translateY(-50%);
+        background-image: url(../../assets/gui/gas_boiler.svg);
+        background-size: contain;
+        height: 2rem;
+        width: 2rem;
       }
     }
+
+    .node__delete{
+      position: absolute;
+      top: -12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 100%;
+      background: $white;
+      color: #ef4444;
+      box-shadow: 0 1px 4px rgba(0,0,0,.15);
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .16s ease, transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s ease;
+    }
+
+    &:hover .node__delete,
+    &:focus-within .node__delete{
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+
+    .node__delete:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+    .node__delete:active{ transform: translateY(0) scale(.96); }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .node__delete{ transition: opacity .01s linear; transform: none; }
+      &:hover .node__delete, .node:focus-within .node__delete{ transform: none; }
+    }
   }
+
+  // @PF
+  // Dashed grey port -> When port can be connected but is still empty
+  .port--empty{ background-image: url(../../assets/gui/port-empty.svg); background-size: contain; background-repeat: no-repeat; }
+
+  // Faded dashed grey port -> When port is not compatible with the current connection
+  .port--not-compatible {
+    filter: brightness(0) saturate(100%) invert(90%) sepia(6%) saturate(5%) hue-rotate(315deg) brightness(90%) contrast(88%);
+  }
+
+  // Solid color ports -> When port is connected (optional: or compatible with the current connection)
+  .port--electricity  { background-image: url(../../assets/gui/port-electricity.svg); background-size: contain; background-repeat: no-repeat; }
+  .port--heat  { background-image: url(../../assets/gui/port-heat.svg); background-size: contain; background-repeat: no-repeat; }
+  .port--h2 { background-image: url(../../assets/gui/port-h2.svg); background-size: contain; background-repeat: no-repeat; }
+  .port--fuel{ background-image: url(../../assets/gui/port-fuel.svg); background-size: contain; background-repeat: no-repeat; }
 }
 
 .modal.modal--gui {
