@@ -42,6 +42,48 @@ for (let element of document.getElementsByClassName('section__component')) {
     element.addEventListener('touchstart', drag, false);
 }
 
+function applyPortClasses(node, mappingObj) {
+  if (!node || !mappingObj || !mappingObj.portMapping) return;
+
+  // Map the human-readable carrier to the CSS class to add
+  const carrierToClass = new Map([
+    ["electricity", "port--electricity"],
+    ["heat", "port--heat"],
+    ["h2", "port--h2"],
+    ["hydrogen", "port--h2"],
+    ["fuel", "port--fuel"],
+    ["gas", "port--fuel"]
+  ]);
+
+  const inferClass = (carrierStr = "", busStr = "") => {
+    const text = (carrierStr || "").toString().toLowerCase();
+    const bus = (busStr || "").toString().toLowerCase();
+
+    // Prefer the explicit carrier label; fall back to bus name keywords.
+    for (const [key, css] of carrierToClass.entries()) {
+      if (text.includes(key) || bus.includes(key)) return css;
+    }
+    return null; // unknown carrier -> no class added
+  };
+
+  for (const [portKey, tuple] of Object.entries(mappingObj.portMapping)) {
+    // Expect tuple like ["electricity_bus", "Electricity"]
+    const [busName, carrierLabel] = Array.isArray(tuple) ? tuple : [null, null];
+
+    // Determine if it's an input or output port from the key
+    const isInput = portKey.startsWith("input");
+    const portType = isInput ? "input" : "output";
+
+    // In Drawflow, the port div has classes like "input input_1" or "output output_1"
+    const portEl = node.querySelector(`.${portType}.${portKey}`);
+    if (!portEl) continue;
+
+    const cssClass = inferClass(carrierLabel, busName);
+    if (cssClass) portEl.classList.add(cssClass);
+  }
+}
+
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -63,6 +105,7 @@ function drop(ev) {
             // after adding node, try to save node with default data
             // populate form and submit
             node = document.getElementById('node-' + node.editorNodeId);
+            applyPortClasses(node,nodeData);
             populateForm(node, submit=true);
         });
     });
@@ -111,9 +154,11 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
         </span>
     </div>
     <div class="img"></div>`;
-
+    nodeId = editor.addNode(nodeName, connectionInputs, connectionOutputs, pos_x, pos_y, nodeName, nodeData, source_html);
+    const node = document.getElementById(`node-${nodeId}`);
+    applyPortClasses(node,nodeData);
     return {
-        "editorNodeId": editor.addNode(nodeName, connectionInputs, connectionOutputs, pos_x, pos_y, nodeName, nodeData, source_html),
+        "editorNodeId": nodeId,
         "specificNodeType": nodeName
     };
 }
@@ -158,7 +203,6 @@ function getNodePortsConnections(nodeId){
         });
       });
     });
-    console.log(input_output_mapping);
     return input_output_mapping;
 }
 

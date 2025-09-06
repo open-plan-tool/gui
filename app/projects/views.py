@@ -1748,10 +1748,15 @@ def asset_connection_ports_info(request, asset_type_name=None):
 
     if asset_type_name is not None:
         if asset_type_name == "bus":
+            # TODO, busses must be updated upon bus type (or direclty draggable as correct type)
             answer = JsonResponse(
                 {
                     "nodeInputs": 1,
                     "nodeOutputs": 1,
+                    "portMapping": {
+                        "input_1": ["input", "Heat"],
+                        "output_1": ["output", "Heat"],
+                    },
                 },
                 status=200,
             )
