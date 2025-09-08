@@ -405,7 +405,7 @@
   padding-top: 4rem;
   padding-bottom: 4rem;
   @include flex-row-justify-center;
-  background-color: white;
+  background-color: $bg-color-light;
 
   &> div {
     @include section-width;
@@ -531,7 +531,6 @@
 }
 
 .features2.cellular-features2 {
-  background-color: $white;
 }
 
 .related2 {

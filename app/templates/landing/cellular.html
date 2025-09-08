@@ -37,6 +37,8 @@
 		</div>
 	</section>
 
+	{% include 'landing/logos_open_plan1.html' %}
+
 	<section class="energycell2">
 		<div>
 			<div class="energycell2__heading">
@@ -71,9 +73,9 @@
 		</div>
 	</section>
 
-	{% include 'landing/logos_open_plan1.html' %}
 
-	<section class="special-features2">
+
+	<section class="special-features2" style="background-color: white;">
 		<div>
 			<div class="special-features2__heading" id="tool-anchor">
 				<img src="{% static 'assets/logos/open_plan_logo.png' %}" alt="open_plan logo"  height="100">
@@ -101,10 +103,10 @@
 
 	{% include 'landing/features_section.html' with cellular=True %}
 
-	<section class="projects2">
+	<section class="projects2" style="background-color: white;">
 		<div>
 			<div class="projects2__heading">
-				<h2>{% translate "Related projects (NEED UPDATE)" %}</h2>
+				<h2>{% translate "Related projects" %}</h2>
 			</div>
 			<div class="projects2__content">
 				<div class="projects2__item">

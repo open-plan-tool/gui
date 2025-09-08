@@ -1965,8 +1965,7 @@ nav.navbar {
     -webkit-transform: translateY(3px);
     -moz-transform: translateY(3px);
     -ms-transform: translateY(3px);
-    -o-transform: translateY(3px); }
-  }
+    -o-transform: translateY(3px); } }
 
 .wizard {
   position: relative;
@@ -1976,7 +1975,8 @@ nav.navbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding-bottom: 2rem; }
+  padding-bottom: 2rem;
+  margin-top: 59.3667px; }
   .wizard > div {
     display: flex;
     flex-direction: column;
@@ -3378,7 +3378,7 @@ nav.navbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  background-color: white; }
+  background-color: #F3F7FC; }
   .about2 > div {
     width: 100%;
     max-width: 82rem;
@@ -3476,9 +3476,6 @@ nav.navbar {
       color: #17405C; }
     .features2__item p {
       line-height: 170%; }
-
-.features2.cellular-features2 {
-  background-color: #fff; }
 
 .related2 {
   padding-top: 6rem;
