@@ -1341,7 +1341,8 @@ form .btn {
   flex-direction: row;
   justify-content: center;
   height: 4rem;
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem;
+  scroll-margin-top: 23rem; }
   .header-results > div {
     width: 100%;
     display: flex;
@@ -1965,8 +1966,7 @@ nav.navbar {
     -webkit-transform: translateY(3px);
     -moz-transform: translateY(3px);
     -ms-transform: translateY(3px);
-    -o-transform: translateY(3px); }
-  }
+    -o-transform: translateY(3px); } }
 
 .wizard {
   position: relative;
@@ -1976,7 +1976,8 @@ nav.navbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding-bottom: 2rem; }
+  padding-bottom: 2rem;
+  margin-top: 59.3667px; }
   .wizard > div {
     display: flex;
     flex-direction: column;
