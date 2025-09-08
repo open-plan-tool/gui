@@ -74,6 +74,27 @@ parameters specific to this graph type only, other parameters are available in t
 				</div>
 				{% endif %}
 			</div>
+				<!-- Accordion table of contents -->
+			<div class="accordion mb-4" id="sectionsAccordion">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingOverview">
+						<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOverview">
+							Sections
+						</button>
+					</h2>
+					<div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#sectionsAccordion">
+						<div class="accordion-body">
+							<ul class="list-unstyled mb-0">
+								<li><a href="#overview" class="text-decoration-none">Overview</a></li>
+								<li><a href="#technical" class="text-decoration-none">Technical Information</a></li>
+								<li><a href="#financial" class="text-decoration-none">Financial Information</a></li>
+								<li><a href="#environmental" class="text-decoration-none">Environmental Information</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</div>
 </div>
@@ -81,6 +102,10 @@ parameters specific to this graph type only, other parameters are available in t
 	<div>
 		{% if scenario_list %}
 		<!-- KPI table start -->
+		<div class="header-results" id="overview">
+			<h2 class="title">{% translate "Overview" %}</h2>
+		</div>
+
 		{% include "report/kpis_template.html" with table_styles=table_styles %}
 		<!-- KPI table end -->
 		<!-- ES design start -->
@@ -107,8 +132,11 @@ parameters specific to this graph type only, other parameters are available in t
 		</div>
 		<!-- ES design stop -->
 		<!-- Graphs area start -->
+		<div class="header-results" id="technical">
+			<h2 class="title">{% translate "Technical Information" %}</h2>
+		</div>
 		<div class="row">
-			<div class="col" id="report_items" style="display:flex;flex-direction:column-reverse;">
+			<div class="col" id="report_items_technical" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="sankey" title="Sankey diagram" %}
 				<select onchange="javascript:scenario_visualize_sankey(scen_id={{scen_id }},ts=this.value)">
 						<option value="">Aggregated</option>
@@ -119,11 +147,25 @@ parameters specific to this graph type only, other parameters are available in t
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 				{% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
 				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
-				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
-
-
 			</div>
 		</div>
+		<div class="header-results" id="financial">
+			<h2 class="title">{% translate "Financial Information" %}</h2>
+		</div>
+		<div class="row">
+			<div class="col" id="report_items_financial" style="display:flex;flex-direction:column-reverse;">
+				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
+			</div>
+		</div>
+
+		<div class="header-results" id="environmental">
+			<h2 class="title">{% translate "Environmental Information" %}</h2>
+		</div>
+		<div class="row">
+			<div class="col" id="report_items_environmental" style="display:flex;flex-direction:column-reverse;">
+			</div>
+		</div>
+
 		<!-- Graphs area  stop -->
 		{% endif %}
 	</div>
