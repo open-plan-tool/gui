@@ -19,7 +19,11 @@ function addTable(table_data, table_id) {
     parentDiv.innerHTML = "";
 
     /* create KPI table headers */
+    parentDiv.classList.add("table-bordered", "table-hover");
     const tableHead = document.createElement('thead');
+    tableHead.classList.add("thead-dark")
+    tableHead.style.position = "sticky"
+    tableHead.style.top = "0"
     const table_headers = table_data.hdrs; // todo add dynamically more scenarios here
     const table_length = table_headers.length;
     const tableHeadContent = document.createElement('tr');
