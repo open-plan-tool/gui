@@ -17,7 +17,8 @@ title:
 <div class="chart" style="height: fit-content;">
     <div class="chart__header">
         <div>
-            <span class="title">{% translate title %}</span>
+            <span class="title" data-bs-toggle="collapse" data-bs-target="#container_{{ id }}" role="button" aria-expanded="false" aria-controls="container_{{ id }}">
+                <a>{% translate title %}</a></span>
         </div>
         <div class="dropdown">
             <button class="btn dropdown-toggle btn--transparent" type="button" id="dropdownMenuTS" data-bs-toggle="dropdown" aria-expanded="false">
@@ -29,7 +30,7 @@ title:
             </ul>
         </div>
     </div>
-    <div class="chart__plot">
+    <div class="chart__plot collapse show" id="container_{{ id }}">
         <div id="{{ id }}"></div>
     </div>
 </div>
