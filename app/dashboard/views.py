@@ -641,7 +641,7 @@ def request_kpi_table(request, proj_id=None):
     scen_names = []
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
-        scen_names.append(scenario.name)
+        scen_names.append(_(scenario.name))
         kpi_scalar_results_obj = KPIScalarResults.objects.get(
             simulation=scenario.simulation
         )
@@ -674,7 +674,7 @@ def request_kpi_table(request, proj_id=None):
                         "currency", scenario.get_currency()
                     )
         answer = JsonResponse(
-            {"data": table, "hdrs": ["Indicator"] + scen_names},
+            {"data": table, "hdrs": [_("Indicator")] + scen_names},
             status=200,
             content_type="application/json",
         )

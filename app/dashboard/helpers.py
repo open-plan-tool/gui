@@ -5,6 +5,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Value, Q, F, Case, When
 from django.db.models.functions import Concat, Replace
+from django.templatetags.static import static
 from numbers import Number
 
 from projects.models import Viewer, Project
@@ -431,7 +432,15 @@ class KPIFinder:
                 answer = self.kpi_info_dict[param_name]["definition"]
             else:
                 answer = None
-        return answer
+
+        return self.format_help_text(answer)
+
+    @staticmethod
+    def format_help_text(help_text):
+        """Wraps the question icon around the help text and applies translation"""
+        return "<a data-bs-toggle='tooltip' title='' data-bs-original-title='{}' data-bs-placement='right'><img style='height: 1.2rem;margin-left:.5rem' alt='info icon' src='{}'></a>".format(
+            help_text, static("assets/icons/i_info.svg")
+        )
 
 
 KPI_helper = KPIFinder(param_info_dict=KPI_PARAMETERS)
