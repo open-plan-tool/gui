@@ -628,6 +628,7 @@ def update_selected_multi_scenarios(request, proj_id):
 def request_kpi_table(request, proj_id=None):
 
     compare_scen = request.GET.get("compare_scenario")
+    table_id = request.GET.get("table_id")
     if compare_scen != "":
         compare_scen = int(compare_scen)
     else:
@@ -650,7 +651,7 @@ def request_kpi_table(request, proj_id=None):
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Faktor": "%"}
-    table = TABLES.get("management", None)
+    table = TABLES.get(table_id, None)
 
     # do some unit substitution
     for l in table.values():
