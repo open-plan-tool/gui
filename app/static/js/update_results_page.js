@@ -49,7 +49,7 @@ function update_kpi_table_style(scen_id=""){
             table_data.data[subBody].forEach(param =>{
                 let tableSubSectionParamRow = document.createElement('tr');
                 let cell = tableSubSectionParamRow.insertCell(0);
-                cell.innerHTML = `{% blocktranslate %}` + param.name +`{% endblocktranslate %}<a data-bs-toggle="tooltip" title="" data-bs-original-title="${param.description}" data-bs-placement="right"><img style="height: 1.2rem;margin-left:.5rem" alt="info icon" src=srcInfoIcon></a>`;
+                cell.innerHTML = param.name + param.description;
                 //cell.setAttribute("title", param.description)
                 //cell.append(" just to see");
                 // todo for loop over scenario values
