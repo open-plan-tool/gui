@@ -106,7 +106,7 @@ parameters specific to this graph type only, other parameters are available in t
 			<h2 class="title">{% translate "Overview" %}</h2>
 		</div>
 
-		{% include "report/kpis_template.html" with table_styles=table_styles %}
+		{% include "report/kpis_template.html" with table_styles=table_styles table_id="summary" %}
 		<!-- KPI table end -->
 		<!-- ES design start -->
 		<div class="chart" style="height: fit-content;">
@@ -135,6 +135,8 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="header-results" id="technical">
 			<h2 class="title">{% translate "Technical Information" %}</h2>
 		</div>
+				{% include "report/kpis_template.html" with table_styles=table_styles table_id="technical" %}
+
 		<div class="row">
 			<div class="col" id="report_items_technical" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="sankey" title="Sankey diagram" %}
@@ -152,6 +154,7 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="header-results" id="financial">
 			<h2 class="title">{% translate "Financial Information" %}</h2>
 		</div>
+		{% include "report/kpis_template.html" with table_styles=table_styles table_id="economic" %}
 		<div class="row">
 			<div class="col" id="report_items_financial" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
@@ -161,6 +164,8 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="header-results" id="environmental">
 			<h2 class="title">{% translate "Environmental Information" %}</h2>
 		</div>
+		{% include "report/kpis_template.html" with table_styles=table_styles table_id="environmental" %}
+
 		<div class="row">
 			<div class="col" id="report_items_environmental" style="display:flex;flex-direction:column-reverse;">
 			</div>
@@ -192,7 +197,10 @@ $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
     // update the kpi table
-    update_kpi_table_style(current_scen_id);
+    update_kpi_table_style(current_scen_id, "summary");
+    update_kpi_table_style(current_scen_id, "technical");
+    update_kpi_table_style(current_scen_id, "economic");
+    update_kpi_table_style(current_scen_id, "environmental");
     scenario_visualize_timeseries(current_scen_id);
     scenario_visualize_stacked_timeseries(current_scen_id);
     scenario_visualize_sankey(current_scen_id);

@@ -9,6 +9,8 @@ Here is a list of the parameters one can provide to this template
 
 table_styles:
     the id of the modal (should be unique to the modal within same html template
+table_id:
+	the id of the table that should be loaded (see available categories in TABLES)
 {% endcomment %}
 
 
@@ -19,7 +21,7 @@ table_styles:
 					<div class="chart__header">
 						<!-- style="display: flex;gap: 10px;align-items: center;" -->
 						<div>
-							<span class="title">{% translate "KPI table" %}</span>
+							<span class="title">{% translate "Summary" %}</span>
 							<span style="display:none;"><select id="kpi-table-style" name="kpi-table-style" class="form-select" aria-label="Default select example" onchange="update_kpi_table_style(this)">
 																		{% for style in table_styles %}
 																		<option value="{{ style }}"> {{ style }}  </option>
@@ -41,7 +43,7 @@ table_styles:
 						</div>
 					</div>
 					<div class="chart__plot">
-						<table class="table" id="selectedKPITable"></table>
+						<table class="table" id="{{ table_id }}Table"></table>
 						<!--<div class="table-add">
 							<span class="icon icon-add"></span>
 							<span class="table-add__text">
