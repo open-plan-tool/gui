@@ -160,9 +160,9 @@
 @mixin gui-component-image($img-path) {
   content: '';
   position: absolute;
-  top: calc(#{$gui-component-bg-size} / 2);
-  right: calc((#{$gui-component-bg-size} - #{$gui-component-img-size}) / 2);
-  transform: translateY(-50%);
+  top: 0.5rem;
+  right: 3px;
+  transform: translateX(-50%);
   background-image: $img-path;
   background-size: contain;
   height: $gui-component-img-size;
@@ -212,7 +212,7 @@
 		padding-bottom: 3rem;
 	}
 	&::before {
-		background-image: url(../assets/icons/i_arrow_left.svg);
+		background-image: url("/static/assets/icons/i_arrow_left.svg");
 		background-size: 12px 12px;
 		display: inline-block;
 		height: 12px;

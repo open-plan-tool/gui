@@ -2393,7 +2393,7 @@ nav.navbar {
       .publications .to-home-anchor {
         padding-bottom: 3rem; } }
     .publications .to-home-anchor::before {
-      background-image: url(../assets/icons/i_arrow_left.svg);
+      background-image: url("/static/assets/icons/i_arrow_left.svg");
       background-size: 12px 12px;
       display: inline-block;
       height: 12px;
@@ -2481,7 +2481,6 @@ nav.navbar {
         border-radius: 8px;
         box-shadow: 0px 0px 16px rgba(31, 86, 125, 0.08);
         background-color: #fff;
-        border-left: 4px solid #A4ADFB;
         padding: .5rem;
         margin-bottom: .5rem;
         -webkit-user-select: none;
@@ -2489,6 +2488,14 @@ nav.navbar {
         -ms-user-select: none;
         user-select: none;
         cursor: move; }
+        .system-design .components__content .section__component--bus-electricity {
+          border-left: 4px solid #FBC02D; }
+        .system-design .components__content .section__component--bus-gas {
+          border-left: 4px solid #55B068; }
+        .system-design .components__content .section__component--bus-heat {
+          border-left: 4px solid #E28785; }
+        .system-design .components__content .section__component--bus-h2 {
+          border-left: 4px solid #2C92B5; }
       .system-design .components__content .section .img {
         height: 2rem;
         width: 2rem; }
@@ -2500,18 +2507,6 @@ nav.navbar {
       .system-design .components__content .section .drag {
         flex: 1;
         text-align: right; }
-      .system-design .components__content .section--providers .section__component {
-        border-left-color: #A4ADFB; }
-      .system-design .components__content .section--production .section__component {
-        border-left-color: #FFEF9F; }
-      .system-design .components__content .section--conversion .section__component {
-        border-left-color: #7BF1A8; }
-      .system-design .components__content .section--storage .section__component {
-        border-left-color: #90F1EF; }
-      .system-design .components__content .section--demand .section__component {
-        border-left-color: #FFD6E0; }
-      .system-design .components__content .section--bus .section__component {
-        border-left-color: #F4CC9E; }
   .system-design .gui {
     position: relative;
     flex: 1;
@@ -2559,7 +2554,19 @@ nav.navbar {
         color: #343434;
         font-weight: 300; }
   .system-design .drawflow .connection .main-path {
-    width: 2px; }
+    width: 3px; }
+  .system-design .drawflow .connection.connection--electricity path {
+    stroke: #FBC02D;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
+  .system-design .drawflow .connection.connection--heat path {
+    stroke: #55B068;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
+  .system-design .drawflow .connection.connection--fuel path {
+    stroke: #E28785;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
+  .system-design .drawflow .connection.connection--h2 path {
+    stroke: #2C92B5;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
   .system-design .parent-node .drawflow-delete {
     content: 'X';
     position: absolute;
@@ -2577,18 +2584,16 @@ nav.navbar {
     cursor: pointer; }
   .system-design .drawflow .drawflow-node {
     position: absolute;
-    height: 8rem;
+    height: 4.5rem;
     width: 9.5rem;
     border-radius: 8px;
-    background-color: #F4F7F9;
+    background-color: #fff;
+    border: 1px solid #A8B5C0;
     font-size: 12px;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-bottom: 4px solid #A4ADFB;
+    box-shadow: 0 4px 16px 0 rgba(31, 86, 125, 0.08);
     cursor: move;
     padding: 0 0.5rem 0.5rem;
-    /* section colors */ }
+    /* Respect reduced motion */ }
     .system-design .drawflow .drawflow-node:hover {
       background-color: #edf2f5; }
     .system-design .drawflow .drawflow-node.selected {
@@ -2600,424 +2605,404 @@ nav.navbar {
       justify-content: space-around;
       align-items: center; }
     .system-design .drawflow .drawflow-node .inputs {
-      bottom: 2rem;
-      left: 0.9rem; }
+      left: -8px;
+      top: 0; }
     .system-design .drawflow .drawflow-node .outputs {
-      bottom: 2rem;
-      right: 0.9rem; }
+      right: -8px;
+      top: 0; }
     .system-design .drawflow .drawflow-node .inputs,
     .system-design .drawflow .drawflow-node .outputs {
-      position: absolute; }
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%; }
       .system-design .drawflow .drawflow-node .inputs .input,
       .system-design .drawflow .drawflow-node .inputs .output,
       .system-design .drawflow .drawflow-node .outputs .input,
       .system-design .drawflow .drawflow-node .outputs .output {
+        position: relative;
         width: 0.75rem;
         height: 0.75rem;
+        right: 0px;
+        border-color: #495965;
         border-radius: 100%;
-        margin: .25rem 0;
-        border: 1px solid #fff;
         cursor: pointer; }
       .system-design .drawflow .drawflow-node .inputs .input,
       .system-design .drawflow .drawflow-node .outputs .input {
-        background-color: #4EC4C4;
-        left: -22px; }
+        left: 2px;
+        background-color: #fff; }
       .system-design .drawflow .drawflow-node .inputs .output,
       .system-design .drawflow .drawflow-node .outputs .output {
-        background-color: #C46A4E;
-        right: -10px; }
-    .system-design .drawflow .drawflow-node.dso .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.gas_dso .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.h2_dso .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.heat_dso .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.pv_plant .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.wind_plant .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.biogas_plant .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.geothermal_conversion .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.solar_thermal_plant .input {
-      display: none; }
-    .system-design .drawflow .drawflow-node.demand .output {
-      display: none; }
-    .system-design .drawflow .drawflow-node.gas_demand .output {
-      display: none; }
-    .system-design .drawflow .drawflow-node.h2_demand .output {
-      display: none; }
-    .system-design .drawflow .drawflow-node.heat_demand .output {
-      display: none; }
+        left: -14px;
+        background-color: #fff; }
     .system-design .drawflow .drawflow-node .img {
       position: relative;
       width: 4.5rem;
-      height: 4.5rem;
-      background-color: #fff;
-      border-radius: 100%; }
-    .system-design .drawflow .drawflow-node.dso {
-      border-bottom-color: #A4ADFB; }
+      height: 4.5rem; }
     .system-design .drawflow .drawflow-node.dso .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/dso.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.gas_dso {
-      border-bottom-color: #A4ADFB; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.gas_dso .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/gas_dso.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.h2_dso {
-      border-bottom-color: #A4ADFB; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.h2_dso .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/h2_dso.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.heat_dso {
-      border-bottom-color: #A4ADFB; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.heat_dso .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/heat_dso.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.pv_plant {
-      border-bottom-color: #FFEF9F; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.pv_plant .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/pv_plant.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.wind_plant {
-      border-bottom-color: #FFEF9F; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.wind_plant .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/wind_plant.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.biogas_plant {
-      border-bottom-color: #FFEF9F; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.biogas_plant .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/biogas_plant.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.geothermal_conversion {
-      border-bottom-color: #FFEF9F; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.geothermal_conversion .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/geothermal_conversion.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.solar_thermal_plant {
-      border-bottom-color: #FFEF9F; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.solar_thermal_plant .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/solar_thermal_plant.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.transformer_station_in {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.transformer_station_in .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/transformer_station_in.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.transformer_station_out {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.transformer_station_out .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/transformer_station_out.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.storage_charge_controller_in {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.storage_charge_controller_in .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/storage_charge_controller_in.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.storage_charge_controller_out {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.storage_charge_controller_out .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/storage_charge_controller_out.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.solar_inverter {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.solar_inverter .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/solar_inverter.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.diesel_generator {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.diesel_generator .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/diesel_generator.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.fuel_cell {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.fuel_cell .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/fuel_cell.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.gas_boiler {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.gas_boiler .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/gas_boiler.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.electrolyzer {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.electrolyzer .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/electrolyzer.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.heat_pump {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.heat_pump .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/heat_pump.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.chp {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.chp .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/chp.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.chp_fixed_ratio {
-      border-bottom-color: #7BF1A8; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.chp_fixed_ratio .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/chp_fixed_ratio.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.bess {
-      border-bottom-color: #90F1EF; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.bess .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/bess.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.gess {
-      border-bottom-color: #90F1EF; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.gess .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/gess.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.h2ess {
-      border-bottom-color: #90F1EF; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.h2ess .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/h2ess.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.hess {
-      border-bottom-color: #90F1EF; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.hess .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/hess.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.demand {
-      border-bottom-color: #FFD6E0; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.demand .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/demand.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.gas_demand {
-      border-bottom-color: #FFD6E0; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.gas_demand .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/gas_demand.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.h2_demand {
-      border-bottom-color: #FFD6E0; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.h2_demand .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/h2_demand.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.heat_demand {
-      border-bottom-color: #FFD6E0; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.heat_demand .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/heat_demand.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
-    .system-design .drawflow .drawflow-node.bus {
-      border-bottom-color: #F4CC9E; }
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.bus .img::before {
       content: '';
       position: absolute;
-      top: calc(4.5rem / 2);
-      right: calc((4.5rem - 3rem) / 2);
-      transform: translateY(-50%);
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
       background-image: url("/static/assets/gui/bus.svg");
       background-size: contain;
-      height: 3rem;
-      width: 3rem; }
+      height: 2rem;
+      width: 2rem; }
+    .system-design .drawflow .drawflow-node .node__delete {
+      position: absolute;
+      top: -12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 100%;
+      background: #fff;
+      color: #ef4444;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.2s ease; }
+    .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node:focus-within .node__delete {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto; }
+    .system-design .drawflow .drawflow-node .node__delete:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18); }
+    .system-design .drawflow .drawflow-node .node__delete:active {
+      transform: translateY(0) scale(0.96); }
+    @media (prefers-reduced-motion: reduce) {
+      .system-design .drawflow .drawflow-node .node__delete {
+        transition: opacity .01s linear;
+        transform: none; }
+      .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node .node:focus-within .node__delete {
+        transform: none; } }
+  .system-design .port--empty {
+    background-image: url("/static/assets/gui/port-empty.svg");
+    background-size: contain;
+    background-repeat: no-repeat; }
+  .system-design .port--not-compatible {
+    filter: brightness(0) saturate(100%) invert(90%) sepia(6%) saturate(5%) hue-rotate(315deg) brightness(90%) contrast(88%); }
+  .system-design .drawflow-node .port--electricity {
+    border: 0;
+    background-image: url("/static/assets/gui/port-electricity.svg");
+    background-size: contain;
+    background-repeat: no-repeat; }
+  .system-design .drawflow-node .port--heat {
+    border: 0;
+    background-image: url("/static/assets/gui/port-heat.svg");
+    background-size: contain;
+    background-repeat: no-repeat; }
+  .system-design .drawflow-node .port--h2 {
+    border: 0;
+    background-image: url("/static/assets/gui/port-h2.svg");
+    background-size: contain;
+    background-repeat: no-repeat; }
+  .system-design .drawflow-node .port--fuel {
+    border: 0;
+    background-image: url("/static/assets/gui/port-fuel.svg");
+    background-size: contain;
+    background-repeat: no-repeat; }
+  .system-design .drawflow-node .port--empty {
+    width: 0.625rem !important;
+    height: 0.625rem !important;
+    transform: translateX(1px);
+    border: 2px solid #495965;
+    background: none; }
 
 .modal.modal--gui .modal-dialog {
   min-width: 1000px; }
@@ -3413,7 +3398,7 @@ nav.navbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  background-color: #F3F7FC; }
+  background-color: white; }
   .about2 > div {
     width: 100%;
     max-width: 82rem;
@@ -3511,6 +3496,9 @@ nav.navbar {
       color: #17405C; }
     .features2__item p {
       line-height: 170%; }
+
+.features2.cellular-features2 {
+  background-color: #fff; }
 
 .related2 {
   padding-top: 6rem;

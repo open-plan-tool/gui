@@ -1,5 +1,5 @@
-@use '../abstracts/variables' as *;
-@use '../abstracts/mixins' as *;
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
 
 .system-design {
   @include flex-row;
@@ -50,6 +50,9 @@
         margin-bottom: .5rem;
         @include user-select-none;
         cursor: move;
+
+        // @PF: If colors are not wanted for the bus components on the sidebar (just one generic bus),
+        //      remove the following classes
         &--bus-electricity {
           border-left: 4px solid #FBC02D;
         }
@@ -158,6 +161,8 @@
 
   .drawflow .connection {
 
+    // @PF: Colors for different connection types
+    // Need to add the following class `.connection--*` to the connection element
     &.connection--electricity path {
       stroke: #FBC02D;
       filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.20));
@@ -243,9 +248,23 @@
 
       .input,
       .output {
-        width: $gui-component-node-size;
-        height: $gui-component-node-size;
+        position: relative;;
+        width: 0.75rem;
+        height: 0.75rem;
+        right:0px;
+        border-color: #495965;
+        border-radius:100%;
         cursor: pointer;
+      }
+
+      .input {
+        left: 2px;
+        background-color: $white;
+      }
+
+      .output {
+        left: -14px;
+        background-color: $white;
       }
     }
 
@@ -253,17 +272,15 @@
       position: relative;
       width: $gui-component-bg-size;
       height: $gui-component-bg-size;
+    }
 
-      &::before {
-        content: '';
-        position: absolute;
-        top: 1.5rem;
-        right: calc((4.5rem - 2rem) / 2);
-        transform: translateY(-50%);
-        background-image: url(../../assets/gui/gas_boiler.svg);
-        background-size: contain;
-        height: 2rem;
-        width: 2rem;
+    @each $component-name, $component-category in $component-categories-mapping {
+      &.#{$component-name} {
+        .img::before {
+          @include gui-component-image(
+            url("/static/assets/gui/#{$component-name}.svg")
+          );
+        }
       }
     }
 
@@ -306,7 +323,7 @@
 
   // @PF
   // Dashed grey port -> When port can be connected but is still empty
-  .port--empty{ background-image: url(../../assets/gui/port-empty.svg); background-size: contain; background-repeat: no-repeat; }
+  .port--empty{ background-image: url("/static/assets/gui/port-empty.svg"); background-size: contain; background-repeat: no-repeat; }
 
   // Faded dashed grey port -> When port is not compatible with the current connection
   .port--not-compatible {
@@ -314,10 +331,11 @@
   }
 
   // Solid color ports -> When port is connected (optional: or compatible with the current connection)
-  .port--electricity  { background-image: url(../../assets/gui/port-electricity.svg); background-size: contain; background-repeat: no-repeat; }
-  .port--heat  { background-image: url(../../assets/gui/port-heat.svg); background-size: contain; background-repeat: no-repeat; }
-  .port--h2 { background-image: url(../../assets/gui/port-h2.svg); background-size: contain; background-repeat: no-repeat; }
-  .port--fuel{ background-image: url(../../assets/gui/port-fuel.svg); background-size: contain; background-repeat: no-repeat; }
+  .drawflow-node .port--electricity  { border:0; background-image: url("/static/assets/gui/port-electricity.svg"); background-size: contain; background-repeat: no-repeat; }
+  .drawflow-node .port--heat  { border:0; background-image: url("/static/assets/gui/port-heat.svg"); background-size: contain; background-repeat: no-repeat; }
+  .drawflow-node .port--h2 { border:0; background-image: url("/static/assets/gui/port-h2.svg"); background-size: contain; background-repeat: no-repeat; }
+  .drawflow-node .port--fuel{ border:0; background-image: url("/static/assets/gui/port-fuel.svg"); background-size: contain; background-repeat: no-repeat; }
+  .drawflow-node .port--empty { width: 0.625rem !important; height: 0.625rem !important; transform: translateX(1px); border: 2px solid #495965; background: none; }
 }
 
 .modal.modal--gui {
