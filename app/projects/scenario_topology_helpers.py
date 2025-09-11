@@ -399,6 +399,10 @@ def db_bus_nodes_to_list(scen_id):
                 "parent_asset_id": (
                     db_bus.parent_asset_id if db_bus.parent_asset_id else ""
                 ),
+                "portMapping": {
+                    "input_1": ["input_1", db_bus.type],
+                    "output_1": ["output_1", db_bus.type],
+                },
             },
         }
         bus_nodes_list.append(db_bus_dict)
