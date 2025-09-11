@@ -45,6 +45,7 @@
   @include flex-row-justify-center;
   height: $header-dashboard-height;
   margin-bottom: $header-dashboard-margin-bottom;
+  scroll-margin-top: 23rem;
 
   &> div {
     width: 100%;

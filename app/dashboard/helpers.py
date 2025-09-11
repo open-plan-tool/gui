@@ -5,6 +5,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Value, Q, F, Case, When
 from django.db.models.functions import Concat, Replace
+from django.templatetags.static import static
 from numbers import Number
 
 from projects.models import Viewer, Project
@@ -17,17 +18,52 @@ sectors = ["Electricity", "Heat", "Gas", "H2"]
 
 KPIS = {}
 MANAGEMENT_CAT = "management"
+SUMMARY_CAT = "summary"
 ECONOMIC_CAT = "economic"
 TECHNICAL_CAT = "technical"
-ENVIRONEMENTAL_CAT = "environemental"
+ENVIRONMENTAL_CAT = "environmental"
 TABLES = {
     MANAGEMENT_CAT: {"General": []},
-    # ECONOMIC_CAT: {},
-    # TECHNICAL_CAT: {},
-    # ENVIRONEMENTAL_CAT: {},
+    SUMMARY_CAT: {"General": []},
+    ECONOMIC_CAT: {"General": []},
+    TECHNICAL_CAT: {"General": []},
+    ENVIRONMENTAL_CAT: {"General": []},
 }
 EMPTY_SUBCAT = "none"
 
+MANAGEMENT_CAT_PARAMS = [
+    "degree_of_autonomy",
+    "onsite_energy_fraction",
+    "renewable_factor",
+    "renewable_share_of_local_generation",
+    "levelized_costs_of_electricity_equivalent",
+]
+# TODO double check parameters and add not implemented ones to post-processing / KPIs list
+SUMMARY_CAT_PARAMS = [
+    "total_demandElectricity",
+    "total_demandHeat",
+    "levelized_costs_of_electricity_equivalentElectricity",
+    "levelized_costs_of_electricity_equivalentHeat",
+    "degree_of_autonomy",
+    "renewable_factor",
+    "onsite_energy_fraction",
+    "project_lifetime",
+    "costs_upfront_in_year_zero",
+    "objective_function_result",
+]
+ECONOMIC_CAT_PARAMS = [
+    "levelized_costs_of_electricity_equivalentElectricity",
+    "levelized_costs_of_electricity_equivalentHeat",
+    "costs_upfront_in_year_zero",
+    "costs_cost_om",
+    "costs_dispatch",
+]
+TECHNICAL_CAT_PARAMS = [
+    "total_demand",
+    "onsite_energy_fraction",
+    "renewable_factor",
+]
+ENVIRONMENTAL_CAT_PARAMS = ["total_emissions"]
 KPI_PARAMETERS = {}
 KPI_PARAMETERS_ASSETS = {}
 
@@ -56,20 +92,30 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 #     # reverse the category and the subcategory for this special table (management is not a parameter type, whereas all other table are also parameter types)
                 #     subcat = cat
                 #     cat = MANAGEMENT_CAT
-                if label in (
-                    "degree_of_autonomy",
-                    "onsite_energy_fraction",
-                    "renewable_factor",
-                    "renewable_share_of_local_generation",
-                    "levelized_costs_of_electricity_equivalent",
+                for params, table in zip(
+                    [
+                        MANAGEMENT_CAT_PARAMS,
+                        SUMMARY_CAT_PARAMS,
+                        ECONOMIC_CAT_PARAMS,
+                        TECHNICAL_CAT_PARAMS,
+                        ENVIRONMENTAL_CAT_PARAMS,
+                    ],
+                    [
+                        MANAGEMENT_CAT,
+                        SUMMARY_CAT,
+                        ECONOMIC_CAT,
+                        TECHNICAL_CAT,
+                        ENVIRONMENTAL_CAT,
+                    ],
                 ):
-                    TABLES[MANAGEMENT_CAT]["General"].append(
-                        {
-                            "name": _(verbose),
-                            "id": label,
-                            "unit": _(unit) if unit != "Factor" else "",
-                        }
-                    )
+                    if label in params:
+                        TABLES[table]["General"].append(
+                            {
+                                "name": _(verbose),
+                                "id": label,
+                                "unit": _(unit) if unit != "Factor" else "",
+                            }
+                        )
                 # if subcat != EMPTY_SUBCAT:
                 #     if cat in TABLES:
                 #         if subcat not in TABLES[cat]:
@@ -386,7 +432,15 @@ class KPIFinder:
                 answer = self.kpi_info_dict[param_name]["definition"]
             else:
                 answer = None
-        return answer
+
+        return self.format_help_text(answer)
+
+    @staticmethod
+    def format_help_text(help_text):
+        """Wraps the question icon around the help text and applies translation"""
+        return "<a data-bs-toggle='tooltip' title='' data-bs-original-title='{}' data-bs-placement='right'><img style='height: 1.2rem;margin-left:.5rem' alt='info icon' src='{}'></a>".format(
+            help_text, static("assets/icons/i_info.svg")
+        )
 
 
 KPI_helper = KPIFinder(param_info_dict=KPI_PARAMETERS)
