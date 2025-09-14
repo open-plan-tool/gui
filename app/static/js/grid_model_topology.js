@@ -149,12 +149,12 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
         <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </button>
+    <div class="img"></div>
     <div class="drawflow-node__name nodeName">
         <span>
           ${shownName}
         </span>
-    </div>
-    <div class="img"></div>`;
+    </div>`;
     nodeId = editor.addNode(nodeName, connectionInputs, connectionOutputs, pos_x, pos_y, nodeName, nodeData, source_html);
     const node = document.getElementById(`node-${nodeId}`);
     applyPortClasses(node,nodeData);
