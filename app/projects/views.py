@@ -934,7 +934,12 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
         },
-        "bus": {"bus": _("Bus")},
+        "bus": {
+            "bus-electricity": _("Electricity Bus"),
+            "bus-heat": _("Heat Bus"),
+            "bus-gas": _("Fuel Bus"),
+            "bus-h2": _("Hydrogen Bus"),
+        },
     }
     group_names = {group: _(group) for group in components.keys()}
 
