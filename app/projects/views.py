@@ -1604,6 +1604,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
         "outputs": json.loads(request.GET.get("outputs", "[]")),
     }
 
+    energy_carrier = request.GET.get("energy_carrier", "Electricity")
     if asset_type_name == "bus":
         if asset_uuid:
             existing_bus = get_object_or_404(Bus, pk=asset_uuid)
@@ -1612,7 +1613,10 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             bus_list = Bus.objects.filter(scenario=scenario)
             n_bus = len(bus_list)
             default_name = f"{asset_type_name}-{n_bus}"
-            form = BusForm(asset_type=asset_type_name, initial={"name": default_name})
+            form = BusForm(
+                asset_type=asset_type_name,
+                initial={"name": default_name, "type": energy_carrier.title()},
+            )
         return render(request, "asset/bus_create_form.html", {"form": form})
 
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
@@ -1751,6 +1755,7 @@ def asset_connection_ports_number(request, asset_type_name=None):
 @require_http_methods(["GET"])
 def asset_connection_ports_info(request, asset_type_name=None):
 
+    energy_carrier = request.GET.get("energy_carrier", "Electricity").title()
     if asset_type_name is not None:
         if asset_type_name == "bus":
             # TODO, busses must be updated upon bus type (or direclty draggable as correct type)
@@ -1759,9 +1764,10 @@ def asset_connection_ports_info(request, asset_type_name=None):
                     "nodeInputs": 1,
                     "nodeOutputs": 1,
                     "portMapping": {
-                        "input_1": ["input", "Heat"],
-                        "output_1": ["output", "Heat"],
+                        "input_1": ["input", energy_carrier],
+                        "output_1": ["output", energy_carrier],
                     },
+                    "energyCarrier": energy_carrier,
                 },
                 status=200,
             )

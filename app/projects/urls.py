@@ -161,12 +161,12 @@ urlpatterns = [
     ),
     # Grid Model (Assets Creation)
     re_path(
-        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         get_asset_create_form,
         name="get_asset_create_form",
     ),
     re_path(
-        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
@@ -201,12 +201,12 @@ urlpatterns = [
         name="asset_connection_ports_number",
     ),
     re_path(
-        r"^asset/get_cops_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/get_cops_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         get_asset_cops_form,
         name="get_asset_cops_form",
     ),
     re_path(
-        r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_cops_create_or_update,
         name="asset_cops_create_or_update",
     ),
