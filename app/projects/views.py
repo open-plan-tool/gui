@@ -1577,8 +1577,10 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
         # ts.user = request.user
         if value is not None:
             ts_name = f"constant value = {float(value)}"
-            ts_qs = Timeseries.objects.filter(name=ts_name).filter(
-                values__len=ts_length
+            ts_qs = (
+                Timeseries.objects.filter(user=request.user)
+                .filter(name=ts_name)
+                .filter(values__len=ts_length)
             )
             if ts_qs.exists():
                 if ts_qs.count() > 1:
