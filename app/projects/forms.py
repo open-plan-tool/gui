@@ -76,7 +76,7 @@ def add_help_text_icon(field, param_name, RTD_link=True):
     if field.label is not None:
         RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
         if param_name in PARAMETERS:
-            param_ref = PARAMETERS[param_name]["ref"]
+            param_ref = PARAMETERS[param_name]["label"].replace("_", "-")
         else:
             param_ref = ""
         if param_name != "name":
