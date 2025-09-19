@@ -80,11 +80,6 @@
         <div class="form-group{% if field.errors %} invalid{% endif %}">
               {{ form|get_field:"input_timeseries"|as_crispy_field }}
         </div>
-				<script>
-						const tsURL = `{% url 'get_timeseries' 7 %}`;
-	          console.log("From create asset form");
-					console.log(tsURL);
-				</script>
         {% if input_timeseries_timestamps %}
           <div id="input_timeseries_timestamps" style="display:none;">
             <textarea>{{ input_timeseries_timestamps }}</textarea>
