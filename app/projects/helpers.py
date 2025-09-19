@@ -421,6 +421,9 @@ class TimeseriesField(forms.MultiValueField):
         if scalar_value is None:
             scalar_value = ""
 
+        if timeseries_id is None:
+            timeseries_id = ""
+
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
