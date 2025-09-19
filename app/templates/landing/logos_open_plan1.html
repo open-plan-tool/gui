@@ -1,16 +1,6 @@
 {% load static %}
 {% load i18n %}
-<section class="about2">
-	<div>
-		<div class="about2__heading">
-			<h2>{% translate "About the project" %}</h2>
-		</div>
-		<div class="about2__content">
-			<p>{% translate "The functions for planning cellular energy systems were developed in the context of the open_plan 1.0 research project. The project consortium consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). It was funded from January 2020 to June 2023 as part of the 'Technology-oriented Systems Analysis' funding area of the BMWi's 7th Energy Research Program 'Innovation for the Energy Transition.' " %}</p>
-		</div>
-	</div>
-</section>
-<section class="logos2">
+<section class="logos1">
 	<div>
 		<a href="https://www.dgs.de/aktuell/" target="_blank" rel="noopener noreferrer">
 			<img src="{% static 'assets/logos/2020-03-09_DGS.png' %}" alt="Deutsche Gesellschaft für Sonnenenergie logo" width="196" height="76">
@@ -31,7 +21,17 @@
 		</a>
 		{% endif %}
 		<a href="#" target="_blank" rel="noopener noreferrer">
-			<img src="{% static '/assets/logos/H2CE_Logo_Standard.svg' %}" alt="H2CE logo" width="230">
+			<img src="{% static '/assets/logos/H2CE_Logo_Standard.svg' %}" alt="H2CE logo" width="340">
 		</a>
+	</div>
+</section>
+<section class="about1">
+	<div>
+		<div class="about1__heading">
+			<h2>{% translate "About the project" %}</h2>
+		</div>
+		<div class="about1__content">
+			<p>{% translate "The functions for planning cellular energy systems were developed in the context of the open_plan 1.0 research project. The project consortium consisted of the Reiner Lemoine Institute (RLI), the German Solar Energy Society (DGS) and the Potsdam Institute for Climate Impact Research (PIK). It was funded from January 2020 to June 2023 as part of the 'Technology-oriented Systems Analysis' funding area of the BMWi's 7th Energy Research Program 'Innovation for the Energy Transition.' " %}</p>
+		</div>
 	</div>
 </section>
