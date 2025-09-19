@@ -1,31 +1,31 @@
 .conn-electricity {
-  stroke: gold !important;
+  stroke: #fbc02d !important;
 }
 
 .conn-heat {
-  stroke: crimson !important;
+  stroke: #e28785 !important;
 }
 
 .conn-gas {
-  stroke: gray !important;
+  stroke: #55b068 !important;
 }
 
 .conn-h2 {
-  stroke: deepskyblue !important;
+  stroke: #2c92b5 !important;
 }
 
 .busnode-electricity {
-  border-bottom-color: gold !important;
+  border-bottom-color: #fbc02d !important;
 }
 
 .busnode-heat {
-  border-bottom-color: crimson !important;
+  border-bottom-color: #e28785 !important;
 }
 
 .busnode-gas {
-  border-bottom-color: gray !important;
+  border-bottom-color: #55b068 !important;
 }
 
 .busnode-h2 {
-  border-bottom-color: deepskyblue !important;
+  border-bottom-color: #2c92b5 !important;
 }
