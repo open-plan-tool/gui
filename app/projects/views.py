@@ -1560,11 +1560,10 @@ def upload_timeseries(request):
 @require_http_methods(["GET"])
 def get_timeseries(request, ts_id=None):
     if request.method == "GET":
-        # TODO prevent user to get it is no access rights
-        # ts.user = request.user
         if ts_id is not None:
             ts = Timeseries.objects.get(id=ts_id)
-            # import pdb;pdb.set_trace()
+            if ts.user != request.user and ts.open_source is False:
+                raise PermissionDenied
             return JsonResponse({"values": ts.get_values})
 
 
@@ -1573,8 +1572,6 @@ def get_timeseries(request, ts_id=None):
 @require_http_methods(["GET"])
 def get_constant_timeseries_id(request, ts_length=None, value=None):
     if request.method == "GET":
-        # TODO in future prevent user to get it is no access rights to this timeseries
-        # ts.user = request.user
         if value is not None:
             ts_name = f"constant value = {float(value)}"
             ts_qs = (
