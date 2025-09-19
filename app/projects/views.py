@@ -1577,7 +1577,7 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
             ts_qs = (
                 Timeseries.objects.filter(user=request.user)
                 .filter(name=ts_name)
-                .filter(values__len=ts_length)
+                .filter(ts_type="scalar")
             )
             if ts_qs.exists():
                 if ts_qs.count() > 1:
