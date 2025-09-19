@@ -456,10 +456,6 @@ class TimeseriesField(forms.MultiValueField):
                 params={"boundaries": self.boundaries},
             )
 
-        # input_ts, created = Timeseries.objects.get_or_create(
-        #     user=user, **input_timeseries
-        # )
-
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
 
