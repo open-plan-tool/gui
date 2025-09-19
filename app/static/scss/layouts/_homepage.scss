@@ -401,6 +401,46 @@
   }
 }
 
+.about1 {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  @include flex-row-justify-center;
+  background-color: #fff;
+
+  &> div {
+    @include section-width;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 2rem;
+
+    h2 {
+      padding-top: 1rem;
+      font-size: $font-size-large;
+      font-weight: 700;
+    }
+  }
+
+  &__content {
+    display: flex;
+    justify-content: center;
+
+    p {
+      text-align: left;
+      max-width: 100%;
+      line-height: 170%;
+
+      @media screen and (min-width: 1280px) {
+        max-width: 50%;
+      }
+    }
+  }
+}
+
 .about2 {
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -1007,6 +1047,49 @@
   padding-bottom: 6rem;
   @include flex-row-justify-center;
   background-color: #fff;
+  text-align: center;
+
+  & > div {
+    @include section-width;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    & > div {
+      justify-content: center;
+    }
+
+    a {
+      width: 45%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    & > div {
+      flex-direction: column;
+    }
+
+    a {
+      width: 100%;
+    }
+  }
+}
+
+.logos1 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  @include flex-row-justify-center;
+  background-color: $bg-color-light;
   text-align: center;
 
   & > div {
