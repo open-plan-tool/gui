@@ -60,3 +60,5 @@ Temp threshold icing,2,Temperature below which icing occur,,2,numeric,numeric,°
 Quality grade,"0,5",Quality grade,"The quality grade of a heat pump is a measure of how efficiently it transfers heat from a lower temperature to a higher temperature. It is defined as the ratio of the actual efficiency achieved to the theoretical maximum possible efficiency, the Carnot efficiency. For more information about this parameter, see the documentation on compression heat pumps and chillers.","0,5",numeric,numeric,None,0,quality_grade,quality_grade-label,conversion,,,,,
 Factor icing,"0,7",COP reduction caused by icing,,"0,7",numeric,numeric,Factor,0,factor_icing,factor_icing-label,conversion,,,,,
 Timeseries,None,Timeseries,Timeseries,,None,numeric,:unit:,0,input_timeseries,input_timeseries-label,providers;conversion;production;consumption,,,,,
+Thermal loss rate,0.8,Definition of thermal loss rate,Long Definition of thermal loss rate,,numeric,numeric,Factor,0,thermal_loss_rate,thermal_loss_rate-label,storage,,,,,
+Temperature high,50,Definition,Long Definition,,numeric,numeric,Factor,0,temperature_high,temperature_high-label,COP,,,,,
