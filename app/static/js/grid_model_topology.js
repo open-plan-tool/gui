@@ -133,7 +133,7 @@ function drop(ev) {
             // populate form and submit
             const nodeDOM = document.getElementById('node-' + node.editorNodeId);
             applyPortClasses(nodeDOM,nodeData);
-            populateForm(node, submit=true);
+            populateForm(nodeDOM, submit=true);
         });
     });
 }
