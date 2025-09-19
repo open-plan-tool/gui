@@ -1585,7 +1585,7 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
             if ts_qs.exists():
                 if ts_qs.count() > 1:
                     logging.error(
-                        f"There are more than one timeseries of constant value ({float(value)}) with a length of {ts_length}"
+                        f"There are more than one timeseries of constant value ({float(value)}) with a length of {ts_length}: Timeseries.objects.filter(name={ts_name},user__id={request.user.id})"
                     )
                 return JsonResponse({"id": ts_qs.first().id})
             else:
