@@ -1,4 +1,4 @@
-const scen_ts_length = parseInt(scen_ts_length);
+const scen_ts_length = parseInt(scen_ts_length_str);
 
 const config = {
     showLink: false,
