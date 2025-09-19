@@ -223,6 +223,11 @@ class Scenario(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def get_num_timesteps(self):
+        n_occurence_per_day = int((24 * 60) / self.time_step)
+        return n_occurence_per_day * self.evaluated_period
+
     def get_timestamps(self, json_format=False):
         answer = []
 
@@ -359,7 +364,7 @@ class Timeseries(models.Model):
     @property
     def get_values(self):
         if self.ts_type == "scalar":
-            answer = self.values[0]
+            answer = self.values
         else:
             answer = self.values
         return answer
