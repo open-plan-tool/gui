@@ -1172,7 +1172,7 @@ def download_scalar_results(request, scen_id):
         for idx, kpi_obj in enumerate(scalar_kpis_json):
             if idx == 0:
                 worksheet.write_row(0, 0, kpi_obj.keys())
-            worksheet.write_row(idx + 1, 0, kpi_obj.values())
+            worksheet.write_row(idx + 1, 0, [str(val) for val in kpi_obj.values()])
 
         workbook.close()
         output.seek(0)
