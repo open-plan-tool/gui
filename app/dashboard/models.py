@@ -1111,23 +1111,169 @@ def graph_capacities(simulations, y_variables):
     return simulations_results
 
 
-def graph_costs(
-    simulations, y_variables, arrangement=COSTS_PER_CATEGORY
-):  # COSTS_PER_CATEGORY
+def get_costs(simulation, y_variables=None):
     simulations_results = []
-    multi_scenario = False
-    if len(simulations) > 1:
-        multi_scenario = True
-
     if y_variables is None:
         y_variables = (
-            Asset.objects.filter(scenario__simulation__in=simulations)
+            Asset.objects.filter(scenario__simulation=simulation)
             .filter(installed_capacity__isnull=False)
             .annotate(label=Case(default="name"))
             .order_by("label")
             .distinct()
             .values_list("label", flat=True)
         )
+
+    # read information about the installed capacity
+    qs1 = (
+        Asset.objects.filter(scenario__simulation=simulation)
+        .annotate(label=Case(default="name"))
+        .order_by("label")
+    )
+
+    # read information about the optimized capacity
+    qs2 = (
+        FancyResults.objects.filter(simulation=simulation)
+        .annotate(
+            label=Case(
+                When(
+                    Q(oemof_type="storage") & Q(direction="out"),
+                    then=Concat("asset", Value(" input power")),
+                ),
+                When(
+                    Q(oemof_type="storage") & Q(direction="in"),
+                    then=Concat("asset", Value(" output power")),
+                ),
+                When(
+                    Q(oemof_type="storage") & Q(asset_type="capacity"),
+                    then=Concat("asset", Value(" capacity")),
+                ),
+                default="asset",
+            )
+        )
+        .order_by("label")
+    )
+
+    qs1 = qs1.filter(label__in=y_variables).values(
+        "label",
+        "installed_capacity",
+        "capex_fix",
+        "capex_var",
+        "opex_fix",
+        "opex_var",
+        "lifetime",
+        "energy_price",
+        "parent_asset__name",
+    )
+
+    records = []
+    for el in qs1:
+        qs_asset_results = qs2.filter(label=el["label"])
+        if qs_asset_results.count() == 1:
+            el.update(
+                qs_asset_results.values(
+                    "optimized_capacity", "total_flow", "direction"
+                ).get()
+            )
+        elif qs_asset_results.count() > 1:
+            qs_asset_results = qs_asset_results.filter(optimized_capacity__isnull=False)
+            if qs_asset_results.count() == 1:
+                el.update(
+                    qs_asset_results.values(
+                        "optimized_capacity", "total_flow", "direction"
+                    ).get()
+                )
+            elif qs_asset_results.count() > 1:
+                # TODO bug here online with Lübben
+                raise ValueError("should not have too much labels")
+        records.append(el)
+
+    wacc = simulation.scenario.project.economic_data.discount
+    df = pd.DataFrame.from_records(records)
+
+    # assign optimized capacity to storage components
+    storages = df.parent_asset__name.dropna().unique()
+    for ess in storages:
+
+        opt_cap = df.loc[
+            (df.parent_asset__name == ess) & (df.direction == "out"),
+            "optimized_capacity",
+        ]
+
+        if opt_cap.empty is False:
+            df.loc[
+                (df.parent_asset__name == ess) & (df.direction.isna() == True),
+                "optimized_capacity",
+            ] = df.loc[
+                (df.parent_asset__name == ess) & (df.direction == "out"),
+                "optimized_capacity",
+            ].values[
+                0
+            ]
+
+    df = df.fillna(0)
+    # TODO costs for batteries are skewed as battery capacity does not exists in fancy results
+    # TODO costs for dso not implemented yet
+    df["capex_total"] = df.apply(
+        lambda x: (x.installed_capacity + x.optimized_capacity)
+        * x.capex_var
+        * (wacc * (1 + wacc) ** x.lifetime)
+        / ((1 + wacc) ** x.lifetime - 1),
+        axis=1,
+    )
+    project_duration = simulation.scenario.project.economic_data.duration
+    df["capex_initial"] = df.apply(lambda x: x.optimized_capacity * x.capex_var, axis=1)
+    df["capex_replacement"] = df.apply(
+        lambda x: (
+            x.optimized_capacity * x.capex_var * int(project_duration / x.lifetime)
+            if x.lifetime < project_duration
+            else 0
+        ),
+        axis=1,
+    )
+    df["opex_fix_total"] = df.apply(
+        lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
+    )
+    df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
+
+    # nur für dso ...
+    df["fuel_costs_total"] = df.apply(lambda x: x.total_flow * x.energy_price, axis=1)
+
+    # TODO fuel costs
+
+    df = df[
+        [
+            "label",
+            "capex_total",
+            "opex_fix_total",
+            "opex_var_total",
+            "fuel_costs_total",
+            "capex_initial",
+            "capex_replacement",
+            "parent_asset__name",
+        ]
+    ].set_index("label")
+
+    # merge the costs of the storages together
+    for ess in storages:
+        agr = (
+            df.loc[(df.parent_asset__name == ess)].groupby(["parent_asset__name"]).sum()
+        )
+        df = pd.concat([df, agr])
+        df.drop(df.loc[(df.parent_asset__name == ess)].index, inplace=True)
+    df.drop(columns=["parent_asset__name"], inplace=True)
+
+    # drop dataframe rows where all values are 0 (can happen for inverter in diesel only scenario)
+    df = df.loc[~(df == 0).all(axis=1)]
+    return df
+
+
+def graph_costs(
+    simulations, y_variables=None, arrangement=COSTS_PER_CATEGORY
+):  # COSTS_PER_CATEGORY
+    simulations_results = []
+    multi_scenario = False
+    if len(simulations) > 1:
+        multi_scenario = True
 
     if arrangement in [COSTS_PER_ASSETS_STACKED, COSTS_PER_CATEGORY_STACKED]:
         x_values = [
@@ -1139,139 +1285,8 @@ def graph_costs(
         y_values = []
 
     for simulation in simulations:
-
-        # read information about the installed capacity
-        qs1 = (
-            Asset.objects.filter(scenario__simulation=simulation)
-            .annotate(label=Case(default="name"))
-            .order_by("label")
-        )
-
-        # read information about the optimized capacity
-        qs2 = (
-            FancyResults.objects.filter(simulation=simulation)
-            .annotate(
-                label=Case(
-                    When(
-                        Q(oemof_type="storage") & Q(direction="out"),
-                        then=Concat("asset", Value(" input power")),
-                    ),
-                    When(
-                        Q(oemof_type="storage") & Q(direction="in"),
-                        then=Concat("asset", Value(" output power")),
-                    ),
-                    When(
-                        Q(oemof_type="storage") & Q(asset_type="capacity"),
-                        then=Concat("asset", Value(" capacity")),
-                    ),
-                    default="asset",
-                )
-            )
-            .order_by("label")
-        )
-
-        qs1 = qs1.filter(label__in=y_variables).values(
-            "label",
-            "installed_capacity",
-            "capex_fix",
-            "capex_var",
-            "opex_fix",
-            "opex_var",
-            "lifetime",
-            "energy_price",
-            "parent_asset__name",
-        )
-
-        records = []
-        for el in qs1:
-            qs_asset_results = qs2.filter(label=el["label"])
-            if qs_asset_results.count() == 1:
-                el.update(
-                    qs_asset_results.values(
-                        "optimized_capacity", "total_flow", "direction"
-                    ).get()
-                )
-            elif qs_asset_results.count() > 1:
-                qs_asset_results = qs_asset_results.filter(
-                    optimized_capacity__isnull=False
-                )
-                if qs_asset_results.count() == 1:
-                    el.update(
-                        qs_asset_results.values(
-                            "optimized_capacity", "total_flow", "direction"
-                        ).get()
-                    )
-                elif qs_asset_results.count() > 1:
-                    # TODO bug here online with Lübben
-                    raise ValueError("should not have too much labels")
-            records.append(el)
-
-        wacc = simulation.scenario.project.economic_data.discount
-        df = pd.DataFrame.from_records(records)
-
-        # assign optimized capacity to storage components
-        storages = df.parent_asset__name.dropna().unique()
-        for ess in storages:
-
-            opt_cap = df.loc[
-                (df.parent_asset__name == ess) & (df.direction == "out"),
-                "optimized_capacity",
-            ]
-
-            if opt_cap.empty is False:
-                df.loc[
-                    (df.parent_asset__name == ess) & (df.direction.isna() == True),
-                    "optimized_capacity",
-                ] = df.loc[
-                    (df.parent_asset__name == ess) & (df.direction == "out"),
-                    "optimized_capacity",
-                ].values[
-                    0
-                ]
-
-        df = df.fillna(0)
-        # TODO costs for batteries are skewed as battery capacity does not exists in fancy results
-        # TODO costs for dso not implemented yet
-        df["capex_total"] = df.apply(
-            lambda x: (x.installed_capacity + x.optimized_capacity)
-            * x.capex_var
-            * (wacc * (1 + wacc) ** x.lifetime)
-            / ((1 + wacc) ** x.lifetime - 1),
-            axis=1,
-        )
-        df["opex_fix_total"] = df.apply(
-            lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
-        )
-        df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
-
-        # nur für dso ...
-        df["fuel_costs_total"] = df.apply(
-            lambda x: x.total_flow * x.energy_price, axis=1
-        )
-
-        # TODO fuel costs
-
-        df = df[
-            [
-                "label",
-                "capex_total",
-                "opex_fix_total",
-                "opex_var_total",
-                "fuel_costs_total",
-                "parent_asset__name",
-            ]
-        ].set_index("label")
-
-        # merge the costs of the storages together
-        for ess in storages:
-            agr = (
-                df.loc[(df.parent_asset__name == ess)]
-                .groupby(["parent_asset__name"])
-                .sum()
-            )
-            df = pd.concat([df, agr])
-            df.drop(df.loc[(df.parent_asset__name == ess)].index, inplace=True)
-        df.drop(columns=["parent_asset__name"], inplace=True)
+        df = get_costs(simulation, y_variables)
+        df.drop(columns=["capex_initial", "capex_replacement"], inplace=True)
 
         if arrangement == COSTS_PER_ASSETS:
             x_values = df.index.values.tolist()
