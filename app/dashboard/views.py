@@ -12,7 +12,8 @@ from dashboard.models import (
     KPI_COSTS_TOOLTIPS,
     KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
-    KPI_SCALAR_UNITS, get_costs,
+    KPI_SCALAR_UNITS,
+    get_costs,
 )
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -664,7 +665,7 @@ def request_kpi_table(request, proj_id=None):
         for subtable_title, subtable_content in table.items():
             for param in subtable_content:
                 param["scen_values"] = [
-                    round_only_numbers(
+                    beautify_number(
                         kpis[scen_id].get(param["id"], "not implemented yet"), 2
                     )
                     for scen_id in selected_scenarios
@@ -691,6 +692,7 @@ def request_kpi_table(request, proj_id=None):
         )
 
     return answer
+
 
 @login_required
 @json_view
@@ -729,7 +731,7 @@ def request_system_costs_table(request, proj_id=None):
                 "name": str(idx),
                 "description": "",
                 "unit": "",
-                "scen_values": row.round(2).tolist()
+                "scen_values": row.round(2).tolist(),
             }
 
         answer = JsonResponse(
@@ -744,8 +746,6 @@ def request_system_costs_table(request, proj_id=None):
             content_type="application/json",
         )
     return answer
-
-
 
 
 @login_required

@@ -236,9 +236,10 @@ def kpi_scalars_list(kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTI
     ]
 
 
-def round_only_numbers(input, decimal_place):
+def beautify_number(input, decimal_place):
+    # Round to two decimal places and add comma as thousands separator
     if isinstance(input, Number):
-        return round(input, decimal_place)
+        return f"{input:,.{decimal_place}f}"
     else:
         return input
 
