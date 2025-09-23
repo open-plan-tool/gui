@@ -9,24 +9,24 @@ function update_kpi_table_style(scen_id="", table_id="summary"){
         type: "GET",
         data: {table_id: table_id},
         success: async (table_data) => {
-            await addTable(table_data, table_id);
+            await addSummaryTable(table_data, table_id);
         }
     });
 }
 
-function addTable(table_data, table_id) {
-    const parentDiv = document.getElementById(table_id + "Table");
+function addSummaryTable(table_data, table_id) {
+    let parentDiv = document.getElementById(table_id + "Table");
     parentDiv.innerHTML = "";
 
     /* create KPI table headers */
     parentDiv.classList.add("table-bordered", "table-hover");
-    const tableHead = document.createElement('thead');
+    let tableHead = document.createElement('thead');
     tableHead.classList.add("thead-dark")
     tableHead.style.position = "sticky"
     tableHead.style.top = "0"
-    const table_headers = table_data.hdrs; // todo add dynamically more scenarios here
-    const table_length = table_headers.length;
-    const tableHeadContent = document.createElement('tr');
+    let table_headers = table_data.hdrs; // todo add dynamically more scenarios here
+    let table_length = table_headers.length;
+    let tableHeadContent = document.createElement('tr');
     table_headers.map(hdr =>
         {
             var tableHdr = document.createElement('th');
@@ -74,12 +74,97 @@ function addTable(table_data, table_id) {
     $('[data-bs-toggle="tooltip"]').tooltip();
 
 }
-        /*error: function (xhr, errmsg) {
-            console.log("backend_error!")
-            //Show the error message
-            $('#message-div').html("<div class='alert-error'>" +
-                "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
-        }*/
+
+
+function addWideTable(table_data, table_id){
+    let parentDiv = document.getElementById(table_id + "Table");
+    parentDiv.innerHTML = "";
+
+    /* create KPI table headers */
+    parentDiv.classList.add("table-bordered", "table-hover");
+    let tableHead = document.createElement('thead');
+    tableHead.classList.add("thead-dark")
+    tableHead.style.position = "sticky"
+    tableHead.style.top = "0"
+    let table_headers = table_data.hdrs; // todo add dynamically more scenarios here
+    let table_length = table_headers.length + 1;
+    let tableHeadContent = document.createElement('tr');
+    // Add first (empty) header
+    tableHeadContent.appendChild(document.createElement('th'))
+    table_headers.map(hdr =>
+        {
+            var tableHdr = document.createElement('th');
+            tableHdr.innerHTML = hdr;
+            tableHeadContent.appendChild(tableHdr);
+        }
+    );
+    tableHead.appendChild(tableHeadContent);
+    parentDiv.appendChild(tableHead);
+
+    // --- build table body ---
+    const tableBody = document.createElement('tbody');
+
+    for (const [key, entry] of Object.entries(table_data.data)) {
+        const value = {
+            verbose: entry.name,
+            description: entry.description || "",
+            unit: entry.unit || "",
+            value: entry.scen_values
+        };
+
+        const tableDataRow = document.createElement('tr');
+
+        for (let i = 0; i < table_length; i += 1) {
+            const tableDataCell = document.createElement('td');
+
+            let unit = (value.unit === "" ? " " : " (" + value.unit + ") ");
+
+            if (i === 0) {
+                // row title
+                tableDataCell.innerHTML = value.verbose + unit + value.description;
+            } else {
+                if (Array.isArray(value.value)) {
+                    tableDataCell.innerHTML = value.value[i - 1];
+                } else {
+                    tableDataCell.innerHTML = value.value;
+                }
+            }
+            // highlight totals
+            if (value.verbose.includes("Total")) {
+                tableDataCell.style.fontWeight = "bold";
+                tableDataCell.style.backgroundColor = "#F9F8F7";
+            }
+
+            tableDataRow.appendChild(tableDataCell);
+        }
+
+        tableBody.appendChild(tableDataRow);
+    }
+
+    // --- append everything ---
+    parentDiv.appendChild(tableHead);
+    parentDiv.appendChild(tableBody);
+
+    // enable Bootstrap tooltips if any
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}
+/*error: function (xhr, errmsg) {
+    console.log("backend_error!")
+    //Show the error message
+    $('#message-div').html("<div class='alert-error'>" +
+        "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
+}*/
+
+function request_system_costs_table(scen_id=""){
+ $.ajax({
+            url: urlRequestSystemCosts + "?compare_scenario=" + scen_id,
+            type: "GET",
+            data: {table_id: "system_costs"},
+            success: async (table_data) => {
+                await addWideTable(table_data, table_id="system_costs");
+            },
+        })
+    }
 
 
 /* loop over scenario selection buttons and return the ids of the selected ones */

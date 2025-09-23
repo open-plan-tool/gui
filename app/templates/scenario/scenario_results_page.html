@@ -207,6 +207,7 @@
 	var reportItemScenarios = [];
 
 	const urlRequestKPITable = `{% url 'request_kpi_table' proj_id=proj_id %}`;
+	const urlRequestSystemCosts = `{% url 'request_system_costs_table' proj_id=proj_id %}`;
 	const urlUpdatedSingleScenario = `{% url 'update_selected_single_scenario' proj_id %}` + {{ scen_id }};
 	const urlVisualizeTimeseries = `{% url 'scenario_visualize_timeseries' proj_id=proj_id %}` + {{ scen_id }};
 	const urlVisualizeStackedTimeseries = `{% url 'scenario_visualize_stacked_timeseries' %}` + {{ scen_id }};

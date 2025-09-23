@@ -12,7 +12,7 @@ from dashboard.models import (
     KPI_COSTS_TOOLTIPS,
     KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
-    KPI_SCALAR_UNITS,
+    KPI_SCALAR_UNITS, get_costs,
 )
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -650,8 +650,8 @@ def request_kpi_table(request, proj_id=None):
         kpis[scenario_id] = kpi_scalar_results_dict
 
     proj = get_object_or_404(Project, id=scenario.project.id)
-    unit_conv = {"currency": proj.economic_data.currency, "Faktor": "%"}
-    table = TABLES.get(table_id, None)
+    unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
+    table = prepare_dashboard_table(table_id)
 
     # do some unit substitution
     for l in table.values():
@@ -684,13 +684,68 @@ def request_kpi_table(request, proj_id=None):
         allowed_styles = ", ".join(TABLES.keys())
         answer = JsonResponse(
             {
-                "error": f"The kpi table sytle {table_style} is not implemented. Please try one of {allowed_styles}"
+                "error": f"The kpi table sytle {table_id} is not implemented. Please try one of {allowed_styles}"
             },
             status=404,
             content_type="application/json",
         )
 
     return answer
+
+@login_required
+@json_view
+@require_http_methods(["GET"])
+def request_system_costs_table(request, proj_id=None):
+    compare_scen = request.GET.get("compare_scenario")
+    table_id = request.GET.get("table_id")
+    if compare_scen != "":
+        compare_scen = int(compare_scen)
+    else:
+        compare_scen = None
+
+    selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
+
+    if compare_scen is not None:
+        selected_scenarios = [compare_scen]
+    kpis = {}
+    scen_names = []
+
+    scen_costs = []
+    for scen_id in selected_scenarios:
+        sim = Scenario.objects.get(id=scen_id).simulation
+        scen_costs.append(get_costs(sim))
+
+    if len(scen_costs) > 1:
+        answer = JsonResponse(
+            {"msg": "Multi-scenario not yet implemented for costs table"},
+            status=400,
+            content_type="application/json",
+        )
+    else:
+        table = {}
+        # TODO fix this with the actual descriptions etc
+        for idx, row in scen_costs[0].iterrows():
+            table[str(idx)] = {
+                "name": str(idx),
+                "description": "",
+                "unit": "",
+                "scen_values": row.round(2).tolist()
+            }
+
+        answer = JsonResponse(
+            {
+                "data": table,
+                "hdrs": [
+                    col.replace("_", " ") + " (€)" for col in scen_costs[0].columns
+                ],
+                "title": _("Overall costs breakdown"),
+            },
+            status=200,
+            content_type="application/json",
+        )
+    return answer
+
+
 
 
 @login_required

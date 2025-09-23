@@ -155,6 +155,7 @@ parameters specific to this graph type only, other parameters are available in t
 			<h2 class="title">{% translate "Financial Information" %}</h2>
 		</div>
 		{% include "report/kpis_template.html" with table_styles=table_styles table_id="economic" %}
+		{% include "report/kpis_template.html" with table_styles=table_styles table_id="system_costs" %}
 		<div class="row">
 			<div class="col" id="report_items_financial" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
@@ -201,6 +202,7 @@ $(document).ready(function () {
     update_kpi_table_style(current_scen_id, "technical");
     update_kpi_table_style(current_scen_id, "economic");
     update_kpi_table_style(current_scen_id, "environmental");
+    request_system_costs_table(current_scen_id);
     scenario_visualize_timeseries(current_scen_id);
     scenario_visualize_stacked_timeseries(current_scen_id);
     scenario_visualize_sankey(current_scen_id);
