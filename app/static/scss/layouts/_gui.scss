@@ -203,7 +203,7 @@
 
   .drawflow .drawflow-node {
     position: absolute;
-    height: 4.5rem;
+    height: 5.5rem;
     width: 9.5rem;
     border-radius: $gui-component-radius;
     background-color: $white;
@@ -219,6 +219,20 @@
 
     &.selected {
       background-color: $primary-gray-color-2;
+    }
+
+    &__name {
+      display: flex;
+      align-items: center;
+      height: 2rem;
+    }
+
+    &__name span {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .drawflow_content_node {
