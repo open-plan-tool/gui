@@ -1,3 +1,4 @@
+import logging
 import os
 import copy
 import csv
@@ -12,6 +13,7 @@ from projects.models import Viewer, Project
 import pickle
 from django.conf import settings as django_settings
 
+logger = logging.getLogger(__name__)
 #### CONSTANTS ####
 
 sectors = ["Electricity", "Heat", "Gas", "H2"]
@@ -54,7 +56,7 @@ SUMMARY_CAT_PARAMS = [
 ECONOMIC_CAT_PARAMS = [
     "levelized_costs_of_electricity_equivalentElectricity",
     "levelized_costs_of_electricity_equivalentHeat",
-    "costs_upfront_in_year_zero",
+    "costs_investment_over_lifetime",
     "costs_cost_om",
     "costs_dispatch",
 ]
@@ -64,6 +66,14 @@ TECHNICAL_CAT_PARAMS = [
     "renewable_factor",
 ]
 ENVIRONMENTAL_CAT_PARAMS = ["total_emissions"]
+
+TABLE_PARAM_MAPPING = {
+    MANAGEMENT_CAT: MANAGEMENT_CAT_PARAMS,
+    SUMMARY_CAT: SUMMARY_CAT_PARAMS,
+    ECONOMIC_CAT: ECONOMIC_CAT_PARAMS,
+    TECHNICAL_CAT: TECHNICAL_CAT_PARAMS,
+    ENVIRONMENTAL_CAT: ENVIRONMENTAL_CAT_PARAMS,
+}
 KPI_PARAMETERS = {}
 KPI_PARAMETERS_ASSETS = {}
 
@@ -86,36 +96,6 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 unit = row[unit_idx]
                 KPIS[label] = {k: v for k, v in zip(hdr, row)}
 
-                # cat = row[cat_idx]
-                # subcat = row[subcat_idx]
-                # if subcat == MANAGEMENT_CAT:
-                #     # reverse the category and the subcategory for this special table (management is not a parameter type, whereas all other table are also parameter types)
-                #     subcat = cat
-                #     cat = MANAGEMENT_CAT
-                for params, table in zip(
-                    [
-                        MANAGEMENT_CAT_PARAMS,
-                        SUMMARY_CAT_PARAMS,
-                        ECONOMIC_CAT_PARAMS,
-                        TECHNICAL_CAT_PARAMS,
-                        ENVIRONMENTAL_CAT_PARAMS,
-                    ],
-                    [
-                        MANAGEMENT_CAT,
-                        SUMMARY_CAT,
-                        ECONOMIC_CAT,
-                        TECHNICAL_CAT,
-                        ENVIRONMENTAL_CAT,
-                    ],
-                ):
-                    if label in params:
-                        TABLES[table]["General"].append(
-                            {
-                                "name": _(verbose),
-                                "id": label,
-                                "unit": _(unit) if unit != "Factor" else "",
-                            }
-                        )
                 # if subcat != EMPTY_SUBCAT:
                 #     if cat in TABLES:
                 #         if subcat not in TABLES[cat]:
@@ -154,6 +134,21 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
 
 
 #### FUNCTIONS ####
+def prepare_dashboard_table(table_id):
+    table_params = TABLE_PARAM_MAPPING[table_id]
+    TABLES[table_id]["General"] = []
+    for param in table_params:
+        try:
+            TABLES[table_id]["General"].append(
+                {
+                    "name": _(KPIS[param]["verbose"]),
+                    "id": param,
+                    "unit": KPIS[param][":Unit:"],
+                }
+            )
+        except KeyError:
+            logger.warning(f"{param} not found in KPIs")
+    return TABLES[table_id]
 
 
 def storage_asset_to_list(assets_results_json):
