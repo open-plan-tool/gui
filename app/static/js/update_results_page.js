@@ -21,9 +21,9 @@ function addSummaryTable(table_data, table_id) {
     /* create KPI table headers */
     parentDiv.classList.add("table-bordered", "table-hover");
     let tableHead = document.createElement('thead');
-    tableHead.classList.add("thead-dark")
-    tableHead.style.position = "sticky"
-    tableHead.style.top = "0"
+    tableHead.classList.add("thead-dark");
+    tableHead.style.position = "sticky";
+    tableHead.style.top = "0";
     let table_headers = table_data.hdrs; // todo add dynamically more scenarios here
     let table_length = table_headers.length;
     let tableHeadContent = document.createElement('tr');
@@ -54,6 +54,7 @@ function addSummaryTable(table_data, table_id) {
 
         /* add subtable lines for each parameter */
         // (param should be a json object) with keys name (type str), unit type (str) and scen_values
+        /* jshint -W083 */
         table_data.data[subBody].forEach(param =>{
             let tableSubSectionParamRow = document.createElement('tr');
             let cell = tableSubSectionParamRow.insertCell(0);
@@ -85,14 +86,14 @@ function addWideTable(table_data, table_id){
     /* create KPI table headers */
     parentDiv.classList.add("table-bordered", "table-hover");
     let tableHead = document.createElement('thead');
-    tableHead.classList.add("thead-dark")
-    tableHead.style.position = "sticky"
-    tableHead.style.top = "0"
+    tableHead.classList.add("thead-dark");
+    tableHead.style.position = "sticky";
+    tableHead.style.top = "0";
     let table_headers = table_data.hdrs; // todo add dynamically more scenarios here
     let table_length = table_headers.length + 1;
     let tableHeadContent = document.createElement('tr');
     // Add first (empty) header
-    tableHeadContent.appendChild(document.createElement('th'))
+    tableHeadContent.appendChild(document.createElement('th'));
     table_headers.map(hdr =>
         {
             var tableHdr = document.createElement('th');
@@ -165,9 +166,8 @@ function request_system_costs_table(scen_id=""){
             success: async (table_data) => {
                 await addWideTable(table_data, table_id="system_costs");
             },
-        })
+        });
     }
-
 
 /* loop over scenario selection buttons and return the ids of the selected ones */
 function fetchSelectedScenarios(){

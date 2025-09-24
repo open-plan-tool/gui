@@ -728,9 +728,7 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
     answer = JsonResponse(
         {
             "data": table,
-            "hdrs": [
-                col.replace("_", " ") + " (€)" for col in scen_costs[0].columns
-            ],
+            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs[0].columns],
             "title": _("Overall costs breakdown"),
         },
         status=200,
