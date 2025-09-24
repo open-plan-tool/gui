@@ -68,8 +68,8 @@ urlpatterns = [
         request_kpi_table,
         name="request_kpi_table",
     ),
-    path(
-        "project/<int:proj_id>/scenario/results/request_system_costs_table",
+    re_path(
+        r"^project/(?P<proj_id>\d+)/scenario/results/request_systen_costs_table/(?P<scen_id>\d+)?$",
         request_system_costs_table,
         name="request_system_costs_table",
     ),

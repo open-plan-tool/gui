@@ -706,54 +706,36 @@ def request_kpi_table(request, proj_id=None):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-def request_system_costs_table(request, proj_id=None):
-    compare_scen = request.GET.get("compare_scenario")
-    table_id = request.GET.get("table_id")
-    if compare_scen != "":
-        compare_scen = int(compare_scen)
+def request_system_costs_table(request, proj_id=None, scen_id=None):
+    if scen_id is None:
+        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
-        compare_scen = None
+        selected_scenario = [scen_id]
 
-    selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
+    sim = Scenario.objects.get(id=selected_scenario).simulation
+    scen_costs = get_costs(sim)
 
-    if compare_scen is not None:
-        selected_scenarios = [compare_scen]
-    kpis = {}
-    scen_names = []
+    table = {}
+    # TODO fix this with the actual descriptions etc
+    for idx, row in scen_costs[0].iterrows():
+        table[str(idx)] = {
+            "name": str(idx),
+            "description": "",
+            "unit": "",
+            "scen_values": row.round(2).tolist(),
+        }
 
-    scen_costs = []
-    for scen_id in selected_scenarios:
-        sim = Scenario.objects.get(id=scen_id).simulation
-        scen_costs.append(get_costs(sim))
-
-    if len(scen_costs) > 1:
-        answer = JsonResponse(
-            {"msg": "Multi-scenario not yet implemented for costs table"},
-            status=400,
-            content_type="application/json",
-        )
-    else:
-        table = {}
-        # TODO fix this with the actual descriptions etc
-        for idx, row in scen_costs[0].iterrows():
-            table[str(idx)] = {
-                "name": str(idx),
-                "description": "",
-                "unit": "",
-                "scen_values": row.round(2).tolist(),
-            }
-
-        answer = JsonResponse(
-            {
-                "data": table,
-                "hdrs": [
-                    col.replace("_", " ") + " (€)" for col in scen_costs[0].columns
-                ],
-                "title": _("Overall costs breakdown"),
-            },
-            status=200,
-            content_type="application/json",
-        )
+    answer = JsonResponse(
+        {
+            "data": table,
+            "hdrs": [
+                col.replace("_", " ") + " (€)" for col in scen_costs[0].columns
+            ],
+            "title": _("Overall costs breakdown"),
+        },
+        status=200,
+        content_type="application/json",
+    )
     return answer
 
 

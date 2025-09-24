@@ -159,7 +159,7 @@ function addWideTable(table_data, table_id){
 
 function request_system_costs_table(scen_id=""){
  $.ajax({
-            url: urlRequestSystemCosts + "?compare_scenario=" + scen_id,
+            url: urlRequestSystemCosts + scen_id,
             type: "GET",
             data: {table_id: "system_costs"},
             success: async (table_data) => {
@@ -188,7 +188,7 @@ function fetchSelectedScenarios(){
 
 function scenario_visualize_timeseries(scen_id=""){
  $.ajax({
-            url: urlVisualizeTimeseries,
+            url: urlVisualizeTimeseries + scen_id,
             type: "GET",
             success: async (parameters) => {
                 await graph_type_mapping[parameters.type](parameters.id, parameters);
@@ -198,7 +198,7 @@ function scenario_visualize_timeseries(scen_id=""){
 
 function scenario_visualize_stacked_timeseries(scen_id){
  $.ajax({
-            url: urlVisualizeStackedTimeseries,
+            url: urlVisualizeStackedTimeseries  + scen_id,
             type: "GET",
             success: async (graphs) => {
                 const parentDiv = document.getElementById("stacked_timeseries");
@@ -231,7 +231,7 @@ function scenario_visualize_sankey(scen_id, ts=null){
 
 function scenario_visualize_capacities(scen_id=""){
  $.ajax({
-            url: urlVisualizeCapacities,
+            url: urlVisualizeCapacities + scen_id,
             type: "GET",
             success: async (parameters) => {
                 await graph_type_mapping[parameters.type](parameters.id, parameters);
@@ -241,7 +241,7 @@ function scenario_visualize_capacities(scen_id=""){
 
 function scenario_visualize_costs(scen_id=""){
  $.ajax({
-            url: urlVisualizeCosts,
+            url: urlVisualizeCosts + scen_id,
             type: "GET",
             success: async (graphs) => {
 								const parentDiv = document.getElementById("costs");
