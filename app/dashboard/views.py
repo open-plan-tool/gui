@@ -38,7 +38,7 @@ from projects.services import (
 
 from projects.forms import BusForm, AssetCreateForm, StorageForm
 
-from projects.constants import COMPARE_VIEW
+from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
 from dashboard.models import (
     ReportItem,
     FlowResults,
@@ -133,7 +133,9 @@ def result_change_project(request):
 
 @login_required
 @require_http_methods(["POST", "GET"])
-def scenario_visualize_results(request, proj_id=None, scen_id=None):
+def scenario_visualize_results(
+    request, proj_id=None, scen_id=None, step_id=5, max_step=MAX_STEP
+):
     request.session[COMPARE_VIEW] = False
 
     user_projects = fetch_user_projects(request.user)
@@ -228,6 +230,10 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
                     "report/single_scenario.html",
                     {
                         "scen_id": scen_id,
+                        "scenario": scenario,
+                        "step_list": STEP_LIST,
+                        "max_step": max_step,
+                        "step_id": step_id,
                         "timestamps": timestamps,
                         "proj_id": proj_id,
                         "project_list": user_projects,
@@ -258,7 +264,7 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
 
 @login_required
 @require_http_methods(["POST", "GET"])
-def project_compare_results(request, proj_id):
+def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     request.session[COMPARE_VIEW] = True
     user_projects = fetch_user_projects(request.user)
 
@@ -282,6 +288,9 @@ def project_compare_results(request, proj_id):
         "report/compare_scenario.html",
         {
             "scen_id": None,
+            "step_list": STEP_LIST,
+            "max_step": max_step,
+            "step_id": step_id,
             "proj_id": proj_id,
             "project_list": user_projects,
             "scenario_list": user_scenarios,

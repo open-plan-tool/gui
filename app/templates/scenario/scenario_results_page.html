@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'scenario/scenario_progression.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load custom_filters %}
@@ -28,7 +28,7 @@
 
 {% block title %}{% translate "Results" %}{% endblock title %}
 
-{% block content %}
+{% block progression_content %}
 
 <!-- Modal -->
 <div class="modal fade modal--gui" id="guiModal" tabindex="-1" role="dialog" aria-labelledby="guiModalLabel" aria-hidden="true">
@@ -118,15 +118,6 @@
 </div>
 
 <main>
-	<section class="header">
-		<div>
-			<div class="header__left"></div>
-			<h1 class="header__title">{% translate "Simulation results" %}</h1>
-			<div class="header__back">
-				<a href="{% url 'back_to_scenario_review' proj_id %}">{% translate "To scenario" %}</a>
-			</div>
-		</div>
-	</section>
 	<section class="header-results">
 		<div>
 			<div class="header-results__scenario">
@@ -177,7 +168,7 @@
 
 
 </main>
-{% endblock content %}
+{% endblock progression_content %}
 
 
 {% block end_body_scripts %}

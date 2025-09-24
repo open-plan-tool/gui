@@ -2062,6 +2062,8 @@ nav.navbar {
         content: "3"; }
       .wizard__steps li:nth-child(4)::before {
         content: "4"; }
+      .wizard__steps li:nth-child(5)::before {
+        content: "5"; }
       .wizard__steps li.active {
         color: #1F567D; }
         .wizard__steps li.active::before {
