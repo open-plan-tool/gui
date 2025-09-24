@@ -176,8 +176,8 @@ class DualInputWidget(forms.MultiWidget):
 
     template_name = "asset/dual_input.html"
 
-    class Media:
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, **kwargs):
         """This special input consist of one text field and one upload file button"""
@@ -324,9 +324,9 @@ class TimeseriesInputWidget(forms.MultiWidget):
 
     template_name = "asset/timeseries_input.html"
 
-    class Media:
-        # TODO: currently not loading the content as not within head
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     # TODO: currently not loading the content as not within head
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, select_widget, **kwargs):
         """This special input consist of one text field, one select field and one upload file button"""
@@ -421,6 +421,9 @@ class TimeseriesField(forms.MultiValueField):
         if scalar_value is None:
             scalar_value = ""
 
+        if timeseries_id is None:
+            timeseries_id = ""
+
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
@@ -452,10 +455,6 @@ class TimeseriesField(forms.MultiValueField):
                 code="required",
                 params={"boundaries": self.boundaries},
             )
-
-        # input_ts, created = Timeseries.objects.get_or_create(
-        #     user=user, **input_timeseries
-        # )
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
