@@ -176,8 +176,8 @@ class DualInputWidget(forms.MultiWidget):
 
     template_name = "asset/dual_input.html"
 
-    class Media:
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, **kwargs):
         """This special input consist of one text field and one upload file button"""
@@ -324,9 +324,9 @@ class TimeseriesInputWidget(forms.MultiWidget):
 
     template_name = "asset/timeseries_input.html"
 
-    class Media:
-        # TODO: currently not loading the content as not within head
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     # TODO: currently not loading the content as not within head
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, select_widget, **kwargs):
         """This special input consist of one text field, one select field and one upload file button"""
