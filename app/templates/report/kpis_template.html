@@ -21,7 +21,7 @@ table_id:
 					<div class="chart__header">
 						<!-- style="display: flex;gap: 10px;align-items: center;" -->
 						<div>
-							<span class="title"><a data-bs-toggle="collapse" data-bs-target="#container_{{ table_id }}" role="button" aria-expanded="false" aria-controls="container_{{ table_id }}">
+							<span class="title"><a id="{{ table_id }}TableTitle" data-bs-toggle="collapse" data-bs-target="#container_{{ table_id }}" role="button" aria-expanded="false" aria-controls="container_{{ table_id }}">
 								{% translate "Summary" %}</a></span>
 							<span style="display:none;"><select id="kpi-table-style" name="kpi-table-style" class="form-select" aria-label="Default select example" onchange="update_kpi_table_style(this)">
 																		{% for style in table_styles %}

@@ -78,6 +78,8 @@ function addSummaryTable(table_data, table_id) {
 
 function addWideTable(table_data, table_id){
     let parentDiv = document.getElementById(table_id + "Table");
+    let titleDiv = document.getElementById(table_id + "TableTitle");
+    titleDiv.innerHTML = table_data.title;
     parentDiv.innerHTML = "";
 
     /* create KPI table headers */
