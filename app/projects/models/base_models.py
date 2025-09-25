@@ -649,7 +649,7 @@ class Asset(TopologyNode):
         return answer
 
     def to_datapackage(self):
-        dp = {"facade": self.asset_type.asset_type}
+        dp = {"type": self.asset_type.asset_type}
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
         for field in self.asset_type.visible_fields:
@@ -685,9 +685,9 @@ class Asset(TopologyNode):
                     flow_direction=direction, asset_connection_port=port
                 )
                 if qs_bus.exists():
-                    bus = qs_bus.get()
-                    dp[field] = bus.name
-                    bus_resource_rec.append(bus.to_datapackage())
+                    connection = qs_bus.get()
+                    dp[field] = connection.bus.name
+                    bus_resource_rec.append(connection.bus.to_datapackage())
                 else:
                     dp[field] = None
                     # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here
