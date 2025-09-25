@@ -242,6 +242,22 @@
       align-items: center;
     }
 
+    &.bus_electricity {
+      @include bus(#F8F5E8, #FBC02D, #976E07, rgba(251, 192, 45, 0.3));
+    }
+
+    &.bus_heat {
+      @include bus(#F9F4F4, #E28785, #BC5452, rgba(226, 135, 133, 0.3));
+    }
+
+    &.bus_gas {
+      @include bus(#F4F9F4, #55B068, #2E8442, rgba(85, 176, 104, 0.3));
+    }
+
+    &.bus_h2 {
+      @include bus(#F0F6FC, #769ADD, #4E71B1, rgba(44, 146, 181, 0.3));
+    }
+
     .inputs {
       left: $gui-component-position-side;
       top: 0;
@@ -292,7 +308,7 @@
       &.#{$component-name} {
         .img::before {
           @include gui-component-image(
-            url("/static/assets/gui/#{$component-name}.svg")
+            url("/static/assets/gui/#{$component-category}.svg")
           );
         }
       }

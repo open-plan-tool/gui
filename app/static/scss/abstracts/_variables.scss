@@ -124,7 +124,7 @@ $component-categories-mapping: (
     "h2_dso": "h2_dso",
     "heat_dso": "heat_dso",
     "pv_plant": "pv_plant",
-    "wind_plant": "production",
+    "wind_plant": "wind_plant",
     "biogas_plant": "biogas_plant",
     "geothermal_conversion": "geothermal_conversion",
     "solar_thermal_plant": "solar_thermal_plant",
@@ -133,7 +133,7 @@ $component-categories-mapping: (
     "storage_charge_controller_in": "storage_charge_controller_in",
     "storage_charge_controller_out": "storage_charge_controller_out",
     "solar_inverter": "solar_inverter",
-    "diesel_generator": "diesel",
+    "diesel_generator": "diesel_generator",
     "fuel_cell": "fuel_cell",
     "gas_boiler": "gas_boiler",
     "electrolyzer": "electrolyzer",
@@ -148,7 +148,10 @@ $component-categories-mapping: (
     "gas_demand": "gas_demand",
     "h2_demand": "h2_demand",
     "heat_demand": "heat_demand",
-    "bus": "bus",
+    "bus_electricity": "bus-electricity",
+    "bus_gas": "bus-gas",
+    "bus_heat": "bus-heat",
+    "bus_h2": "bus-h2",
 );
 $gui-component-bg-size: 4.5rem;
 $gui-component-img-size: 2rem;

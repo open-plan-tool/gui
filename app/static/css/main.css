@@ -2584,7 +2584,7 @@ nav.navbar {
     cursor: pointer; }
   .system-design .drawflow .drawflow-node {
     position: absolute;
-    height: 4.5rem;
+    height: 5.5rem;
     width: 9.5rem;
     border-radius: 8px;
     background-color: #fff;
@@ -2598,12 +2598,118 @@ nav.navbar {
       background-color: #edf2f5; }
     .system-design .drawflow .drawflow-node.selected {
       background-color: #E3EAEE; }
+    .system-design .drawflow .drawflow-node__name {
+      display: flex;
+      align-items: center;
+      height: 2rem; }
+    .system-design .drawflow .drawflow-node__name span {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis; }
     .system-design .drawflow .drawflow-node .drawflow_content_node {
       height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
       align-items: center; }
+    .system-design .drawflow .drawflow-node.bus_electricity {
+      background-color: #F8F5E8;
+      border: 1px solid #FBC02D; }
+      .system-design .drawflow .drawflow-node.bus_electricity .drawflow-node__name {
+        color: #976E07;
+        font-weight: 700; }
+      .system-design .drawflow .drawflow-node.bus_electricity .inputs .input,
+      .system-design .drawflow .drawflow-node.bus_electricity .inputs .output,
+      .system-design .drawflow .drawflow-node.bus_electricity .outputs .input,
+      .system-design .drawflow .drawflow-node.bus_electricity .outputs .output {
+        background-color: #FBC02D;
+        border-color: #FBC02D; }
+        .system-design .drawflow .drawflow-node.bus_electricity .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_electricity .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.bus_electricity .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_electricity .outputs .output.port--empty {
+          background-color: #fff; }
+        .system-design .drawflow .drawflow-node.bus_electricity .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_electricity .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_electricity .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_electricity .outputs .output.port--not-compatible {
+          background-color: rgba(251, 192, 45, 0.3);
+          filter: none;
+          border: none; }
+    .system-design .drawflow .drawflow-node.bus_heat {
+      background-color: #F9F4F4;
+      border: 1px solid #E28785; }
+      .system-design .drawflow .drawflow-node.bus_heat .drawflow-node__name {
+        color: #BC5452;
+        font-weight: 700; }
+      .system-design .drawflow .drawflow-node.bus_heat .inputs .input,
+      .system-design .drawflow .drawflow-node.bus_heat .inputs .output,
+      .system-design .drawflow .drawflow-node.bus_heat .outputs .input,
+      .system-design .drawflow .drawflow-node.bus_heat .outputs .output {
+        background-color: #E28785;
+        border-color: #E28785; }
+        .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_heat .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.bus_heat .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_heat .outputs .output.port--empty {
+          background-color: #fff; }
+        .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_heat .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_heat .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_heat .outputs .output.port--not-compatible {
+          background-color: rgba(226, 135, 133, 0.3);
+          filter: none;
+          border: none; }
+    .system-design .drawflow .drawflow-node.bus_gas {
+      background-color: #F4F9F4;
+      border: 1px solid #55B068; }
+      .system-design .drawflow .drawflow-node.bus_gas .drawflow-node__name {
+        color: #2E8442;
+        font-weight: 700; }
+      .system-design .drawflow .drawflow-node.bus_gas .inputs .input,
+      .system-design .drawflow .drawflow-node.bus_gas .inputs .output,
+      .system-design .drawflow .drawflow-node.bus_gas .outputs .input,
+      .system-design .drawflow .drawflow-node.bus_gas .outputs .output {
+        background-color: #55B068;
+        border-color: #55B068; }
+        .system-design .drawflow .drawflow-node.bus_gas .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_gas .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.bus_gas .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_gas .outputs .output.port--empty {
+          background-color: #fff; }
+        .system-design .drawflow .drawflow-node.bus_gas .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_gas .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_gas .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_gas .outputs .output.port--not-compatible {
+          background-color: rgba(85, 176, 104, 0.3);
+          filter: none;
+          border: none; }
+    .system-design .drawflow .drawflow-node.bus_h2 {
+      background-color: #F0F6FC;
+      border: 1px solid #769ADD; }
+      .system-design .drawflow .drawflow-node.bus_h2 .drawflow-node__name {
+        color: #4E71B1;
+        font-weight: 700; }
+      .system-design .drawflow .drawflow-node.bus_h2 .inputs .input,
+      .system-design .drawflow .drawflow-node.bus_h2 .inputs .output,
+      .system-design .drawflow .drawflow-node.bus_h2 .outputs .input,
+      .system-design .drawflow .drawflow-node.bus_h2 .outputs .output {
+        background-color: #769ADD;
+        border-color: #769ADD; }
+        .system-design .drawflow .drawflow-node.bus_h2 .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_h2 .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.bus_h2 .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.bus_h2 .outputs .output.port--empty {
+          background-color: #fff; }
+        .system-design .drawflow .drawflow-node.bus_h2 .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_h2 .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_h2 .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.bus_h2 .outputs .output.port--not-compatible {
+          background-color: rgba(44, 146, 181, 0.3);
+          filter: none;
+          border: none; }
     .system-design .drawflow .drawflow-node .inputs {
       left: -8px;
       top: 0; }
@@ -2930,13 +3036,43 @@ nav.navbar {
       background-size: contain;
       height: 2rem;
       width: 2rem; }
-    .system-design .drawflow .drawflow-node.bus .img::before {
+    .system-design .drawflow .drawflow-node.bus_electricity .img::before {
       content: '';
       position: absolute;
       top: 0.5rem;
       right: 3px;
       transform: translateX(-50%);
-      background-image: url("/static/assets/gui/bus.svg");
+      background-image: url("/static/assets/gui/bus-electricity.svg");
+      background-size: contain;
+      height: 2rem;
+      width: 2rem; }
+    .system-design .drawflow .drawflow-node.bus_gas .img::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
+      background-image: url("/static/assets/gui/bus-gas.svg");
+      background-size: contain;
+      height: 2rem;
+      width: 2rem; }
+    .system-design .drawflow .drawflow-node.bus_heat .img::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
+      background-image: url("/static/assets/gui/bus-heat.svg");
+      background-size: contain;
+      height: 2rem;
+      width: 2rem; }
+    .system-design .drawflow .drawflow-node.bus_h2 .img::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
+      background-image: url("/static/assets/gui/bus-h2.svg");
       background-size: contain;
       height: 2rem;
       width: 2rem; }
@@ -3398,7 +3534,7 @@ nav.navbar {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  background-color: white; }
+  background-color: #F3F7FC; }
   .about2 > div {
     width: 100%;
     max-width: 82rem;
@@ -3496,9 +3632,6 @@ nav.navbar {
       color: #17405C; }
     .features2__item p {
       line-height: 170%; }
-
-.features2.cellular-features2 {
-  background-color: #fff; }
 
 .related2 {
   padding-top: 6rem;
@@ -4427,6 +4560,7 @@ nav.navbar {
       margin-left: 1.5rem;
       width: calc(100% - 1.5rem);
       height: 100%;
-      background-color: #E3EAEE; }
+      background-color: #E3EAEE;
+      z-index: 1; }
 
 /*# sourceMappingURL=main.css.map */

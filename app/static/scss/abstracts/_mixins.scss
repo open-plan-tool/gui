@@ -190,7 +190,6 @@
   left: -1.25rem;
 }
 
-
 @mixin section-wrap($desktop-width, $section-padding-top-btm) {
 	padding: 3rem 1rem 0;
 	display: flex;
@@ -220,4 +219,33 @@
 		transform: translateY(1px) translateX(-3px);
 		content: "";
 	}
+}
+
+@mixin bus($bus-bg-color, $bus-color, $bus-text-color, $bus-color-disabled) {
+  background-color: $bus-bg-color;
+  border: 1px solid $bus-color;
+
+  .drawflow-node__name {
+    color: $bus-text-color;
+    font-weight: 700;
+  }
+
+  .inputs,
+  .outputs {
+    .input,
+    .output {
+      background-color: $bus-color;
+      border-color: $bus-color;
+
+      &.port--empty {
+        background-color: $white;;
+      }
+
+      &.port--not-compatible {
+        background-color: $bus-color-disabled;
+        filter: none;
+        border: none;
+      }
+    }
+  }
 }

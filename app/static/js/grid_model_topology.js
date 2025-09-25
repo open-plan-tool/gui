@@ -331,8 +331,8 @@ function submitForm() {
         // update bus node color
         const elem = document.getElementById("node-" + drawflowNodeId);
         const oldBusType = elem.getAttribute("bustype");
-        elem.classList.remove("busnode-" + oldBusType);
-        elem.classList.add("busnode-" + busType);
+        elem.classList.remove("bus_" + oldBusType);
+        elem.classList.add("bus_" + busType);
         elem.setAttribute("bustype", busType);
         // update the ports type for busses
         const node = getNodeFromTopologyNodeId(topologyNodeId);
@@ -528,7 +528,8 @@ editor.on('nodeCreated', function (nodeID) {
         if (busType) {
             busType = busType.toLowerCase();
             elem.setAttribute("bustype", busType);
-            elem.classList.add("busnode-" + busType);
+            //elem.classList.add("busnode-" + busType);
+            elem.classList.add("bus_" + busType);
         }
     }
 });
