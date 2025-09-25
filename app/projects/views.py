@@ -5,6 +5,7 @@ import logging
 import traceback
 from django.http import HttpResponseForbidden, JsonResponse
 from django.http.response import Http404
+from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.shortcuts import *
@@ -41,7 +42,7 @@ from .scenario_topology_helpers import (
 )
 from projects.helpers import format_scenario_for_mvs, PARAMETERS
 from dashboard.helpers import fetch_user_projects
-from .constants import DONE, PENDING, ERROR, MODIFIED
+from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     create_or_delete_simulation_scheduler,
     excuses_design_under_development,
@@ -697,14 +698,6 @@ def scenario_search(request, proj_id, show_comments=0):
     )
 
 
-STEP_LIST = [
-    _("Scenario Setup"),
-    _("Energy system design"),
-    _("Constraints"),
-    _("Simulation"),
-]
-
-
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_select_project(request, step_id=0, max_step=1):
@@ -772,7 +765,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
             # if a simulation object linked to this scenario exists, all steps have been already fullfilled
             qs_sim = Simulation.objects.filter(scenario=scenario)
             if qs_sim.exists():
-                max_step = 5
+                max_step = MAX_STEP
                 existing_simulation = True
             else:
                 existing_simulation = False
@@ -959,7 +952,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         # if a simulation object linked to this scenario exists, all steps have been already fullfilled
         qs_sim = Simulation.objects.filter(scenario=scenario)
         if qs_sim.exists():
-            max_step = 5
+            max_step = MAX_STEP
             existing_simulation = True
         else:
             existing_simulation = False
@@ -1111,7 +1104,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def scenario_review(request, proj_id, scen_id, step_id=4, max_step=5):
+def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1227,22 +1220,24 @@ def back_to_scenario_review(request, proj_id):
     return answer
 
 
-SCENARIOS_STEPS = [
-    scenario_create_parameters,
-    scenario_create_topology,
-    scenario_create_constraints,
-    scenario_review,
-]
+SCENARIOS_STEPS = {
+    1: "scenario_create_parameters",
+    2: "scenario_create_topology",
+    3: "scenario_create_constraints",
+    4: "scenario_review",
+    5: "scenario_visualize_results",
+}
 
 
 @login_required
 @require_http_methods(["GET"])
 def scenario_steps(request, proj_id, step_id=None, scen_id=None):
-    if request.method == "GET":
-        if step_id is None:
-            return HttpResponseRedirect(reverse("scenario_steps", args=[proj_id, 1]))
+    if step_id is None:
+        return HttpResponseRedirect(reverse("scenario_steps", args=[proj_id, 1]))
 
-        return SCENARIOS_STEPS[step_id - 1](request, proj_id, scen_id, step_id)
+    return HttpResponseRedirect(
+        reverse(SCENARIOS_STEPS[step_id], args=[proj_id, scen_id])
+    )
 
 
 # TODO delete this useless code here

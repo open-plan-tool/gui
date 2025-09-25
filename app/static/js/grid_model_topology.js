@@ -488,39 +488,60 @@ async function addLinks(data) {
 }
 
 function zoomToFit() {
-    const nodeWidth = 152;
-    const nodeHeight = 128;
+    const editorElem = document.getElementById('drawflow');
+    const zoomMax = 1;
+    const padding = 16; // optional margin around the nodes
 
     const nodes = Object.values(editor.drawflow.drawflow.Home.data); // Array with all nodes
 
     if (!nodes.length)
         return;  // only zoom if there are nodes, ignore new/empty project
 
+
+    // current transform origin for drawflow is top-left (0,0)
+    editor.precanvas.style.transformOrigin = '0 0';
+
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     // get outer most node bounding box edges
     nodes.forEach(node => {
-        minX = Math.min(minX, node.pos_x);
-        minY = Math.min(minY, node.pos_y);
-        maxX = Math.max(maxX, node.pos_x + nodeWidth);
-        maxY = Math.max(maxY, node.pos_y + nodeHeight);
-    });
-    const nodesWidth = maxX - minX;
-    const nodesHeight = maxY - minY;
+      const el = document.getElementById(`node-${node.id}`);
+      if (!el) return;
 
-    // get space of editor
-    const editorElem = document.querySelector('.drawflow');
-    const editorWidth = editorElem.clientWidth;
-    const editorHeight = editorElem.clientHeight;
+      const x = node.pos_x;
+      const y = node.pos_y;
+
+      // Use real rendered size
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + w);
+      maxY = Math.max(maxY, y + h);
+    });
+
+    const nodesWidth  = (maxX - minX) + padding * 2;
+    const nodesHeight = (maxY - minY) + padding * 2;
+
+    // get space of editor excluding padding
+    const cs = getComputedStyle(editorElem);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const padY = parseFloat(cs.paddingTop)  + parseFloat(cs.paddingBottom);
+    const editorWidth  = editorElem.clientWidth  - padX;
+    const editorHeight = editorElem.clientHeight - padY;
 
     // calculate zoom
-    const zoomX = editorWidth / (nodesWidth + 2);
-    const zoomY = editorHeight / (nodesHeight + 2);
-    const zoom = Math.min(zoomX, zoomY, 1); // max 1 (no zoom)
-    editor.zoom = zoom;
+    const zoomX = editorWidth  / nodesWidth;
+    const zoomY = editorHeight / nodesHeight;
+    const zoom = Math.min(zoomX, zoomY, zoomMax);
 
-    // center editor
-    const offsetX = (editorWidth - nodesWidth * zoom) / 2 - minX * zoom;
-    const offsetY = (editorHeight - nodesHeight * zoom) / 2 - minY * zoom;
+    // calculate offset
+    const offsetX = (editorWidth  - (maxX - minX + padding * 2) * zoom) / 2 - (minX - padding) * zoom;
+    const offsetY = (editorHeight - (maxY - minY + padding * 2) * zoom) / 2 - (minY - padding) * zoom;
+
+    editor.zoom = zoom;
+    editor.precanvas_x = offsetX;
+    editor.precanvas_y = offsetY;
     editor.precanvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
 }

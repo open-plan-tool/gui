@@ -1,5 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 
+
+STEP_LIST = [
+    _("Scenario Setup"),
+    _("Energy system design"),
+    _("Constraints"),
+    _("Simulation"),
+    _("Results"),
+]
+
+MAX_STEP = len(STEP_LIST)
+
 COUNTRY = (
     ("", "Choose..."),
     ("AFGHANISTAN", "AFGHANISTAN"),

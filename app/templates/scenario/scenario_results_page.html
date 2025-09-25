@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'scenario/scenario_progression.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load custom_filters %}
@@ -28,7 +28,7 @@
 
 {% block title %}{% translate "Results" %}{% endblock title %}
 
-{% block content %}
+{% block progression_content %}
 
 <!-- Modal -->
 <div class="modal fade modal--gui" id="guiModal" tabindex="-1" role="dialog" aria-labelledby="guiModalLabel" aria-hidden="true">
@@ -118,15 +118,6 @@
 </div>
 
 <main>
-	<section class="header">
-		<div>
-			<div class="header__left"></div>
-			<h1 class="header__title">{% translate "Simulation results" %}</h1>
-			<div class="header__back">
-				<a href="{% url 'back_to_scenario_review' proj_id %}">{% translate "To scenario" %}</a>
-			</div>
-		</div>
-	</section>
 	<section class="header-results">
 		<div>
 			<div class="header-results__scenario">
@@ -177,7 +168,7 @@
 
 
 </main>
-{% endblock content %}
+{% endblock progression_content %}
 
 
 {% block end_body_scripts %}
@@ -194,9 +185,28 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-const urlNotImplemented = `{% url 'not_implemented' %}?url={{ request.get_full_path }}`;
-const urlCopyReportItem = "#";
-const urlDeleteReportItem = `{% url 'report_delete_item' proj_id %}`;
+	const urlNotImplemented = `{% url 'not_implemented' %}?url={{ request.get_full_path }}`;
+    const urlCopyReportItem = "#";
+    const urlDeleteReportItem = `{% url 'report_delete_item' proj_id %}`;
+
+	var createReportItemModalDOM = document.getElementById("createReportItemModal");
+	var createReportItemModal = new bootstrap.Modal(createReportItemModalDOM);
+	var createReportItemForm = createReportItemModalDOM.querySelector("form");
+	var reportItemTitleDOM = createReportItemForm.querySelector('input[id="id_title"]');
+	var reportItemTitle = ''
+	var reportItemScenariosDOM = createReportItemForm.querySelector('input[id="id_scenarios"]');
+	var reportItemScenarios = [];
+
+	const urlRequestKPITable = `{% url 'request_kpi_table' proj_id=proj_id %}`;
+	const urlRequestSystemCosts = `{% url 'request_system_costs_table' proj_id=proj_id %}`;
+	const urlUpdatedSingleScenario = `{% url 'update_selected_single_scenario' proj_id %}`;
+	const urlVisualizeTimeseries = `{% url 'scenario_visualize_timeseries' proj_id=proj_id %}`;
+	const urlVisualizeStackedTimeseries = `{% url 'scenario_visualize_stacked_timeseries' %}`;
+	const urlVisualizeCapacities = `{% url 'scenario_visualize_capacities' proj_id=proj_id %}`;
+	const urlVisualizeCosts = `{% url 'scenario_visualize_costs' proj_id=proj_id %}`;
+	const urlVisualizeSankey = `{% url 'scenario_visualize_sankey' %}`;
+
+	const srcInfoIcon = `{% static 'assets/icons/i_info.svg' %}`
 
 
 const deleteReportItem = (event) => {
@@ -219,6 +229,7 @@ const deleteReportItem = (event) => {
 };
 </script>
 <script src="{% static 'js/report_items.js' %}"></script>
+<script src="{% static 'js/update_results_page.js' %}"></script>
 
 
 {% if multiple_scenario_selection %}
@@ -227,175 +238,6 @@ const deleteReportItem = (event) => {
 <script>const multipleScenarioSelection = false;</script>
 {% endif %}
 
-
-
-<script>
-
-function update_kpi_table_style(scen_id=""){
-
-    $.ajax({
-        url: "{% url 'request_kpi_table' proj_id=proj_id %}" + "?compare_scenario=" + scen_id,
-        type: "GET",
-        success: async (table_data) => {
-
-        const parentDiv = document.getElementById("selectedKPITable");
-        parentDiv.innerHTML = "";
-
-
-        /* create KPI table headers */
-        const tableHead = document.createElement('thead');
-        const table_headers = table_data.hdrs; // todo add dynamically more scenarios here
-        const table_length = table_headers.length;
-        const tableHeadContent = document.createElement('tr');
-        table_headers.map(hdr =>
-            {
-                var tableHdr = document.createElement('th');
-                tableHdr.innerHTML = `{% blocktranslate %}` + hdr + `{% endblocktranslate %}`;
-                tableHeadContent.appendChild(tableHdr);
-            }
-        );
-        tableHead.appendChild(tableHeadContent)
-        parentDiv.appendChild(tableHead);
-
-
-        for(subBody in table_data.data) {
-            var tableBody = document.createElement('tbody');
-            tableBody.id = subBody;
-            /* add subtable title */
-            const tableSubSectionTitleRow = document.createElement('tr');
-            var tableSubSectionTitle = document.createElement('th');
-            tableSubSectionTitle.innerHTML = subBody;
-            tableSubSectionTitleRow.appendChild(tableSubSectionTitle);
-            for(i=0;i<table_length-1;++i){
-                tableSubSectionTitleRow.appendChild(document.createElement('td'));
-            }
-
-            //tableBody.appendChild(tableSubSectionTitle);
-
-            /* add subtable lines for each parameter */
-            // (param should be a json object) with keys name (type str), unit type (str) and scen_values
-            table_data.data[subBody].map(param =>{
-                var tableSubSectionParamRow = document.createElement('tr');
-                var cell = tableSubSectionParamRow.insertCell(0);
-                cell.innerHTML = `{% blocktranslate %}` + param.name +`{% endblocktranslate %}<a data-bs-toggle="tooltip" title="" data-bs-original-title="${param.description}" data-bs-placement="right"><img style="height: 1.2rem;margin-left:.5rem" alt="info icon" src="{% static 'assets/icons/i_info.svg'%}"></a>`;
-                //cell.setAttribute("title", param.description)
-                //cell.append(" just to see");
-                // todo for loop over scenario values
-                for(i=0;i<param.scen_values.length;++i){
-                    cell = tableSubSectionParamRow.insertCell(1 + i);
-                    cell.innerHTML = param.scen_values[i] +" " + param.unit
-                };
-                tableBody.appendChild(tableSubSectionParamRow);
-            });
-
-
-            parentDiv.appendChild(tableBody);
-        }
-        $('[data-bs-toggle="tooltip"]').tooltip()
-
-        },
-        /*error: function (xhr, errmsg) {
-            console.log("backend_error!")
-            //Show the error message
-            $('#message-div').html("<div class='alert-error'>" +
-                "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
-        }*/
-    });
-
-};
-
-/* loop over scenario selection buttons and return the ids of the selected ones */
-function fetchSelectedScenarios(){
-    var selectedScenarios = [];
-    var scenariosDropDown = $("#results-scenarios");
-    if(scenariosDropDown){
-			if(Array.isArray(scenariosDropDown.val()) == false){
-				selectedScenarios.push(scenariosDropDown.val().split("-")[2]);
-			}
-			else{
-				selectedScenarios = scenariosDropDown.val();
-			};
-    };
-    return selectedScenarios;
-};
-
-
-
-function scenario_visualize_timeseries(scen_id=""){
- $.ajax({
-            url: "{% url 'scenario_visualize_timeseries' proj_id=proj_id %}" + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            }
-        });
-};
-
-function scenario_visualize_stacked_timeseries(scen_id){
- $.ajax({
-            url: "{% url 'scenario_visualize_stacked_timeseries'%}" +  scen_id,
-            type: "GET",
-            success: async (graphs) => {
-                const parentDiv = document.getElementById("stacked_timeseries");
-                await graphs.map(parameters => {
-                    const newGraph = document.createElement('div');
-                    newGraph.id = "stacked_timeseries" + parameters.id;
-                    parentDiv.appendChild(newGraph);
-                    graph_type_mapping[parameters.type](newGraph.id, parameters);
-                });
-            },
-        });
-};
-
-
-function scenario_visualize_sankey(scen_id, ts=null){
-	var urlParams = scen_id;
-	if( ts === null || ts === ""){
-	}
-	else{
-		urlParams = scen_id + "/" + ts;
-	}
- $.ajax({
-            url: "{% url 'scenario_visualize_sankey' %}" + urlParams,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            },
-        });
-};
-
-function scenario_visualize_capacities(scen_id=""){
- $.ajax({
-            url: "{% url 'scenario_visualize_capacities' proj_id=proj_id %}" + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);;
-            },
-        });
-};
-
-function scenario_visualize_costs(scen_id=""){
- $.ajax({
-            url: "{% url 'scenario_visualize_costs' proj_id=proj_id %}" + scen_id,
-            type: "GET",
-            success: async (graphs) => {
-								const parentDiv = document.getElementById("costs");
-                await graphs.map(parameters => {
-                    const newGraph = document.createElement('div');
-                    newGraph.id = "costs" + parameters.id;
-                    parentDiv.appendChild(newGraph);
-                    if(parameters.title === "var1" || parameters.title === "var2")
-            				{ graph_type= parameters.type;
-            					parameters.title = "";}
-            				else{ graph_type = parameters.type + "Scenarios";}
-                    graph_type_mapping[graph_type](newGraph.id, parameters);
-                });
-            },
-        });
-};
-
-
-</script>
 
 
 <script src="{% static 'js/modal_utils.js' %}"></script>

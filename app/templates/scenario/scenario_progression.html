@@ -22,7 +22,7 @@
 
                     <li {% if step_id == forloop.counter %} class="active" {% endif %}>
                         {% if scen_id %}
-                            {% if forloop.counter < max_step %}
+                            {% if forloop.counter <= max_step %}
                                 <a href="{% url 'scenario_steps_edit' proj_id scen_id forloop.counter %}" >{% translate step %}</a>
                             {% else %}
                                 {% translate step %}
