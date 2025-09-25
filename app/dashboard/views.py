@@ -679,11 +679,16 @@ def request_kpi_table(request, proj_id=None):
                     )
                     for scen_id in selected_scenarios
                 ]
+                if param["unit"] == "%":
+                    param["scen_values"] = [
+                        (
+                            round(float(val) * 100, 2)
+                            if val != "not implemented yet"
+                            else val
+                        )
+                        for val in param["scen_values"]
+                    ]
                 param["description"] = KPI_helper.get_doc_definition(param["id"])
-                if "currency" in param["unit"]:
-                    param["unit"] = param["unit"].replace(
-                        "currency", scenario.get_currency()
-                    )
         answer = JsonResponse(
             {"data": table, "hdrs": [_("Indicator")] + scen_names},
             status=200,
