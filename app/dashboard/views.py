@@ -712,12 +712,17 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
     else:
         selected_scenario = [scen_id]
 
-    sim = Scenario.objects.get(id=selected_scenario).simulation
+    if len(selected_scenario) == 1:
+        sim = Scenario.objects.get(id=int(selected_scenario[0])).simulation
+    else:
+        return JsonResponse(
+            {"msg": "Multi-scenario not implemented for costs table"}, status=400
+        )
     scen_costs = get_costs(sim)
 
     table = {}
     # TODO fix this with the actual descriptions etc
-    for idx, row in scen_costs[0].iterrows():
+    for idx, row in scen_costs.iterrows():
         table[str(idx)] = {
             "name": str(idx),
             "description": "",
@@ -728,7 +733,7 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
     answer = JsonResponse(
         {
             "data": table,
-            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs[0].columns],
+            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs.columns],
             "title": _("Overall costs breakdown"),
         },
         status=200,
