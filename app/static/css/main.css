@@ -2607,7 +2607,8 @@ nav.navbar {
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis; }
+      text-overflow: ellipsis;
+      text-align: center; }
     .system-design .drawflow .drawflow-node .drawflow_content_node {
       height: 100%;
       display: flex;
