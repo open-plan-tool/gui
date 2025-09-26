@@ -1,21 +1,26 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
 from django.contrib.auth.decorators import login_required
-import json
-import logging
-import traceback
-from django.http import HttpResponseForbidden, JsonResponse
+import datetime
+from django.http import (
+    HttpResponseForbidden,
+    JsonResponse,
+    HttpResponseRedirect,
+    HttpResponse,
+)
 from django.http.response import Http404
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.shortcuts import *
+
+# from django.shortcuts import *
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+from django.template.loader import get_template
 
 from jsonview.decorators import json_view
-from users.models import CustomUser
 from django.db.models import Q
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
 from .forms import *
@@ -26,7 +31,27 @@ from .requests import (
     fetch_mvs_sa_results,
     parse_mvs_results,
 )
-from projects.models import *
+from projects.models import (
+    Project,
+    EconomicData,
+    Comment,
+    ConnectionLink,
+    AssetType,
+    UseCase,
+    Scenario,
+    Simulation,
+    ParameterChangeTracker,
+    AssetChangeTracker,
+    SensitivityAnalysis,
+    Asset,
+    Bus,
+    COPCalculator,
+    Timeseries,
+    MinDOAConstraint,
+    MinRenewableConstraint,
+    MaxEmissionConstraint,
+    NZEConstraint,
+)
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
     handle_storage_unit_form_post,
@@ -909,7 +934,12 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
         },
-        "bus": {"bus": _("Bus")},
+        "bus": {
+            "bus-electricity": _("Electricity Bus"),
+            "bus-heat": _("Heat Bus"),
+            "bus-gas": _("Fuel Bus"),
+            "bus-h2": _("Hydrogen Bus"),
+        },
     }
     group_names = {group: _(group) for group in components.keys()}
 
@@ -1574,6 +1604,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
         "outputs": json.loads(request.GET.get("outputs", "[]")),
     }
 
+    energy_carrier = request.GET.get("energy_carrier", "Electricity")
     if asset_type_name == "bus":
         if asset_uuid:
             existing_bus = get_object_or_404(Bus, pk=asset_uuid)
@@ -1582,7 +1613,10 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             bus_list = Bus.objects.filter(scenario=scenario)
             n_bus = len(bus_list)
             default_name = f"{asset_type_name}-{n_bus}"
-            form = BusForm(asset_type=asset_type_name, initial={"name": default_name})
+            form = BusForm(
+                asset_type=asset_type_name,
+                initial={"name": default_name, "type": energy_carrier.title()},
+            )
         return render(request, "asset/bus_create_form.html", {"form": form})
 
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
@@ -1689,6 +1723,66 @@ def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=No
         )
     else:  # all assets
         answer = handle_asset_form_post(request, scen_id, asset_type_name, asset_uuid)
+    return answer
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_mapping(request, asset_type_name=None):
+    if asset_type_name is not None:
+        asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+        return JsonResponse(asset_type.connection_ports, status=200)
+    else:
+        return JsonResponse({"success": False}, status=422)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_number(request, asset_type_name=None):
+    if asset_type_name is not None:
+        asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+        return JsonResponse(
+            {"inputs": asset_type.n_inputs, "outputs": asset_type.n_outputs}, status=200
+        )
+    else:
+        return JsonResponse({"success": False}, status=422)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def asset_connection_ports_info(request, asset_type_name=None):
+
+    energy_carrier = request.GET.get("energy_carrier", "Electricity").title()
+    if asset_type_name is not None:
+        if asset_type_name == "bus":
+            # TODO, busses must be updated upon bus type (or direclty draggable as correct type)
+            answer = JsonResponse(
+                {
+                    "nodeInputs": 1,
+                    "nodeOutputs": 1,
+                    "portMapping": {
+                        "input_1": ["input", energy_carrier],
+                        "output_1": ["output", energy_carrier],
+                    },
+                    "energyCarrier": energy_carrier,
+                },
+                status=200,
+            )
+        else:
+            asset_type = get_object_or_404(AssetType, asset_type=asset_type_name)
+            answer = JsonResponse(
+                {
+                    "nodeInputs": asset_type.n_inputs,
+                    "nodeOutputs": asset_type.n_outputs,
+                    "portMapping": asset_type.connection_ports,
+                },
+                status=200,
+            )
+    else:
+        answer = JsonResponse({"success": False}, status=422)
     return answer
 
 

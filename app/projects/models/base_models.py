@@ -380,6 +380,42 @@ class Timeseries(models.Model):
             self.end_date = self.compute_end_date_from_duration()
 
 
+class ConnectionPort(models.Model):
+    IN = "input"
+    OUT = "output"
+    DIRECTION_CHOICES = [(IN, "Asset Input"), (OUT, "Asset Output")]
+
+    asset_type = models.ForeignKey(
+        "AssetType",
+        on_delete=models.CASCADE,
+        related_name="ports",
+    )
+    num = models.PositiveSmallIntegerField(help_text="Port number (0 … n)")
+    direction = models.CharField(
+        max_length=6, choices=DIRECTION_CHOICES, help_text="Input or output"
+    )
+    label = models.CharField(
+        max_length=60,
+        help_text="e.g. name of attribute of facade",
+    )
+
+    energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR)
+
+    class Meta:
+        unique_together = ("asset_type", "direction", "num")
+        ordering = ["asset_type", "direction", "num"]
+
+    def __str__(self):
+        return f"{self.asset_type.asset_type} {self.direction}_{self.num}: ({self.label}, {self.energy_vector})"
+
+    @property
+    def port_key(self):
+        return f"{self.direction}_{self.num}"
+
+    def to_dict(self):
+        return {f"{self.port_key}": (self.label, self.energy_vector)}
+
+
 class AssetType(models.Model):
     asset_type = models.CharField(
         max_length=30, choices=ASSET_TYPE, null=False, unique=True
@@ -390,6 +426,21 @@ class AssetType(models.Model):
     # TODO Could be listCharField ...
     asset_fields = models.TextField(null=True)
     unit = models.CharField(max_length=30, null=True)
+
+    @property
+    def connection_ports(self):
+        port_mapping = {}
+        for port in self.ports.all():
+            port_mapping.update(port.to_dict())
+        return port_mapping
+
+    @property
+    def n_inputs(self):
+        return self.ports.filter(direction="input").count()
+
+    @property
+    def n_outputs(self):
+        return self.ports.filter(direction="output").count()
 
     def export(self):
         """
@@ -598,7 +649,7 @@ class Asset(TopologyNode):
         return answer
 
     def to_datapackage(self):
-        dp = {"facade": self.asset_type.asset_type}
+        dp = {"type": self.asset_type.asset_type}
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
         for field in self.asset_type.visible_fields:
@@ -623,7 +674,8 @@ class Asset(TopologyNode):
         if hasattr(self.asset_type, "connection_ports"):
             # port mapping contains the information to what bus is expected to be connected to which port
             port_mapping = self.asset_type.connection_ports
-            for port, field in port_mapping.items():
+            for port, info in port_mapping.items():
+                field, energy_vector = info
                 if "output" in port:
                     direction = "A2B"
                 elif "input" in port:
@@ -633,9 +685,9 @@ class Asset(TopologyNode):
                     flow_direction=direction, asset_connection_port=port
                 )
                 if qs_bus.exists():
-                    bus = qs_bus.get()
-                    dp[field] = bus.name
-                    bus_resource_rec.append(bus.to_datapackage())
+                    connection = qs_bus.get()
+                    dp[field] = connection.bus.name
+                    bus_resource_rec.append(connection.bus.to_datapackage())
                 else:
                     dp[field] = None
                     # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here

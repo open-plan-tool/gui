@@ -259,8 +259,8 @@ function update_selected_single_scenario(target){
 {% if scen_id > 0 %}
 <script>
         const csrfToken = '{{ csrf_token }}';
-        const formGetUrl = `{% url 'view_asset_parameters' scen_id %}`;
-        const formPostUrl = "";
+        const getAssetFormUrl = `{% url 'view_asset_parameters' scen_id %}`;
+        const postAssetFormUrl = "";
         const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
 </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
@@ -275,6 +275,7 @@ function update_selected_single_scenario(target){
         });
 
         async function updateDrawflow(data) {
+        		// data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
             // reset drawflow editor
             editor.clearModuleSelected();
             // remove old node lookup table (nodes no longer exist)
@@ -294,8 +295,8 @@ function update_selected_single_scenario(target){
 
             if (closestNode) {
                 const topologyNodeId = closestNode.id;
-                // formGetUrl is defined above
-                const getUrl = formGetUrl + nodeType +
+                // getAssetFormUrl is defined above
+                const getUrl = getAssetFormUrl + nodeType +
                     (nodesToDB.has(topologyNodeId) ? "/" + nodesToDB.get(topologyNodeId).uid : "");
 
                 // get the form of the asset of the type "nodeType" (dashboard/views.py::view_asset_parameters)
