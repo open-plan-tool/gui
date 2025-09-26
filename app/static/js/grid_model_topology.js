@@ -133,7 +133,7 @@ function drop(ev) {
             // populate form and submit
             const nodeDOM = document.getElementById('node-' + node.editorNodeId);
             applyPortClasses(nodeDOM,nodeData);
-            populateForm(nodeDOM, submit=true);
+            populateForm(nodeDOM, submit=true, show=false);
         });
     });
 }
@@ -235,11 +235,11 @@ function getNodePortsConnections(nodeId){
 
 function dblClick(e) {
     const closestNode = e.target.closest('.drawflow-node');
-    populateForm(closestNode);
+    populateForm(closestNode, submit=false, show=true);
 }
 /* GET information (asset form fields) from DB */
 /* might POST information (asset form fields) to the DB via the submitForm fonction */
-function populateForm(nodeDOM, submit=false) {
+function populateForm(nodeDOM, submit=false, show=true) {
     // populate modal form with node data
     // optionally immediately submit form without showing
     if (!nodeDOM)
@@ -266,29 +266,33 @@ function populateForm(nodeDOM, submit=false) {
     getUrl += '?' + new URLSearchParams(nodePortsConnections);
 
     // get the form of the asset of the type "nodeType" (projects/views.py::get_asset_create_form)
-    fetch(getUrl).then(response => response.text()).then(formContent => {
-        // assign the content of the form to the form tag of the modal
-        guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
+    return new Promise((resolve, reject) => {
+        fetch(getUrl).then(response => response.text()).then(formContent => {
+            // assign the content of the form to the form tag of the modal
+            guiModalDOM.querySelector('form .modal-body').innerHTML = formContent;
 
-        // set parameters which uniquely identify the asset
-        guiModalDOM.setAttribute("data-node-type", nodeType);
-        guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
-        guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
+            // set parameters which uniquely identify the asset
+            guiModalDOM.setAttribute("data-node-type", nodeType);
+            guiModalDOM.setAttribute("data-node-topo-id", topologyNodeId);
+            guiModalDOM.setAttribute("data-node-df-id", topologyNodeId.split("-").pop());
 
-        updateInputTimeseries();
+            updateInputTimeseries();
 
-        if (submit)
-            submitForm();
-        else
-            guiModal.show();
+            if (submit)
+                submitForm();
+            if (show)
+                guiModal.show();
 
-        if(copCollapseDOM){
-            copCollapse.hide();
-        }
-        $('[data-bs-toggle="tooltip"]').tooltip();
-    }).catch(error => {
-        alert("Could not open node:\n"+error.message);
-        console.error(error);
+            if(copCollapseDOM){
+                copCollapse.hide();
+            }
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            resolve();
+        }).catch(error => {
+            alert("Could not open node:\n"+error.message);
+            console.error(error);
+            reject();
+        });
     });
 }
 
@@ -337,6 +341,7 @@ function submitForm() {
         // update the ports type for busses
         const node = getNodeFromTopologyNodeId(topologyNodeId);
         const nodeDOM = document.getElementById('node-' + node.id);
+        console.log(node.data);
         node.data.portMapping.input_1[1] = node.data.bustype;
         node.data.portMapping.output_1[1] = node.data.bustype;
         applyPortClasses(nodeDOM,node.data);
@@ -363,6 +368,10 @@ function submitForm() {
         if (jsonRes.success) {
             // rename the node on the fly (to avoid the need of refreshing the page)
             nodeName.textContent = nodeNameValue;
+            // update node name in node data
+            let oldData = editor.getNodeFromId(drawflowNodeId);
+            let newData = Object.assign({}, oldData, {"name": nodeNameValue});
+            editor.updateNodeDataFromId(drawflowNodeId, newData);
 
             // add the node id to the nodesToDB mapping
             if (!nodesToDB.has(topologyNodeId))
@@ -452,6 +461,33 @@ async function addLinks(data) {
             editor.addConnection(assetNodeId, busNodeId, linkData.asset_connection_port, linkData.bus_connection_port);
     });
 }
+
+editor.on("keydown", e => {
+    if (e.key == "d") {
+        // duplicate selected
+        const selectedElement = editor.node_selected;
+        if (!selectedElement)
+            return;
+        const selectedId = selectedElement.id.substring(5);  // form "node-id"
+        const selectedNode = editor.getNodeFromId(selectedId);
+        // ignore inputs/outputs
+        selectedNode.inputs = {};
+        selectedNode.outputs = {};
+        // create new node with same type (name), slightly off original
+        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1, {}).then(node => {
+            const newNodeId = node.editorNodeId;
+            populateForm(selectedElement, submit=false, show=false).then(_ => {
+                // update form info
+                //guiModalDOM.setAttribute("data-node-type", nodeType);  // identical to original
+                guiModalDOM.setAttribute("data-node-topo-id", 'node-' + newNodeId);
+                guiModalDOM.setAttribute("data-node-df-id", newNodeId);
+                const form = document.getElementById("assetForm");
+                form.name.value = "Copy of " + selectedNode.data.name;
+                submitForm();
+            });
+        });
+    }
+});
 
 function zoomToFit() {
     const editorElem = document.getElementById('drawflow');
