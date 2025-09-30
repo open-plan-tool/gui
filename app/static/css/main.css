@@ -2568,20 +2568,7 @@ nav.navbar {
     stroke: #2C92B5;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); }
   .system-design .parent-node .drawflow-delete {
-    content: 'X';
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #fff;
-    color: black;
-    width: 1.15rem;
-    height: 1.15rem;
-    font-weight: 700;
-    line-height: 1rem;
-    padding-left: .25rem;
-    border: 1px solid #495965;
-    border-radius: 100%;
-    cursor: pointer; }
+    display: none; }
   .system-design .drawflow .drawflow-node {
     position: absolute;
     height: 5.5rem;
