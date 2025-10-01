@@ -185,20 +185,7 @@
   }
 
   .parent-node .drawflow-delete {
-        content: 'X';
-        position: absolute;
-        top: 0;
-        right: 0;
-        background-color: $white;
-        color: black;
-        width: 1.15rem;
-        height: 1.15rem;
-        font-weight: 700;
-        line-height: 1rem;
-        padding-left: .25rem;
-        border: 1px solid $primary-gray-color-4;
-        border-radius: 100%;
-        cursor: pointer;
+    display: none;
   }
 
   .drawflow .drawflow-node {
