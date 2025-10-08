@@ -351,7 +351,6 @@ function submitForm() {
         // update the ports type for busses
         const node = getNodeFromTopologyNodeId(topologyNodeId);
         const nodeDOM = document.getElementById('node-' + node.id);
-        console.log(node.data);
         node.data.portMapping.input_1[1] = node.data.bustype;
         node.data.portMapping.output_1[1] = node.data.bustype;
         applyPortClasses(nodeDOM,node.data);
