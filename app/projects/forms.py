@@ -734,8 +734,11 @@ class AssetCreateForm(OpenPlanModelForm):
         if "input_timeseries" in self.fields:
             self.fields["input_timeseries"] = TimeseriesField(
                 qs_ts=Timeseries.objects.filter(
-                    Q(ts_type=self.asset_type.mvs_type)
-                    & (Q(open_source=True) | Q(user=self.user))
+                    (
+                        Q(ts_type=self.asset_type.mvs_type)
+                        & Q(component=self.asset_type.asset_type)
+                    )
+                    & (Q(open_source=True) | Q(project__id=proj_id))
                 ),
                 default=0,
                 param_name="input_timeseries",
