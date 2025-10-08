@@ -292,6 +292,12 @@ TIMESERIES_CATEGORIES = (
     ("supply", _("Supply")),
 )
 TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
+TIMESERIES_COMPONENTS = (
+    ("pv_plant", _("Photovoltaic")),
+    ("wind", _("Wind")),
+    ("electricity_demand", _("Electricity")),
+    ("heat_demand", _("Heat")),
+)
 ENERGY_VECTOR = (
     ("", "Choose..."),
     ("Electricity", _("Electricity")),
