@@ -666,9 +666,10 @@ def request_kpi_table(request, proj_id=None):
     # do some unit substitution
     for l in table.values():
         for e in l:
-            if e["unit"] in unit_conv:
-                sub = unit_conv[e["unit"]]
-                e["unit"] = sub
+            for key, replacement in unit_conv.items():
+                if key in e["unit"]:
+                    e["unit"] = e["unit"].replace(key, replacement)
+                    break
 
     if table is not None:
         for subtable_title, subtable_content in table.items():
