@@ -781,7 +781,7 @@ class AssetCreateForm(OpenPlanModelForm):
 
         if self.asset_type_name == "chp_fixed_ratio":
 
-            self.fields["efficiency"].label = _("Efficiency gaz to electricity")
+            self.fields["efficiency"].label = _("Efficiency gas to electricity")
 
             # TODO
             self.fields["efficiency"].help_text = (
@@ -797,7 +797,7 @@ class AssetCreateForm(OpenPlanModelForm):
                     "step": "0.00001",
                 }
             )
-            self.fields["efficiency_multiple"].label = _("Efficiency gaz to heat")
+            self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
 
         if "dso" in self.asset_type_name:
             for field_name in ("energy_price", "feedin_tariff"):
