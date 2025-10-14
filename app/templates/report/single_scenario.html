@@ -230,7 +230,11 @@ function update_selected_single_scenario(target){
         success: async (data) => {
 
             // Update the kpi table
-            update_kpi_table_style(scen_id);
+			update_kpi_table_style(scen_id, "summary");
+			update_kpi_table_style(scen_id, "technical");
+			update_kpi_table_style(scen_id, "economic");
+			update_kpi_table_style(scen_id, "environmental");
+			request_system_costs_table(scen_id);
 
             scenario_visualize_timeseries(scen_id);
             scenario_visualize_stacked_timeseries(scen_id);
