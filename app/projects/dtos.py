@@ -454,7 +454,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
         asset_efficiency = to_value_type(asset, "efficiency")
 
         optional_parameters = {}
-        if asset.asset_type.asset_type in ("chp", "chp_fixed_ratio"):
+        if asset.asset_type.asset_type in ["chp", "chp_fixed_ratio", "electrolyzer"]:
 
             if asset.asset_type.asset_type == "chp":
                 optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
@@ -487,7 +487,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
 
             if len(efficiencies) != 2:
                 print(
-                    "ERROR, a chp should have 1 electrical input and one heat output, thus 2 efficiencies!"
+                    f"ERROR, a {asset.asset_type.asset_type} should have 1 electrical input and one heat output, thus 2 efficiencies!"
                 )
 
             asset_efficiency.value = efficiencies
@@ -580,7 +580,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             to_value_type(asset, "opex_fix"),
             to_timeseries_data(asset, "input_timeseries"),
             asset.asset_type.unit,
-            **optional_parameters
+            **optional_parameters,
         )
 
         # set maximum capacity to None if it is equal to 0
