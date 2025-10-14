@@ -82,6 +82,7 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
         staticfiles_storage.path("MVS_kpis_list.csv"), encoding="utf-8"
     ) as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+        carrier_placeholder = ":carrier:"
         for i, row in enumerate(csvreader):
             if i == 0:
                 hdr = row
@@ -92,10 +93,19 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 subcat_idx = hdr.index("subcategory")
             else:
                 label = row[label_idx]
-                verbose = row[verbose_idx]
-                unit = row[unit_idx]
-                KPIS[label] = {k: v for k, v in zip(hdr, row)}
-
+                if carrier_placeholder in label:
+                    for carrier in sectors:
+                        new_label = label.replace(carrier_placeholder, carrier)
+                        verbose = row[verbose_idx].replace(carrier_placeholder, carrier)
+                        unit = row[unit_idx].replace(carrier_placeholder, carrier)
+                        KPIS[new_label] = {
+                            k: v.replace(carrier_placeholder, carrier)
+                            for k, v in zip(hdr, row)
+                        }
+                else:
+                    verbose = row[verbose_idx]
+                    unit = row[unit_idx]
+                    KPIS[label] = {k: v for k, v in zip(hdr, row)}
                 # if subcat != EMPTY_SUBCAT:
                 #     if cat in TABLES:
                 #         if subcat not in TABLES[cat]:
