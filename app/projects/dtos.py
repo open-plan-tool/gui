@@ -677,6 +677,10 @@ def to_timeseries_data(model_obj, field_name):
         else None
     )
     if value_list is not None:
+        # If a scalar was saved as a timeseries, convert to vector before sending to simulation server
+        if len(value_list) == 1 and getattr(model_obj, field_name).ts_type == "scalar":
+            num_timesteps = getattr(model_obj, field_name).scenario.get_num_timesteps
+            value_list *= num_timesteps
         return TimeseriesDataDto(unit, value_list)
     else:
         return None

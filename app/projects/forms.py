@@ -970,6 +970,7 @@ class AssetCreateForm(OpenPlanModelForm):
             values=timeseries_values,
             user=self.user,
             name=timeseries_name,
+            scenario=self.existing_asset.scenario,
             defaults=ts_default_settings,
         )
 
