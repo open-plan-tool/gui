@@ -28,44 +28,65 @@ TABLES = {
     MANAGEMENT_CAT: {"General": []},
     SUMMARY_CAT: {"General": []},
     ECONOMIC_CAT: {"General": []},
-    TECHNICAL_CAT: {"General": []},
+    TECHNICAL_CAT: {"Electricity": [], "Heat": []},
     ENVIRONMENTAL_CAT: {"General": []},
 }
 EMPTY_SUBCAT = "none"
 
-MANAGEMENT_CAT_PARAMS = [
-    "degree_of_autonomy",
-    "onsite_energy_fraction",
-    "renewable_factor",
-    "renewable_share_of_local_generation",
-    "levelized_costs_of_electricity_equivalent",
-]
+MANAGEMENT_CAT_PARAMS = {
+    "General": [
+        "degree_of_autonomy",
+        "onsite_energy_fraction",
+        "renewable_factor",
+        "renewable_share_of_local_generation",
+        "levelized_costs_of_electricity_equivalent",
+    ]
+}
 # TODO double check parameters and add not implemented ones to post-processing / KPIs list
-SUMMARY_CAT_PARAMS = [
-    "total_demandElectricity",
-    "total_demandHeat",
-    "levelized_costs_of_electricity_equivalentElectricity",
-    "levelized_costs_of_electricity_equivalentHeat",
-    "degree_of_autonomy",
-    "renewable_factor",
-    "onsite_energy_fraction",
-    "project_lifetime",
-    "costs_upfront_in_year_zero",
-    "objective_function_result",
-]
-ECONOMIC_CAT_PARAMS = [
-    "levelized_costs_of_electricity_equivalentElectricity",
-    "levelized_costs_of_electricity_equivalentHeat",
-    "costs_investment_over_lifetime",
-    "costs_cost_om",
-    "costs_dispatch",
-]
-TECHNICAL_CAT_PARAMS = [
-    "total_demand",
-    "onsite_energy_fraction",
-    "renewable_factor",
-]
-ENVIRONMENTAL_CAT_PARAMS = ["total_emissions"]
+SUMMARY_CAT_PARAMS = {
+    "General": [
+        "project_name",
+        "scenario_name",
+        "location",
+        "total_demandElectricity",
+        "total_demandHeat",
+        "levelized_costs_of_electricity_equivalentElectricity",
+        "levelized_costs_of_electricity_equivalentHeat",
+        "degree_of_autonomy",
+        "renewable_factor",
+        "onsite_energy_fraction",
+        "project_lifetime",
+        "costs_investment_over_lifetime",
+        "objective_function_result",
+    ]
+}
+
+# TODO missing -> total variable OPEX, feedin revenue
+ECONOMIC_CAT_PARAMS = {
+    "General": [
+        "levelized_costs_of_electricity_equivalentElectricity",
+        "levelized_costs_of_electricity_equivalentHeat",
+        "costs_investment_over_lifetime",
+        "costs_cost_om",
+        "costs_dispatch",
+        "attributed_costsElectricity",
+        "attributed_costsHeat",
+        "attributed_costsGas",
+        "total_feedin",
+        "objective_function_result",
+    ]
+}
+TECHNICAL_CAT_PARAMS = {
+    "Electricity": [
+        "total_demandElectricity",
+        "total_consumption_from_energy_provider",
+        "total_internal_generation",
+        "onsite_energy_fraction",
+        "renewable_factor",
+    ],
+    "Heat": ["total_demandHeat"],
+}
+ENVIRONMENTAL_CAT_PARAMS = {"General": ["total_emissions"]}
 
 TABLE_PARAM_MAPPING = {
     MANAGEMENT_CAT: MANAGEMENT_CAT_PARAMS,
@@ -145,19 +166,27 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
 
 #### FUNCTIONS ####
 def prepare_dashboard_table(table_id):
-    table_params = TABLE_PARAM_MAPPING[table_id]
-    TABLES[table_id]["General"] = []
-    for param in table_params:
-        try:
-            TABLES[table_id]["General"].append(
-                {
-                    "name": _(KPIS[param]["verbose"]),
-                    "id": param,
-                    "unit": KPIS[param][":Unit:"],
-                }
-            )
-        except KeyError:
-            logger.warning(f"{param} not found in KPIs")
+    for subtable in TABLES[table_id]:
+        table_params = TABLE_PARAM_MAPPING[table_id][subtable]
+        TABLES[table_id][subtable] = []
+        for param in table_params:
+            try:
+                TABLES[table_id][subtable].append(
+                    {
+                        "name": _(KPIS[param]["verbose"]),
+                        "id": param,
+                        "unit": KPIS[param][":Unit:"],
+                    }
+                )
+            except KeyError:
+                logger.warning(f"{param} not found in KPIs")
+                TABLES[table_id][subtable].append(
+                    {
+                        "name": f"LOST_{param}",
+                        "id": param,
+                        "unit": "",
+                    }
+                )
     return TABLES[table_id]
 
 

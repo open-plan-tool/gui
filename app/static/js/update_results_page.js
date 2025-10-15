@@ -24,7 +24,7 @@ function addSummaryTable(table_data, table_id) {
     tableHead.classList.add("thead-dark");
     tableHead.style.position = "sticky";
     tableHead.style.top = "0";
-    let table_headers = table_data.hdrs; // todo add dynamically more scenarios here
+    let table_headers = table_data.hdrs;
     let table_length = table_headers.length;
     let tableHeadContent = document.createElement('tr');
     table_headers.map(hdr =>
@@ -41,16 +41,20 @@ function addSummaryTable(table_data, table_id) {
     for (let subBody in table_data.data) {
         let tableBody = document.createElement('tbody');
         tableBody.id = subBody;
-        /* add subtable title */
-        const tableSubSectionTitleRow = document.createElement('tr');
-        let tableSubSectionTitle = document.createElement('th');
-        tableSubSectionTitle.innerHTML = subBody;
-        tableSubSectionTitleRow.appendChild(tableSubSectionTitle);
-        for(let i=0;i<table_length-1;i += 1){
-            tableSubSectionTitleRow.appendChild(document.createElement('td'));
-        }
 
-        //tableBody.appendChild(tableSubSectionTitle);
+        if (Object.keys(table_data.data).length  > 1) {
+            /* add subtable title */
+            const tableSubSectionTitleRow = document.createElement('tr');
+            let tableSubSectionTitle = document.createElement('th');
+            tableSubSectionTitle.colSpan = table_length;
+            tableSubSectionTitle.innerHTML = subBody;
+            tableSubSectionTitle.style.padding = "0.5rem";
+            tableSubSectionTitleRow.appendChild(tableSubSectionTitle);
+            for(let i=0;i<table_length-1;i += 1){
+                tableSubSectionTitleRow.appendChild(document.createElement('td'));
+            }
+                tableBody.appendChild(tableSubSectionTitle);
+            }
 
         /* add subtable lines for each parameter */
         // (param should be a json object) with keys name (type str), unit type (str) and scen_values
