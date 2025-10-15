@@ -364,7 +364,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
-        """The value will ALWAYS be stored as as timeseries,
+        """The value will ALWAYS be stored as timeseries,
         thus only the index of the timeseries is to decompress"""
 
         answer = [value, None, None]
@@ -379,6 +379,24 @@ class TimeseriesInputWidget(forms.MultiWidget):
                 scalar_value = None
             answer = [scalar_value, value, ""]
         return answer
+
+    def get_context(self, name, value, attrs):
+        # Let MultiWidget do the normal setup
+        ctx = super().get_context(name, value, attrs)
+
+        # Decompressed value = [scalar, select_id, file]
+        vals = value if isinstance(value, (list, tuple)) else self.decompress(value)
+        if vals and vals[0] not in (None, "", 0):
+            active = "manual"
+        elif vals and vals[1] not in (None, ""):
+            active = "select"
+        elif vals and vals[2]:
+            active = "upload"
+        else:
+            active = "select"  # default
+
+        ctx["active_tab"] = active
+        return ctx
 
 
 class TimeseriesField(forms.MultiValueField):
@@ -410,7 +428,6 @@ class TimeseriesField(forms.MultiValueField):
         kwargs["widget"] = TimeseriesInputWidget(
             default=default, param_name=param_name, select_widget=select_widget
         )
-
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
         self.label = label
 

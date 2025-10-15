@@ -83,8 +83,11 @@ function getTimeseriesValues(ts_id, param_name=""){
             if (scalar_input)
                 scalar_input.value = ts_values[0];
         }
+        // only attempt to plot timeseries if not scalar
+        else {
+            plotTimeseriesInputTrace(ts_values, param_name=param_name);
+        }
         console.log("retrieved values", ts_values);
-        plotTimeseriesInputTrace(ts_values, param_name=param_name);
     });
 }
 
