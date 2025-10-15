@@ -730,12 +730,11 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.user = qs.get().user
 
         # set the custom timeseries field for timeseries
-        # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
+        # the qs_ts selects timeseries (excluding scalars) that either belong to the user or are open source
         if "input_timeseries" in self.fields:
             self.fields["input_timeseries"] = TimeseriesField(
                 qs_ts=Timeseries.objects.filter(
-                    Q(ts_type=self.asset_type.mvs_type)
-                    | Q(ts_type="scalar") & (Q(open_source=True) | Q(user=self.user))
+                    ~Q(ts_type="scalar") & (Q(open_source=True) | Q(user=self.user))
                 ),
                 default=0,
                 param_name="input_timeseries",
