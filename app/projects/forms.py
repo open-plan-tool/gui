@@ -692,7 +692,7 @@ class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         self.asset_type_name = kwargs.pop("asset_type", None)
         proj_id = kwargs.pop("proj_id", None)
-        scenario_id = kwargs.pop("scenario_id", None)
+        self.scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
         self.existing_asset = kwargs.get("instance", None)
         # get the connections with busses
@@ -713,8 +713,8 @@ class AssetCreateForm(OpenPlanModelForm):
         if self.existing_asset is not None:
             self.timestamps = self.existing_asset.timestamps
             self.user = self.existing_asset.scenario.project.user
-        elif scenario_id is not None:
-            qs = Scenario.objects.filter(id=scenario_id)
+        elif self.scenario_id is not None:
+            qs = Scenario.objects.filter(id=self.scenario_id)
             if qs.exists():
                 self.timestamps = qs.get().get_timestamps()
                 if proj_id is None:
@@ -970,7 +970,7 @@ class AssetCreateForm(OpenPlanModelForm):
             values=timeseries_values,
             user=self.user,
             name=timeseries_name,
-            scenario=self.existing_asset.scenario,
+            scenario=self.scenario_id,
             defaults=ts_default_settings,
         )
 
