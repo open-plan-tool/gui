@@ -692,7 +692,7 @@ class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         self.asset_type_name = kwargs.pop("asset_type", None)
         proj_id = kwargs.pop("proj_id", None)
-        scenario_id = kwargs.pop("scenario_id", None)
+        self.scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
         self.existing_asset = kwargs.get("instance", None)
         # get the connections with busses
@@ -713,8 +713,8 @@ class AssetCreateForm(OpenPlanModelForm):
         if self.existing_asset is not None:
             self.timestamps = self.existing_asset.timestamps
             self.user = self.existing_asset.scenario.project.user
-        elif scenario_id is not None:
-            qs = Scenario.objects.filter(id=scenario_id)
+        elif self.scenario_id is not None:
+            qs = Scenario.objects.filter(id=self.scenario_id)
             if qs.exists():
                 self.timestamps = qs.get().get_timestamps()
                 if proj_id is None:
@@ -730,12 +730,11 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.user = qs.get().user
 
         # set the custom timeseries field for timeseries
-        # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
+        # the qs_ts selects timeseries (excluding scalars) that either belong to the user or are open source
         if "input_timeseries" in self.fields:
             self.fields["input_timeseries"] = TimeseriesField(
                 qs_ts=Timeseries.objects.filter(
-                    Q(ts_type=self.asset_type.mvs_type)
-                    & (Q(open_source=True) | Q(user=self.user))
+                    ~Q(ts_type="scalar") & (Q(open_source=True) | Q(user=self.user))
                 ),
                 default=0,
                 param_name="input_timeseries",
@@ -957,18 +956,22 @@ class AssetCreateForm(OpenPlanModelForm):
         timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
         timeseries_values = input_timeseries["values"]
 
+        ts_default_settings = {
+            "ts_type": self.asset_type.mvs_type,
+            "open_source": False,
+        }
+
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
             timeseries_name = f"constant value = {timeseries_values[0]}"
-            timeseries_values = len(self.timestamps) * timeseries_values
+            timeseries_values = timeseries_values
+            ts_default_settings["ts_type"] = "scalar"
 
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
             user=self.user,
             name=timeseries_name,
-            defaults={
-                "ts_type": self.asset_type.mvs_type,
-                "open_source": False,
-            },
+            scenario__id=self.scenario_id,
+            defaults=ts_default_settings,
         )
 
         return timeseries

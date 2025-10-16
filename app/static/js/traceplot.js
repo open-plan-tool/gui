@@ -1,3 +1,5 @@
+const scen_ts_length = parseInt(scen_ts_length_str);
+
 const config = {
     showLink: false,
     responsive: true,
@@ -67,23 +69,25 @@ function makePlotly( x, y, plot_id="",userLayout=null){
 };
 
 
-var ts_length = null;  // get length of timeseries after first retrieval
 function getTimeseriesValues(ts_id, param_name=""){
     //tsGetUrl is defined in scenario_step2.html
     fetch(tsGetUrl + "/" + ts_id).then(resp => resp.json()).then(data => {
         let ts_values = data["values"];
-        ts_length = ts_values.length;
-        console.log("retrieved values", ts_values);
-        plotTimeseriesInputTrace(ts_values, param_name=param_name);
-        // update scalar field value for scalar data
-        ts_set = new Set(ts_values);
-        if (ts_set.size == 1) {
-            // constant / scalar timeseries
+        const ts_length = ts_values.length;
+        // constant / scalar timeseries
+        if(ts_length == 1){
+            ts_values = Array(scen_ts_length).fill(ts_values[0])
+            // update scalar field value for scalar data
             let scalar_id = "id_" + param_name + "_0";
             let scalar_input = document.getElementById(scalar_id);
             if (scalar_input)
                 scalar_input.value = ts_values[0];
         }
+        // only attempt to plot timeseries if not scalar
+        else {
+            plotTimeseriesInputTrace(ts_values, param_name=param_name);
+        }
+        console.log("retrieved values", ts_values);
     });
 }
 
@@ -139,12 +143,12 @@ function initTimeseriesManualValue(param_name="") {
 }
 function updateTimeseriesManualValue(value, param_name="") {
     console.log("update widget:manual");
-    let ts_values = (new Array(ts_length)).fill(Number(value));
+    let ts_values = (new Array(scen_ts_length)).fill(Number(value));
     plotTimeseriesInputTrace(ts_values, param_name=param_name);
     // deselect uploaded timeseries field
     var selectID = "id_" + param_name + "_1";
     var select_input = document.getElementById(selectID);
-    fetch(findtsGetUrl + "/" + ts_length +"/value/" + value).then(resp => resp.json()).then(data => {
+    fetch(findtsGetUrl + "/" + scen_ts_length +"/value/" + value + "/").then(resp => resp.json()).then(data => {
         console.log(data)
         let ts_id = data["id"];
         if(ts_id){select_input.value = ts_id;}

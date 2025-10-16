@@ -806,6 +806,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             instance=existing_asset,
             view_only=True,
             proj_id=scenario.project.id,
+            scenario_id=scenario.id,
         )
         input_timeseries_data = (
             existing_asset.input_timeseries.values

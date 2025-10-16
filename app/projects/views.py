@@ -1560,11 +1560,10 @@ def upload_timeseries(request):
 @require_http_methods(["GET"])
 def get_timeseries(request, ts_id=None):
     if request.method == "GET":
-        # TODO prevent user to get it is no access rights
-        # ts.user = request.user
         if ts_id is not None:
             ts = Timeseries.objects.get(id=ts_id)
-            # import pdb;pdb.set_trace()
+            if ts.user != request.user and ts.open_source is False:
+                raise PermissionDenied
             return JsonResponse({"values": ts.get_values})
 
 
@@ -1573,17 +1572,17 @@ def get_timeseries(request, ts_id=None):
 @require_http_methods(["GET"])
 def get_constant_timeseries_id(request, ts_length=None, value=None):
     if request.method == "GET":
-        # TODO in future prevent user to get it is no access rights to this timeseries
-        # ts.user = request.user
         if value is not None:
             ts_name = f"constant value = {float(value)}"
-            ts_qs = Timeseries.objects.filter(name=ts_name).filter(
-                values__len=ts_length
+            ts_qs = (
+                Timeseries.objects.filter(user=request.user)
+                .filter(name=ts_name)
+                .filter(ts_type="scalar")
             )
             if ts_qs.exists():
                 if ts_qs.count() > 1:
                     logging.error(
-                        f"There are more than one timeseries of constant value ({float(value)}) with a length of {ts_length}"
+                        f"There are more than one timeseries of constant value ({float(value)}) with a length of {ts_length}: Timeseries.objects.filter(name={ts_name},user__id={request.user.id})"
                     )
                 return JsonResponse({"id": ts_qs.first().id})
             else:
@@ -1680,6 +1679,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 instance=existing_asset,
                 input_output_mapping=input_output_mapping,
                 proj_id=scenario.project.id,
+                scenario_id=scenario.id,
             )
             input_timeseries_data = (
                 existing_asset.input_timeseries.values
@@ -1697,6 +1697,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 initial={"name": default_name},
                 input_output_mapping=input_output_mapping,
                 proj_id=scenario.project.id,
+                scenario_id=scenario.id,
             )
             input_timeseries_data = ""
 
