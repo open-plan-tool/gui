@@ -27,7 +27,7 @@ from projects.constants import (
     TIMESERIES_UNITS,
     TIMESERIES_CATEGORIES,
     TIMESERIES_TYPES,
-    TIMESERIES_COMPONENTS,
+    TIMESERIES_COMPONENT_TYPES,
 )
 from users.models import CustomUser
 
@@ -313,9 +313,9 @@ class Timeseries(models.Model):
     category = models.CharField(
         max_length=6, choices=TIMESERIES_CATEGORIES, blank=True, null=True
     )
-    component = models.CharField(
+    component_type = models.CharField(
         max_length=50,
-        choices=TIMESERIES_COMPONENTS,
+        choices=TIMESERIES_COMPONENT_TYPES,
         blank=True,
         null=True,
     )
@@ -329,13 +329,6 @@ class Timeseries(models.Model):
     # TODO check that if both a user and scenario are provided the scenario belongs to the user
     scenario = models.ForeignKey(
         Scenario, on_delete=models.CASCADE, null=True, blank=True
-    )
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="timeseries",
     )
     ts_type = models.CharField(max_length=12, choices=MVS_TYPE, blank=True, null=True)
 
