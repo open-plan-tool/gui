@@ -673,36 +673,42 @@ def request_kpi_table(request, proj_id=None):
 
     if table is not None:
         empty_tables = []
+
         for subtable_title, subtable_content in table.items():
             kept_params = []
+
             for param in subtable_content:
-                scen_values = []
-                found_in_any_scen = False
+                values = []
+                missing = False
 
                 for scen_id in selected_scenarios:
                     val = kpis.get(scen_id, {}).get(param["id"])
-                    if val is not None:
-                        found_in_any_scen = True
-                        if param["unit"] == "%":
-                            val = round(float(val) * 100, 2)
-                        scen_values.append(beautify_number(val, 2))
+                    if val is None:
+                        logger.warning(
+                            "KPI %s not found for scenario %s", param["id"], scen_id
+                        )
+                        missing = True
+                        break
 
-                if found_in_any_scen:
-                    param["scen_values"] = scen_values
-                    param["description"] = KPI_helper.get_doc_definition(param["id"])
-                    kept_params.append(param)
-                else:
-                    logger.warning(f"No results for {param['id']} found")
+                    if param["unit"] == "%":
+                        val = round(float(val) * 100, 2)
+                    values.append(beautify_number(val, 2))
 
-            # only keep the parameters that actually have values in the results
+                if missing:
+                    continue
+
+                param["scen_values"] = values
+                param["description"] = KPI_helper.get_doc_definition(param["id"])
+                kept_params.append(param)
+
             subtable_content[:] = kept_params
 
-            # if no parameters are in the table (for instance it is the "Gas" table, but there is no gas in the scenario) remove table
             if not kept_params:
                 empty_tables.append(subtable_title)
 
-        if empty_tables:
-            [table.pop(subtable) for subtable in empty_tables]
+        for subtable in empty_tables:
+            table.pop(subtable, None)
+
         answer = JsonResponse(
             {"data": table, "hdrs": [_("Indicator")] + scen_names},
             status=200,

@@ -2,6 +2,8 @@ import logging
 import os
 import copy
 import csv
+from copy import deepcopy
+
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Value, Q, F, Case, When
@@ -158,8 +160,8 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
 
 #### FUNCTIONS ####
 def prepare_dashboard_table(table_id):
-    table = TABLES[table_id].copy()
-    table_params = TABLE_PARAM_MAPPING[table_id].copy()
+    table = deepcopy(TABLES[table_id])
+    table_params = deepcopy(TABLE_PARAM_MAPPING[table_id])
 
     def get_param_metadata_dict(kpi_param):
         metadata = {
@@ -203,13 +205,6 @@ def prepare_dashboard_table(table_id):
                     table[subtable].append(get_param_metadata_dict(param))
                 except KeyError:
                     logger.warning(f"{param} not found in KPIs csv")
-                    table[subtable].append(
-                        {
-                            "name": f"LOST_{param}",
-                            "id": param,
-                            "unit": "",
-                        }
-                    )
     return table
 
 
