@@ -600,10 +600,11 @@ class Asset(TopologyNode):
             "feedin_tariff",
             "input_timeseries_old",
         ):
-            try:
-                answer = float(answer)
-            except ValueError:
-                answer = json.loads(answer)
+            if answer:
+                try:
+                    answer = float(answer)
+                except ValueError:
+                    answer = json.loads(answer)
         return answer
 
     @property
