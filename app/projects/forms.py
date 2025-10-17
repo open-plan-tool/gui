@@ -812,7 +812,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency_multiple"].help_text = (
                 "Ratio of energy converted to heat"
             )
-            self.add_help_text_icon("efficiency_multiple", RTD_link=False)
+            self.add_help_text_icon("efficiency_multiple", RTD_link=True)
 
         if "dso" in self.asset_type_name:
             for field_name in ("energy_price", "feedin_tariff"):
