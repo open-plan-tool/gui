@@ -1,4 +1,4 @@
-FROM python:3.9.5
+FROM python:3.9-slim-bullseye
 
 RUN echo POSTGRES
 ENV APP_ROOT /src
