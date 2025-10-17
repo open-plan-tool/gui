@@ -16,6 +16,11 @@ RUN pip install --upgrade pip \
 
 WORKDIR ${APP_ROOT}
 
+# Install gettext utilities for translations
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gettext-base gettext && \
+    rm -rf /var/lib/apt/lists/*
+
 ADD app/ ${APP_ROOT}
 
 COPY ./app/djangoq_setup.sh /djangoq_setup.sh
@@ -32,7 +37,5 @@ RUN chown appuser /start
 RUN chown appuser /djangoq_setup.sh
 
 USER appuser
-
-
 
 CMD ${STARTUP_COMMAND}
