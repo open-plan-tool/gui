@@ -454,7 +454,12 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
         asset_efficiency = to_value_type(asset, "efficiency")
 
         optional_parameters = {}
-        if asset.asset_type.asset_type in ("chp", "chp_fixed_ratio"):
+        if asset.asset_type.asset_type in ["chp", "chp_fixed_ratio", "electrolyzer"]:
+            energy_vectors = (
+                ["H2", "Heat"]
+                if asset.asset_type.asset_type == "electrolyzer"
+                else ["Electricity", "Heat"]
+            )
 
             if asset.asset_type.asset_type == "chp":
                 optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
@@ -471,14 +476,14 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             efficiencies = []
             outflow_direction = []
             # TODO: make sure the length is equal to the number of timesteps
-            for energy_vector in ["Electricity", "Heat"]:
+            for energy_vector in energy_vectors:
                 if energy_vector in output_mapping:
                     # TODO get the case where get fails --> projects.models.base_models.ConnectionLink.DoesNotExist: ConnectionLink matching query does not exist
                     outflow_direction.append(
                         output_connection.get(bus__type=energy_vector).bus.name
                     )
 
-                    efficiency = e_el if energy_vector == "Electricity" else e_th
+                    efficiency = e_th if energy_vector == "Heat" else e_el
 
                     efficiencies.append(efficiency)
 
@@ -487,7 +492,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
 
             if len(efficiencies) != 2:
                 print(
-                    "ERROR, a chp should have 1 electrical input and one heat output, thus 2 efficiencies!"
+                    f"ERROR, a {asset.asset_type.asset_type} should have 1 electrical input and one heat output, thus 2 efficiencies!"
                 )
 
             asset_efficiency.value = efficiencies
@@ -580,7 +585,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             to_value_type(asset, "opex_fix"),
             to_timeseries_data(asset, "input_timeseries"),
             asset.asset_type.unit,
-            **optional_parameters
+            **optional_parameters,
         )
 
         # set maximum capacity to None if it is equal to 0

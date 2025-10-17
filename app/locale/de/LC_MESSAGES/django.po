@@ -455,11 +455,11 @@ msgid "Power loss index"
 msgstr "Stromverlustkenzahl"
 
 #: projects/forms.py:783
-msgid "Efficiency gaz to electricity"
+msgid "Efficiency gas to electricity"
 msgstr "Wirkungsgrad gaz auf Strom"
 
 #: projects/forms.py:799
-msgid "Efficiency gaz to heat"
+msgid "Efficiency gas to heat"
 msgstr "Wirkungsgrad Gas zu Wärme"
 
 #: projects/forms.py:866

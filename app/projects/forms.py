@@ -780,8 +780,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["thermal_loss_rate"].label = _("Power loss index")
 
         if self.asset_type_name == "chp_fixed_ratio":
-
-            self.fields["efficiency"].label = _("Efficiency gaz to electricity")
+            self.fields["efficiency"].label = _("Efficiency gas to electricity")
 
             # TODO
             self.fields["efficiency"].help_text = (
@@ -797,7 +796,23 @@ class AssetCreateForm(OpenPlanModelForm):
                     "step": "0.00001",
                 }
             )
-            self.fields["efficiency_multiple"].label = _("Efficiency gaz to heat")
+            self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
+
+        if self.asset_type_name == "electrolyzer":
+            self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                attrs={
+                    "placeholder": _("eg. 0.1"),
+                    "min": 0.0,
+                    "max": 1.0,
+                    "value": 0,
+                    "step": "0.00001",
+                }
+            )
+            self.fields["efficiency_multiple"].label = _("Heat loss")
+            self.fields["efficiency_multiple"].help_text = (
+                "Ratio of energy converted to heat"
+            )
+            self.add_help_text_icon("efficiency_multiple", RTD_link=True)
 
         if "dso" in self.asset_type_name:
             for field_name in ("energy_price", "feedin_tariff"):
