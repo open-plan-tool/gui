@@ -4,8 +4,9 @@ python /src/manage.py collectstatic --noinput
 echo MIGRATE
 python /src/manage.py showmigrations
 python /src/manage.py migrate
-python /src/manage.py update_assettype
-python /src/manage.py update_valuetype
+python /src/manage.py update_assettype --update
+python /src/manage.py update_valuetype --update
+echo UPDATETRANSLATIONS
 python /src/manage.py compilemessages
 #python /src/manage.py loaddata 'src/fixtures/multivector_fixture.json'
 echo $(ls -L 1 --dirsfirst)
