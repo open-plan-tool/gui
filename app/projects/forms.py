@@ -39,6 +39,7 @@ from projects.helpers import (
     TS_UPLOAD_TYPE,
     TS_MANUAL_TYPE,
 )
+from projects.constants import ASSET_TO_TIMESERIES_TYPE
 
 
 def gettext_variables(some_string, lang="de"):
@@ -980,6 +981,8 @@ class AssetCreateForm(OpenPlanModelForm):
             "ts_type": self.asset_type.mvs_type,
             "open_source": False,
         }
+        asset_type_name = self.asset_type.asset_type
+        ts_type = ASSET_TO_TIMESERIES_TYPE.get(asset_type_name)
 
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
             timeseries_name = f"constant value = {timeseries_values[0]}"
@@ -991,6 +994,7 @@ class AssetCreateForm(OpenPlanModelForm):
             user=self.user,
             name=timeseries_name,
             scenario=self.scenario,
+            component=ts_type,
             defaults=ts_default_settings,
         )
 
