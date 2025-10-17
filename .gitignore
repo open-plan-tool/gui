@@ -11,3 +11,4 @@
 .envs/*
 **/venv/
 */.env
+**/locale/**/LC_MESSAGES/*.mo
