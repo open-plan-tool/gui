@@ -292,7 +292,7 @@ TIMESERIES_CATEGORIES = (
     ("supply", _("Supply")),
 )
 TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
-TIMESERIES_COMPONENTS = (
+TIMESERIES_COMPONENT_TYPES = (
     ("demand", _("demand")),
     ("gas_demand", _("gas_demand")),
     ("h2_demand", _("h2_demand")),
@@ -411,7 +411,7 @@ ASSET_TYPE = (
     ("hess", "hess"),
 )
 
-ASSET_TO_TIMESERIES_TYPE = {
+ASSET_TO_TIMESERIES_COMP_TYPE = {
     "demand": "demand",
     "gas_demand": "gas_demand",
     "h2_demand": "h2_demand",
