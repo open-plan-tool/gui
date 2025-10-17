@@ -16,7 +16,7 @@ from django.conf import settings as django_settings
 logger = logging.getLogger(__name__)
 #### CONSTANTS ####
 
-sectors = ["Electricity", "Heat", "Gas", "H2"]
+SECTORS = ["Electricity", "Heat", "Gas", "H2"]
 
 KPIS = {}
 MANAGEMENT_CAT = "management"
@@ -28,7 +28,7 @@ TABLES = {
     MANAGEMENT_CAT: {"General": []},
     SUMMARY_CAT: {"General": []},
     ECONOMIC_CAT: {"General": []},
-    TECHNICAL_CAT: {"Electricity": [], "Heat": []},
+    TECHNICAL_CAT: {"General": [], ":carrier:": []},
     ENVIRONMENTAL_CAT: {"General": []},
 }
 EMPTY_SUBCAT = "none"
@@ -43,15 +43,11 @@ MANAGEMENT_CAT_PARAMS = {
     ]
 }
 # TODO double check parameters and add not implemented ones to post-processing / KPIs list
+# TODO add "location" as parameter to summary -> only coordinates or processed?
 SUMMARY_CAT_PARAMS = {
     "General": [
-        "project_name",
-        "scenario_name",
-        "location",
-        "total_demandElectricity",
-        "total_demandHeat",
-        "levelized_costs_of_electricity_equivalentElectricity",
-        "levelized_costs_of_electricity_equivalentHeat",
+        "total_demand:carrier:",
+        "levelized_costs_of_electricity_equivalent:carrier:",
         "degree_of_autonomy",
         "renewable_factor",
         "onsite_energy_fraction",
@@ -64,27 +60,23 @@ SUMMARY_CAT_PARAMS = {
 # TODO missing -> total variable OPEX, feedin revenue
 ECONOMIC_CAT_PARAMS = {
     "General": [
-        "levelized_costs_of_electricity_equivalentElectricity",
-        "levelized_costs_of_electricity_equivalentHeat",
+        "levelized_costs_of_electricity_equivalent:carrier:",
         "costs_investment_over_lifetime",
         "costs_cost_om",
         "costs_dispatch",
-        "attributed_costsElectricity",
-        "attributed_costsHeat",
-        "attributed_costsGas",
+        "attributed_costs:carrier:",
         "total_feedin",
         "objective_function_result",
     ]
 }
 TECHNICAL_CAT_PARAMS = {
-    "Electricity": [
-        "total_demandElectricity",
+    "General": [
         "total_consumption_from_energy_provider",
         "total_internal_generation",
         "onsite_energy_fraction",
         "renewable_factor",
     ],
-    "Heat": ["total_demandHeat"],
+    ":carrier:": ["total_demand:carrier:"],
 }
 ENVIRONMENTAL_CAT_PARAMS = {"General": ["total_emissions"]}
 
@@ -103,7 +95,7 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
         staticfiles_storage.path("MVS_kpis_list.csv"), encoding="utf-8"
     ) as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-        carrier_placeholder = ":carrier:"
+        CARRIER_PLACEHOLDER = ":carrier:"
         for i, row in enumerate(csvreader):
             if i == 0:
                 hdr = row
@@ -114,13 +106,13 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 subcat_idx = hdr.index("subcategory")
             else:
                 label = row[label_idx]
-                if carrier_placeholder in label:
-                    for carrier in sectors:
-                        new_label = label.replace(carrier_placeholder, carrier)
-                        verbose = row[verbose_idx].replace(carrier_placeholder, carrier)
-                        unit = row[unit_idx].replace(carrier_placeholder, carrier)
+                if CARRIER_PLACEHOLDER in label:
+                    for carrier in SECTORS:
+                        new_label = label.replace(CARRIER_PLACEHOLDER, carrier)
+                        verbose = row[verbose_idx].replace(CARRIER_PLACEHOLDER, carrier)
+                        unit = row[unit_idx].replace(CARRIER_PLACEHOLDER, carrier)
                         KPIS[new_label] = {
-                            k: v.replace(carrier_placeholder, carrier)
+                            k: v.replace(CARRIER_PLACEHOLDER, carrier)
                             for k, v in zip(hdr, row)
                         }
                 else:
@@ -166,28 +158,59 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
 
 #### FUNCTIONS ####
 def prepare_dashboard_table(table_id):
-    for subtable in TABLES[table_id]:
-        table_params = TABLE_PARAM_MAPPING[table_id][subtable]
-        TABLES[table_id][subtable] = []
-        for param in table_params:
-            try:
-                TABLES[table_id][subtable].append(
-                    {
-                        "name": _(KPIS[param]["verbose"]),
-                        "id": param,
-                        "unit": KPIS[param][":Unit:"],
-                    }
-                )
-            except KeyError:
-                logger.warning(f"{param} not found in KPIs")
-                TABLES[table_id][subtable].append(
-                    {
-                        "name": f"LOST_{param}",
-                        "id": param,
-                        "unit": "",
-                    }
-                )
-    return TABLES[table_id]
+    table = TABLES[table_id].copy()
+    table_params = TABLE_PARAM_MAPPING[table_id].copy()
+
+    def get_param_metadata_dict(kpi_param):
+        metadata = {
+            "name": _(KPIS[kpi_param]["verbose"]),
+            "id": kpi_param,
+            "unit": KPIS[kpi_param][":Unit:"],
+        }
+        return metadata
+
+    # if :carrier: set as one of the subtables, create one table for each sector
+    if CARRIER_PLACEHOLDER in table.keys():
+        for sector in SECTORS:
+            table[sector] = table[CARRIER_PLACEHOLDER]
+            table_params[sector] = table_params[CARRIER_PLACEHOLDER]
+        table.pop(CARRIER_PLACEHOLDER)
+        table_params.pop(CARRIER_PLACEHOLDER)
+
+    # add the parameters from table_param_mapping to the table/subtables
+    for subtable in table:
+        subtable_params = table_params[subtable]
+        table[subtable] = []
+        for param in subtable_params:
+            # handle params with :carrier: placeholders
+            if CARRIER_PLACEHOLDER in param:
+                # if the subtable is already a sector (e.g. "Gas", "Heat"), just add the appropriate param
+                if subtable in SECTORS:
+                    carrier_param = param.replace(CARRIER_PLACEHOLDER, subtable)
+                    table[subtable].append(get_param_metadata_dict(carrier_param))
+                # if the table is generic, add the parameter once for each sector
+                else:
+                    for sector in SECTORS:
+                        carrier_param = param.replace(CARRIER_PLACEHOLDER, sector)
+                        try:
+                            table[subtable].append(
+                                get_param_metadata_dict(carrier_param)
+                            )
+                        except KeyError:
+                            logger.warning(f"{carrier_param} not found in KPIs csv")
+            else:
+                try:
+                    table[subtable].append(get_param_metadata_dict(param))
+                except KeyError:
+                    logger.warning(f"{param} not found in KPIs csv")
+                    table[subtable].append(
+                        {
+                            "name": f"LOST_{param}",
+                            "id": param,
+                            "unit": "",
+                        }
+                    )
+    return table
 
 
 def storage_asset_to_list(assets_results_json):
