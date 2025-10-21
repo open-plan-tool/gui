@@ -26,7 +26,8 @@ from django.contrib import messages
 from django.template.loader import get_template
 
 from jsonview.decorators import json_view
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
 from .forms import *
 from .requests import (
@@ -1655,7 +1656,27 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
         return render(request, "asset/bus_create_form.html", {"form": form})
 
-    elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
+    # collect available templates
+    asset_templates = AssetTemplate.objects.filter(
+        asset_type__asset_type=asset_type_name
+    ).order_by("created_ts")
+    # project templates
+    project_templates = asset_templates.filter(
+        visibility="project", project_id=scenario.project_id
+    ).annotate(display_name=Concat("name", Value(" (prj)")))
+    # account templates
+    account_templates = asset_templates.filter(
+        visibility="account", created_by=request.user
+    ).annotate(display_name=Concat("name", Value(" (acc)")))
+    # global templates
+    global_templates = asset_templates.filter(visibility="global").annotate(
+        display_name=Concat("name", Value(" (std)"))
+    )
+    templates = AssetTemplate.objects.none().union(
+        project_templates, account_templates, global_templates
+    )
+
+    if asset_type_name in ["bess", "h2ess", "gess", "hess"]:
         if asset_uuid:
             existing_ess_asset = get_object_or_404(Asset, unique_id=asset_uuid)
             ess_asset_children = Asset.objects.filter(
@@ -1706,7 +1727,14 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 input_output_mapping=input_output_mapping,
                 initial={"name": default_name},
             )
-        return render(request, "asset/storage_asset_create_form.html", {"form": form})
+        return render(
+            request,
+            "asset/storage_asset_create_form.html",
+            {
+                "form": form,
+                "templates": templates,
+            },
+        )
     else:  # all other assets
 
         if asset_uuid:
@@ -1740,6 +1768,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 
         context = {
             "form": form,
+            "templates": templates,
             "asset_type_name": asset_type_name,
             "input_timeseries_data": input_timeseries_data,
             "input_timeseries_timestamps": json.dumps(
@@ -1880,6 +1909,38 @@ def asset_cops_create_or_update(
 
 
 # endregion Asset
+
+
+# templates
+@login_required
+@require_http_methods(["GET", "POST"])
+def template_get_or_create(request, project_id):
+    if request.method == "GET":
+        template = get_object_or_404(AssetTemplate, id=int(request.GET.get("id")))
+        # check permissions
+        if template.visibility == "project" and project_id != template.project_id:
+            raise Http404()
+        if template.visibility == "account" and request.user != template.created_by:
+            raise Http404()
+        # visibility = global needs no check
+        return JsonResponse(template.parameters)
+
+    # POST: create new template
+    asset_type = get_object_or_404(AssetType, asset_type=request.POST["asset_type"])
+    template = AssetTemplate.objects.create(
+        name=request.POST["name"],
+        desc=request.POST["desc"],
+        project_id=project_id,
+        visibility=request.POST["visibility"],
+        created_by=request.user,
+        asset_type=asset_type,
+        parameters=json.loads(request.POST["data"]),
+    )
+    if request.POST["request_global"] == "true":
+        logger.warning(
+            f"AssetTemplate #{template.id} ({template.name}) should be made public"
+        )
+    return HttpResponse(status=201)  # created
 
 
 # region MVS JSON Related
