@@ -472,6 +472,9 @@ class AssetType(models.Model):
             temp.pop(temp.index(field_name))
             self.asset_fields = "[" + ",".join(temp) + "]"
 
+    def __str__(self):
+        return self.asset_type
+
 
 class TopologyNode(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False)
@@ -747,6 +750,29 @@ class Asset(TopologyNode):
 
     def is_input_timeseries_empty(self):
         return self.input_timeseries == ""
+
+
+class AssetTemplate(models.Model):
+    VISIBILITY_CHOICES = [
+        ("project", "Project"),
+        ("account", "Account"),
+        ("global", "Everyone"),
+    ]
+    name = models.CharField(max_length=255)
+    desc = models.TextField(blank=True)
+    project = models.ForeignKey(
+        Project, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    visibility = models.CharField(max_length=8, choices=VISIBILITY_CHOICES)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    created_ts = models.DateTimeField(auto_now_add=True)
+    asset_type = models.ForeignKey(AssetType, on_delete=models.CASCADE)
+    parameters = models.JSONField()
 
 
 class COPCalculator(models.Model):

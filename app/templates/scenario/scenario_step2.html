@@ -145,6 +145,7 @@
     const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
     const tsGetUrl = `{% url 'get_timeseries' %}`;
     const findtsGetUrl = `{% url 'get_constant_timeseries_id' %}`;
+    const templateUrl = `{% url 'template_get_or_create' scenario.project_id %}`;
 </script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
