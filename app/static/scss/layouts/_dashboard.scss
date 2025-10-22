@@ -37,6 +37,7 @@
 
   &.sticky-top {
     top: 3.5rem;
+    z-index: $z-index-nav - 1;
   }
 }
 
