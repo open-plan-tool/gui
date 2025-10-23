@@ -62,7 +62,7 @@ SUMMARY_CAT_PARAMS = {
 # TODO missing -> total variable OPEX, feedin revenue
 ECONOMIC_CAT_PARAMS = {
     "General": [
-        "levelized_costs_of_electricity_equivalent:carrier:",
+        # "levelized_costs_of_electricity_equivalent:carrier:", # Re-enable when the results are correct
         "costs_investment_over_lifetime",
         "costs_cost_om",
         "costs_dispatch",
