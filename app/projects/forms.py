@@ -81,7 +81,7 @@ def add_help_text_icon(field, param_name, RTD_link=True):
             param_ref = ""
         if param_name != "name":
             if RTD_link is True:
-                question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+                question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
             else:
                 question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
 
@@ -755,7 +755,7 @@ class AssetCreateForm(OpenPlanModelForm):
             )
             self.fields["efficiency"].label = "COP"
             self.fields["efficiency"].help_text = "This is the custom help text for COP"
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
             value = self.fields.pop("efficiency")
             self.fields["efficiency"] = value
         if self.asset_type_name == "chp":
@@ -769,7 +769,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
             self.fields["efficiency_multiple"] = DualNumberField(
                 default=1, min=0, max=1, param_name="efficiency_multiple"
             )
@@ -786,7 +786,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
 
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
                 attrs={
