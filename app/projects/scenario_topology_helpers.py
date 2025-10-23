@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from projects.models import (
     Bus,
     AssetType,
+    AssetTemplate,
     Scenario,
     ConnectionLink,
     Asset,
@@ -18,9 +19,12 @@ from projects.models import (
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.db.models import Value
+from django.db.models.functions import Concat
 from projects.forms import AssetCreateForm, BusForm, StorageForm
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
+
 
 # region sent db nodes to js
 from django.http import JsonResponse
@@ -285,10 +289,15 @@ def handle_storage_unit_form_post(
             return JsonResponse({"success": False, "exception": ex}, status=422)
 
     logger.warning(f"The submitted asset has erroneous field values.")
-    form_html = get_template("asset/storage_asset_create_form.html")
-    return JsonResponse(
-        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+    form_html = get_template("asset/storage_asset_create_form.html").render(
+        {
+            "form": form,
+            "templates": get_available_templates(
+                asset_type_name, scenario.project, request.user
+            ),
+        }
     )
+    return JsonResponse({"success": False, "form_html": form_html}, status=422)
 
 
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
@@ -365,10 +374,15 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
     logger.warning(f"The submitted asset has erroneous field values.")
 
-    form_html = get_template("asset/asset_create_form.html")
-    return JsonResponse(
-        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+    form_html = get_template("asset/asset_create_form.html").render(
+        {
+            "form": form,
+            "templates": get_available_templates(
+                asset_type_name, scenario.project, request.user
+            ),
+        }
     )
+    return JsonResponse({"success": False, "form_html": form_html}, status=422)
 
 
 def load_scenario_topology_from_db(scen_id):
@@ -884,3 +898,25 @@ def create_ESS_objects(all_ess_assets_node_list, scen_id):
         if asset.name == "capacity":
             # check if there is a connection link to a bus
             pass
+
+
+def get_available_templates(asset_type_name, project, user):
+    # collect available templates
+    asset_templates = AssetTemplate.objects.filter(
+        asset_type__asset_type=asset_type_name
+    ).order_by("created_ts")
+    # project templates
+    project_templates = asset_templates.filter(
+        visibility="project", project=project
+    ).annotate(display_name=Concat("name", Value(" (prj)")))
+    # account templates
+    account_templates = asset_templates.filter(
+        visibility="account", created_by=user
+    ).annotate(display_name=Concat("name", Value(" (acc)")))
+    # global templates
+    global_templates = asset_templates.filter(visibility="global").annotate(
+        display_name=Concat("name", Value(" (std)"))
+    )
+    return AssetTemplate.objects.none().union(
+        project_templates, account_templates, global_templates
+    )
