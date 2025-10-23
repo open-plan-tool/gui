@@ -49,7 +49,8 @@ MANAGEMENT_CAT_PARAMS = {
 SUMMARY_CAT_PARAMS = {
     "General": [
         "total_demand:carrier:",
-        "levelized_costs_of_electricity_equivalent:carrier:",
+        # "levelized_costs_of_electricity_equivalent:carrier:", # TODO enable when it returns correct results
+        "levelized_costs_of_electricity_equivalent",
         "degree_of_autonomy",
         "renewable_factor",
         "onsite_energy_fraction",
