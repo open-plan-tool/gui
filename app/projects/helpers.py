@@ -238,7 +238,7 @@ class DualNumberField(forms.MultiValueField):
             # check the input string is a number or a list
             if scalar_value != "":
                 try:
-                    answer = float(scalar_value)
+                    answer = float(scalar_value.replace(",", "."))
                 except ValueError:
                     try:
                         answer = json.loads(scalar_value)
@@ -454,7 +454,7 @@ class TimeseriesField(forms.MultiValueField):
         elif scalar_value != "":
             # check the input string is a number or a list
             try:
-                answer = [float(scalar_value)]
+                answer = [float(scalar_value.replace(",", "."))]
             except ValueError:
                 try:
                     answer = json.loads(scalar_value)
