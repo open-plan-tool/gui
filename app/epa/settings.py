@@ -31,11 +31,12 @@ env.read_env(str(ROOT_DIR.path(".env")))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATICFILES_DIRS = (str(BASE_DIR / "static"),)
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_URL = "/static/"
-STATIC_ROOT = str(BASE_DIR / "cdn_static_root")
+STATIC_ROOT = BASE_DIR / "cdn_static_root/"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
 # SECURITY WARNING: don't run with debug turned on in production!
