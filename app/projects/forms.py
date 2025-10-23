@@ -739,7 +739,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 qs_ts=Timeseries.objects.filter(
                     ~Q(ts_type="scalar")
                     & (Q(asset_type=self.asset_type.asset_type))
-                    & (Q(open_source=True) | Q(scenario__project__id=proj_id))
+                    & (Q(open_source=True) | Q(user=self.user))
                 ),
                 default=0,
                 param_name="input_timeseries",
