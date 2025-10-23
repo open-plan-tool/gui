@@ -81,7 +81,7 @@ def add_help_text_icon(field, param_name, RTD_link=True):
             param_ref = ""
         if param_name != "name":
             if RTD_link is True:
-                question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+                question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
             else:
                 question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
 
