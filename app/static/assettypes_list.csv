@@ -1,33 +1,33 @@
-asset_type,asset_category,energy_vector,mvs_type,asset_fields,unit
-dso,energy_provider,Electricity,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
-gas_dso,energy_provider,Gas,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
-h2_dso,energy_provider,H2,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
-heat_dso,energy_provider,Heat,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
-demand,energy_consumption,Electricity,sink,"[name,input_timeseries]",kWh
-gas_demand,energy_consumption,Gas,sink,"[name,input_timeseries]",
-h2_demand,energy_consumption,H2,sink,"[name,input_timeseries]",
-heat_demand,energy_consumption,Heat,sink,"[name,input_timeseries]",
-transformer_station_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
-transformer_station_out,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
-storage_charge_controller_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA
-storage_charge_controller_out,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA
-solar_inverter,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA
-diesel_generator,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
-fuel_cell,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA
-gas_boiler,energy_conversion,Gas,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kW
-electrolyzer,energy_conversion,H2,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
-heat_pump,energy_conversion,Heat,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA
-pv_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWp
-wind_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWh
-biogas_plant,energy_production,Gas,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
-geothermal_conversion,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWh
-solar_thermal_plant,energy_production,Heat,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",m³
-charging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW
-discharging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW
-capacity,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",kWh
-bess,energy_storage,Electricity,storage,[name],kW (el)
-gess,energy_storage,Gas,storage,[name],l
-h2ess,energy_storage,H2,storage,[name],kgH2
-hess,energy_storage,Heat,storage,[name],kW (therm)
-chp,energy_conversion,Electricity,extractionTurbineCHP,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency,thermal_loss_rate]",kW
-chp_fixed_ratio,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency]",kW
+asset_type,asset_category,energy_vector,mvs_type,asset_fields,unit,ports
+dso,energy_provider,Electricity,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['to_bus','Electricity']}"
+gas_dso,energy_provider,Gas,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['to_bus','Gas']}"
+h2_dso,energy_provider,H2,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['to_bus','H2']}"
+heat_dso,energy_provider,Heat,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['to_bus','Heat']}"
+demand,energy_consumption,Electricity,sink,"[name,input_timeseries]",kWh,"{'input_1':['from_bus','Electricity']}"
+gas_demand,energy_consumption,Gas,sink,"[name,input_timeseries]",,"{'input_1':['from_bus','Gas']}"
+h2_demand,energy_consumption,H2,sink,"[name,input_timeseries]",,"{'input_1':['from_bus','H2']}"
+heat_demand,energy_consumption,Heat,sink,"[name,input_timeseries]",,"{'input_1':['from_bus','Heat']}"
+transformer_station_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['from_bus','Electricity'],'output_1': ['to_bus','Electricity']}"
+transformer_station_out,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['from_bus','Electricity'],'output_1': ['to_bus','Electricity']}"
+storage_charge_controller_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA,"{'input_1':['from_bus','Electricity'],'output_1': ['to_bus','Electricity']}"
+storage_charge_controller_out,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA,"{'input_1':['from_bus','Electricity'],'output_1': ['to_bus','Electricity']}"
+solar_inverter,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA,"{'input_1':['from_bus','Electricity'],'output_1': ['to_bus','Electricity']}"
+diesel_generator,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['from_bus','Gas'],'output_1': ['to_bus','Electricity']}"
+fuel_cell,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",kVA,"{'input_1':['from_bus','H2'],'output_1': ['to_bus','Electricity']}"
+gas_boiler,energy_conversion,Gas,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",kW,"{'input_1':['from_bus','Gas'],'output_1': ['to_bus','Heat']}"
+electrolyzer,energy_conversion,H2,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,efficiency_multiple]",kVA,"{'input_1':['el_bus','Electricity'],'output_1': ['heat_bus','Heat'], 'output_2': ['h2_bus','H2']}"
+heat_pump,energy_conversion,Heat,transformer,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['electricity_bus','Electricity'], 'input_2': ['heat_bus','Heat'],'output_1': ['to_bus','Heat']}"
+pv_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWp,"{'output_1': ['to_bus','Electricity']}"
+wind_plant,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kW,"{'output_1': ['to_bus','Electricity']}"
+biogas_plant,energy_production,Gas,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",,"{'output_1': ['to_bus','Gas']}"
+geothermal_conversion,energy_production,Electricity,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",kWh,"{'output_1': ['to_bus','Heat']}"
+solar_thermal_plant,energy_production,Heat,source,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",m³,"{'output_1': ['to_bus','Heat']}"
+charging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW,"{'input_1':['charge','Electricity'],'output_1': ['discharge','Electricity']}"
+discharging_power,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",kW,"{'input_1':['charge','Electricity'],'output_1': ['discharge','Electricity']}"
+capacity,energy_storage,Electricity,storage,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",kWh,"{'input_1':['charge','Electricity'],'output_1': ['discharge','Electricity']}"
+bess,energy_storage,Electricity,storage,[name],kW (el),"{'input_1':['charge','Electricity'],'output_1': ['discharge','Electricity']}"
+gess,energy_storage,Gas,storage,[name],l,"{'input_1':['charge','Gas'],'output_1': ['discharge','Gas']}"
+h2ess,energy_storage,H2,storage,[name],kgH2,"{'input_1':['charge','H2'],'output_1': ['discharge','H2']}"
+hess,energy_storage,Heat,storage,[name],kW (therm),"{'input_1':['charge','Heat'],'output_1': ['discharge','Heat']}"
+chp,energy_conversion,Electricity,extractionTurbineCHP,"[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency,thermal_loss_rate]",kW,"{'input_1':['fuel','Gas'],'output_1': ['heat_bus','Heat'], 'output_2': ['electricity_bus','Electricity']}"
+chp_fixed_ratio,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency]",kW,"{'input_1':['fuel','Gas'],'output_1': ['heat_bus','Heat'], 'output_2': ['electricity_bus','Electricity']}"

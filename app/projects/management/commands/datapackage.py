@@ -45,12 +45,13 @@ class Command(BaseCommand):
                 else:
                     shutil.rmtree(scenario_folder)
 
+            elements_folder = scenario_folder / "data" / "elements"
+            sequences_folder = scenario_folder / "data" / "sequences"
+
             if create_folder:
                 # create subfolders
                 (scenario_folder / "scripts").mkdir(parents=True)
-                elements_folder = scenario_folder / "data" / "elements"
                 elements_folder.mkdir(parents=True)
-                sequences_folder = scenario_folder / "data" / "sequences"
                 sequences_folder.mkdir(parents=True)
 
             # List all components of the scenario (except the busses)

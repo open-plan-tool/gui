@@ -160,9 +160,9 @@
 @mixin gui-component-image($img-path) {
   content: '';
   position: absolute;
-  top: calc(#{$gui-component-bg-size} / 2);
-  right: calc((#{$gui-component-bg-size} - #{$gui-component-img-size}) / 2);
-  transform: translateY(-50%);
+  top: 0.5rem;
+  right: 3px;
+  transform: translateX(-50%);
   background-image: $img-path;
   background-size: contain;
   height: $gui-component-img-size;
@@ -190,7 +190,6 @@
   left: -1.25rem;
 }
 
-
 @mixin section-wrap($desktop-width, $section-padding-top-btm) {
 	padding: 3rem 1rem 0;
 	display: flex;
@@ -212,7 +211,7 @@
 		padding-bottom: 3rem;
 	}
 	&::before {
-		background-image: url(../assets/icons/i_arrow_left.svg);
+		background-image: url("/static/assets/icons/i_arrow_left.svg");
 		background-size: 12px 12px;
 		display: inline-block;
 		height: 12px;
@@ -220,4 +219,33 @@
 		transform: translateY(1px) translateX(-3px);
 		content: "";
 	}
+}
+
+@mixin bus($bus-bg-color, $bus-color, $bus-text-color, $bus-color-disabled) {
+  background-color: $bus-bg-color;
+  border: 1px solid $bus-color;
+
+  .drawflow-node__name {
+    color: $bus-text-color;
+    font-weight: 700;
+  }
+
+  .inputs,
+  .outputs {
+    .input,
+    .output {
+      background-color: $bus-color;
+      border-color: $bus-color;
+
+      &.port--empty {
+        background-color: $white;;
+      }
+
+      &.port--not-compatible {
+        background-color: $bus-color-disabled;
+        filter: none;
+        border: none;
+      }
+    }
+  }
 }

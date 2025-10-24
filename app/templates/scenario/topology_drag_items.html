@@ -1,7 +1,14 @@
 {% load static %}
 {% load i18n %}
+{% load custom_template_tags %}
 
-<div class="section__component" draggable="true" ondragstart="drag(event)" data-node="{{ data_node }}">
+{% if "bus-" in data_node %}
+	{% setvar "section__component--"|add:data_node as bus_class %}
+{% else %}
+  {% setvar "" as bus_class %}
+{% endif %}
+
+<div class="section__component {{ bus_class }}" draggable="true" ondragstart="drag(event)" data-node="{{ data_node }}">
     <img class="img" src="{% static 'assets/gui/'|add:image %}" alt="{{ alt }}">
     <span class="name">{{ name }}</span>
     <span class="drag">

@@ -185,7 +185,7 @@ nav.navbar {
         border-radius: 100px;
       }
 
-      @for $i from 1 through 4 {
+      @for $i from 1 through 5 {
         &:nth-child(#{$i})::before {
           content: "#{$i}";
         }

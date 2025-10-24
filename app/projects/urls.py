@@ -161,22 +161,52 @@ urlpatterns = [
     ),
     # Grid Model (Assets Creation)
     re_path(
-        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         get_asset_create_form,
         name="get_asset_create_form",
     ),
     re_path(
-        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
+    path(
+        "asset/get_connection_ports_mapping",
+        asset_connection_ports_mapping,
+        name="asset_connection_ports_mapping",
+    ),
+    path(
+        "asset/get_connection_ports_mapping/<str:asset_type_name>",
+        asset_connection_ports_mapping,
+        name="asset_connection_ports_mapping",
+    ),
+    path(
+        "asset/get_connection_ports_info",
+        asset_connection_ports_info,
+        name="asset_connection_ports_info",
+    ),
+    path(
+        "asset/get_connection_ports_info/<str:asset_type_name>",
+        asset_connection_ports_info,
+        name="asset_connection_ports_info",
+    ),
+    path(
+        "asset/get_connection_ports_number",
+        asset_connection_ports_number,
+        name="asset_connection_ports_number",
+    ),
+    path(
+        "asset/get_connection_ports_number/<str:asset_type_name>",
+        asset_connection_ports_number,
+        name="asset_connection_ports_number",
+    ),
     re_path(
-        r"^asset/get_cops_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/get_cops_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         get_asset_cops_form,
         name="get_asset_cops_form",
     ),
     re_path(
-        r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_cops_create_or_update,
         name="asset_cops_create_or_update",
     ),

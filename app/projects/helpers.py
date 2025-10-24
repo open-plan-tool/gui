@@ -176,8 +176,8 @@ class DualInputWidget(forms.MultiWidget):
 
     template_name = "asset/dual_input.html"
 
-    class Media:
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, **kwargs):
         """This special input consist of one text field and one upload file button"""
@@ -238,7 +238,7 @@ class DualNumberField(forms.MultiValueField):
             # check the input string is a number or a list
             if scalar_value != "":
                 try:
-                    answer = float(scalar_value)
+                    answer = float(scalar_value.replace(",", "."))
                 except ValueError:
                     try:
                         answer = json.loads(scalar_value)
@@ -324,9 +324,9 @@ class TimeseriesInputWidget(forms.MultiWidget):
 
     template_name = "asset/timeseries_input.html"
 
-    class Media:
-        # TODO: currently not loading the content as not within head
-        js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
+    # class Media:
+    #     # TODO: currently not loading the content as not within head
+    #     js = [JSPlotlyLib(), JSD3Lib(), "js/traceplot.js"]
 
     def __init__(self, select_widget, **kwargs):
         """This special input consist of one text field, one select field and one upload file button"""
@@ -364,7 +364,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
         return False
 
     def decompress(self, value):
-        """The value will ALWAYS be stored as as timeseries,
+        """The value will ALWAYS be stored as timeseries,
         thus only the index of the timeseries is to decompress"""
 
         answer = [value, None, None]
@@ -379,6 +379,24 @@ class TimeseriesInputWidget(forms.MultiWidget):
                 scalar_value = None
             answer = [scalar_value, value, ""]
         return answer
+
+    def get_context(self, name, value, attrs):
+        # Let MultiWidget do the normal setup
+        ctx = super().get_context(name, value, attrs)
+
+        # Decompressed value = [scalar, select_id, file]
+        vals = value if isinstance(value, (list, tuple)) else self.decompress(value)
+        if vals and vals[0] not in (None, "", 0):
+            active = "manual"
+        elif vals and vals[1] not in (None, ""):
+            active = "select"
+        elif vals and vals[2]:
+            active = "upload"
+        else:
+            active = "select"  # default
+
+        ctx["active_tab"] = active
+        return ctx
 
 
 class TimeseriesField(forms.MultiValueField):
@@ -410,7 +428,6 @@ class TimeseriesField(forms.MultiValueField):
         kwargs["widget"] = TimeseriesInputWidget(
             default=default, param_name=param_name, select_widget=select_widget
         )
-
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
         self.label = label
 
@@ -420,6 +437,9 @@ class TimeseriesField(forms.MultiValueField):
 
         if scalar_value is None:
             scalar_value = ""
+
+        if timeseries_id is None:
+            timeseries_id = ""
 
         if timeseries_file is not None:
             input_timeseries_values = parse_input_timeseries(timeseries_file)
@@ -434,7 +454,7 @@ class TimeseriesField(forms.MultiValueField):
         elif scalar_value != "":
             # check the input string is a number or a list
             try:
-                answer = [float(scalar_value)]
+                answer = [float(scalar_value.replace(",", "."))]
             except ValueError:
                 try:
                     answer = json.loads(scalar_value)
@@ -452,10 +472,6 @@ class TimeseriesField(forms.MultiValueField):
                 code="required",
                 params={"boundaries": self.boundaries},
             )
-
-        # input_ts, created = Timeseries.objects.get_or_create(
-        #     user=user, **input_timeseries
-        # )
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))

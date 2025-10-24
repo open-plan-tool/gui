@@ -39,6 +39,7 @@ from projects.helpers import (
     TS_UPLOAD_TYPE,
     TS_MANUAL_TYPE,
 )
+from projects.constants import ASSET_TO_TIMESERIES_ASSET_TYPE
 
 
 def gettext_variables(some_string, lang="de"):
@@ -76,12 +77,12 @@ def add_help_text_icon(field, param_name, RTD_link=True):
     if field.label is not None:
         RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
         if param_name in PARAMETERS:
-            param_ref = PARAMETERS[param_name]["ref"]
+            param_ref = PARAMETERS[param_name]["label"].replace("_", "-")
         else:
             param_ref = ""
         if param_name != "name":
             if RTD_link is True:
-                question_icon = f'<a href="{RTD_url}{param_ref}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+                question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
             else:
                 question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
 
@@ -710,15 +711,17 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.add_help_text_icon(field)
 
         self.timestamps = None
-        if self.existing_asset is not None:
-            self.timestamps = self.existing_asset.timestamps
-            self.user = self.existing_asset.scenario.project.user
-        elif scenario_id is not None:
+        if scenario_id is not None:
             qs = Scenario.objects.filter(id=scenario_id)
             if qs.exists():
-                self.timestamps = qs.get().get_timestamps()
+                self.scenario = qs.get()
+                self.timestamps = self.scenario.get_timestamps()
+                self.user = self.scenario.project.user
                 if proj_id is None:
-                    proj_id = qs.get().project.id
+                    proj_id = self.scenario.project.id
+        elif self.existing_asset is not None:
+            self.timestamps = self.existing_asset.timestamps
+            self.user = self.existing_asset.scenario.project.user
 
         currency = None
         if proj_id is not None:
@@ -730,11 +733,12 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.user = qs.get().user
 
         # set the custom timeseries field for timeseries
-        # the qs_ts selects timeseries of the corresponding MVS type that either belong to the user or are open source
+        # the qs_ts selects timeseries (excluding scalars) that either belong to the user or are open source
         if "input_timeseries" in self.fields:
             self.fields["input_timeseries"] = TimeseriesField(
                 qs_ts=Timeseries.objects.filter(
-                    Q(ts_type=self.asset_type.mvs_type)
+                    ~Q(ts_type="scalar")
+                    & (Q(asset_type=self.asset_type.asset_type))
                     & (Q(open_source=True) | Q(user=self.user))
                 ),
                 default=0,
@@ -754,7 +758,7 @@ class AssetCreateForm(OpenPlanModelForm):
             )
             self.fields["efficiency"].label = "COP"
             self.fields["efficiency"].help_text = "This is the custom help text for COP"
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
             value = self.fields.pop("efficiency")
             self.fields["efficiency"] = value
         if self.asset_type_name == "chp":
@@ -768,7 +772,7 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
             self.fields["efficiency_multiple"] = DualNumberField(
                 default=1, min=0, max=1, param_name="efficiency_multiple"
             )
@@ -779,14 +783,13 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["thermal_loss_rate"].label = _("Power loss index")
 
         if self.asset_type_name == "chp_fixed_ratio":
-
-            self.fields["efficiency"].label = _("Efficiency gaz to electricity")
+            self.fields["efficiency"].label = _("Efficiency gas to electricity")
 
             # TODO
             self.fields["efficiency"].help_text = (
                 "This is the custom help text for chp efficiency"
             )
-            self.add_help_text_icon("efficiency", RTD_link=False)
+            self.add_help_text_icon("efficiency", RTD_link=True)
 
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
                 attrs={
@@ -796,7 +799,23 @@ class AssetCreateForm(OpenPlanModelForm):
                     "step": "0.00001",
                 }
             )
-            self.fields["efficiency_multiple"].label = _("Efficiency gaz to heat")
+            self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
+
+        if self.asset_type_name == "electrolyzer":
+            self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                attrs={
+                    "placeholder": _("eg. 0.1"),
+                    "min": 0.0,
+                    "max": 1.0,
+                    "value": 0,
+                    "step": "0.00001",
+                }
+            )
+            self.fields["efficiency_multiple"].label = _("Heat loss")
+            self.fields["efficiency_multiple"].help_text = (
+                "Ratio of energy converted to heat"
+            )
+            self.add_help_text_icon("efficiency_multiple", RTD_link=True)
 
         if "dso" in self.asset_type_name:
             for field_name in ("energy_price", "feedin_tariff"):
@@ -957,18 +976,25 @@ class AssetCreateForm(OpenPlanModelForm):
         timeseries_name = input_timeseries["input_method"].get("extra_info", "no_name")
         timeseries_values = input_timeseries["values"]
 
+        ts_default_settings = {
+            "ts_type": self.asset_type.mvs_type,
+            "open_source": False,
+        }
+        asset_type_name = self.asset_type.asset_type
+        ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
+
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
             timeseries_name = f"constant value = {timeseries_values[0]}"
-            timeseries_values = len(self.timestamps) * timeseries_values
+            timeseries_values = timeseries_values
+            ts_default_settings["ts_type"] = "scalar"
 
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
             user=self.user,
             name=timeseries_name,
-            defaults={
-                "ts_type": self.asset_type.mvs_type,
-                "open_source": False,
-            },
+            scenario=self.scenario,
+            asset_type=ts_asset_type,
+            defaults=ts_default_settings,
         )
 
         return timeseries

@@ -1,5 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 
+
+STEP_LIST = [
+    _("Scenario Setup"),
+    _("Energy system design"),
+    _("Constraints"),
+    _("Simulation"),
+    _("Results"),
+]
+
+MAX_STEP = len(STEP_LIST)
+
 COUNTRY = (
     ("", "Choose..."),
     ("AFGHANISTAN", "AFGHANISTAN"),
@@ -281,6 +292,18 @@ TIMESERIES_CATEGORIES = (
     ("supply", _("Supply")),
 )
 TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
+TIMESERIES_ASSET_TYPES = (
+    ("demand", _("demand")),
+    ("gas_demand", _("gas_demand")),
+    ("h2_demand", _("h2_demand")),
+    ("heat_demand", _("heat_demand")),
+    ("pv_plant", _("pv_plant")),
+    ("wind_plant", _("wind_plant")),
+    ("biogas_plant", _("biogas_plant")),
+    ("geothermal_conversion", _("geothermal_conversion")),
+    ("solar_thermal_plant", _("solar_thermal_plant")),
+)
+
 ENERGY_VECTOR = (
     ("", "Choose..."),
     ("Electricity", _("Electricity")),
@@ -387,6 +410,18 @@ ASSET_TYPE = (
     ("h2ess", "h2ess"),
     ("hess", "hess"),
 )
+
+ASSET_TO_TIMESERIES_ASSET_TYPE = {
+    "demand": "demand",
+    "gas_demand": "gas_demand",
+    "h2_demand": "h2_demand",
+    "heat_demand": "heat_demand",
+    "pv_plant": "pv_plant",
+    "wind_plant": "wind_plant",
+    "biogas_plant": "biogas_plant",
+    "geothermal_conversion": "geothermal_conversion",
+    "solar_thermal_plant": "solar_thermal_plant",
+}
 
 RENEWABLE_ASSETS = (
     "electrolyzer",

@@ -3,13 +3,13 @@
 <ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
 
 	<li class="nav-item" role="presentation" title="{% translate 'Select a timeseries amongst the one below' %}">
-		<button class="nav-link active" id="select-tab" data-bs-toggle="tab" data-bs-target="#select" type="button" role="tab" aria-controls="select" aria-selected="true">{% translate "Select" %}</button>
+		<button class="nav-link {% if active_tab == 'select' %}active{% endif %}" id="select-tab" data-bs-toggle="tab" data-bs-target="#select" type="button" role="tab" aria-controls="select" aria-selected="{% if active_tab == 'select' %}true{% else %}false{% endif %}">{% translate "Select" %}</button>
 	</li>
 	<li class="nav-item" role="presentation" title="{% translate 'Upload a timeseries from a file' %}">
-		<button class="nav-link " id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="false">{% translate "Upload" %}</button>
+		<button class="nav-link {% if active_tab == 'upload' %}active{% endif %}" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="{% if active_tab == 'upload' %}true{% else %}false{% endif %}">{% translate "Upload" %}</button>
 	</li>
 	<li class="nav-item" role="presentation" title="{% translate 'You can input a constant timeseries here: simply type in the number you want it will be turned into a timeseries upon save' %}">
-		<button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="false">{% translate "Constant value" %}</button>
+		<button class="nav-link {% if active_tab == 'manual' %}active{% endif %}" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="{% if active_tab == 'manual' %}true{% else %}false{% endif %}">{% translate "Constant value" %}</button>
 	</li>
 
 
@@ -19,15 +19,15 @@
 	{{ widget.id }}
 	{% if 'scalar' in widget.name %}
 
-	<div class="tab-pane fade" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+	<div class="tab-pane fade {% if active_tab == 'manual' %}show active{% endif %}" id="manual" role="tabpanel" aria-labelledby="manual-tab">
 		{% include widget.template_name %}
 	</div>
 	{% elif 'select' in widget.name %}
-	<div class="tab-pane fade show active" id="select" role="tabpanel" aria-labelledby="select-tab">
+	<div class="tab-pane fade {% if active_tab == 'select' %}show active{% endif %}" id="select" role="tabpanel" aria-labelledby="select-tab">
 		{% include widget.template_name %}
 	</div>
 	{% else %}
-	<div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+	<div class="tab-pane fade {% if active_tab == 'upload' %}show active{% endif %}" id="upload" role="tabpanel" aria-labelledby="upload-tab">
 		{% include widget.template_name %}
 	</div>
 	{% endif %}

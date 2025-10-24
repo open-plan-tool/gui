@@ -13,6 +13,7 @@ from dashboard.models import (
     KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
     KPI_SCALAR_UNITS,
+    get_costs,
 )
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -37,7 +38,7 @@ from projects.services import (
 
 from projects.forms import BusForm, AssetCreateForm, StorageForm
 
-from projects.constants import COMPARE_VIEW
+from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
 from dashboard.models import (
     ReportItem,
     FlowResults,
@@ -132,7 +133,9 @@ def result_change_project(request):
 
 @login_required
 @require_http_methods(["POST", "GET"])
-def scenario_visualize_results(request, proj_id=None, scen_id=None):
+def scenario_visualize_results(
+    request, proj_id=None, scen_id=None, step_id=5, max_step=MAX_STEP
+):
     request.session[COMPARE_VIEW] = False
 
     user_projects = fetch_user_projects(request.user)
@@ -227,6 +230,10 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
                     "report/single_scenario.html",
                     {
                         "scen_id": scen_id,
+                        "scenario": scenario,
+                        "step_list": STEP_LIST,
+                        "max_step": max_step,
+                        "step_id": step_id,
                         "timestamps": timestamps,
                         "proj_id": proj_id,
                         "project_list": user_projects,
@@ -257,7 +264,7 @@ def scenario_visualize_results(request, proj_id=None, scen_id=None):
 
 @login_required
 @require_http_methods(["POST", "GET"])
-def project_compare_results(request, proj_id):
+def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     request.session[COMPARE_VIEW] = True
     user_projects = fetch_user_projects(request.user)
 
@@ -281,6 +288,9 @@ def project_compare_results(request, proj_id):
         "report/compare_scenario.html",
         {
             "scen_id": None,
+            "step_list": STEP_LIST,
+            "max_step": max_step,
+            "step_id": step_id,
             "proj_id": proj_id,
             "project_list": user_projects,
             "scenario_list": user_scenarios,
@@ -628,6 +638,7 @@ def update_selected_multi_scenarios(request, proj_id):
 def request_kpi_table(request, proj_id=None):
 
     compare_scen = request.GET.get("compare_scenario")
+    table_id = request.GET.get("table_id")
     if compare_scen != "":
         compare_scen = int(compare_scen)
     else:
@@ -641,7 +652,7 @@ def request_kpi_table(request, proj_id=None):
     scen_names = []
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
-        scen_names.append(scenario.name)
+        scen_names.append(_(scenario.name))
         kpi_scalar_results_obj = KPIScalarResults.objects.get(
             simulation=scenario.simulation
         )
@@ -649,32 +660,57 @@ def request_kpi_table(request, proj_id=None):
         kpis[scenario_id] = kpi_scalar_results_dict
 
     proj = get_object_or_404(Project, id=scenario.project.id)
-    unit_conv = {"currency": proj.economic_data.currency, "Faktor": "%"}
-    table = TABLES.get("management", None)
+    unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
+    table = prepare_dashboard_table(table_id)
 
     # do some unit substitution
     for l in table.values():
         for e in l:
-            if e["unit"] in unit_conv:
-                sub = unit_conv[e["unit"]]
-                e["unit"] = sub
+            for key, replacement in unit_conv.items():
+                if key in e["unit"]:
+                    e["unit"] = e["unit"].replace(key, replacement)
+                    break
 
     if table is not None:
+        empty_tables = []
+
         for subtable_title, subtable_content in table.items():
+            kept_params = []
+
             for param in subtable_content:
-                param["scen_values"] = [
-                    round_only_numbers(
-                        kpis[scen_id].get(param["id"], "not implemented yet"), 2
-                    )
-                    for scen_id in selected_scenarios
-                ]
+                values = []
+                missing = False
+
+                for scen_id in selected_scenarios:
+                    val = kpis.get(scen_id, {}).get(param["id"])
+                    if val is None:
+                        logger.warning(
+                            "KPI %s not found for scenario %s", param["id"], scen_id
+                        )
+                        missing = True
+                        break
+
+                    if param["unit"] == "%":
+                        val = round(float(val) * 100, 2)
+                    values.append(beautify_number(val, 2))
+
+                if missing:
+                    continue
+
+                param["scen_values"] = values
                 param["description"] = KPI_helper.get_doc_definition(param["id"])
-                if "currency" in param["unit"]:
-                    param["unit"] = param["unit"].replace(
-                        "currency", scenario.get_currency()
-                    )
+                kept_params.append(param)
+
+            subtable_content[:] = kept_params
+
+            if not kept_params:
+                empty_tables.append(subtable_title)
+
+        for subtable in empty_tables:
+            table.pop(subtable, None)
+
         answer = JsonResponse(
-            {"data": table, "hdrs": ["Indicator"] + scen_names},
+            {"data": table, "hdrs": [_("Indicator")] + scen_names},
             status=200,
             content_type="application/json",
         )
@@ -683,12 +719,51 @@ def request_kpi_table(request, proj_id=None):
         allowed_styles = ", ".join(TABLES.keys())
         answer = JsonResponse(
             {
-                "error": f"The kpi table sytle {table_style} is not implemented. Please try one of {allowed_styles}"
+                "error": f"The kpi table sytle {table_id} is not implemented. Please try one of {allowed_styles}"
             },
             status=404,
             content_type="application/json",
         )
 
+    return answer
+
+
+@login_required
+@json_view
+@require_http_methods(["GET"])
+def request_system_costs_table(request, proj_id=None, scen_id=None):
+    if scen_id is None:
+        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
+    else:
+        selected_scenario = [scen_id]
+
+    if len(selected_scenario) == 1:
+        sim = Scenario.objects.get(id=int(selected_scenario[0])).simulation
+    else:
+        return JsonResponse(
+            {"msg": "Multi-scenario not implemented for costs table"}, status=400
+        )
+    scen_costs = get_costs(sim)
+
+    table = {}
+    # TODO fix this with the actual descriptions etc
+    for idx, row in scen_costs.iterrows():
+        table[str(idx)] = {
+            "name": str(idx),
+            "description": "",
+            "unit": "",
+            "scen_values": [f"{v:,.1f}" for v in row],
+        }
+
+    answer = JsonResponse(
+        {
+            "data": table,
+            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs.columns],
+            "title": _("Annualized costs breakdown"),
+        },
+        status=200,
+        content_type="application/json",
+    )
     return answer
 
 
@@ -751,6 +826,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             instance=existing_asset,
             view_only=True,
             proj_id=scenario.project.id,
+            scenario_id=scenario.id,
         )
         input_timeseries_data = (
             existing_asset.input_timeseries.values
@@ -869,7 +945,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                     total_flows.append(
                         {
                             "value": round(y_vals["total_flow"], 2),
-                            "unit": y_vals["unit"],
+                            "unit": "kWh",
                             "label": y_vals["name"],
                         }
                     )
@@ -1171,7 +1247,7 @@ def download_scalar_results(request, scen_id):
         for idx, kpi_obj in enumerate(scalar_kpis_json):
             if idx == 0:
                 worksheet.write_row(0, 0, kpi_obj.keys())
-            worksheet.write_row(idx + 1, 0, kpi_obj.values())
+            worksheet.write_row(idx + 1, 0, [str(val) for val in kpi_obj.values()])
 
         workbook.close()
         output.seek(0)
