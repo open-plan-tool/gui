@@ -2135,8 +2135,7 @@ nav.navbar {
     padding-left: 1rem;
     padding-right: 1rem; }
   .dashboard-options.sticky-top {
-    top: 3.5rem;
-    z-index: 8; }
+    top: 3.5rem; }
 
 .dashboard {
   display: flex;

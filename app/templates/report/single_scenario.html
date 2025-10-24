@@ -79,16 +79,16 @@ parameters specific to this graph type only, other parameters are available in t
 				<div class="accordion-item">
 					<h2 class="accordion-header" id="headingOverview">
 						<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOverview">
-							{% translate "Sections" %}
+							Sections
 						</button>
 					</h2>
 					<div id="collapseOverview" class="accordion-collapse collapse" aria-labelledby="headingOverview" data-bs-parent="#sectionsAccordion">
 						<div class="accordion-body">
 							<ul class="list-unstyled mb-0">
-								<li><a href="#overview" class="text-decoration-none">{% translate "Overview" %}</a></li>
-								<li><a href="#technical" class="text-decoration-none">{% translate "Technical Information" %}</a></li>
-								<li><a href="#financial" class="text-decoration-none">{% translate "Financial Information" %}</a></li>
-								<li><a href="#environmental" class="text-decoration-none">{% translate "Environmental Information" %}</a></li>
+								<li><a href="#overview" class="text-decoration-none">Overview</a></li>
+								<li><a href="#technical" class="text-decoration-none">Technical Information</a></li>
+								<li><a href="#financial" class="text-decoration-none">Financial Information</a></li>
+								<li><a href="#environmental" class="text-decoration-none">Environmental Information</a></li>
 							</ul>
 						</div>
 					</div>
@@ -158,7 +158,7 @@ parameters specific to this graph type only, other parameters are available in t
 		{% include "report/kpis_template.html" with table_styles=table_styles table_id="system_costs" %}
 		<div class="row">
 			<div class="col" id="report_items_financial" style="display:flex;flex-direction:column-reverse;">
-				{% include "report/graph_template.html" with id="costs" title="Annualized costs breakdown" %}
+				{% include "report/graph_template.html" with id="costs" title="Overall costs breakdown" %}
 			</div>
 		</div>
 
@@ -230,11 +230,7 @@ function update_selected_single_scenario(target){
         success: async (data) => {
 
             // Update the kpi table
-			update_kpi_table_style(scen_id, "summary");
-			update_kpi_table_style(scen_id, "technical");
-			update_kpi_table_style(scen_id, "economic");
-			update_kpi_table_style(scen_id, "environmental");
-			request_system_costs_table(scen_id);
+            update_kpi_table_style(scen_id);
 
             scenario_visualize_timeseries(scen_id);
             scenario_visualize_stacked_timeseries(scen_id);

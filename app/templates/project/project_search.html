@@ -102,9 +102,7 @@
 													{% endif %}
                         </div>
                         <div class="actions">
-                            <a class="btn btn--action btn--hollow action"
-                               href="{% url 'project_visualize_results' proj_id=project.id %}"
-                               {% if not project.get_scenarios_with_results %} style="display:none" {% endif %}>
+                            <a class="btn btn--action btn--hollow action" href="{% url 'project_visualize_results' proj_id=project.id %}">
                                 <span class="icon icon-results" aria-hidden="true"></span>
                                 {% translate "Results" %}
                             </a>

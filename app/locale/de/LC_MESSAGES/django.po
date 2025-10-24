@@ -4449,68 +4449,8 @@ msgstr "Verbraucher"
 msgid "Degree of Autonomy"
 msgstr "Autarkiegrad"
 
-msgid "Total Electricity demand"
-msgstr "Strombedarf gesamt"
-
-msgid "Total Heat demand"
-msgstr "Wärmebedarf gesamt"
-
-msgid "Total H2 demand"
-msgstr "Wasserstoffbedarf gesamt"
-
-msgid "Levelized costs of electricity equivalent Electricity"
-msgstr "Stromgestehungskosten"
-
-msgid "Levelized costs of electricity equivalent Heat"
-msgstr "Wärmegestehungskosten"
-
-msgid "Levelized costs of electricity equivalent Gas"
-msgstr "Gasgestehungskosten"
-
-msgid "Levelized costs of electricity equivalent H2"
-msgstr "Wasserstoffgestehungskosten"
-
-msgid "Operation and maintenance costs"
-msgstr "Betriebs- und Instandhaltungskosten"
-
-msgid "Dispatch costs"
-msgstr "Dispatch-Kosten"
-
-msgid "Attributed Electricity costs"
-msgstr "Zugerechnete Stromkosten"
-
-msgid "Attributed Heat costs"
-msgstr "Zugerechnete Wärmekosten"
-
-msgid "Attributed Gas costs"
-msgstr "Zugerechnete Gaskosten"
-
-msgid "Attributed H2 costs"
-msgstr "Zugerechnete Wasserstoffkosten"
-
 msgid "Onsite energy fraction"
-msgstr "Anteil Eigenverbrauch"
-
-msgid "Total local generation"
-msgstr "Gesamtlokale Erzeugung"
-
-msgid "Annualized costs breakdown"
-msgstr "Annualisierte Kostenzusammenfassung"
-
-msgid "Sections"
-msgstr "Abschnitte"
-
-msgid "Technical Information"
-msgstr "Technische Daten"
-
-msgid "Financial Information"
-msgstr "Ökonomische Daten"
-
-msgid "Environmental Information"
-msgstr "Ökologische Daten"
-
-msgid "Stacked timeseries by sector"
-msgstr "Gestapelte Zeitreihen pro Sektor"
+msgstr "Eigenverbrauchsquote"
 
 msgid "Renewable factor"
 msgstr "EE-Anteil"

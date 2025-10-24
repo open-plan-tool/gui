@@ -1211,24 +1211,25 @@ def get_costs(simulation, y_variables=None):
             ]
 
     df = df.fillna(0)
-
-    def annualize_capex(capex, wacc, lifetime):
-        ann_capex = (
-            capex * (wacc * (1 + wacc) ** lifetime) / ((1 + wacc) ** lifetime - 1)
-        )
-        return ann_capex
-
     # TODO costs for batteries are skewed as battery capacity does not exists in fancy results
     # TODO costs for dso not implemented yet
     df["capex_total"] = df.apply(
-        lambda x: annualize_capex(
-            ((x.installed_capacity + x.optimized_capacity) * x.capex_var),
-            wacc,
-            x.lifetime,
+        lambda x: (x.installed_capacity + x.optimized_capacity)
+        * x.capex_var
+        * (wacc * (1 + wacc) ** x.lifetime)
+        / ((1 + wacc) ** x.lifetime - 1),
+        axis=1,
+    )
+    project_duration = simulation.scenario.project.economic_data.duration
+    df["capex_initial"] = df.apply(lambda x: x.optimized_capacity * x.capex_var, axis=1)
+    df["capex_replacement"] = df.apply(
+        lambda x: (
+            x.optimized_capacity * x.capex_var * int(project_duration / x.lifetime)
+            if x.lifetime < project_duration
+            else 0
         ),
         axis=1,
     )
-
     df["opex_fix_total"] = df.apply(
         lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
     )
@@ -1246,6 +1247,8 @@ def get_costs(simulation, y_variables=None):
             "opex_fix_total",
             "opex_var_total",
             "fuel_costs_total",
+            "capex_initial",
+            "capex_replacement",
             "parent_asset__name",
         ]
     ].set_index("label")
@@ -1283,6 +1286,7 @@ def graph_costs(
 
     for simulation in simulations:
         df = get_costs(simulation, y_variables)
+        df.drop(columns=["capex_initial", "capex_replacement"], inplace=True)
 
         if arrangement == COSTS_PER_ASSETS:
             x_values = df.index.values.tolist()
