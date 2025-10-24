@@ -27,6 +27,7 @@ from projects.constants import (
     TIMESERIES_UNITS,
     TIMESERIES_CATEGORIES,
     TIMESERIES_TYPES,
+    TIMESERIES_ASSET_TYPES,
 )
 from users.models import CustomUser
 
@@ -311,6 +312,12 @@ class Timeseries(models.Model):
     )
     category = models.CharField(
         max_length=6, choices=TIMESERIES_CATEGORIES, blank=True, null=True
+    )
+    asset_type = models.CharField(
+        max_length=50,
+        choices=TIMESERIES_ASSET_TYPES,
+        blank=True,
+        null=True,
     )
 
     # TODO user or scenario can be both null only if open_source attribute is True --> by way of saving
