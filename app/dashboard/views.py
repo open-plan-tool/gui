@@ -666,29 +666,49 @@ def request_kpi_table(request, proj_id=None):
     # do some unit substitution
     for l in table.values():
         for e in l:
-            if e["unit"] in unit_conv:
-                sub = unit_conv[e["unit"]]
-                e["unit"] = sub
+            for key, replacement in unit_conv.items():
+                if key in e["unit"]:
+                    e["unit"] = e["unit"].replace(key, replacement)
+                    break
 
     if table is not None:
+        empty_tables = []
+
         for subtable_title, subtable_content in table.items():
+            kept_params = []
+
             for param in subtable_content:
-                param["scen_values"] = [
-                    beautify_number(
-                        kpis[scen_id].get(param["id"], "not implemented yet"), 2
-                    )
-                    for scen_id in selected_scenarios
-                ]
-                if param["unit"] == "%":
-                    param["scen_values"] = [
-                        (
-                            round(float(val) * 100, 2)
-                            if val != "not implemented yet"
-                            else val
+                values = []
+                missing = False
+
+                for scen_id in selected_scenarios:
+                    val = kpis.get(scen_id, {}).get(param["id"])
+                    if val is None:
+                        logger.warning(
+                            "KPI %s not found for scenario %s", param["id"], scen_id
                         )
-                        for val in param["scen_values"]
-                    ]
+                        missing = True
+                        break
+
+                    if param["unit"] == "%":
+                        val = round(float(val) * 100, 2)
+                    values.append(beautify_number(val, 2))
+
+                if missing:
+                    continue
+
+                param["scen_values"] = values
                 param["description"] = KPI_helper.get_doc_definition(param["id"])
+                kept_params.append(param)
+
+            subtable_content[:] = kept_params
+
+            if not kept_params:
+                empty_tables.append(subtable_title)
+
+        for subtable in empty_tables:
+            table.pop(subtable, None)
+
         answer = JsonResponse(
             {"data": table, "hdrs": [_("Indicator")] + scen_names},
             status=200,
@@ -732,14 +752,14 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
             "name": str(idx),
             "description": "",
             "unit": "",
-            "scen_values": row.round(2).tolist(),
+            "scen_values": [f"{v:,.1f}" for v in row],
         }
 
     answer = JsonResponse(
         {
             "data": table,
             "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs.columns],
-            "title": _("Overall costs breakdown"),
+            "title": _("Annualized costs breakdown"),
         },
         status=200,
         content_type="application/json",
