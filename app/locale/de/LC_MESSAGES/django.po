@@ -4982,3 +4982,24 @@ msgstr "Zusammenfassung des zweiten Stakeholder-Workshops zu Tool-Funktionalitä
 
 msgid "Summary of the first stakeholder workshop on tool requirements"
 msgstr "Zusammenfassung des ersten Stakeholder-Workshops zu Werkzeuganforderungen"
+
+msgid "Monday"
+msgstr "Montag"
+
+msgid "Tuesday"
+msgstr "Dienstag"
+
+msgid "Wednesday"
+msgstr "Mittwoch"
+
+msgid "Thursday"
+msgstr "Donnerstag"
+
+msgid "Friday"
+msgstr "Freitag"
+
+msgid "Saturday"
+msgstr "Samstag"
+
+msgid "Sunday"
+msgstr "Sonntag"
