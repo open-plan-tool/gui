@@ -1135,7 +1135,12 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
-
+    # TODO delete once bug is fixed
+    msg = _(
+        "Due to an ongoing restructuring, the simulation server may be temporarily unreachable. If your simulation "
+        "returns an error with the message 'None', please try again."
+    )
+    messages.warning(request, msg)
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
@@ -1596,6 +1601,13 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
 @require_http_methods(["GET"])
 def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     scenario = Scenario.objects.get(id=scen_id)
+
+    # TODO delete once bug is fixed
+    if "dso" in asset_type_name:
+        msg = _(
+            "Due to the ongoing restructuring, the use of variable costs with time series data in the DSO components is not functioning as intended."
+        )
+        messages.warning(request, msg)
 
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
