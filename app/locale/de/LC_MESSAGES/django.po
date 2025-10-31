@@ -5003,3 +5003,11 @@ msgstr "Samstag"
 
 msgid "Sunday"
 msgstr "Sonntag"
+
+msgid "Due to an ongoing restructuring, the simulation server may be temporarily unreachable. If your simulation "
+       "returns an error with the message 'None', please try again."
+msgstr "Aufgrund einer laufenden Umstrukturierung ist der Simulationsserver möglicherweise vorübergehend nicht erreichbar. "
+"Wenn Ihre Simulation die Fehlermeldung 'None' zurückgibt, versuchen Sie es bitte erneut.“"
+
+msgid "Due to the ongoing restructuring, the use of variable costs with time series data in the DSO components is not functioning as intended."
+msgstr "Aufgrund der laufenden Umstrukturierung funktioniert die Verwendung von variablen Kosten mit Zeitreihendaten in den DSO-Komponenten nicht wie vorgesehen."
