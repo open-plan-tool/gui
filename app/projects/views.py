@@ -1,4 +1,8 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
+import tempfile
+from pathlib import Path
+import zipfile
+
 from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import (
@@ -1358,6 +1362,35 @@ def scenario_export(request, proj_id):
             json.dumps(scenario_data), content_type="application/json"
         )
         response["Content-Disposition"] = "attachment; filename=scenario.json"
+    return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def scenario_export_as_datapackage(request, scen_id):
+
+    scenario = get_object_or_404(Scenario, id=int(scen_id))
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(temp_dir)
+        # write the content of the scenario into a temp directory
+        scenario.to_datapackage(destination_path)
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+            for file_path in destination_path.rglob("*"):  # Recursively walk all files
+                if file_path.is_file():
+                    # Relative path inside ZIP
+                    arcname = file_path.relative_to(destination_path)
+                    with open(file_path, "rb") as f:
+                        zip_file.writestr(str(arcname), f.read())
+
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="datapackage_scenario_{scen_id}.zip"'
+        )
+
     return response
 
 
