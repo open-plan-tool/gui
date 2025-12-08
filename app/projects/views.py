@@ -1371,6 +1371,9 @@ def scenario_export_as_datapackage(request, scen_id):
 
     scenario = get_object_or_404(Scenario, id=int(scen_id))
 
+    if scenario.project.user != request.user:
+        raise PermissionDenied
+
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
         # write the content of the scenario into a temp directory
