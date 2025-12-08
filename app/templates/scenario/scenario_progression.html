@@ -36,10 +36,16 @@
                 </ul>
             </div>
             <div class="wizard__back">
-          <div>
-            <a href="{% url 'project_search' proj_id %}">{% translate "My projects" %}</a>
-          </div>
-        </div>
+							<div>
+								<a href="{% url 'project_search' proj_id %}">{% translate "My projects" %}</a>
+							</div>
+							{% if scen_id %}
+							<div>
+								<a href="{% url 'scenario_export_as_datapackage' scen_id %}">{% translate "Export as datapackage" %}</a>
+							</div>
+							{% endif %}
+						</div>
+
         </div>
     </section>
 
