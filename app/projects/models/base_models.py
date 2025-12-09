@@ -318,8 +318,9 @@ class Scenario(models.Model):
         # Create a folder with a datapackage structure
         scenario_folder = destination_path / f"scenario_{self.id}"
 
-        elements_folder = scenario_folder / "data" / "elements"
-        sequences_folder = scenario_folder / "data" / "sequences"
+        data_folder = scenario_folder / "data"
+        elements_folder = data_folder / "elements"
+        sequences_folder = data_folder / "sequences"
 
         # create subfolders
         (scenario_folder / "scripts").mkdir(parents=True)
@@ -328,7 +329,7 @@ class Scenario(models.Model):
 
         # Save the project specifics
         proj = self.project
-        out_path = elements_folder / f"project.csv"
+        out_path = data_folder / f"project.csv"
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         df = pd.DataFrame([proj.to_datapackage()])
         df.drop_duplicates("name").to_csv(out_path, index=False)
