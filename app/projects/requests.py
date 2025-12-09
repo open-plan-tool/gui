@@ -2,7 +2,6 @@ from datetime import datetime
 import httpx as requests
 import json
 import numpy as np
-import time
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
@@ -25,11 +24,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def mvs_simulation_request(data: dict, max_retries: int = 5, delay_seconds: int = 2):
+def mvs_simulation_request(data: dict):
+
     headers = {"content-type": "application/json"}
     payload = json.dumps(data)
 
-    def _post_once():
+    try:
         response = requests.post(
             MVS_POST_URL,
             data=payload,
@@ -37,81 +37,18 @@ def mvs_simulation_request(data: dict, max_retries: int = 5, delay_seconds: int 
             proxies=PROXY_CONFIG,
             verify=False,
         )
+
+        # If the response was successful, no Exception will be raised
         response.raise_for_status()
-        return response
-
-    def _extract_token(resp_json: dict):
-        # try common keys without changing upstream API expectations
-        return resp_json.get("id")
-
-    def _check(token: str):
-        # return (ok: bool, status_code: int)
-        try:
-            r = requests.get(MVS_GET_URL + token, proxies=PROXY_CONFIG, verify=False)
-            # if it’s a 500, we don’t raise — we want to see the 500 explicitly
-            if r.status_code == 500:
-                return False, 500
-            r.raise_for_status()
-            return True, r.status_code
-        except requests.HTTPError as e:
-            status = getattr(e.response, "status_code", None)
-            # treat any other HTTP error as non-500 failure (don’t retry POST)
-            return False, status or 0
-        except Exception:
-            return False, 0
-
-    try:
-        # initial attempt
-        post_resp = _post_once()
-        post_json = json.loads(post_resp.text)
-        token = _extract_token(post_json)
-
-        if not token:
-            logger.info(
-                "The simulation was sent successfully to MVS API (no token found to check)."
-            )
-            return post_json
-
-        ok, code = _check(token)
-        if ok or code != 500:
-            logger.info("The simulation was sent successfully to MVS API.")
-            return post_json
-
-        # retry path only when immediate check returned 500
-        for attempt in range(1, max_retries + 1):
-            logger.warning(
-                "Check returned 500; re-sending simulation (attempt %d/%d)...",
-                attempt,
-                max_retries,
-            )
-            time.sleep(delay_seconds)
-
-            post_resp = _post_once()
-            post_json = json.loads(post_resp.text)
-            token = _extract_token(post_json)
-
-            if not token:
-                logger.info(
-                    "Re-sent simulation successfully (no token found to check)."
-                )
-                return post_json
-
-            ok, code = _check(token)
-            if ok or code != 500:
-                logger.info("Re-sent simulation successfully; check no longer 500.")
-                return post_json
-
-        logger.error(
-            "Check kept returning 500 after %d retries; giving up.", max_retries
-        )
-        return None
-
     except requests.HTTPError as http_err:
         logger.error(f"HTTP error occurred: {http_err}")
         return None
     except Exception as err:
         logger.error(f"Other error occurred: {err}")
         return None
+    else:
+        logger.info("The simulation was sent successfully to MVS API.")
+        return json.loads(response.text)
 
 
 def mvs_simulation_check_status(token):
