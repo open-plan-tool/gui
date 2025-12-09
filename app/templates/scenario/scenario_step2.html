@@ -217,6 +217,12 @@
         // warn in case of empty model
         if (node_list.length == 0 && !confirm('No components in model. Continue?'))
             return;
+        // Check that all nodes are connected to at least one bus
+        if (!validateNodeConnections(editor)) {
+            console.log("connections are false")
+            return;
+        }
+
         // Check if there are duplicate node names in the model
         // and prevent user from saving the model if there are.
         // Might also be handled in backend when saving names.
