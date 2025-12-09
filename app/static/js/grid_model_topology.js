@@ -773,7 +773,7 @@ function validateNodeConnections(editor) {
             continue;
         }
         // Bus
-        if (name.startsWith("bus--")) {
+        if (name.startsWith("bus")) {
             if (inputCount < 1 || outputCount < 1) {
                 alert(`Bus "${node.data.name}" must have at least 1 input AND 1 output.`);
                 return false;
