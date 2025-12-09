@@ -1135,12 +1135,6 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
-    # TODO delete once bug is fixed
-    msg = _(
-        "Due to an ongoing restructuring, the simulation server may be temporarily unreachable. If your simulation "
-        "returns an error with the message 'None', please try again."
-    )
-    messages.warning(request, msg)
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if (scenario.project.user != request.user) and (
