@@ -591,6 +591,16 @@ editor.on('nodeMoved', _ => {
     document.getElementById('btn-save')?.classList.remove('disabled');
 });
 
+function getBusType (bus) {
+    if (!bus || !bus.data) return null;
+    // Try common places
+    return (
+        bus.data.bustype ??
+        bus.data.data?.bustype ??
+        bus.data?.form?.bustype ??
+        null
+    );
+}
 
 function updateBusConnections(htmlCollection, busType) {
     // adjust color of all items in htmlCollection according to busType (change classes)
@@ -615,7 +625,7 @@ editor.on('connectionCreated', function (connection) {
     if (Boolean(busIn) ^ Boolean(busOut)) {
         // success
         let bus = busIn || busOut;
-        let busType = bus.data.bustype;
+        let busType = getBusType(bus);
         let busHtml = document.getElementsByClassName('node_in_node-' + nodeIn.id + ' node_out_node-' + nodeOut.id);
         updateBusConnections(busHtml, busType);
     } else {
@@ -627,7 +637,6 @@ editor.on('connectionCreated', function (connection) {
     // change: enable save button
     document.getElementById('btn-save')?.classList.remove('disabled');
 });
-
 
 editor.on('connectionRemoved', _ => {
     // change: enable save button
