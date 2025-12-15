@@ -121,7 +121,7 @@ class Project(models.Model):
         dp["discount_factor"] = dp.pop("discount")
         dp["lifetime"] = dp.pop("duration")
         dp["shortage_cost"] = 999
-        dp["excess_costs"] = 99
+        dp["excess_cost"] = 99
         return dp
 
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
