@@ -2,8 +2,6 @@
 import tempfile
 from pathlib import Path
 import zipfile
-import datapackage as dp
-from oemof.tabular.datapackage import building
 
 
 from django.contrib.auth.decorators import login_required
@@ -1381,18 +1379,6 @@ def scenario_export_as_datapackage(request, scen_id):
         destination_path = Path(temp_dir)
         # write the content of the scenario into a temp directory
         scenario_folder = scenario.to_datapackage(destination_path)
-
-        building.infer_metadata_from_data(
-            package_name=f"scenario_{scen_id}",
-            path=scenario_folder,
-        )
-        dp_json = scenario_folder / "datapackage.json"
-
-        p = dp.Package(str(dp_json))
-        building.infer_package_foreign_keys(p)
-        p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
-        p.commit()
-        p.save(dp_json)
 
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w") as zip_file:
