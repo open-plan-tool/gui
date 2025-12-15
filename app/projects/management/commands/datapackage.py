@@ -24,21 +24,17 @@ class Command(BaseCommand):
             scenario_folder = destination_path / f"scenario_{scen_id}"
             if scenario_folder.exists():
                 shutil.rmtree(scenario_folder)
-            scenario.to_datapackage(destination_path)
 
             dp_json = scenario_folder / "datapackage.json"
 
             if dp_json.exists():
                 print("Only inferring metadata")
-                p = dp.Package(dp_json)
-                building.infer_package_foreign_keys(p)
+                p = dp.Package(str(dp_json))
+                building.infer_package_foreign_keys(p, fk_targets=["project"])
                 p.descriptor["resources"].sort(key=lambda x: (x["path"], x["name"]))
                 p.commit()
                 p.save(dp_json)
 
             else:
                 print("Creating datapackage.json")
-                building.infer_metadata_from_data(
-                    package_name=f"scenario_{scen_id}",
-                    path=scenario_folder,
-                )
+                scenario.to_datapackage(destination_path)
