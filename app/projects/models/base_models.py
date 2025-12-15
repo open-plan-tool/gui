@@ -807,6 +807,7 @@ class Asset(TopologyNode):
                 qs_bus = self.connectionlink_set.filter(
                     flow_direction=direction, asset_connection_port=port
                 )
+                # TODO use bus names for the resource column label according to a convention with the facade attributes
                 if qs_bus.exists():
                     connection = qs_bus.get()
                     dp[field] = connection.bus.name
