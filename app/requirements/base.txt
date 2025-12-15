@@ -8,12 +8,12 @@ django-jsonview==2.0.0
 django-q==1.3.4
 django-sass-processor==1.2.2
 exchangelib==4.4.0
+git+https://github.com/oemof/oemof-tabular@dev
 gunicorn==20.0.4
 httpx==0.23.0
 jsonschema==4.4.0
 libsass==0.21.0
 numpy>=1.22.4
-oemof-tabular==0.0.6.dev0
 oemof-thermal==0.0.5
 openpyxl==3.0.10
 plotly==5.6.0
