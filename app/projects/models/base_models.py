@@ -391,6 +391,8 @@ class Scenario(models.Model):
             # TODO check if there are column duplicates
             df.set_index("timeindex").to_csv(out_path, index=True)
 
+        return scenario_folder
+
 
 def get_default_timeseries():
     return list([])
