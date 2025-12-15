@@ -6,6 +6,8 @@ from datetime import timedelta
 import pandas as pd
 from pathlib import Path
 import numpy as np
+import datapackage as dp
+from oemof.tabular.datapackage import building
 
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
@@ -391,6 +393,12 @@ class Scenario(models.Model):
             # TODO check if there are column duplicates
             df.set_index("timeindex").to_csv(out_path, index=True)
 
+        # creating datapackage.json metadata file at the root of the datapackage
+        building.infer_metadata_from_data(
+            package_name=f"scenario_{self.id}",
+            path=scenario_folder,
+            fk_targets=["project"],
+        )
         return scenario_folder
 
 
