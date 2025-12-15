@@ -936,7 +936,8 @@ class Bus(TopologyNode):
 
     def to_datapackage(self):
         dm = model_to_dict(self, fields=["type", "name"])
-        dm["facade"] = "bus"
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
         dm["excess"] = "False"
         dm["excess_costs"] = "0.0"
