@@ -768,7 +768,10 @@ class Asset(TopologyNode):
     def to_datapackage(self):
         """Return the asset's attributes in a datapackage form"""
         dp = {"type": self.asset_type.asset_type}
-        if self.asset_type.asset_type not in ("demand"):
+        if (
+            "demand" not in self.asset_type.asset_type
+            and "dso" not in self.asset_type.asset_type
+        ):
             dp["project_data"] = self.scenario.project.name
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
