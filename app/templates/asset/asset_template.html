@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<details>
+  <summary>{% translate "Template" %}</summary>
+  <div class="row">
+    <div class="col">
+      <h4>{% translate "Use existing" %}</h4>
+      <select id="template-select" style="width:100%">
+        <option value="">---</option>
+        {% for template in templates %}
+          <option value="{{ template.id }}" title="{{ template.desc }}">{{ template.display_name }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn--medium" onclick="load_template(event)">{% translate "Load from template" %}</button>
+    </div>
+    <div class="col">
+      <h4>{% translate "Create from asset" %}</h4>
+      <div style="display:grid">
+        <input name="template-name" placeholder="{% translate 'Name (required)' %}" required>
+        <textarea name="template-desc" placeholder="{% translate 'Add a description...' %}"></textarea>
+      </div>
+      <div>
+        <button name="template-project" class="btn btn--medium" onclick="save_template(event)">
+          {% translate "Save for project" %}
+        </button>
+        <button name="template-account" class="btn btn--medium" onclick="save_template(event)">
+          {% translate "Save for account" %}
+        </button>
+        <div>
+          <input type="checkbox" name="template-request_global" id="chk-global">
+          <label for="chk-global">{% translate "Request to make this standard" %}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</details>

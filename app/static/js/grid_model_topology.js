@@ -369,7 +369,7 @@ function submitForm() {
         postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
 
     // send the form of the asset to be saved in database (projects/views.py::asset_create_or_update)
-    fetch(postUrl, {
+    return fetch(postUrl, {
         method: 'POST',
         headers: {'X-CSRFToken': csrfToken},
         body: formData,
@@ -390,11 +390,13 @@ function submitForm() {
             if(copCollapseDOM){
                 copCollapse.hide();
             }
+            return Promise.resolve();
         } else {
             // assign the content of the form to the form tag of the modal
             guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
             // make certain to show form
             guiModal.show();
+            return Promise.reject();
         }
     }).catch(error => {
         console.error(error);
@@ -754,5 +756,79 @@ function computeCOP(event){
     }).catch(error => {
         console.error(error);
         alert(error.message);
+    });
+}
+
+/* templates */
+function load_template(e) {
+    e.preventDefault();
+    let template_select = document.getElementById('template-select');
+    if (!template_select?.value) {
+        alert("No template selected");
+        return;
+    }
+    let url = templateUrl + '?id=' + template_select.value;
+    const form = document.getElementById("assetForm");
+    if (!form) {
+        console.error("Form not found");
+        return;
+    }
+    fetch(url).then(response => response.json()).then(data => {
+        for (let [key, value] of Object.entries(data)) {
+            let inp = form[key];
+            if (inp)
+                inp.value = value;
+            else
+                console.log("Skip input field '" + key + "' (not found)");
+        }
+        updateInputTimeseries();
+        alert("Template '" + template_select.selectedOptions[0].textContent + "' loaded");
+    }).catch(e => {
+        console.error("Error fetching template", e);
+    });
+}
+
+function save_template(e) {
+    e.preventDefault();
+    const assetFormData = new FormData(e.target.form);
+    let name = assetFormData.get("template-name");
+    if (!name) {
+        alert("Need template name");
+        return;
+    }
+    let desc = assetFormData.get("template-desc");
+    let data = {};
+    const ignoreKeys = [
+        "name", "csrfmiddlewaretoken",
+        "template-name", "template-desc", "template-request_global",
+    ];
+    assetFormData.forEach((value, key) => {
+        if (ignoreKeys.includes(key))
+            return;
+        // only save string values, not objects (like files)
+        if (typeof value === "string")
+            data[key] = value;
+    });
+    const templateFormData = new FormData();
+    templateFormData.append('name', name);
+    templateFormData.append('desc', desc);
+    // visibility type from button name: template-project or template-account
+    templateFormData.append('visibility', e.target.name.substring(9));
+    templateFormData.append('request_global', document.getElementById("chk-global")?.checked);
+    templateFormData.append('asset_type', guiModalDOM.getAttribute("data-node-type"));
+    templateFormData.append('data', JSON.stringify(data));
+    submitForm().then(_ => {
+        fetch(templateUrl, {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrfToken},
+            body: templateFormData,
+        }).then(response => {
+            if (response.status != 201)
+                return Promise.reject(response.statusText);
+            // successfully created
+            alert("Template '" + name + "' saved");
+        }).catch(e => {
+            console.error("Error saving template", e);
+        });
     });
 }

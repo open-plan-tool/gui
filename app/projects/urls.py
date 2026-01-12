@@ -155,7 +155,7 @@ urlpatterns = [
         name="get_constant_timeseries_id",
     ),
     re_path(
-        "get/constant/timeseries/id/(?P<ts_length>\d+)/value/(?P<value>\d+(\.\d+)?)/$",
+        r"get/constant/timeseries/id/(?P<ts_length>\d+)/value/(?P<value>\d+(\.\d+)?)/$",
         get_constant_timeseries_id,
         name="get_constant_timeseries_id",
     ),
@@ -209,6 +209,12 @@ urlpatterns = [
         r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_cops_create_or_update,
         name="asset_cops_create_or_update",
+    ),
+    # templates
+    path(
+        "project/<int:project_id>/template/",
+        template_get_or_create,
+        name="template_get_or_create",
     ),
     # ParameterChangeTracker (track of simulated scenario changes)
     path(
