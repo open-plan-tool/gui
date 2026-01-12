@@ -1,6 +1,9 @@
 #!/bin/bash
 echo COLLECTSTATIC
 python /src/manage.py collectstatic --noinput
+echo PUBLICATIONS
+mkdir /src/cdn_static_root/assets/publications
+cp /var/publications/*.pdf /src/cdn_static_root/assets/publications/
 echo MIGRATE
 python /src/manage.py showmigrations
 python /src/manage.py migrate
