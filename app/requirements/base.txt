@@ -1,11 +1,11 @@
-Django==4.2.4
+Django==5.2.10
 django-bootstrap-modal-forms==2.0.0
 django-compressor==4.1
 django-crispy-forms==1.9.2
 django-environ
 django-extensions==3.0.9
 django-jsonview==2.0.0
-django-q==1.3.4
+django-q2
 django-sass-processor==1.2.2
 git+https://github.com/oemof/oemof-datapackage.git@fix/infer_datapackage
 gunicorn==20.0.4
