@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "dashboard.apps.DashboardConfig",
     # 3rd Party
     "crispy_forms",
+    "crispy_bootstrap4",
     "django_q",
 ]
 
@@ -97,6 +98,8 @@ FILE_UPLOAD_HANDLERS = [
 ROOT_URLCONF = "epa.urls"
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 TEMPLATES = [
     {
