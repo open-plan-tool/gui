@@ -5,6 +5,7 @@ import json
 import io
 import csv
 from django.db.models import Q
+from django.utils.html import format_html
 from openpyxl import load_workbook
 import numpy as np
 
@@ -854,6 +855,8 @@ class AssetCreateForm(OpenPlanModelForm):
                 self.fields[field].label = self.fields[field].label.replace(
                     ":unit:", self.asset_type.unit
                 )
+
+            self.fields[field].label = format_html(self.fields[field].label)
 
         """ ----------------------------------------------------- """
 
