@@ -631,6 +631,7 @@ def load_scenario_from_dict(model_data, user, project=None):
                         input_timeseries[k] = datetime.datetime.strptime(
                             input_timeseries[k], "%Y-%m-%d %H:%M:%S"
                         )
+                input_timeseries["scenario"] = scenario
                 input_ts, created = Timeseries.objects.get_or_create(
                     user=user, **input_timeseries
                 )
