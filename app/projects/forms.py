@@ -834,7 +834,7 @@ class AssetCreateForm(OpenPlanModelForm):
         """
         for field in self.fields:
             if field == "renewable_asset" and self.asset_type_name in RENEWABLE_ASSETS:
-                self.fields[field].initial = True
+                self.initial[field] = True
             self.fields[field].widget.attrs.update({f"df-{field}": ""})
             if field == "input_timeseries":
                 self.fields[field].required = self.is_input_timeseries_empty()
@@ -1130,15 +1130,15 @@ class StorageForm(AssetCreateForm):
         asset_type_name = kwargs.pop("asset_type", None)
         super(StorageForm, self).__init__(*args, asset_type="capacity", **kwargs)
         self.fields["dispatchable"].widget = forms.HiddenInput()
-        self.fields["dispatchable"].initial = True
+        self.initial["dispatchable"] = True
 
         if asset_type_name != "hess":
             self.fields["fixed_thermal_losses_relative"].widget = forms.HiddenInput()
-            self.fields["fixed_thermal_losses_relative"].initial = 0
+            self.initial["fixed_thermal_losses_relative"] = 0
             self.fields["fixed_thermal_losses_absolute"].widget = forms.HiddenInput()
-            self.fields["fixed_thermal_losses_absolute"].initial = 0
+            self.initial["fixed_thermal_losses_absolute"] = 0
             self.fields["thermal_loss_rate"].widget = forms.HiddenInput()
-            self.fields["thermal_loss_rate"].initial = 0
+            self.initial["thermal_loss_rate"] = 0
         else:
             field_name = "fixed_thermal_losses_relative"
             help_text = self.fields[field_name].help_text
