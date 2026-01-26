@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 ### Fixed
-- Fix project import error caused by duplicate timeseries
+- Fix project import error caused by duplicate timeseries.
+- Fix energy system design window snapping on drag.
 
 ## [v2.0.0] – 2026-01-12
 ### Added

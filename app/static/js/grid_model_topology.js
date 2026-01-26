@@ -551,10 +551,13 @@ function zoomToFit() {
     const offsetX = (editorWidth  - (maxX - minX + padding * 2) * zoom) / 2 - (minX - padding) * zoom;
     const offsetY = (editorHeight - (maxY - minY + padding * 2) * zoom) / 2 - (minY - padding) * zoom;
 
+    editor.canvas_x = offsetX;
+    editor.canvas_y = offsetY;
+
     editor.zoom = zoom;
-    editor.precanvas_x = offsetX;
-    editor.precanvas_y = offsetY;
+
     editor.precanvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+    editor.zoom_refresh();
 }
 
 
