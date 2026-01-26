@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Updated favicon and project text to all say OpenPlan and use the most current logo.
+
 ### Fixed
 - Fix project import error caused by duplicate timeseries.
 - Fix energy system design window snapping on drag.
