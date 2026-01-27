@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.0.1] – 2026-01-27
 ### Changed
 - Updated favicon and project text to all say OpenPlan and use the most current logo.
 
