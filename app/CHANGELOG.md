@@ -8,6 +8,7 @@
 - Fix project import error caused by duplicate timeseries.
 - Fix energy system design window snapping on drag.
 - Fix YouTube redirection link.
+- Fix field validation error on heat storage.
 
 ## [v2.0.0] – 2026-01-12
 ### Added
