@@ -551,10 +551,13 @@ function zoomToFit() {
     const offsetX = (editorWidth  - (maxX - minX + padding * 2) * zoom) / 2 - (minX - padding) * zoom;
     const offsetY = (editorHeight - (maxY - minY + padding * 2) * zoom) / 2 - (minY - padding) * zoom;
 
+    editor.canvas_x = offsetX;
+    editor.canvas_y = offsetY;
+
     editor.zoom = zoom;
-    editor.precanvas_x = offsetX;
-    editor.precanvas_y = offsetY;
+
     editor.precanvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+    editor.zoom_refresh();
 }
 
 
@@ -755,4 +758,45 @@ function computeCOP(event){
         console.error(error);
         alert(error.message);
     });
+}
+
+
+function validateNodeConnections(editor) {
+    const nodes = editor.export().drawflow.Home.data;
+
+    for (const nodeId in nodes) {
+        const node = nodes[nodeId];
+        const name = node.name; // "...-demand", "bus--...", sources are the rest
+        let inputCount = 0;
+        let outputCount = 0;
+
+        for (const inputName in node.inputs) {
+            inputCount += node.inputs[inputName].connections.length;
+        }
+        for (const outputName in node.outputs) {
+            outputCount += node.outputs[outputName].connections.length;
+        }
+        // Sink
+        if (name.endsWith("demand")) {
+            if (inputCount < 1) {
+                alert(`Sink "${node.data.name}" must have at least 1 input.`);
+                return false;
+            }
+            continue;
+        }
+        // Bus
+        if (name.startsWith("bus")) {
+            if (inputCount < 1 || outputCount < 1) {
+                alert(`Bus "${node.data.name}" must have at least 1 input AND 1 output.`);
+                return false;
+            }
+            continue;
+        }
+        // Source
+        if (outputCount < 1) {
+            alert(`Source "${node.data.name}" must have at least 1 output.`);
+            return false;
+        }
+    }
+    return true;
 }

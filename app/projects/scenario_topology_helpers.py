@@ -1,6 +1,8 @@
 import uuid
 import numpy as np
 import datetime
+
+from django.forms import MultiValueField
 from django.shortcuts import get_object_or_404
 from projects.models import (
     Bus,
@@ -116,7 +118,7 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
                 if pi.parameter_type == "vector":
                     old_value = (old_value, None)
 
-                if pi.name == "input_timeseries":
+                if isinstance(form.fields[pi.name], MultiValueField):
                     new_value = str(new_value)
                 else:
                     old_value = form.fields[pi.name].clean(old_value)
@@ -631,6 +633,7 @@ def load_scenario_from_dict(model_data, user, project=None):
                         input_timeseries[k] = datetime.datetime.strptime(
                             input_timeseries[k], "%Y-%m-%d %H:%M:%S"
                         )
+                input_timeseries["scenario"] = scenario
                 input_ts, created = Timeseries.objects.get_or_create(
                     user=user, **input_timeseries
                 )
