@@ -335,6 +335,38 @@ class Scenario(models.Model):
         df = pd.DataFrame([proj.to_datapackage()])
         df.drop_duplicates("name").to_csv(out_path, index=False)
 
+        # List all components of the scenario (except the busses)
+        qs_assets = Asset.objects.filter(scenario=self)
+        # List all distinct components' assettypes (or facade name) which are not children
+        # The children assets are going to be processed by the parent asset `to_datapackage` method
+        facade_names = (
+            qs_assets.filter(parent_asset__isnull=True)
+            .distinct()
+            .values_list("asset_type__asset_type", flat=True)
+        )
+
+        bus_resource_records = []
+        profile_resource_records = {}
+        for facade_name in facade_names:
+            resource_records = []
+            for i, asset in enumerate(
+                qs_assets.filter(asset_type__asset_type=facade_name)
+            ):
+                resource_rec, bus_resource_rec, profile_resource_rec = (
+                    asset.to_datapackage()
+                )
+                resource_records.append(resource_rec)
+                # those constitute the busses and sequences used by this asset
+                bus_resource_records.extend(bus_resource_rec)
+                profile_resource_records.update(profile_resource_rec)
+
+            # Add the resource's instances to a file in the "elements" folder of the datapackage
+            if resource_records:
+                out_path = elements_folder / f"{facade_name}.csv"
+                Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+                df = pd.DataFrame(resource_records)
+                df.to_csv(out_path, index=False)
+
 def get_default_timeseries():
     return list([])
 
