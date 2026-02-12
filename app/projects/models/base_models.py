@@ -112,6 +112,17 @@ class Project(models.Model):
             dm["scenario_set_data"] = scenario_data
         return dm
 
+    def to_datapackage(self):
+        """"""
+        dp = model_to_dict(self.economic_data, exclude=["id", "currency"])
+        dp["name"] = self.name
+        dp["type"] = "project"
+        dp["discount_factor"] = dp.pop("discount")
+        dp["lifetime"] = dp.pop("duration")
+        dp["shortage_cost"] = 999
+        dp["excess_cost"] = 99
+        return dp
+
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
         user = None
         success = False
@@ -316,6 +327,13 @@ class Scenario(models.Model):
         (scenario_folder / "scripts").mkdir(parents=True)
         elements_folder.mkdir(parents=True)
         sequences_folder.mkdir(parents=True)
+
+        # Save the project specifics
+        proj = self.project
+        out_path = data_folder / f"project.csv"
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        df = pd.DataFrame([proj.to_datapackage()])
+        df.drop_duplicates("name").to_csv(out_path, index=False)
 
 def get_default_timeseries():
     return list([])
