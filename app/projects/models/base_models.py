@@ -1,7 +1,13 @@
 import datetime
 import json
+import logging
 import uuid
 from datetime import timedelta
+import pandas as pd
+from pathlib import Path
+import numpy as np
+from oemof.datapackage.datapackage import building
+
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
@@ -297,6 +303,19 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
+    def to_datapackage(self, destination_path):
+
+        # Create a folder with a datapackage structure
+        scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
+
+        data_folder = scenario_folder / "data"
+        elements_folder = data_folder / "elements"
+        sequences_folder = data_folder / "sequences"
+
+        # create subfolders
+        (scenario_folder / "scripts").mkdir(parents=True)
+        elements_folder.mkdir(parents=True)
+        sequences_folder.mkdir(parents=True)
 
 def get_default_timeseries():
     return list([])
