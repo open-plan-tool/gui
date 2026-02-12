@@ -778,19 +778,64 @@ class Asset(TopologyNode):
             dp["project_data"] = self.scenario.project.name
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
-        for field in self.asset_type.visible_fields:
-            value = getattr(self, field)
-            # if the field is a candidate for a scalar/list
-            if isinstance(value, str) and field != "name":
-                value = json.loads(value)
-                if isinstance(value, list):
-                    col = f"{self.name}__{field}"
-                    profile_resource_rec[col] = value
+
+        # Storage assets are the only one to have children (namely `capacity`, `charge` and `discharge`
+        qs_children = Asset.objects.filter(parent_asset__id=self.id)
+        if qs_children.exists():
+            # Only keep the values from the capacity children asset of the storage
+            capacity = qs_children.get(asset_type__asset_type="capacity")
+            for attribute in [
+                "capex_fix",
+                "capex_var",
+                "opex_fix",
+                "opex_var",
+                "lifetime",
+                "crate",
+                "efficiency",
+                "soc_max",
+                "soc_min",
+                "maximum_capacity",
+                "optimize_cap",
+                "installed_capacity",
+                "age_installed",
+                "thermal_loss_rate",  # only for hess
+                "fixed_thermal_losses_relative",  # only for hess
+                "fixed_thermal_losses_absolute",  # only for hess
+            ]:
+                setattr(self, attribute, getattr(capacity, attribute))
+
+            if self.asset_type.asset_type != "hess":
+                attributes = [
+                    f
+                    for f in AssetType.objects.get(asset_type="capacity").visible_fields
+                    if f
+                    not in (
+                        "thermal_loss_rate",
+                        "fixed_thermal_losses_relative",
+                        "fixed_thermal_losses_absolute",
+                    )
+                ]
+            else:
+                attributes = AssetType.objects.get(asset_type="capacity").visible_fields
+        else:
+            attributes = self.asset_type.visible_fields
+
+        for field in attributes:
+            if (
+                field != "dispatchable"
+            ):  # TODO remove this when `dispatchable` not a visible field anymore
+                value = getattr(self, field)
+                # if the field is a candidate for a scalar/list
+                if isinstance(value, str) and field != "name":
+                    value = json.loads(value)
+                    if isinstance(value, list):
+                        col = f"{self.name}__{field}"
+                        profile_resource_rec[col] = value
+                        value = col
+                elif isinstance(value, Timeseries):
+                    col = value.name
+                    profile_resource_rec[col] = value.values
                     value = col
-            elif isinstance(value, Timeseries):
-                col = value.name
-                profile_resource_rec[col] = value.values
-                value = col
 
             dp[field] = value
 
