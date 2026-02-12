@@ -395,6 +395,16 @@ class Scenario(models.Model):
                 )
             # TODO check if there are column duplicates
             df.set_index("timeindex").to_csv(out_path, index=True)
+
+        # creating datapackage.json metadata file at the root of the datapackage
+        building.infer_metadata_from_data(
+            package_name=f"scenario_{self.name}".replace(" ", "_"),
+            path=scenario_folder,
+            fk_targets=["project"],
+        )
+        return scenario_folder
+
+
 def get_default_timeseries():
     return list([])
 
