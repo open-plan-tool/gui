@@ -373,6 +373,28 @@ class Scenario(models.Model):
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
             df = pd.DataFrame(bus_resource_records)
             df.drop_duplicates("name").to_csv(out_path, index=False)
+
+        # Save all profiles to a sequences resource
+        if profile_resource_records:
+            out_path = sequences_folder / f"profiles.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            # add timestamps to the profiles
+            profile_resource_records["timeindex"] = self.get_timestamps()
+            try:
+                df = pd.DataFrame(profile_resource_records)
+            except ValueError as e:
+                # If not all profiles have the same length we pad the shorter profiles with np.nan
+                max_len = max(len(v) for v in profile_resource_records.values())
+                profile_resource_records = {
+                    k: v + [np.nan] * (max_len - len(v))
+                    for k, v in profile_resource_records.items()
+                }
+                df = pd.DataFrame(profile_resource_records)
+                logging.warning(
+                    f"Some profiles have more timesteps that other profiles in scenario {self.name}({self.id}) --> the shorter profiles will be expanded with NaN values"
+                )
+            # TODO check if there are column duplicates
+            df.set_index("timeindex").to_csv(out_path, index=True)
 def get_default_timeseries():
     return list([])
 
