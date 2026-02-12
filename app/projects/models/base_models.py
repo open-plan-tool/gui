@@ -367,6 +367,12 @@ class Scenario(models.Model):
                 df = pd.DataFrame(resource_records)
                 df.to_csv(out_path, index=False)
 
+        # Save all unique busses to a elements resource
+        if bus_resource_records:
+            out_path = elements_folder / f"bus.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            df = pd.DataFrame(bus_resource_records)
+            df.drop_duplicates("name").to_csv(out_path, index=False)
 def get_default_timeseries():
     return list([])
 
