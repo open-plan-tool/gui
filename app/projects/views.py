@@ -836,7 +836,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
                 is True
             ):
 
-                qs_sim = Simulation.objects.filter(scenario=scenario)
+                qs_sim = Simulation.objects.filter(scenario__id=scenario.id)
                 # update the parameter values which are different from existing values
                 for name, value in form.cleaned_data.items():
                     # only update fields if they were changed

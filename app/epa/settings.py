@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "dashboard.apps.DashboardConfig",
     # 3rd Party
     "crispy_forms",
+    "crispy_bootstrap4",
     "django_q",
 ]
 
@@ -99,6 +100,8 @@ FILE_UPLOAD_HANDLERS = [
 ROOT_URLCONF = "epa.urls"
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 TEMPLATES = [
     {
@@ -161,8 +164,6 @@ TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = False
 
 # Other configs
@@ -172,8 +173,6 @@ AUTH_USER_MODEL = "users.CustomUser"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "project_search"
 LOGOUT_REDIRECT_URL = "home"
-
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Please note, we don't use Django's internal email system,
 # we implement our own, using exchangelib
@@ -262,3 +261,28 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "orm": "default",
 }
+
+# SECURITY
+# https://docs.djangoproject.com/en/dev/ref/settings/#secure-ssl-redirect
+SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
+# https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-secure
+SESSION_COOKIE_SECURE = True
+# https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-name
+SESSION_COOKIE_NAME = "__Secure-sessionid"
+# https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-secure
+CSRF_COOKIE_SECURE = True
+# https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
+# TODO: set this to 60 seconds first and then to 518400 once you prove the former works
+SECURE_HSTS_SECONDS = 60
+# https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS",
+    default=True,
+)
+# https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-preload
+SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
+# https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
+SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
+    "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF",
+    default=True,
+)
