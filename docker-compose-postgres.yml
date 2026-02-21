@@ -17,7 +17,7 @@ services:
   app_pg:
     build:
       context: ./app
-      dockerfile: ./compose/production/app_postgres/Dockerfile
+      dockerfile: ./compose/production/app_postgres/Dockerfile-compose
     container_name: django-open_plan_pg
     restart: always
     env_file:
@@ -34,7 +34,7 @@ services:
   djangoq_pg:
     build:
       context: ./app
-      dockerfile: ./compose/production/app_postgres/Dockerfile
+      dockerfile: ./compose/production/app_postgres/Dockerfile-compose
     container_name: django-q-open_plan_pg
     restart: always
     env_file:
