@@ -382,7 +382,17 @@
                 <span id="saveSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
                 {% translate "Save" %}
             </button>
+
+						{% if scen_id %}
+							<form method="get" action="{% url 'scenario_export_as_datapackage' scen_id %}">
+								<button style="margin-top: 0rem;" class="btn btn--medium btn--transparent" type="submit" id="btn-export-dp">
+									<span class="icon icon-export" aria-hidden="true"></span>
+									{% translate "Export as datapackage" %}
+								</button>
+							</form>
+			      {% endif %}
         {% endif %}
+
     </div>
   </div>
 </footer>

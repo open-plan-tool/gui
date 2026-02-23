@@ -1,7 +1,13 @@
 import datetime
 import json
+import logging
 import uuid
 from datetime import timedelta
+import pandas as pd
+from pathlib import Path
+import numpy as np
+from oemof.datapackage.datapackage import building
+
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
@@ -105,6 +111,17 @@ class Project(models.Model):
                 scenario_data.append(scenario.export())
             dm["scenario_set_data"] = scenario_data
         return dm
+
+    def to_datapackage(self):
+        """"""
+        dp = model_to_dict(self.economic_data, exclude=["id", "currency"])
+        dp["name"] = self.name
+        dp["type"] = "project"
+        dp["discount_factor"] = dp.pop("discount")
+        dp["lifetime"] = dp.pop("duration")
+        dp["shortage_cost"] = 999
+        dp["excess_cost"] = 99
+        return dp
 
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
         user = None
@@ -296,6 +313,96 @@ class Scenario(models.Model):
             busses.append(bus_data)
         dm["busses"] = busses
         return dm
+
+    def to_datapackage(self, destination_path):
+
+        # Create a folder with a datapackage structure
+        scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
+
+        data_folder = scenario_folder / "data"
+        elements_folder = data_folder / "elements"
+        sequences_folder = data_folder / "sequences"
+
+        # create subfolders
+        (scenario_folder / "scripts").mkdir(parents=True)
+        elements_folder.mkdir(parents=True)
+        sequences_folder.mkdir(parents=True)
+
+        # Save the project specifics
+        proj = self.project
+        out_path = data_folder / f"project.csv"
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        df = pd.DataFrame([proj.to_datapackage()])
+        df.drop_duplicates("name").to_csv(out_path, index=False)
+
+        # List all components of the scenario (except the busses)
+        qs_assets = Asset.objects.filter(scenario=self)
+        # List all distinct components' assettypes (or facade name) which are not children
+        # The children assets are going to be processed by the parent asset `to_datapackage` method
+        facade_names = (
+            qs_assets.filter(parent_asset__isnull=True)
+            .distinct()
+            .values_list("asset_type__asset_type", flat=True)
+        )
+
+        bus_resource_records = []
+        profile_resource_records = {}
+        for facade_name in facade_names:
+            resource_records = []
+            for i, asset in enumerate(
+                qs_assets.filter(asset_type__asset_type=facade_name)
+            ):
+                resource_rec, bus_resource_rec, profile_resource_rec = (
+                    asset.to_datapackage()
+                )
+                resource_records.append(resource_rec)
+                # those constitute the busses and sequences used by this asset
+                bus_resource_records.extend(bus_resource_rec)
+                profile_resource_records.update(profile_resource_rec)
+
+            # Add the resource's instances to a file in the "elements" folder of the datapackage
+            if resource_records:
+                out_path = elements_folder / f"{facade_name}.csv"
+                Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+                df = pd.DataFrame(resource_records)
+                df.to_csv(out_path, index=False)
+
+        # Save all unique busses to a elements resource
+        if bus_resource_records:
+            out_path = elements_folder / f"bus.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            df = pd.DataFrame(bus_resource_records)
+            df.drop_duplicates("name").to_csv(out_path, index=False)
+
+        # Save all profiles to a sequences resource
+        if profile_resource_records:
+            out_path = sequences_folder / f"profiles.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            # add timestamps to the profiles
+            profile_resource_records["timeindex"] = self.get_timestamps()
+            try:
+                df = pd.DataFrame(profile_resource_records)
+            except ValueError as e:
+                # If not all profiles have the same length we pad the shorter profiles with np.nan
+                max_len = max(len(v) for v in profile_resource_records.values())
+                profile_resource_records = {
+                    k: v + [np.nan] * (max_len - len(v))
+                    for k, v in profile_resource_records.items()
+                }
+                df = pd.DataFrame(profile_resource_records)
+                logging.warning(
+                    f"Some profiles have more timesteps that other profiles in scenario {self.name}({self.id}) --> the shorter profiles will be expanded with NaN values"
+                )
+            # TODO check if there are column duplicates
+            df.set_index("timeindex").to_csv(out_path, index=True)
+
+        # creating datapackage.json metadata file at the root of the datapackage
+        building.infer_metadata_from_data(
+            package_name=f"scenario_{self.name}".replace(" ", "_"),
+            path=scenario_folder,
+            fk_targets=["project"],
+        )
+        return scenario_folder
 
 
 def get_default_timeseries():
@@ -662,24 +769,94 @@ class Asset(TopologyNode):
         return answer
 
     def to_datapackage(self):
+        """Return the asset's attributes in a datapackage form"""
         dp = {"type": self.asset_type.asset_type}
+        if (
+            "demand" not in self.asset_type.asset_type
+            and "dso" not in self.asset_type.asset_type
+        ):
+            dp["project_data"] = self.scenario.project.name
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
-        for field in self.asset_type.visible_fields:
-            value = getattr(self, field)
-            # if the field is a candidate for a scalar/list
-            if isinstance(value, str) and field != "name":
-                value = json.loads(value)
-                if isinstance(value, list):
-                    col = f"{self.name}__{field}"
-                    profile_resource_rec[col] = value
-                    value = col
-            elif isinstance(value, Timeseries):
-                col = value.name
-                profile_resource_rec[col] = value.values
-                value = col
 
-            dp[field] = value
+        # Storage assets are the only one to have children (namely `capacity`, `charge` and `discharge`
+        qs_children = Asset.objects.filter(parent_asset__id=self.id)
+        if qs_children.exists():
+            # Only keep the values from the capacity children asset of the storage
+            capacity = qs_children.get(asset_type__asset_type="capacity")
+            for attribute in [
+                "capex_fix",
+                "capex_var",
+                "opex_fix",
+                "opex_var",
+                "lifetime",
+                "crate",
+                "efficiency",
+                "soc_max",
+                "soc_min",
+                "maximum_capacity",
+                "optimize_cap",
+                "installed_capacity",
+                "age_installed",
+                "thermal_loss_rate",  # only for hess
+                "fixed_thermal_losses_relative",  # only for hess
+                "fixed_thermal_losses_absolute",  # only for hess
+            ]:
+                setattr(self, attribute, getattr(capacity, attribute))
+
+            if self.asset_type.asset_type != "hess":
+                attributes = [
+                    f
+                    for f in AssetType.objects.get(asset_type="capacity").visible_fields
+                    if f
+                    not in (
+                        "thermal_loss_rate",
+                        "fixed_thermal_losses_relative",
+                        "fixed_thermal_losses_absolute",
+                    )
+                ]
+            else:
+                attributes = AssetType.objects.get(asset_type="capacity").visible_fields
+        else:
+            attributes = self.asset_type.visible_fields
+
+        for field in attributes:
+            if (
+                field != "dispatchable"
+            ):  # TODO remove this when `dispatchable` not a visible field anymore
+                value = getattr(self, field)
+                # if the field is a candidate for a scalar/list
+                if isinstance(value, str) and field != "name":
+                    value = json.loads(value)
+                    if isinstance(value, list):
+                        col = f"{self.name}__{field}"
+                        profile_resource_rec[col] = value
+                        value = col
+                elif isinstance(value, Timeseries):
+                    col = value.name
+                    profile_resource_rec[col] = value.values
+                    value = col
+
+                if self.asset_type.asset_type == "chp_fixed_ratio":
+                    if field == "efficiency":
+                        field = "conversion_factor_to_electricity"
+                    elif field == "efficiency_multiple":
+                        field = "conversion_factor_to_heat"
+                elif self.asset_type.asset_type == "chp":
+                    if field == "thermal_loss_rate":
+                        field = "beta"
+                    elif field == "efficiency":
+                        field = "conversion_factor_to_electricity"
+                    elif field == "efficiency_multiple":
+                        field = "conversion_factor_to_heat"
+                elif self.asset_type.asset_type == "heat_pump":
+                    if field == "efficiency":
+                        field = "cop"
+
+                elif self.asset_type.asset_type == "electrolyzer":
+                    if field == "efficiency_multiple":
+                        field = "efficiency_heat"
+                dp[field] = value
 
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
@@ -829,7 +1006,8 @@ class Bus(TopologyNode):
 
     def to_datapackage(self):
         dm = model_to_dict(self, fields=["type", "name"])
-        dm["facade"] = "bus"
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
         dm["excess"] = "False"
         dm["excess_costs"] = "0.0"
