@@ -17,9 +17,6 @@ class Command(BaseCommand):
                 raise CommandError('Scenario "%s" does not exist' % scen_id)
 
             dto = convert_to_dto(scenario)
-            import pdb
-
-            pdb.set_trace()
             self.stdout.write(
                 self.style.SUCCESS('Successfully converted scenario "%s"' % scen_id)
             )

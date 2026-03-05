@@ -55,7 +55,6 @@ def get_docker_service_name(logs):
 
 
 if __name__ == "__main__":
-
     args = parser.parse_args()
     app_name = "app_pg"
     list_cmds = []

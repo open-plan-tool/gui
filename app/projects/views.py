@@ -116,7 +116,6 @@ def landing_default(request, version=1):
 @login_required
 @require_http_methods(["POST"])
 def scenario_upload(request, proj_id):
-
     # read the scenario file to a dict
     scenario_data = request.FILES["file"].read()
     scenario_data = json.loads(scenario_data)
@@ -154,7 +153,7 @@ def scenario_upload(request, proj_id):
         for i, scen in enumerate(scenario_data):
             if new_scenario_name != "":
                 if n_scenarios > 1:
-                    scen["name"] = f"{new_scenario_name}_{i+1}"
+                    scen["name"] = f"{new_scenario_name}_{i + 1}"
                 else:
                     scen["name"] = new_scenario_name
 
@@ -269,7 +268,6 @@ def project_revoke_access(request, proj_id=None):
 @json_view
 @require_http_methods(["POST"])
 def ajax_project_viewers_form(request):
-
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         proj_id = int(request.POST.get("proj_id"))
         project = get_object_or_404(Project, id=proj_id)
@@ -404,7 +402,6 @@ def project_update(request, proj_id):
                                     )
 
         if project_form.is_valid() and economic_data_form.is_valid():
-
             logger.info(f"Updating project with economic data...")
 
             project_form.save()
@@ -427,7 +424,6 @@ def project_update(request, proj_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 def project_export(request, proj_id):
-
     project = get_object_or_404(Project, id=proj_id)
 
     if project.user != request.user:
@@ -453,7 +449,6 @@ def project_export(request, proj_id):
 @login_required
 @require_http_methods(["POST"])
 def project_upload(request):
-
     # read the project file to a dict
     project_data = request.FILES["file"].read()
     project_data = json.loads(project_data)
@@ -497,7 +492,6 @@ def project_from_usecase(request, usecase_id=None):
 
 @require_http_methods(["GET"])
 def usecase_export(request, usecase_id):
-
     usecase = get_object_or_404(UseCase, id=usecase_id)
 
     response = HttpResponse(
@@ -612,7 +606,6 @@ def project_duplicate(request, proj_id):
 # region Usecase
 @require_http_methods(["GET"])
 def usecase_search(request, usecase_id=None, scen_id=None):
-
     usecase_list = UseCase.objects.all()
 
     return render(
@@ -733,7 +726,6 @@ def scenario_search(request, proj_id, show_comments=0):
 def scenario_select_project(request, step_id=0, max_step=1):
     user_projects = fetch_user_projects(request.user)
     if request.method == "GET":
-
         if user_projects.exists():
             form = ScenarioSelectProjectForm(project_queryset=user_projects)
             answer = render(
@@ -767,7 +759,6 @@ def scenario_select_project(request, step_id=0, max_step=1):
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_step=2):
-
     project = get_object_or_404(Project, pk=proj_id)
     # all projects which the user is able to select (the one the user created)
     user_projects = fetch_user_projects(request.user)
@@ -823,7 +814,6 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
         )
 
     elif request.method == "POST":
-
         form = ScenarioCreateForm(request.POST, project_queryset=user_projects)
 
         if form.is_valid():
@@ -840,7 +830,6 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
                 ).exists()
                 is True
             ):
-
                 qs_sim = Simulation.objects.filter(scenario__id=scenario.id)
                 # update the parameter values which are different from existing values
                 for name, value in form.cleaned_data.items():
@@ -898,7 +887,6 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
-
     components = {
         "providers": {
             "dso": _("Electricity DSO"),
@@ -981,7 +969,6 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # node_obj.assign_asset_to_proper_group(node_to_db_mapping_dict)
         return JsonResponse({"success": True}, status=200)
     else:
-
         scenario = get_object_or_404(Scenario, pk=scen_id)
 
         # if a simulation object linked to this scenario exists, all steps have been already fullfilled
@@ -1017,7 +1004,6 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4):
-
     constraints_labels = {
         "minimal_degree_of_autonomy": _("Minimal degree of autonomy"),
         "minimal_renewable_factor": _("Minimal share of renewables"),
@@ -1059,7 +1045,6 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     qs_sim = Simulation.objects.filter(scenario=scenario)
 
     if request.method == "GET":
-
         # if a simulation object linked to this scenario exists, all steps have been already fullfilled
         if qs_sim.exists():
             max_step = 5
@@ -1236,7 +1221,6 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
 @login_required
 @require_http_methods(["GET"])
 def back_to_scenario_review(request, proj_id):
-
     selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
 
     if len(selected_scenario) >= 1:
@@ -1368,7 +1352,6 @@ def scenario_export(request, proj_id):
 @login_required
 @require_http_methods(["GET"])
 def scenario_export_as_datapackage(request, scen_id):
-
     scenario = get_object_or_404(Scenario, id=int(scen_id))
 
     if scenario.project.user != request.user:
@@ -1716,7 +1699,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
         return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
-
         if asset_uuid:
             existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
             form = AssetCreateForm(
@@ -1800,7 +1782,6 @@ def asset_connection_ports_number(request, asset_type_name=None):
 @login_required
 @require_http_methods(["GET"])
 def asset_connection_ports_info(request, asset_type_name=None):
-
     energy_carrier = request.GET.get("energy_carrier", "Electricity").title()
     if asset_type_name is not None:
         if asset_type_name == "bus":
@@ -1907,7 +1888,6 @@ def view_mvs_data_input(request, scen_id=0, testing=False):
     scenario = Scenario.objects.get(id=scen_id)
 
     if scenario.project.user != request.user:
-
         logger.warning(
             f"Unauthorized user tried to access scenario with db id = {scen_id}."
         )
@@ -1916,7 +1896,6 @@ def view_mvs_data_input(request, scen_id=0, testing=False):
     try:
         data_clean = format_scenario_for_mvs(scenario, testing)
     except Exception as e:
-
         logger.error(
             f"Scenario Serialization ERROR! User: {scenario.project.user.username}. Scenario Id: {scenario.id}. Thrown Exception: {traceback.format_exc()}."
         )
@@ -1981,7 +1960,6 @@ def request_mvs_simulation(request, scen_id=0):
             content_type="application/json",
         )
     else:
-
         # delete existing simulation
         Simulation.objects.filter(scenario_id=scen_id).delete()
 

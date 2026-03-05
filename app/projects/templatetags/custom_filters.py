@@ -66,14 +66,6 @@ def has_viewer_read_rights(proj_id, user):
 
 
 @register.filter
-def pdb(element):
-    import pdb
-
-    pdb.set_trace()
-    return element
-
-
-@register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
 

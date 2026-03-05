@@ -14,7 +14,6 @@ class Command(BaseCommand):
         parser.add_argument("-o", "--outfile", type=str, nargs="?", const="")
 
     def handle(self, *args, **options):
-
         for scen_id in options["scen_id"]:
             try:
                 scenario = Scenario.objects.get(pk=scen_id)
