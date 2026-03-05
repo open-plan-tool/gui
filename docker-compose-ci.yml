@@ -9,10 +9,10 @@ services:
 
   app_pg:
     build:
-      context: ./app
+      context: .
       args:
         BUILD_ENVIRONMENT: local
-      dockerfile: ./compose/production/app_postgres/Dockerfile
+      dockerfile: ./app/compose/production/app_postgres/Dockerfile
     env_file:
       - .envs/epa.postgres
     expose:
