@@ -69,7 +69,6 @@ def gettext_variables(some_string, lang="de"):
 
 
 def add_help_text_icon(field, param_name, RTD_link=True):
-
     if field.help_text is not None:
         help_text = field.help_text + ". " + _("Click on the icon for more help") + "."
         field.help_text = None
@@ -770,9 +769,9 @@ class AssetCreateForm(OpenPlanModelForm):
                 "Electrical efficiency with no heat extraction"
             )
 
-            self.fields["efficiency"].help_text = (
-                "This is the custom help text for chp efficiency"
-            )
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
             self.add_help_text_icon("efficiency", RTD_link=True)
             self.fields["efficiency_multiple"] = DualNumberField(
                 default=1, min=0, max=1, param_name="efficiency_multiple"
@@ -787,9 +786,9 @@ class AssetCreateForm(OpenPlanModelForm):
             self.fields["efficiency"].label = _("Efficiency gas to electricity")
 
             # TODO
-            self.fields["efficiency"].help_text = (
-                "This is the custom help text for chp efficiency"
-            )
+            self.fields[
+                "efficiency"
+            ].help_text = "This is the custom help text for chp efficiency"
             self.add_help_text_icon("efficiency", RTD_link=True)
 
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
@@ -813,9 +812,9 @@ class AssetCreateForm(OpenPlanModelForm):
                 }
             )
             self.fields["efficiency_multiple"].label = _("Heat loss")
-            self.fields["efficiency_multiple"].help_text = (
-                "Ratio of energy converted to heat"
-            )
+            self.fields[
+                "efficiency_multiple"
+            ].help_text = "Ratio of energy converted to heat"
             self.add_help_text_icon("efficiency_multiple", RTD_link=True)
 
         if "dso" in self.asset_type_name:

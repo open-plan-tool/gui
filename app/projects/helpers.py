@@ -173,7 +173,6 @@ class JSPlotlyLib:
 
 
 class DualInputWidget(forms.MultiWidget):
-
     template_name = "asset/dual_input.html"
 
     # class Media:
@@ -232,7 +231,6 @@ class DualNumberField(forms.MultiValueField):
             input_timeseries_values = parse_input_timeseries(timeseries_file)
             answer = input_timeseries_values
         else:
-
             if scalar_value is None:
                 scalar_value = ""
             # check the input string is a number or a list
@@ -274,7 +272,6 @@ class DualNumberField(forms.MultiValueField):
         return f"[{min_val}, {max_val}]"
 
     def check_boundaries(self, value):
-
         boundaries = self.boundaries
         if isinstance(value, list):
             for v in value:
@@ -321,7 +318,6 @@ class DualNumberField(forms.MultiValueField):
 
 
 class TimeseriesInputWidget(forms.MultiWidget):
-
     template_name = "asset/timeseries_input.html"
 
     # class Media:
@@ -409,7 +405,6 @@ class TimeseriesField(forms.MultiValueField):
         qs_ts=None,
         **kwargs,
     ):
-
         fields = (
             forms.DecimalField(required=False),
             forms.CharField(required=False),
@@ -446,7 +441,6 @@ class TimeseriesField(forms.MultiValueField):
             answer = input_timeseries_values
             input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
         elif timeseries_id != "":
-
             ts = Timeseries.objects.get(id=timeseries_id)
             answer = ts.get_values
             input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
@@ -491,7 +485,6 @@ class TimeseriesField(forms.MultiValueField):
         return f"[{min_val}, {max_val}]"
 
     def check_boundaries(self, value):
-
         boundaries = self.boundaries
         if isinstance(value, list):
             for v in value:

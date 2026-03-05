@@ -13,7 +13,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         update_assets = options["update"]
 
         df = pd.read_csv("static/assettypes_list.csv")

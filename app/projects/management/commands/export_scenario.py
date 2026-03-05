@@ -69,9 +69,6 @@ class Command(BaseCommand):
 
             # load_scenario_from_dict(dm, user=user, project=Project.objects.get(id=20))
 
-            import pdb
-
-            pdb.set_trace()
             # myscenario.asset_set.all().delete()
             # myscenario.connectionlink_set.all().delete()
             # Project.objects.get(id=proj_id).delete()
