@@ -42,16 +42,16 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build the Stack
-        run: docker compose -f docker-compose-ci.yml build django
+        run: docker compose -f docker-compose-ci.yml build app_pg
 
       - name: Check DB Migrations
-        run: docker compose -f docker-compose-ci.yml run --rm django python manage.py makemigrations --check
+        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py makemigrations --check
 
       - name: Run DB Migrations
-        run: docker compose -f docker-compose-ci.yml run --rm django python manage.py migrate
+        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py migrate
 
       - name: Run Tests
-        run: docker compose -f docker-compose-ci.yml run --rm django pytest
+        run: docker compose -f docker-compose-ci.yml run --rm app_pg pytest
 
       - name: Tear down the Stack
         if: always()
