@@ -186,7 +186,6 @@ class Project(models.Model):
         if viewers is not None:
             existing_viewers = viewers.intersection(self.viewers.all())
             if existing_viewers.exists():
-
                 for viewer_id in existing_viewers.values_list("id", flat=True):
                     self.viewers.remove(viewer_id)
                 success = True
@@ -315,7 +314,6 @@ class Scenario(models.Model):
         return dm
 
     def to_datapackage(self, destination_path):
-
         # Create a folder with a datapackage structure
         scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
 
@@ -934,7 +932,6 @@ class Asset(TopologyNode):
 
 
 class COPCalculator(models.Model):
-
     scenario = models.ForeignKey(
         Scenario, on_delete=models.CASCADE, null=False, blank=False
     )
@@ -1104,7 +1101,6 @@ class ScenarioFile(models.Model):
 
 
 class AbstractSimulation(models.Model):
-
     start_date = models.DateTimeField(auto_now_add=True, null=False)
     end_date = models.DateTimeField(null=True)
     elapsed_seconds = models.FloatField(null=True)

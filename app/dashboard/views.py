@@ -219,7 +219,6 @@ def scenario_visualize_results(
             qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
             if qs.exists() and scenario in user_scenarios:
-
                 update_selected_scenarios_in_cache(request, proj_id, scen_id)
 
                 topology_data_list = load_scenario_topology_from_db(scen_id)
@@ -326,7 +325,6 @@ def project_sensitivity_analysis(request, proj_id, sa_id=None):
                 reverse("project_sensitivity_analysis", args=[proj_id])
             )
     else:
-
         project = get_object_or_404(Project, id=proj_id)
         if (scenario.project.user != request.user) and (
             scenario.project.viewers.filter(user__email=request.user.email).exists()
@@ -415,7 +413,6 @@ def report_create_item(request, proj_id):
                     report_item.render_json, status=200, content_type="application/json"
                 )
             else:
-
                 # TODO workout the passing of post when there are errors (in crisp format)
                 form_html = get_template("report/report_item_parameters_form.html")
                 answer_context.update(
@@ -636,7 +633,6 @@ def update_selected_multi_scenarios(request, proj_id):
 @json_view
 @require_http_methods(["GET"])
 def request_kpi_table(request, proj_id=None):
-
     compare_scen = request.GET.get("compare_scenario")
     table_id = request.GET.get("table_id")
     if compare_scen != "":
@@ -893,7 +889,6 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                     }
                 )
             else:
-
                 qs_fine = qs_fine.annotate(
                     name=Case(
                         When(
@@ -1108,7 +1103,6 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
 
     results_json = []
     for energy_vector in scenario.energy_vectors:
-
         results_json.append(
             report_item_render_to_json(
                 report_item_id=energy_vector,
@@ -1158,7 +1152,6 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
 
 
 def scenario_visualize_costs(request, proj_id, scen_id=None):
-
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
@@ -1177,7 +1170,6 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 
     results_json = []
     for arrangement in [COSTS_PER_ASSETS]:
-
         results_json.append(
             report_item_render_to_json(
                 report_item_id=arrangement,
@@ -1418,7 +1410,6 @@ def download_timeseries_results(request, scen_id):
 @login_required
 @require_http_methods(["GET"])
 def redirect_download_timeseries_results(request, proj_id):
-
     selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
 
     if len(selected_scenario) >= 1:

@@ -26,7 +26,6 @@ from projects.models import ENERGY_VECTOR, Project
 
 
 class ReportItemForm(ModelForm):
-
     scenarios = forms.ChoiceField(label=_("Scenario"))
 
     def __init__(self, *args, **kwargs):

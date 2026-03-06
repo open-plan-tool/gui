@@ -3,25 +3,45 @@
 
 exclude: 'docs|node_modules|vendors|migrations|.git|.tox'
 default_stages: [pre-commit]
-fail_fast: true
+minimum_pre_commit_version: "3.2.0"
+
+default_language_version:
+  python: python3.12
 
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-json
-    -   id: check-added-large-files
-    -   id: requirements-txt-fixer
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: debug-statements
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: detect-private-key
 
--   repo: https://github.com/pre-commit/mirrors-jshint
-    rev: v2.13.6
+  # Run the Ruff linter.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.3
     hooks:
-    - id: jshint
+      # Linter
+#      - id: ruff
+#        args: [--fix, --exit-non-zero-on-fix]
+      # Formatter
+      - id: ruff-format
 
--   repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-    -   id: black
+## Run the djLint linter
+#  - repo: https://github.com/djlint/djLint
+#    rev: v1.36.4
+#    hooks:
+#      - id: djlint-reformat-django
+#      - id: djlint-django
+
+# sets up .pre-commit-ci.yaml to ensure pre-commit dependencies stay up to date
+ci:
+  autoupdate_schedule: monthly
+  skip: []
+  submodules: false

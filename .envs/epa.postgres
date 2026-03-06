@@ -1,6 +1,6 @@
 EPA_SECRET_KEY=v@p9^=@lc3#1u_xtx*^xhrv0f3fli1(+8ik^k@g-_bzmexb0$7n
 DEBUG=False
-TRUSTED_HOST=127.0.0.1:8080
+TRUSTED_HOST=http://127.0.0.1:8000
 EMAIL_HOST_IP=127.0.0.1
 USE_PROXY=False
 PROXY_ADDRESS=http://proxy_address:port

@@ -1,3 +1,10 @@
+r"""Functions meant to be powered by Django-Q.
+
+Those functions require Django-Q cluster to run along with Django Server.
+To achieve this `python manage.py qcluster` command needs to be executed.
+
+"""
+
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
@@ -27,13 +34,6 @@ from projects.models import Simulation
 from projects.requests import fetch_mvs_simulation_results
 
 logger = logging.getLogger(__name__)
-
-r"""Functions meant to be powered by Django-Q.
-
-Those functions require Django-Q cluster to run along with Django Server.
-To achieve this `python manage.py qcluster` command needs to be executed.
-
-"""
 
 
 def check_simulation_objects(**kwargs):

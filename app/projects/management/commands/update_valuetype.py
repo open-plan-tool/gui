@@ -12,7 +12,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         update_valuetypes = options["update"]
 
         df = pd.read_csv("static/valuetypes_list.csv")
