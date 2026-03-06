@@ -46,6 +46,9 @@ jobs:
       - name: Build the Stack
         run: docker compose -f docker-compose-ci.yml build app_pg
 
+      - name: Show DB Migrations
+        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py showmigrations
+
       - name: Check DB Migrations
         run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py makemigrations --check
 
