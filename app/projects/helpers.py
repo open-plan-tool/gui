@@ -5,10 +5,11 @@ import io
 import csv
 from openpyxl import load_workbook
 from django import forms
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import html_safe
+
+from epa.settings import RESOURCES_DIR
 from projects.dtos import convert_to_dto
 from projects.models import Timeseries, AssetType
 from projects.constants import MAP_MVS_EPA
@@ -19,11 +20,11 @@ TS_UPLOAD_TYPE = "upload"
 TS_MANUAL_TYPE = "manual"
 TS_INPUT_TYPES = (TS_MANUAL_TYPE, TS_SELECT_TYPE, TS_UPLOAD_TYPE)
 
+MVS_PARAMETERS_LIST_PATH = RESOURCES_DIR / "MVS_parameters_list.csv"
+
 PARAMETERS = {}
-if os.path.exists(staticfiles_storage.path("MVS_parameters_list.csv")) is True:
-    with open(
-        staticfiles_storage.path("MVS_parameters_list.csv"), encoding="utf-8"
-    ) as csvfile:
+if MVS_PARAMETERS_LIST_PATH.exists():
+    with open(MVS_PARAMETERS_LIST_PATH, encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         for i, row in enumerate(csvreader):
             if i == 0:

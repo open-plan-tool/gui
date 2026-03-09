@@ -41,6 +41,9 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
+# Resources dir (containing helper csv files)
+RESOURCES_DIR = BASE_DIR / "resources"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 PROD_ENV = env.bool("PROD_ENV", default=False)
