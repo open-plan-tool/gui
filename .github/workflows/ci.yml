@@ -44,17 +44,17 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build the Stack
-        run: docker compose -f docker-compose-ci.yml build app_pg
+        run: docker compose -f docker-compose-local.yml build app_pg
 
       - name: Check DB Migrations
-        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py makemigrations --check
+        run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py makemigrations --check
 
       - name: Run DB Migrations
-        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py migrate
+        run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py migrate
 
       - name: Run Tests
-        run: docker compose -f docker-compose-ci.yml run --rm app_pg python manage.py test
+        run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py test
 
       - name: Tear down the Stack
         if: always()
-        run: docker compose -f docker-compose-ci.yml down
+        run: docker compose -f docker-compose-local.yml down
