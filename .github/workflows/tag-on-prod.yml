@@ -1,0 +1,58 @@
+name: Tag release on prod
+
+on:
+  push:
+    branches: ['production']
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for tags)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Read version from epa/settings.py
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION=$(python - <<'PY'
+          import re
+          p = "epa/settings.py"
+          s = open(p, "r", encoding="utf-8").read()
+          m = re.search(r'APP_VERSION_NUMBER\s*=\s*"([^"]+)"', s)
+          if not m:
+              raise SystemExit(f"Could not find APP_VERSION_NUMBER in {p}")
+          print(m.group(1))
+          PY
+                    )
+                    echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+                    echo "Detected version: $VERSION"
+
+      - name: Create and push tag if missing
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+
+          # If tag already exists locally or remotely, do nothing
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists (local)."
+            exit 0
+          fi
+          if git ls-remote --tags origin "${TAG}" | grep -q "${TAG}"; then
+            echo "Tag ${TAG} already exists (remote)."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          git push origin "${TAG}"
+          echo "Pushed tag ${TAG}"
