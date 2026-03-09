@@ -21,7 +21,7 @@ This repository contains the code for the user interface. The simulations are pe
 
 Prior to be able to develop locally, you might need to install postgres, simply google `install postgres` followed by your os name (`linux/mac/windows`)
 
-1. Create a virtual environment
+1. Create a virtual environment using `python=3.12`
 2. Activate your virtual environment
 3. Move to the `app` folder with `cd app`
 4. Install local development dependencies with `pip install -r requirements/local.txt`
