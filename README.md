@@ -37,9 +37,10 @@ TRUSTED_HOST=http://127.0.0.1:8000
 DEBUG=(True|False)
 MVS_API_HOST=<the simulation server you wish to use>
 ```
-6. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
-7. Start the local server with `python manage.py runserver`
-8. You can then login with `testUser` and `ASas12,.` or create your own account
+6. Set up pre-commit hooks with `pre-commit install`
+7. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
+8. Start the local server with `python manage.py runserver`
+9. You can then login with `testUser` and `ASas12,.` or create your own account
 
 ## Deploy using Docker Compose
 The following commands should get everything up and running, using the web based version of the MVS API.
