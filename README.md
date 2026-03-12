@@ -21,7 +21,7 @@ This repository contains the code for the user interface. The simulations are pe
 
 Prior to be able to develop locally, you might need to install postgres, simply google `install postgres` followed by your os name (`linux/mac/windows`)
 
-1. Create a virtual environment
+1. Create a virtual environment using `python=3.12`
 2. Activate your virtual environment
 3. Move to the `app` folder with `cd app`
 4. Install local development dependencies with `pip install -r requirements/local.txt`
@@ -35,17 +35,17 @@ SQL_HOST=localhost
 SQL_PORT=5432
 TRUSTED_HOST=http://127.0.0.1:8000
 DEBUG=(True|False)
-MVS_HOST_API=<the simulation server you wish to use>
+MVS_API_HOST=<the simulation server you wish to use>
 ```
-6. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
-7. Start the local server with `python manage.py runserver`
-8. You can then login with `testUser` and `ASas12,.` or create your own account
+6. Set up pre-commit hooks with `pre-commit install`
+7. Execute the `local_setup.sh` file (`. local_setup.sh` on linux/mac `bash local_setup.sh` on windows) you might have to make it executable first. Answer yes to the question
+8. Start the local server with `python manage.py runserver`
+9. You can then login with `testUser` and `ASas12,.` or create your own account
 
 ## Deploy using Docker Compose
 The following commands should get everything up and running, using the web based version of the MVS API.
 
 You need to be able to run docker-compose inside your terminal. If you can't you should install [Docker desktop](https://www.docker.com/products/docker-desktop/) first.
-
 
 * Clone the repository locally `git clone --single-branch --branch main https://github.com/open-plan-tool/gui.git open_plan_gui`
 * Move inside the created folder (`cd open_plan_gui`)
@@ -55,20 +55,21 @@ You need to be able to run docker-compose inside your terminal. If you can't you
    * The value assigned to the variables `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` in `.envs/db.postgres` should match the ones of
    the variables `SQL_DATABASE`, `SQL_USER`, `SQL_PASSWORD` in `.envs/epa.postgres`, respectively
 
-   * Define an environment variable `MVS_HOST_API` in `.envs/epa.postgres` and set the url of the simulation server
+   * Define an environment variable `MVS_API_HOST` in `.envs/epa.postgres` and set the url of the simulation server
    you wish to use for your models (for example `MVS_API_HOST="<url to your favorite simulation server>"`), you can deploy your own [simulation server](https://github.com/open-plan-tool/simulation-server) locally if you need
 
     * Assign the domain of your website (including `http://` or `https://`) to `TRUSTED_HOST` , see https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins for more information
 
 Next you can either provide the following commands inside a terminal (with ubuntu you might have to prepend `sudo`)
-* `docker-compose --file=docker-compose-postgres.yml up -d --build`
-* `docker-compose --file=docker-compose-postgres.yml exec -u root app_pg sh initial_setup.sh` (this will also load a default testUser account with sample scenario).
+* `docker-compose --file=docker-compose-local.yml up -d --build`
+* `docker-compose --file=docker-compose-local.yml exec -u root app_pg sh initial_setup.sh` (this will also load a default testUser account with sample scenario).
+
 
 Or you can run a python script with the following command
 * `python deploy.py`
 
 Finally
-* Open browser and navigate to http://localhost:8080: you should see the login page of the open_plan app
+* Open browser and navigate to http://localhost:8000: you should see the login page of the open_plan app
 * You can then login with `testUser` and `ASas12,.` or create your own account
 
 ### Proxy settings (optional)
@@ -85,7 +86,7 @@ If you use a proxy you will need to set `USE_PROXY=True` and edit `PROXY_ADDRESS
 ## Tear down (uninstall) docker containers
 To remove the application (including relevant images, volumes etc.), one can use the following commands in terminal:
 
-`docker-compose down --file=docker-compose-postgres.yml -v`
+`docker-compose down --file=docker-compose-local.yml -v`
 
 you can add `--rmi local` if you wish to also remove the images (this will take you a long time to rebuild the docker containers from scratch if you want to redeploy the app later then)
 

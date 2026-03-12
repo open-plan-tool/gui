@@ -4,13 +4,13 @@ import copy
 import csv
 from copy import deepcopy
 
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Value, Q, F, Case, When
 from django.db.models.functions import Concat, Replace
 from django.templatetags.static import static
 from numbers import Number
 
+from epa.settings import RESOURCES_DIR
 from projects.models import Viewer, Project
 import pickle
 from django.conf import settings as django_settings
@@ -93,10 +93,10 @@ TABLE_PARAM_MAPPING = {
 KPI_PARAMETERS = {}
 KPI_PARAMETERS_ASSETS = {}
 
-if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
-    with open(
-        staticfiles_storage.path("MVS_kpis_list.csv"), encoding="utf-8"
-    ) as csvfile:
+MVS_KPIS_LIST_PATH = RESOURCES_DIR / "MVS_kpis_list.csv"
+
+if MVS_KPIS_LIST_PATH.exists():
+    with open(MVS_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         CARRIER_PLACEHOLDER = ":carrier:"
         for i, row in enumerate(csvreader):
@@ -132,9 +132,7 @@ if os.path.exists(staticfiles_storage.path("MVS_kpis_list.csv")) is True:
                 #                 {"name": _(verbose), "id": label, "unit": _(unit)}
                 #             )
 
-    with open(
-        staticfiles_storage.path("MVS_kpis_list.csv"), encoding="utf-8"
-    ) as csvfile:
+    with open(MVS_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         for i, row in enumerate(csvreader):
             if i == 0:

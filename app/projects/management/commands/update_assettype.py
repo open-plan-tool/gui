@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 import pandas as pd
 import json
+
+from epa.settings import RESOURCES_DIR
 from projects.models import *
 
 
@@ -13,10 +15,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         update_assets = options["update"]
 
-        df = pd.read_csv("static/assettypes_list.csv")
+        df = pd.read_csv(RESOURCES_DIR / "assettypes_list.csv")
         assets = df.to_dict(orient="records")
 
         for asset_params in assets:

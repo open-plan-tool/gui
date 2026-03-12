@@ -160,7 +160,7 @@ urlpatterns = [
         name="get_constant_timeseries_id",
     ),
     re_path(
-        "get/constant/timeseries/id/(?P<ts_length>\d+)/value/(?P<value>\d+(\.\d+)?)/$",
+        r"get/constant/timeseries/id/(?P<ts_length>\d+)/value/(?P<value>\d+(\.\d+)?)/$",
         get_constant_timeseries_id,
         name="get_constant_timeseries_id",
     ),

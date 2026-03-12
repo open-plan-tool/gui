@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 def mvs_simulation_request(data: dict):
-
     headers = {"content-type": "application/json"}
     payload = json.dumps(data)
 
@@ -216,7 +215,6 @@ def parse_mvs_results(simulation, response_results):
 
 
 def mvs_sensitivity_analysis_request(data: dict):
-
     headers = {"content-type": "application/json"}
     payload = json.dumps(data)
 

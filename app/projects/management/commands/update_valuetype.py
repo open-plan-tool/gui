@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 import pandas as pd
+
+from epa.settings import RESOURCES_DIR
 from projects.models import *
 
 
@@ -12,10 +14,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         update_valuetypes = options["update"]
 
-        df = pd.read_csv("static/valuetypes_list.csv")
+        df = pd.read_csv(RESOURCES_DIR / "valuetypes_list.csv")
         valuetypes = df.to_dict(orient="records")
         for vt_params in valuetypes:
             qs = ValueType.objects.filter(type=vt_params["type"])
