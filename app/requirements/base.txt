@@ -9,7 +9,6 @@ django-jsonview==2.0.0
 django-q2==1.9.0
 django-sass-processor==1.4.2
 git+https://github.com/oemof/oemof-datapackage.git@dev
-gunicorn==23.0.0
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0
