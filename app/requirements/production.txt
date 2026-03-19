@@ -1,3 +1,2 @@
 -r ./base.txt
-
-psycopg2-binary==2.9.3
+gunicorn==23.0.0

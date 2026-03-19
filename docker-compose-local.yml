@@ -1,0 +1,24 @@
+services:
+
+  db_pg:
+    image: postgres:14.3-alpine
+    container_name: open_plan_pg
+    env_file:
+      - .envs/db.postgres
+    expose:
+      - 5432
+
+  app_pg:
+    build:
+      context: .
+      args:
+        BUILD_ENVIRONMENT: local
+      dockerfile: ./app/compose/production/app_postgres/Dockerfile
+    container_name: django-open_plan_pg
+    command: "gunicorn --workers=2 --bind=0.0.0.0:8000 epa.wsgi:application"
+    env_file:
+      - .envs/epa.postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_pg

@@ -50,7 +50,6 @@ def get_translation_dict_from_po_file(fname, fpath=LOCALE_PATH, hdr_line_num=19)
     long_line_str = False
 
     for i, l in enumerate(lines[hdr_line_num:]):
-
         if l[:5] == "msgid":
             # the value of msgid is not one line
             if l[6:8] == '""':
@@ -142,7 +141,6 @@ def merge_deepL_translation_for_proofing(fname_source, fname_target, fpath=LOCAL
 
     new_dict = {}
     for ks in dict_source.keys():
-
         kt = dict_target[ks]
         if isinstance(kt, tuple):
             kt = list(kt)
@@ -173,7 +171,6 @@ def insert_translations_into_po_file(trans_dict, fname, fpath=LOCALE_PATH):
     lines_to_write = lines[: hdr_line_num + 1]
 
     for i, l in enumerate(lines[hdr_line_num:]):
-
         if l[:5] == "msgid":
             # the value of msgid is not one line
             if l[6:8] == '""':

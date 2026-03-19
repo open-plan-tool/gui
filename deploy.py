@@ -55,7 +55,6 @@ def get_docker_service_name(logs):
 
 
 if __name__ == "__main__":
-
     args = parser.parse_args()
     app_name = "app_pg"
     list_cmds = []
@@ -79,28 +78,30 @@ if __name__ == "__main__":
             != "Y"
         ):
             exit()
-        list_cmds.append(f"docker-compose --file=docker-compose-{DB}.yml down -v")
+        list_cmds.append(f"docker-compose --file=docker-compose-local.yml down -v")
 
     if args.docker_update is True:
         if args.docker_down is False:
-            list_cmds.append(f"docker-compose --file=docker-compose-{DB}.yml down")
-        list_cmds.append(f"docker-compose --file=docker-compose-{DB}.yml up -d --build")
+            list_cmds.append(f"docker-compose --file=docker-compose-local.yml down")
         list_cmds.append(
-            f"docker-compose --file=docker-compose-{DB}.yml exec -u root {app_name} sh update_gui.sh"
+            f"docker-compose --file=docker-compose-local.yml up -d --build"
+        )
+        list_cmds.append(
+            f"docker-compose --file=docker-compose-local.yml exec -u root {app_name} sh update_gui.sh"
         )
     else:
         if args.docker_down is False:
             log_service_name = get_docker_service_name(args.logs)
             if log_service_name is not None:
                 list_cmds.append(
-                    f"docker-compose --file=docker-compose-{DB}.yml logs {log_service_name}"
+                    f"docker-compose --file=docker-compose-local.yml logs {log_service_name}"
                 )
             else:
                 list_cmds.append(
-                    f"docker-compose --file=docker-compose-{DB}.yml up -d --build"
+                    f"docker-compose --file=docker-compose-local.yml up -d --build"
                 )
                 list_cmds.append(
-                    f"docker-compose --file=docker-compose-{DB}.yml exec -u root {app_name} sh initial_setup.sh"
+                    f"docker-compose --file=docker-compose-local.yml exec -u root {app_name} sh initial_setup.sh"
                 )
 
     for cmd in list_cmds:

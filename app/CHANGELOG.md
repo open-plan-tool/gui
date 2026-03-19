@@ -1,6 +1,14 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Enable download of datapackage as zip [[#422](https://github.com/open-plan-tool/gui/pull/422)]
+
+### Changed
+- Update Django version and dependencies [[#432](https://github.com/open-plan-tool/gui/pull/432)]
+
+### Fixed
+- Fix initial assignment in storage forms [[#435](https://github.com/open-plan-tool/gui/pull/435)]
 
 ## [v2.0.1] – 2026-01-27
 ### Changed

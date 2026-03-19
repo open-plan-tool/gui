@@ -136,7 +136,6 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
 def handle_storage_unit_form_post(
     request, scen_id=0, asset_type_name="", asset_uuid=None
 ):
-
     input_output_mapping = {
         "inputs": request.POST.get("inputs", "").split(","),
         "outputs": request.POST.get("outputs", "").split(","),
@@ -229,7 +228,6 @@ def handle_storage_unit_form_post(
             qs_sim = Simulation.objects.filter(scenario=scenario)
             # Populate all subassets
             for param, value in form.cleaned_data.items():
-
                 if asset_uuid and qs_sim.exists():
                     track_asset_changes(
                         scenario, param, form, existing_asset=ess_capacity_asset
@@ -294,7 +292,6 @@ def handle_storage_unit_form_post(
 
 
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
-
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
         "inputs": json.loads(request.POST.get("inputs", "[]")),
@@ -830,7 +827,6 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
-
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(
@@ -848,7 +844,6 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
             qs.update(**asset_node_positions[asset_id])
 
     for bus_id in all_scenario_busses_ids:
-
         qs = Bus.objects.filter(id=bus_id)
         if bus_id not in topology_busses_ids:
             logger.debug(
