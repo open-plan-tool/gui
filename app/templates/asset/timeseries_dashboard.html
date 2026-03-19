@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block head_block %}
+<head>
+    <meta charset="UTF-8">
+    <title>Time Series Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        .page {
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions a,
+        .actions button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .summary-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            min-width: 140px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        th {
+            font-size: 14px;
+            color: #555;
+        }
+
+        tr.selected {
+            background: #f0f6ff;
+        }
+
+        .row-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .muted {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px 12px;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .placeholder-chart {
+            margin-top: 16px;
+            padding: 16px;
+            border: 1px dashed #bbb;
+            background: #fafafa;
+            color: #666;
+        }
+
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            background: white;
+            border: 1px dashed #ccc;
+        }
+
+        .small {
+            font-size: 13px;
+        }
+    </style>
+</head>
+{% endblock head_block %}
+
+{% block content %}
+<body>
+<div class="page">
+    <div class="header">
+        <div>
+            <h1>Time Series</h1>
+            <div class="muted">Manage uploaded series and inspect metadata.</div>
+        </div>
+
+        <div class="actions">
+            <a class="btn btn--medium" href="{% url 'not_implemented' %}">Upload time series</a>
+            <a class="btn btn--medium" href="{% url 'not_implemented' %}">Create manually</a>
+        </div>
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-card">
+            <div class="small muted">Total</div>
+            <div><strong>{{ timeseries_list|length }}</strong></div>
+        </div>
+        <div class="summary-card">
+            <div class="small muted">Open source</div>
+            <div><strong>
+                {% with open_count=0 %}
+                    {# placeholder card; replace later with real count from view #}
+                    -
+                {% endwith %}
+            </strong></div>
+        </div>
+        <div class="summary-card">
+            <div class="small muted">Selected</div>
+            <div><strong>
+                {% if selected_timeseries %}{{ selected_timeseries.name|default:"Unnamed" }}{% else %}-{% endif %}
+            </strong></div>
+        </div>
+    </div>
+
+    {% if timeseries_list %}
+        <div class="layout">
+            <div class="panel">
+                <h2>My time series</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Asset type</th>
+                            <th>Time step</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ts in timeseries_list %}
+                            <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
+                                <td>
+                                    <a class="row-link" href="?selected={{ ts.pk }}">
+                                        <strong>{{ ts.name|default:"Unnamed" }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ ts.get_asset_type_display|default:"-" }}</td>
+                                <td>{{ ts.time_step|default:"-" }}</td>
+                                <td>{{ ts.values|length }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                {% if selected_timeseries %}
+                    <h2>Details</h2>
+                    <div class="muted" style="margin-bottom: 16px;">
+                        Selected time series
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Name</div>
+                        <div>{{ selected_timeseries.name|default:"Unnamed" }}</div>
+
+                        <div class="detail-label">Category</div>
+                        <div>{{ selected_timeseries.get_category_display|default:"-" }}</div>
+
+                        <div class="detail-label">Asset type</div>
+                        <div>{{ selected_timeseries.get_asset_type_display|default:"-" }}</div>
+
+                        <div class="detail-label">Type</div>
+                        <div>{{ selected_timeseries.get_ts_type_display|default:"-" }}</div>
+
+                        <div class="detail-label">Units</div>
+                        <div>{{ selected_timeseries.units|default:"-" }}</div>
+
+                        <div class="detail-label">Scenario</div>
+                        <div>
+                            {% if selected_timeseries.scenario %}
+                                {{ selected_timeseries.scenario }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+
+                        <div class="detail-label">Open source</div>
+                        <div>{{ selected_timeseries.open_source|yesno:"Yes,No" }}</div>
+
+                        <div class="detail-label">Start date</div>
+                        <div>{{ selected_timeseries.start_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+                        <div class="detail-label">End date</div>
+                        <div>{{ selected_timeseries.end_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+                        <div class="detail-label">Time step</div>
+                        <div>{{ selected_timeseries.time_step|default:"-" }}</div>
+
+                        <div class="detail-label">Length</div>
+                        <div>{{ selected_timeseries.values|length }} points</div>
+                    </div>
+
+                    <div class="placeholder-chart">
+                        Preview chart placeholder<br>
+                        <span class="small">
+                            Later this could show a sparkline or mini line chart for the selected series.
+                        </span>
+                    </div>
+
+                    <div class="placeholder-chart">
+                        First values preview placeholder<br>
+                        <span class="small">
+                            Example: show first 10 values, min/max, mean, missing values.
+                        </span>
+                    </div>
+
+                    <div class="detail-actions">
+                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Edit metadata</a>
+                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Replace values</a>
+                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Duplicate</a>
+                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Delete</a>
+                    </div>
+                {% else %}
+                    <h2>Details</h2>
+                    <div class="muted">No time series selected.</div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No time series yet</h2>
+            <p class="muted">Upload your first time series or create one manually.</p>
+            <div class="actions" style="justify-content: center;">
+                <a class="btn btn--medium" href="{% url 'not_implemented' %}">Upload timeseries</a>
+                <a class="btn btn--medium" href="{% url 'not_implemented' %}">Create timeseries</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+</body>
+{% endblock content %}
