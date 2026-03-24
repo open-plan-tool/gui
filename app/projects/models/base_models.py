@@ -859,6 +859,12 @@ class Asset(TopologyNode):
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
+        qs_unmapped_ports = self.connectionlink_set.filter(
+            asset_connection_port="no_mapping"
+        )
+        for connection in qs_unmapped_ports:
+            connection.assign_port_if_missing()
+
         if hasattr(self.asset_type, "connection_ports"):
             # port mapping contains the information to what bus is expected to be connected to which port
             port_mapping = self.asset_type.connection_ports
