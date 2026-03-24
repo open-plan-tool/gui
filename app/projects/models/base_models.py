@@ -313,7 +313,19 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path):
+    def to_datapackage(self, destination_path, number=None):
+        """
+
+        Parameters
+        ----------
+        destination_path: Path
+            Path where the datapackage should be saved
+        number: int
+            Number of timesteps which should be considered for the exported datapackage
+        Returns
+        -------
+        A Path to the scenario datapackage
+        """
         # Create a folder with a datapackage structure
         scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
 
@@ -392,6 +404,10 @@ class Scenario(models.Model):
                     f"Some profiles have more timesteps that other profiles in scenario {self.name}({self.id}) --> the shorter profiles will be expanded with NaN values"
                 )
             # TODO check if there are column duplicates
+
+            # restrict the size of the profiles
+            if number is not None:
+                df = df.iloc[:number]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
         # creating datapackage.json metadata file at the root of the datapackage
