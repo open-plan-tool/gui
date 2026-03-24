@@ -148,6 +148,11 @@ urlpatterns = [
         scenario_export_as_datapackage,
         name="scenario_export_as_datapackage",
     ),
+    path(
+        "scenario/export/datapackage/<int:scen_id>/number/<int:n_timestamps>",
+        scenario_export_as_datapackage,
+        name="scenario_export_as_datapackage",
+    ),
     path("scenario/upload/<int:proj_id>", scenario_upload, name="scenario_upload"),
     # path('scenario/upload/<int:proj_id>', LoadScenarioFromFileView.as_view(), name='scenario_upload'),
     # Timeseries Model

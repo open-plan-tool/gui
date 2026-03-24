@@ -1351,7 +1351,7 @@ def scenario_export(request, proj_id):
 
 @login_required
 @require_http_methods(["GET"])
-def scenario_export_as_datapackage(request, scen_id):
+def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
     scenario = get_object_or_404(Scenario, id=int(scen_id))
 
     if scenario.project.user != request.user:
@@ -1360,7 +1360,7 @@ def scenario_export_as_datapackage(request, scen_id):
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
         # write the content of the scenario into a temp directory
-        scenario_folder = scenario.to_datapackage(destination_path)
+        scenario_folder = scenario.to_datapackage(destination_path, number=n_timestamps)
 
         # Place the temp directory into a zip folder
         zip_buffer = io.BytesIO()
