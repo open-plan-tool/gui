@@ -163,6 +163,16 @@ urlpatterns = [
         project_export_as_datapackage,
         name="project_export_as_datapackage",
     ),
+    path(
+        "scenario/export/datapackage/jsonified/<int:scen_id>",
+        scenario_export_as_jsonified_datapackage,
+        name="scenario_export_as_jsonified_datapackage",
+    ),
+    path(
+        "scenario/export/datapackage/jsonified/<int:scen_id>/number/<int:n_timestamps>",
+        scenario_export_as_jsonified_datapackage,
+        name="scenario_export_as_jsonified_datapackage",
+    ),
     path("scenario/upload/<int:proj_id>", scenario_upload, name="scenario_upload"),
     # path('scenario/upload/<int:proj_id>', LoadScenarioFromFileView.as_view(), name='scenario_upload'),
     # Timeseries Model

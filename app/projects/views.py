@@ -27,6 +27,9 @@ from django.template.loader import get_template
 
 from jsonview.decorators import json_view
 from django.db.models import Q
+
+from oemof.datapackage.datapackage import export_dp_to_json
+
 from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
 from .forms import *
 from .requests import (
@@ -1387,6 +1390,25 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
         response["Content-Disposition"] = (
             f'attachment; filename="datapackage_scenario_{scen_id}.zip"'
         )
+
+    return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
+    scenario = get_object_or_404(Scenario, id=int(scen_id))
+
+    if scenario.project.user != request.user:
+        raise PermissionDenied
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(temp_dir)
+        # write the content of the scenario into a temp directory
+        scenario_folder = scenario.to_datapackage(destination_path, number=n_timestamps)
+
+        json_dp = json.loads(export_dp_to_json(scenario_folder))
+        response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
 
