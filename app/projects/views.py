@@ -35,6 +35,8 @@ from .forms import *
 from .requests import (
     mvs_simulation_request,
     fetch_mvs_simulation_results,
+    ezp_simulation_request,
+    fetch_ezp_simulation_results,
     mvs_sensitivity_analysis_request,
     fetch_mvs_sa_results,
     parse_mvs_results,
@@ -2040,6 +2042,71 @@ def request_mvs_simulation(request, scen_id=0):
             simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
+
+        simulation.elapsed_seconds = (
+            datetime.datetime.now() - simulation.start_date
+        ).seconds
+        simulation.save()
+
+        answer = HttpResponseRedirect(
+            reverse("scenario_review", args=[scenario.project.id, scen_id])
+        )
+
+    return answer
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def request_ezp_simulation(request, scen_id=0):
+    if scen_id == 0:
+        answer = JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(pk=scen_id)
+    json_dp = scenario_export_as_jsonified_datapackage(request, scen_id)
+
+    # if request.method == "POST":
+    #     output_lp_file = request.POST.get("output_lp_file", None)
+    #     if output_lp_file == "on":
+    #         data_clean["simulation_settings"]["output_lp_file"] = "true"
+
+    # Make simulation request to eesyplan server
+    results = ezp_simulation_request(json_dp.text)
+
+    if results is None:
+        error_msg = "Could not communicate with the simulation server."
+        logger.error(error_msg)
+        messages.error(request, error_msg)
+        # TODO redirect to prefilled feedback form / bug form
+        answer = JsonResponse(
+            {"status": "error", "error": error_msg},
+            status=407,
+            content_type="application/json",
+        )
+    else:
+        # delete existing simulation
+        Simulation.objects.filter(scenario_id=scen_id).delete()
+
+        # Create empty Simulation model object
+        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
+
+        simulation.mvs_token = (
+            results["id"] if results["id"] else None
+        )  # TODO change token
+
+        if "status" in results.keys() and (
+            results["status"] == DONE or results["status"] == ERROR
+        ):
+            simulation.status = results["status"]
+            simulation.results = results["results"]
+            simulation.end_date = datetime.datetime.now()
+        else:  # PENDING
+            simulation.status = results["status"]
+            # create a task which will update simulation status
+            # create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
 
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date

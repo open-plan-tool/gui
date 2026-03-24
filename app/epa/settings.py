@@ -221,6 +221,10 @@ MVS_LP_FILE_URL = f"{MVS_API_HOST}/get_lp_file/"
 MVS_SA_POST_URL = f"{MVS_API_HOST}/sendjson/openplan/sensitivity-analysis"
 MVS_SA_GET_URL = f"{MVS_API_HOST}/check-sensitivity-analysis/"
 
+EZP_API_HOST = env("EZP_API_HOST", default="")
+EZP_POST_URL = f"{EZP_API_HOST}/sendjson/"
+EZP_GET_URL = f"{EZP_API_HOST}/check/"
+
 # Allow iframes to show in page
 X_FRAME_OPTIONS = "SAMEORIGIN"
 

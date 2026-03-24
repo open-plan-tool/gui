@@ -266,6 +266,11 @@ urlpatterns = [
         name="request_mvs_simulation",
     ),
     path(
+        "topology/ezp_simulation/<int:scen_id>",
+        request_ezp_simulation,
+        name="request_ezp_simulation",
+    ),
+    path(
         "topology/update_simulation_rating/",
         update_simulation_rating,
         name="update_simulation_rating",
