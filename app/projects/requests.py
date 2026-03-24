@@ -10,6 +10,8 @@ from epa.settings import (
     MVS_GET_URL,
     MVS_SA_POST_URL,
     MVS_SA_GET_URL,
+    EZP_POST_URL,
+    EZP_GET_URL,
 )
 from dashboard.models import (
     FancyResults,
@@ -22,6 +24,83 @@ from projects.constants import DONE, PENDING, ERROR
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def ezp_simulation_request(data: str):
+    headers = {"content-type": "application/json"}
+    payload = data
+
+    try:
+        response = requests.post(
+            EZP_POST_URL,
+            data=payload,
+            headers=headers,
+            proxies=PROXY_CONFIG,
+            verify=False,
+        )
+
+        # If the response was successful, no Exception will be raised
+        response.raise_for_status()
+    except requests.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {http_err}")
+        return None
+    except Exception as err:
+        logger.error(f"Other error occurred: {err}")
+        return None
+    else:
+        logger.info("The simulation was sent successfully to MVS API.")
+        return json.loads(response.text)
+
+
+def ezp_simulation_check_status(token):
+    try:
+        response = requests.get(EZP_GET_URL + token, proxies=PROXY_CONFIG, verify=False)
+        response.raise_for_status()
+    except requests.HTTPError as http_err:
+        logger.error(f"HTTP error occurred: {http_err}")
+        return None
+    except Exception as err:
+        logger.error(f"Other error occurred: {err}")
+        return None
+    else:
+        logger.info("Success!")
+        return json.loads(response.text)
+
+
+def fetch_ezp_simulation_results(simulation):
+    if simulation.status == PENDING:
+        response = ezp_simulation_check_status(token=simulation.mvs_token)
+        try:
+            simulation.status = response["status"]
+            simulation.errors = (
+                json.dumps(response["results"][ERROR])
+                if simulation.status == ERROR
+                else None
+            )
+            simulation.results = (
+                response["results"] if simulation.status == DONE else None
+            )
+
+            # simulation.mvs_version = response["mvs_version"]
+            logger.info(f"The simulation {simulation.id} is finished")
+        except:
+            simulation.status = ERROR
+            simulation.results = None
+
+        simulation.elapsed_seconds = (datetime.now() - simulation.start_date).seconds
+
+        # Cancel simulation if it has been going on > 48h
+        max_simulation_seconds = 48 * 60 * 60
+        if simulation.elapsed_seconds > max_simulation_seconds:
+            simulation.status = ERROR
+            simulation.results = None
+
+        simulation.end_date = (
+            datetime.now() if simulation.status in [ERROR, DONE] else None
+        )
+        simulation.save()
+
+    return simulation.status != PENDING
 
 
 def mvs_simulation_request(data: dict):
