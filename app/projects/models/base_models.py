@@ -1042,6 +1042,48 @@ class ConnectionLink(models.Model):
                 asset_connection_port = "input_1"
             return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
 
+    def assign_port_if_missing(self):
+        asset_connection_port = self.asset_connection_port
+        flow_direction = self.flow_direction
+        if asset_connection_port == "no_mapping":
+            logging.warning(
+                "A connection had no mapping to asset port, probably old scenario, assigning a mapping ..."
+            )
+
+            energy_vector = self.bus.type
+            asset_type = self.asset.asset_type
+            if flow_direction == "A2B":
+                asset_connection_port = "output_1"
+                if asset_type.n_outputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="output"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No output port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+
+            elif flow_direction == "B2A":
+                asset_connection_port = "input_1"
+                if asset_type.n_inputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="input"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No input port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+            self.asset_connection_port = asset_connection_port
+            self.save(update_fields=["asset_connection_port"])
+            logging.warning(
+                f"... the asset {self.asset.name} port to connect to the bus {self.bus.name} was set to {asset_connection_port}"
+            )
+        return asset_connection_port
+
 
 class Constraint(models.Model):
     scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE, null=False)
