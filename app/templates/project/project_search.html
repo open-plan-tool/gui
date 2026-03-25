@@ -140,7 +140,8 @@
                                   <li><a class="dropdown-item" onclick="javascript:showModal(event, modalId='shareProjectModal', attrs={'action': `{% url 'project_share' project.id %}`})">{% translate "Share project" %}</a></li>
                                   <li><a class="dropdown-item" onclick="javascript:showRevokeProjectModal(event, `{{ project.id }}`)">{% translate "Unshare project" %}</a></li>
                                   {% endif %}
-																	<li><a class="dropdown-item" href="{% url 'project_export' project.id %}">{% translate "Export project" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'project_export' project.id %}">{% translate "Export project" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'project_export_as_datapackage' project.id %}">{% translate "Export project as datapackage" %}</a></li>
                                 </ul>
                             </div>
 
