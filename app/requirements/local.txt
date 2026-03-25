@@ -1,6 +1,5 @@
 -r ./base.txt
 
-black==25.12.0
 click==8.3.1
 django-environ==0.12.0
 pre-commit==4.5.1
