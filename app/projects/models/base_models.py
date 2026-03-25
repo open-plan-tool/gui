@@ -313,7 +313,19 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path):
+    def to_datapackage(self, destination_path, number=None):
+        """
+
+        Parameters
+        ----------
+        destination_path: Path
+            Path where the datapackage should be saved
+        number: int
+            Number of timesteps which should be considered for the exported datapackage
+        Returns
+        -------
+        A Path to the scenario datapackage
+        """
         # Create a folder with a datapackage structure
         scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
 
@@ -392,6 +404,10 @@ class Scenario(models.Model):
                     f"Some profiles have more timesteps that other profiles in scenario {self.name}({self.id}) --> the shorter profiles will be expanded with NaN values"
                 )
             # TODO check if there are column duplicates
+
+            # restrict the size of the profiles
+            if number is not None:
+                df = df.iloc[:number]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
         # creating datapackage.json metadata file at the root of the datapackage
@@ -859,6 +875,12 @@ class Asset(TopologyNode):
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
+        qs_unmapped_ports = self.connectionlink_set.filter(
+            asset_connection_port="no_mapping"
+        )
+        for connection in qs_unmapped_ports:
+            connection.assign_port_if_missing()
+
         if hasattr(self.asset_type, "connection_ports"):
             # port mapping contains the information to what bus is expected to be connected to which port
             port_mapping = self.asset_type.connection_ports
@@ -1041,6 +1063,48 @@ class ConnectionLink(models.Model):
             if asset_connection_port == "no_mapping":
                 asset_connection_port = "input_1"
             return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
+
+    def assign_port_if_missing(self):
+        asset_connection_port = self.asset_connection_port
+        flow_direction = self.flow_direction
+        if asset_connection_port == "no_mapping":
+            logging.warning(
+                "A connection had no mapping to asset port, probably old scenario, assigning a mapping ..."
+            )
+
+            energy_vector = self.bus.type
+            asset_type = self.asset.asset_type
+            if flow_direction == "A2B":
+                asset_connection_port = "output_1"
+                if asset_type.n_outputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="output"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No output port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+
+            elif flow_direction == "B2A":
+                asset_connection_port = "input_1"
+                if asset_type.n_inputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="input"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No input port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+            self.asset_connection_port = asset_connection_port
+            self.save(update_fields=["asset_connection_port"])
+            logging.warning(
+                f"... the asset {self.asset.name} port to connect to the bus {self.bus.name} was set to {asset_connection_port}"
+            )
+        return asset_connection_port
 
 
 class Constraint(models.Model):
