@@ -208,8 +208,11 @@ PROXY_CONFIG = (
     else (dict())
 )
 
+# Server queue which will process the simulation, openplan for prod mvs version and "" (blank) for dev mvs version
+MVS_API_QUEUE = env("MVS_API_QUEUE", default="openplan")
+
 MVS_API_HOST = env("MVS_API_HOST", default="https://mvs-eland.rl-institut.de")
-MVS_POST_URL = f"{MVS_API_HOST}/sendjson/"
+MVS_POST_URL = f"{MVS_API_HOST}/sendjson/{MVS_API_QUEUE}"
 MVS_GET_URL = f"{MVS_API_HOST}/check/"
 MVS_LP_FILE_URL = f"{MVS_API_HOST}/get_lp_file/"
 MVS_SA_POST_URL = f"{MVS_API_HOST}/sendjson/openplan/sensitivity-analysis"
