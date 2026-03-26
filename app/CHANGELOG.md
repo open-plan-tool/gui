@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Enable download of datapackage as zip [[#422](https://github.com/open-plan-tool/gui/pull/422)]
+- Enable download of datapackage as zip [[#422](https://github.com/open-plan-tool/gui/pull/422)] [[#447](https://github.com/open-plan-tool/gui/pull/447)]
 
 ### Changed
 - Update Django version and dependencies [[#432](https://github.com/open-plan-tool/gui/pull/432)]
