@@ -326,8 +326,19 @@ class Scenario(models.Model):
         -------
         A Path to the scenario datapackage
         """
+
         # Create a folder with a datapackage structure
-        scenario_folder = destination_path / f"scenario_{self.name}".replace(" ", "_")
+        def clean_dir_str(name):
+            # Remove spaces and slashes (can accidentally lead to subdirectories in datapackage)
+            bad_chars = [" ", "/", "\\"]
+            for char in bad_chars:
+                name = name.replace(char, "_")
+
+            return name
+
+        clean_dir_name = clean_dir_str(self.name)
+
+        scenario_folder = destination_path / f"scenario_{clean_dir_name}"
 
         data_folder = scenario_folder / "data"
         elements_folder = data_folder / "elements"
