@@ -257,6 +257,8 @@ class UploadTimeseriesTest(TestCase):
         with open("./test_files/test_ts_double.csv") as fp:
             data = {
                 "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
                 "input_timeseries_scalar": "",
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
@@ -271,6 +273,8 @@ class UploadTimeseriesTest(TestCase):
         with open("./test_files/test_ts_csv_semicolon.csv") as fp:
             data = {
                 "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
                 "input_timeseries_scalar": "",
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
@@ -284,6 +288,8 @@ class UploadTimeseriesTest(TestCase):
         with open("./test_files/test_ts_double.xlsx", "rb") as fp:
             data = {
                 "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
                 "input_timeseries_scalar": "",
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
@@ -297,6 +303,8 @@ class UploadTimeseriesTest(TestCase):
         with open("./test_files/test_ts_comma_decimal.csv") as fp:
             data = {
                 "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
                 "input_timeseries_scalar": "",
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
@@ -310,6 +318,8 @@ class UploadTimeseriesTest(TestCase):
         with open("./test_files/test_ts.notsupported") as fp:
             data = {
                 "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
                 "input_timeseries_scalar": "",
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
