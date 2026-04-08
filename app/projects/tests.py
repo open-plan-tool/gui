@@ -269,7 +269,6 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_file": fp,
             }
             response = self.client.post(self.post_url, data, format="multipart")
-            print(response.content.decode())
             self.assertEqual(response.status_code, 200)
             asset = Asset.objects.last()
         self.assertEqual(asset.input_timeseries_values, [1, 2, 3, 4])
