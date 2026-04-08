@@ -438,7 +438,15 @@ class TimeseriesField(forms.MultiValueField):
             timeseries_id = ""
 
         if timeseries_file is not None:
-            input_timeseries_values = parse_input_timeseries(timeseries_file)
+            try:
+                input_timeseries_values = parse_input_timeseries(timeseries_file)
+            except (ValueError, TypeError) as e:
+                self.set_widget_error()
+                raise ValidationError(str(e))
+            except Exception as e:
+                self.set_widget_error()
+                raise ValidationError(f"Could not parse uploaded file: {e}")
+
             answer = input_timeseries_values
             input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
         elif timeseries_id != "":
