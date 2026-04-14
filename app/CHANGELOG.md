@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.1.0] – 2026-04-14
 ### Added
 - Enable download of datapackage as zip [[#422](https://github.com/open-plan-tool/gui/pull/422)] [[#447](https://github.com/open-plan-tool/gui/pull/447)]
 
