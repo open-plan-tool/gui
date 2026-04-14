@@ -545,8 +545,8 @@ def parse_csv_timeseries(file_str):
     # --- 1. case: semicolon CSV ---
     if file_str.count(";") > 0:
         delimiter = ";"
-    if file_str.count(";") > 0:
-        delimiter = ";"
+    elif file_str.count(".") > 0:
+        delimiter = ","
 
     lines = file_str.splitlines()
 
@@ -601,7 +601,6 @@ def parse_csv_timeseries(file_str):
             value = row[-1]
 
         timeseries_values.append(float(value.replace(",", ".")))
-
     return timeseries_values
 
 
