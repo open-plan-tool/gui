@@ -288,6 +288,36 @@ class UploadTimeseriesTest(TestCase):
             asset = Asset.objects.last()
         self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
 
+    def test_load_demand_csv_double_decimal_point_with_point(self):
+        with open("./test_files/test_ts_csv_semicolon_point.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
+
+    def test_load_demand_csv_comma_decimal_point_with_point(self):
+        with open("./test_files/test_ts_csv_comma_point.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
+
     def test_load_demand_xlsx_double_timeseries(self):
         with open("./test_files/test_ts_double.xlsx", "rb") as fp:
             data = {
@@ -305,6 +335,21 @@ class UploadTimeseriesTest(TestCase):
 
     def test_load_demand_csv_decimal_point_with_comma(self):
         with open("./test_files/test_ts_comma_decimal.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [1.2, 2, 3.0, 4])
+
+    def test_load_demand_csv_decimal_point_with_point(self):
+        with open("./test_files/test_ts_point_decimal.csv") as fp:
             data = {
                 "name": "Test_input_timeseries",
                 "pos_x": 0,
