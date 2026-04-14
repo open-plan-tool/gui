@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix datapackage export if scenario name contains slashes [[#455](https://github.com/open-plan-tool/gui/pull/455)]
 
 ## [v2.1.0] – 2026-04-14
 ### Added
