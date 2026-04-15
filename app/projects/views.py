@@ -2111,6 +2111,16 @@ def request_ezp_simulation(request, scen_id=0):
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
         ).seconds
+
+        # Keep a trace of the input datapackage which defines the simulation
+        # (without the full timeseries to save disk space, but with foreign keys to the timeseries)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            destination_path = Path(temp_dir)
+            # write the content of the scenario into a temp directory
+            scenario_folder = scenario.to_datapackage(destination_path, number=0)
+
+            json_dp = json.loads(export_dp_to_json(scenario_folder))
+            # TODO Save json_dp into a new field Simulation object ?
         simulation.save()
 
         answer = HttpResponseRedirect(
