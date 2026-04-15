@@ -6,6 +6,7 @@ import io
 import csv
 from django.db.models import Q
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from openpyxl import load_workbook
 import numpy as np
 
@@ -70,7 +71,7 @@ def gettext_variables(some_string, lang="de"):
 
 def add_help_text_icon(field, param_name, RTD_link=True):
     if field.help_text is not None:
-        help_text = field.help_text + ". " + _("Click on the icon for more help") + "."
+        help_text = field.help_text + ". "
         field.help_text = None
     else:
         help_text = ""
@@ -82,13 +83,14 @@ def add_help_text_icon(field, param_name, RTD_link=True):
             param_ref = ""
         if param_name != "name":
             if RTD_link is True:
+                help_text += _("Click on the icon for more help") + "."
                 question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
             else:
                 question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
 
         else:
             question_icon = ""
-        field.label = field.label + question_icon
+        field.label = mark_safe(field.label + question_icon)
 
 
 def set_parameter_info(param_name, field, parameters=PARAMETERS):
@@ -651,6 +653,9 @@ class COPCalculatorForm(OpenPlanModelForm):
         # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
         for field in ["temperature_low", "temperature_high"]:
             set_parameter_info(field, self.fields[field])
+
+        for field in self.fields:
+            self.add_help_text_icon(field, RTD_link=True)
 
     class Meta:
         model = COPCalculator
