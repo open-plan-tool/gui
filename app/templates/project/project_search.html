@@ -126,7 +126,7 @@
                           method="POST">
                         {% csrf_token %}
                         <!-- TODO change the ugly inline style-->
-                        <button style="margin-top:0.25rem;" class="btn btn--action action" type="submit" value="Delete" onclick="return confirm('Are you sure you want to delete?' + '\n' +'This will also delete all related project data.')">
+                        <button style="margin-top:0.25rem;" class="btn btn--action action" type="submit" value="Delete" onclick="return confirm('{{ warning_boxes.project_delete|escapejs }}')">
                             <span class="icon icon-delete" aria-hidden="true"></span>
                             {% translate "Delete" %}
                         </button>
@@ -218,7 +218,7 @@
                                         <a class="btn btn--action action" href="{% url 'scenario_duplicate' scenario.id %}">
                                             <span class="icon icon-duplicate" aria-hidden="true"></span>
                                         </a>
-                                            <button class="btn btn--action action" type="submit" formaction="{% url 'scenario_delete' scenario.id %}" formmethod="post" onclick="return confirm('Are you sure you want to delete this scenario?' + '\n' + 'This action cannot be undone.')">
+                                            <button class="btn btn--action action" type="submit" formaction="{% url 'scenario_delete' scenario.id %}" formmethod="post" onclick="return confirm('{{ warning_boxes.scenario_delete|escapejs }}')">
                                                 <span class="icon icon-delete" aria-hidden="true"></span>
                                             </button>
 
