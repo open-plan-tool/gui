@@ -89,17 +89,14 @@ class TestKPIFinder(TestCase):
         self.kpis = KPIFinder(results_dct=self.result_dct)
 
     def test_kpi_finder_finds_get(self):
-
         self.assertDictEqual(self.kpis.get("a2"), dict(unit="EUR", value=30))
         self.assertDictEqual(self.kpis.get("b12"), dict(unit="kWh", value=12))
 
     def test_kpi_finder_finds_get_value(self):
-
         self.assertEqual(self.kpis.get_value("a2"), 30)
         self.assertEqual(self.kpis.get_value("b12"), 12)
 
     def test_kpi_finder_finds_get_unit(self):
-
         self.assertEqual(self.kpis.get_unit("a2"), "EUR")
         self.assertEqual(self.kpis.get_unit("b12"), "kWh")
 

@@ -148,6 +148,11 @@ class BasicOperationsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "scenario/scenario_step1.html")
 
+    def test_logout(self):
+        response = self.client.post(reverse("logout"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "index.html")
+
 
 class ExportLoadTest(TestCase):
     fixtures = ["fixtures/benchmarks_fixture.json"]

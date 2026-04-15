@@ -136,7 +136,6 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
 def handle_storage_unit_form_post(
     request, scen_id=0, asset_type_name="", asset_uuid=None
 ):
-
     input_output_mapping = {
         "inputs": request.POST.get("inputs", "").split(","),
         "outputs": request.POST.get("outputs", "").split(","),
@@ -229,7 +228,6 @@ def handle_storage_unit_form_post(
             qs_sim = Simulation.objects.filter(scenario=scenario)
             # Populate all subassets
             for param, value in form.cleaned_data.items():
-
                 if asset_uuid and qs_sim.exists():
                     track_asset_changes(
                         scenario, param, form, existing_asset=ess_capacity_asset
@@ -294,7 +292,6 @@ def handle_storage_unit_form_post(
 
 
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
-
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
         "inputs": json.loads(request.POST.get("inputs", "[]")),
@@ -441,43 +438,9 @@ def db_connection_links_to_list(scen_id):
     all_db_connection_links = ConnectionLink.objects.filter(scenario_id=scen_id)
     connections_list = list()
     for db_connection in all_db_connection_links:
-        asset_connection_port = db_connection.asset_connection_port
+        asset_connection_port = db_connection.assign_port_if_missing()
+
         flow_direction = db_connection.flow_direction
-        if asset_connection_port == "no_mapping":
-            logging.warning(
-                "A connection had no mapping to asset port, probably old scenario, assigning a mapping ..."
-            )
-
-            energy_vector = db_connection.bus.type
-            asset_type = db_connection.asset.asset_type
-            if flow_direction == "A2B":
-                asset_connection_port = "output_1"
-                if asset_type.n_outputs > 1:
-                    qs = asset_type.ports.filter(
-                        energy_vector=energy_vector, direction="output"
-                    )
-                    if qs.exists():
-                        asset_connection_port = qs.first().port_key
-                    else:
-                        logging.warning(
-                            f"No output port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
-                        )
-
-            elif flow_direction == "B2A":
-                asset_connection_port = "input_1"
-                if asset_type.n_inputs > 1:
-                    qs = asset_type.ports.filter(
-                        energy_vector=energy_vector, direction="input"
-                    )
-                    if qs.exists():
-                        asset_connection_port = qs.first().port_key
-                    else:
-                        logging.warning(
-                            f"No input port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
-                        )
-            logging.warning(
-                f"... the asset {db_connection.asset.name} port to connect to the bus {db_connection.bus.name} was set to {asset_connection_port}"
-            )
         db_connection_dict = {
             "bus_id": db_connection.bus_id,
             "asset_id": db_connection.asset.unique_id,
@@ -830,7 +793,6 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
-
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(
@@ -848,7 +810,6 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
             qs.update(**asset_node_positions[asset_id])
 
     for bus_id in all_scenario_busses_ids:
-
         qs = Bus.objects.filter(id=bus_id)
         if bus_id not in topology_busses_ids:
             logger.debug(

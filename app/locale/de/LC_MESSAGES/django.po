@@ -3515,6 +3515,10 @@ msgstr "Projektfreigabe aufheben"
 msgid "Export project"
 msgstr "Projekt exportieren"
 
+#: templates/project/project_search.html:144
+msgid "Export project as datapackage"
+msgstr "Projekt als datapackage exportieren"
+
 #: templates/project/project_search.html:191
 msgid "Pending..."
 msgstr "Anhängig..."

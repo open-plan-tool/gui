@@ -119,7 +119,6 @@ class KPICostsMatrixResults(models.Model):
 
 class OemofBusResults(pd.DataFrame):  # real results
     def __init__(self, results):
-
         js = json.loads(results)
         mindex = pd.MultiIndex.from_tuples(
             js["columns"],
@@ -191,9 +190,6 @@ class FancyResults(models.Model):
             logging.error(
                 f"The flow data of the asset {self.asset} have some NaN value"
             )
-            import pdb
-
-            pdb.set_trace()
         super().save(*args, **kwargs)
 
 
@@ -500,7 +496,6 @@ class FlowResults(models.Model):
                         df_bus.index.get_level_values("direction") == "in"
                     ].index.get_level_values("asset")
                     for component in bus_inputs:
-
                         asset_to_bus_names.append(component)
 
                     bus_outputs = df_bus.loc[
@@ -881,7 +876,6 @@ def graph_timeseries(simulations, y_variables=None):
 def graph_timeseries_stacked(simulations, y_variables, energy_vector):
     simulations_results = []
     for simulation in simulations:
-
         qs = FancyResults.objects.filter(
             simulation=simulation, total_flow__gt=0, energy_vector=energy_vector
         )
@@ -1010,9 +1004,7 @@ def graph_capacities(simulations, y_variables):
             .values_list("label", flat=True)
         )
     for simulation in simulations:
-        y_values = (
-            []
-        )  # stores the capacity, both installed and optimized in separate dicts, of each individual asset/ component
+        y_values = []  # stores the capacity, both installed and optimized in separate dicts, of each individual asset/ component
         x_values = []  # stores the label of the corresponding asset
 
         installed_capacity_dict = {
@@ -1081,7 +1073,6 @@ def graph_capacities(simulations, y_variables):
         }
 
         for asset_name in y_variables:
-
             if asset_name in ic:
                 installed_cap = ic[asset_name]
             else:
@@ -1193,7 +1184,6 @@ def get_costs(simulation, y_variables=None):
     # assign optimized capacity to storage components
     storages = df.parent_asset__name.dropna().unique()
     for ess in storages:
-
         opt_cap = df.loc[
             (df.parent_asset__name == ess) & (df.direction == "out"),
             "optimized_capacity",
@@ -1206,9 +1196,7 @@ def get_costs(simulation, y_variables=None):
             ] = df.loc[
                 (df.parent_asset__name == ess) & (df.direction == "out"),
                 "optimized_capacity",
-            ].values[
-                0
-            ]
+            ].values[0]
 
     df = df.fillna(0)
 
@@ -1365,7 +1353,6 @@ def graph_costs(
 
 
 def graph_sankey(simulation, energy_vector, timestep=None):
-
     # for DSO results
     dso_period_suffix = "_period (@)"
 
@@ -1406,7 +1393,6 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                 ).values_list("asset", "flow_data")
 
             for component_label, val in asset_to_bus_names:
-
                 if dso_period_suffix in component_label:
                     component_label = component_label.replace(dso_period_suffix, "")
                     if ts is None:
@@ -1665,7 +1651,6 @@ class ReportItem(models.Model):
             # if isinstance(energy_vector, list) is False:
             #     energy_vector = [energy_vector]
             if energy_vector is not None:
-
                 sim = simulation
                 qs = FlowResults.objects.filter(simulation=sim)
                 if qs.exists():

@@ -16,7 +16,7 @@ from pathlib import Path
 import sys
 
 # Version number -> gets updated by bump-my-version, do not touch manually
-APP_VERSION_NUMBER = "2.0.1"
+APP_VERSION_NUMBER = "2.1.1"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,8 +41,13 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
+# Resources dir (containing helper csv files)
+RESOURCES_DIR = BASE_DIR / "resources"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
+PROD_ENV = env.bool("PROD_ENV", default=False)
+
 if DEBUG is True:
     STATICFILES_FINDERS.append("sass_processor.finders.CssFinder")
     SASS_PROCESSOR_ROOT = STATIC_ROOT
@@ -73,6 +78,7 @@ INSTALLED_APPS = [
     "dashboard.apps.DashboardConfig",
     # 3rd Party
     "crispy_forms",
+    "crispy_bootstrap4",
     "django_q",
 ]
 
@@ -99,6 +105,8 @@ FILE_UPLOAD_HANDLERS = [
 ROOT_URLCONF = "epa.urls"
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 TEMPLATES = [
     {
@@ -161,8 +169,6 @@ TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = False
 
 # Other configs
@@ -172,8 +178,6 @@ AUTH_USER_MODEL = "users.CustomUser"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "project_search"
 LOGOUT_REDIRECT_URL = "home"
-
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Please note, we don't use Django's internal email system,
 # we implement our own, using exchangelib
@@ -204,8 +208,11 @@ PROXY_CONFIG = (
     else (dict())
 )
 
+# Server queue which will process the simulation, openplan for prod mvs version and "" (blank) for dev mvs version
+MVS_API_QUEUE = env("MVS_API_QUEUE", default="openplan")
+
 MVS_API_HOST = env("MVS_API_HOST", default="https://mvs-eland.rl-institut.de")
-MVS_POST_URL = f"{MVS_API_HOST}/sendjson/"
+MVS_POST_URL = f"{MVS_API_HOST}/sendjson/{MVS_API_QUEUE}"
 MVS_GET_URL = f"{MVS_API_HOST}/check/"
 MVS_LP_FILE_URL = f"{MVS_API_HOST}/get_lp_file/"
 MVS_SA_POST_URL = f"{MVS_API_HOST}/sendjson/openplan/sensitivity-analysis"
@@ -262,3 +269,34 @@ Q_CLUSTER = {
     "queue_limit": 50,
     "orm": "default",
 }
+
+if PROD_ENV:
+    # SECURITY
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-ssl-redirect
+    SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
+    # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-secure
+    SESSION_COOKIE_SECURE = True
+    # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-name
+    SESSION_COOKIE_NAME = "__Secure-sessionid"
+    # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-secure
+    CSRF_COOKIE_SECURE = True
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
+    # TODO: set this to 60 seconds first and then to 518400 once you prove the former works
+    SECURE_HSTS_SECONDS = env.int(
+        "SECURE_HSTS_SECONDS",
+        default=60,
+    )
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+        "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS",
+        default=True,
+    )
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-preload
+    SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
+    # https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
+    SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
+        "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF",
+        default=True,
+    )

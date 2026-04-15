@@ -1,7 +1,13 @@
 import datetime
 import json
+import logging
 import uuid
 from datetime import timedelta
+import pandas as pd
+from pathlib import Path
+import numpy as np
+from oemof.datapackage.datapackage import building
+
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 from django.conf import settings
@@ -106,6 +112,17 @@ class Project(models.Model):
             dm["scenario_set_data"] = scenario_data
         return dm
 
+    def to_datapackage(self):
+        """"""
+        dp = model_to_dict(self.economic_data, exclude=["id", "currency"])
+        dp["name"] = self.name
+        dp["type"] = "project"
+        dp["discount_factor"] = dp.pop("discount")
+        dp["lifetime"] = dp.pop("duration")
+        dp["shortage_cost"] = 999
+        dp["excess_cost"] = 99
+        return dp
+
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
         user = None
         success = False
@@ -169,7 +186,6 @@ class Project(models.Model):
         if viewers is not None:
             existing_viewers = viewers.intersection(self.viewers.all())
             if existing_viewers.exists():
-
                 for viewer_id in existing_viewers.values_list("id", flat=True):
                     self.viewers.remove(viewer_id)
                 success = True
@@ -296,6 +312,122 @@ class Scenario(models.Model):
             busses.append(bus_data)
         dm["busses"] = busses
         return dm
+
+    def to_datapackage(self, destination_path, number=None):
+        """
+
+        Parameters
+        ----------
+        destination_path: Path
+            Path where the datapackage should be saved
+        number: int
+            Number of timesteps which should be considered for the exported datapackage
+        Returns
+        -------
+        A Path to the scenario datapackage
+        """
+
+        # Create a folder with a datapackage structure
+        def clean_dir_str(name):
+            # Remove spaces and slashes (can accidentally lead to subdirectories in datapackage)
+            bad_chars = [" ", "/", "\\"]
+            for char in bad_chars:
+                name = name.replace(char, "_")
+
+            return name
+
+        clean_dir_name = clean_dir_str(self.name)
+
+        scenario_folder = destination_path / f"scenario_{clean_dir_name}"
+
+        data_folder = scenario_folder / "data"
+        elements_folder = data_folder / "elements"
+        sequences_folder = data_folder / "sequences"
+
+        # create subfolders
+        (scenario_folder / "scripts").mkdir(parents=True)
+        elements_folder.mkdir(parents=True)
+        sequences_folder.mkdir(parents=True)
+
+        # Save the project specifics
+        proj = self.project
+        out_path = data_folder / f"project.csv"
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        df = pd.DataFrame([proj.to_datapackage()])
+        df.drop_duplicates("name").to_csv(out_path, index=False)
+
+        # List all components of the scenario (except the busses)
+        qs_assets = Asset.objects.filter(scenario=self)
+        # List all distinct components' assettypes (or facade name) which are not children
+        # The children assets are going to be processed by the parent asset `to_datapackage` method
+        facade_names = (
+            qs_assets.filter(parent_asset__isnull=True)
+            .distinct()
+            .values_list("asset_type__asset_type", flat=True)
+        )
+
+        bus_resource_records = []
+        profile_resource_records = {}
+        for facade_name in facade_names:
+            resource_records = []
+            for i, asset in enumerate(
+                qs_assets.filter(asset_type__asset_type=facade_name)
+            ):
+                resource_rec, bus_resource_rec, profile_resource_rec = (
+                    asset.to_datapackage()
+                )
+                resource_records.append(resource_rec)
+                # those constitute the busses and sequences used by this asset
+                bus_resource_records.extend(bus_resource_rec)
+                profile_resource_records.update(profile_resource_rec)
+
+            # Add the resource's instances to a file in the "elements" folder of the datapackage
+            if resource_records:
+                out_path = elements_folder / f"{facade_name}.csv"
+                Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+                df = pd.DataFrame(resource_records)
+                df.to_csv(out_path, index=False)
+
+        # Save all unique busses to a elements resource
+        if bus_resource_records:
+            out_path = elements_folder / f"bus.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            df = pd.DataFrame(bus_resource_records)
+            df.drop_duplicates("name").to_csv(out_path, index=False)
+
+        # Save all profiles to a sequences resource
+        if profile_resource_records:
+            out_path = sequences_folder / f"profiles.csv"
+            Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+            # add timestamps to the profiles
+            profile_resource_records["timeindex"] = self.get_timestamps()
+            try:
+                df = pd.DataFrame(profile_resource_records)
+            except ValueError as e:
+                # If not all profiles have the same length we pad the shorter profiles with np.nan
+                max_len = max(len(v) for v in profile_resource_records.values())
+                profile_resource_records = {
+                    k: v + [np.nan] * (max_len - len(v))
+                    for k, v in profile_resource_records.items()
+                }
+                df = pd.DataFrame(profile_resource_records)
+                logging.warning(
+                    f"Some profiles have more timesteps that other profiles in scenario {self.name}({self.id}) --> the shorter profiles will be expanded with NaN values"
+                )
+            # TODO check if there are column duplicates
+
+            # restrict the size of the profiles
+            if number is not None:
+                df = df.iloc[:number]
+            df.set_index("timeindex").to_csv(out_path, index=True)
+
+        # creating datapackage.json metadata file at the root of the datapackage
+        building.infer_metadata_from_data(
+            package_name=f"scenario_{self.name}".replace(" ", "_"),
+            path=scenario_folder,
+            fk_targets=["project"],
+        )
+        return scenario_folder
 
 
 def get_default_timeseries():
@@ -662,27 +794,103 @@ class Asset(TopologyNode):
         return answer
 
     def to_datapackage(self):
+        """Return the asset's attributes in a datapackage form"""
         dp = {"type": self.asset_type.asset_type}
+        if (
+            "demand" not in self.asset_type.asset_type
+            and "dso" not in self.asset_type.asset_type
+        ):
+            dp["project_data"] = self.scenario.project.name
         # to collect the timeseries used by the asset
         profile_resource_rec = {}
-        for field in self.asset_type.visible_fields:
-            value = getattr(self, field)
-            # if the field is a candidate for a scalar/list
-            if isinstance(value, str) and field != "name":
-                value = json.loads(value)
-                if isinstance(value, list):
-                    col = f"{self.name}__{field}"
-                    profile_resource_rec[col] = value
-                    value = col
-            elif isinstance(value, Timeseries):
-                col = value.name
-                profile_resource_rec[col] = value.values
-                value = col
 
-            dp[field] = value
+        # Storage assets are the only one to have children (namely `capacity`, `charge` and `discharge`
+        qs_children = Asset.objects.filter(parent_asset__id=self.id)
+        if qs_children.exists():
+            # Only keep the values from the capacity children asset of the storage
+            capacity = qs_children.get(asset_type__asset_type="capacity")
+            for attribute in [
+                "capex_fix",
+                "capex_var",
+                "opex_fix",
+                "opex_var",
+                "lifetime",
+                "crate",
+                "efficiency",
+                "soc_max",
+                "soc_min",
+                "maximum_capacity",
+                "optimize_cap",
+                "installed_capacity",
+                "age_installed",
+                "thermal_loss_rate",  # only for hess
+                "fixed_thermal_losses_relative",  # only for hess
+                "fixed_thermal_losses_absolute",  # only for hess
+            ]:
+                setattr(self, attribute, getattr(capacity, attribute))
+
+            if self.asset_type.asset_type != "hess":
+                attributes = [
+                    f
+                    for f in AssetType.objects.get(asset_type="capacity").visible_fields
+                    if f
+                    not in (
+                        "thermal_loss_rate",
+                        "fixed_thermal_losses_relative",
+                        "fixed_thermal_losses_absolute",
+                    )
+                ]
+            else:
+                attributes = AssetType.objects.get(asset_type="capacity").visible_fields
+        else:
+            attributes = self.asset_type.visible_fields
+
+        for field in attributes:
+            if (
+                field != "dispatchable"
+            ):  # TODO remove this when `dispatchable` not a visible field anymore
+                value = getattr(self, field)
+                # if the field is a candidate for a scalar/list
+                if isinstance(value, str) and field != "name":
+                    value = json.loads(value)
+                    if isinstance(value, list):
+                        col = f"{self.name}__{field}"
+                        profile_resource_rec[col] = value
+                        value = col
+                elif isinstance(value, Timeseries):
+                    col = value.name
+                    profile_resource_rec[col] = value.values
+                    value = col
+
+                if self.asset_type.asset_type == "chp_fixed_ratio":
+                    if field == "efficiency":
+                        field = "conversion_factor_to_electricity"
+                    elif field == "efficiency_multiple":
+                        field = "conversion_factor_to_heat"
+                elif self.asset_type.asset_type == "chp":
+                    if field == "thermal_loss_rate":
+                        field = "beta"
+                    elif field == "efficiency":
+                        field = "conversion_factor_to_electricity"
+                    elif field == "efficiency_multiple":
+                        field = "conversion_factor_to_heat"
+                elif self.asset_type.asset_type == "heat_pump":
+                    if field == "efficiency":
+                        field = "cop"
+
+                elif self.asset_type.asset_type == "electrolyzer":
+                    if field == "efficiency_multiple":
+                        field = "efficiency_heat"
+                dp[field] = value
 
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
+
+        qs_unmapped_ports = self.connectionlink_set.filter(
+            asset_connection_port="no_mapping"
+        )
+        for connection in qs_unmapped_ports:
+            connection.assign_port_if_missing()
 
         if hasattr(self.asset_type, "connection_ports"):
             # port mapping contains the information to what bus is expected to be connected to which port
@@ -757,7 +965,6 @@ class Asset(TopologyNode):
 
 
 class COPCalculator(models.Model):
-
     scenario = models.ForeignKey(
         Scenario, on_delete=models.CASCADE, null=False, blank=False
     )
@@ -829,7 +1036,8 @@ class Bus(TopologyNode):
 
     def to_datapackage(self):
         dm = model_to_dict(self, fields=["type", "name"])
-        dm["facade"] = "bus"
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
         dm["excess"] = "False"
         dm["excess_costs"] = "0.0"
@@ -866,6 +1074,48 @@ class ConnectionLink(models.Model):
             if asset_connection_port == "no_mapping":
                 asset_connection_port = "input_1"
             return f"{self.bus.name}.{self.bus_connection_port} → {self.asset.name}.{asset_connection_port} (scenario {self.scenario.name})"
+
+    def assign_port_if_missing(self):
+        asset_connection_port = self.asset_connection_port
+        flow_direction = self.flow_direction
+        if asset_connection_port == "no_mapping":
+            logging.warning(
+                "A connection had no mapping to asset port, probably old scenario, assigning a mapping ..."
+            )
+
+            energy_vector = self.bus.type
+            asset_type = self.asset.asset_type
+            if flow_direction == "A2B":
+                asset_connection_port = "output_1"
+                if asset_type.n_outputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="output"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No output port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+
+            elif flow_direction == "B2A":
+                asset_connection_port = "input_1"
+                if asset_type.n_inputs > 1:
+                    qs = asset_type.ports.filter(
+                        energy_vector=energy_vector, direction="input"
+                    )
+                    if qs.exists():
+                        asset_connection_port = qs.first().port_key
+                    else:
+                        logging.warning(
+                            f"No input port with energy carrier for {energy_vector} found within the port mapping of the component {db_connection.asset.name}"
+                        )
+            self.asset_connection_port = asset_connection_port
+            self.save(update_fields=["asset_connection_port"])
+            logging.warning(
+                f"... the asset {self.asset.name} port to connect to the bus {self.bus.name} was set to {asset_connection_port}"
+            )
+        return asset_connection_port
 
 
 class Constraint(models.Model):
@@ -926,7 +1176,6 @@ class ScenarioFile(models.Model):
 
 
 class AbstractSimulation(models.Model):
-
     start_date = models.DateTimeField(auto_now_add=True, null=False)
     end_date = models.DateTimeField(null=True)
     elapsed_seconds = models.FloatField(null=True)
