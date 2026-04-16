@@ -1398,7 +1398,8 @@ form .btn {
   padding: 3rem; }
 
 .modal .modal-addendum {
-  padding: 3rem; }
+  padding-right: 3rem;
+  padding-left: 3rem; }
 
 .system-design-error .modal-body {
   display: flex;
@@ -4256,6 +4257,20 @@ nav.navbar {
   flex-direction: row;
   justify-content: center;
   border-top: 2px solid #F4F7F9; }
+  .scenario-create__info-message {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 1rem 0; }
+    .scenario-create__info-message > div {
+      max-width: 42rem;
+      background-color: #F6FBFF;
+      color: #14558D;
+      padding: 0.5rem 1rem; }
+    .scenario-create__info-message p {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      margin-bottom: 0; }
   .scenario-create form {
     width: 100%; }
   .scenario-create .input-item,
