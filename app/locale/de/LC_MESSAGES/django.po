@@ -4538,7 +4538,7 @@ msgid "Renewable share of local generation"
 msgstr "EE-Anteil lokale Erzeugung"
 
 msgid "Levelized costs of electricity equivalent"
-msgstr "Stromgestehungskosten"
+msgstr "Energiegestehungskosten"
 
 msgid "My scenarios"
 msgstr "Meine Szenarien"
