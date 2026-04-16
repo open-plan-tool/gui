@@ -1,3 +1,6 @@
+volumes:
+  open_plan_local_redis_data: {}
+
 services:
 
   db_pg:
@@ -37,8 +40,7 @@ services:
     container_name: open_plan_local_celeryworker
     depends_on:
       - redis
-      - postgres
-      - mailpit
+      - db_pg
     ports: []
     command: /start-celeryworker
 
@@ -48,8 +50,7 @@ services:
     container_name: open_plan_local_celerybeat
     depends_on:
       - redis
-      - postgres
-      - mailpit
+      - db_pg
     ports: []
     command: /start-celerybeat
 
