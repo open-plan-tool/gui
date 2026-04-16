@@ -260,6 +260,7 @@ LOGGING = {
         },
         "asyncio": {"level": "WARNING"},
     },
+    "root": {"level": "INFO", "handlers": ["console"]},
 }
 
 
