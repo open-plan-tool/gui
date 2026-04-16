@@ -3536,7 +3536,7 @@ msgstr "Projekt als datapackage exportieren"
 
 #: templates/project/project_search.html:191
 msgid "Pending..."
-msgstr "Anhängig..."
+msgstr "In Bearbeitung..."
 
 #: templates/project/project_search.html:195
 msgid "Error"
