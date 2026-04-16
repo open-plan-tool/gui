@@ -136,6 +136,12 @@ def result_change_project(request):
 def scenario_visualize_results(
     request, proj_id=None, scen_id=None, step_id=5, max_step=MAX_STEP
 ):
+    page_information = mark_safe(
+        "Please be aware that the tool is still under development and results are subject to change. "
+        "For further information on the applied methods please take a look at the "
+        "<a href=https://open-plan-documentation.readthedocs.io/en/latest/getting_started/basic_structure.html target='_blank'>documentation</a>."
+    )
+
     request.session[COMPARE_VIEW] = False
 
     user_projects = fetch_user_projects(request.user)
@@ -184,6 +190,7 @@ def scenario_visualize_results(
                 request,
                 "report/single_scenario.html",
                 {
+                    "page_information": page_information,
                     "project_list": user_projects,
                     "proj_id": proj_id,
                     "scen_id": scen_id,
@@ -228,6 +235,7 @@ def scenario_visualize_results(
                     request,
                     "report/single_scenario.html",
                     {
+                        "page_information": page_information,
                         "scen_id": scen_id,
                         "scenario": scenario,
                         "step_list": STEP_LIST,
@@ -266,6 +274,11 @@ def scenario_visualize_results(
 def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     request.session[COMPARE_VIEW] = True
     user_projects = fetch_user_projects(request.user)
+    page_information = mark_safe(
+        "Please be aware that the tool is still under development and results are subject to change. "
+        "For further information on the applied methods please take a look at the "
+        "<a href=https://open-plan-documentation.readthedocs.io/en/latest/getting_started/basic_structure.html target='_blank'>documentation</a>."
+    )
 
     project = get_object_or_404(Project, id=proj_id)
     if (project.user != request.user) and (
@@ -287,6 +300,7 @@ def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
         "report/compare_scenario.html",
         {
             "scen_id": None,
+            "page_information": page_information,
             "step_list": STEP_LIST,
             "max_step": max_step,
             "step_id": step_id,
@@ -687,10 +701,15 @@ def request_kpi_table(request, proj_id=None):
                         break
 
                     if param["unit"] == "%":
-                        val = round(float(val) * 100, 2)
-                    values.append(beautify_number(val, 2))
+                        values.append(beautify_number(val, 2))
+                    else:
+                        values.append(beautify_number(val, 0))
 
                 if missing:
+                    continue
+
+                # skip KPI for carrier demand if all scenario values are 0
+                if "demand" in param["id"] and all(val == "0" for val in values):
                     continue
 
                 param["scen_values"] = values

@@ -569,6 +569,16 @@ def project_search(request, proj_id=None, scen_id=None):
                 "showScenarioText": _("Show scenarios"),
                 "hideScenarioText": _("Hide scenarios"),
             },
+            "warning_boxes": {
+                "project_delete": _("Are you sure you want to delete this project?")
+                + "\n"
+                + _("This will also delete all related project data")
+                + ".",
+                "scenario_delete": _("Are you sure you want to delete this scenario?")
+                + "\n"
+                + _("This action cannot be undone")
+                + ".",
+            },
         },
     )
 
