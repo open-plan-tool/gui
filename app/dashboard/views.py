@@ -708,6 +708,10 @@ def request_kpi_table(request, proj_id=None):
                 if missing:
                     continue
 
+                # skip KPI for carrier demand if all scenario values are 0
+                if "demand" in param["id"] and all(val == "0" for val in values):
+                    continue
+
                 param["scen_values"] = values
                 param["description"] = KPI_helper.get_doc_definition(param["id"])
                 kept_params.append(param)
