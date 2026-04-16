@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix thermal efficiency value display for heat storage on results page [[#451](https://github.com/open-plan-tool/gui/pull/451)]
 
 ## [v2.1.1] – 2026-04-15
 ### Fixed

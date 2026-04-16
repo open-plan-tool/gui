@@ -789,27 +789,35 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         ess_discharging_power_asset = ess_asset_children.get(
             asset_type__asset_type="discharging_power"
         )
+
+        initial = {
+            "name": existing_ess_asset.name,
+            "installed_capacity": ess_capacity_asset.installed_capacity,
+            "age_installed": ess_capacity_asset.age_installed,
+            "capex_fix": ess_capacity_asset.capex_fix,
+            "capex_var": ess_capacity_asset.capex_var,
+            "opex_fix": ess_capacity_asset.opex_fix,
+            "opex_var": ess_capacity_asset.opex_var,
+            "lifetime": ess_capacity_asset.lifetime,
+            "crate": ess_capacity_asset.crate,
+            "efficiency": ess_capacity_asset.efficiency,
+            "dispatchable": ess_capacity_asset.dispatchable,
+            "optimize_cap": ess_capacity_asset.optimize_cap,
+            "soc_max": ess_capacity_asset.soc_max,
+            "soc_min": ess_capacity_asset.soc_min,
+        }
+
+        # Add thermal loss rate fields to initial if hess
+        if asset_type_name == "hess":
+            for field in [
+                "thermal_loss_rate",
+                "fixed_thermal_losses_relative",
+                "fixed_thermal_losses_absolute",
+            ]:
+                initial[field] = getattr(ess_capacity_asset, field)
+
         # also get all child assets
-        form = StorageForm(
-            asset_type=asset_type_name,
-            view_only=True,
-            initial={
-                "name": existing_ess_asset.name,
-                "installed_capacity": ess_capacity_asset.installed_capacity,
-                "age_installed": ess_capacity_asset.age_installed,
-                "capex_fix": ess_capacity_asset.capex_fix,
-                "capex_var": ess_capacity_asset.capex_var,
-                "opex_fix": ess_capacity_asset.opex_fix,
-                "opex_var": ess_capacity_asset.opex_var,
-                "lifetime": ess_capacity_asset.lifetime,
-                "crate": ess_capacity_asset.crate,
-                "efficiency": ess_capacity_asset.efficiency,
-                "dispatchable": ess_capacity_asset.dispatchable,
-                "optimize_cap": ess_capacity_asset.optimize_cap,
-                "soc_max": ess_capacity_asset.soc_max,
-                "soc_min": ess_capacity_asset.soc_min,
-            },
-        )
+        form = StorageForm(asset_type=asset_type_name, view_only=True, initial=initial)
         optimized_cap = ess_capacity_asset.optimize_cap
         existing_asset = existing_ess_asset
 
