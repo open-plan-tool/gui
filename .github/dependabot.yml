@@ -18,16 +18,12 @@ updates:
     directory: 'app/compose/production/app_postgres/'
     schedule:
       interval: 'monthly'
-    ignore:
-      - dependency-name: '*'
-        update-types:
-          - 'version-update:semver-major'
-          - 'version-update:semver-minor'
+
 
   # Enable version updates for Python/Pip - Production
   - package-ecosystem: 'pip'
     # Look for a `requirements.txt` in the `root` directory
     # also 'setup.cfg', '.python-version' and 'requirements/*.txt'
-    directory: '/'
+    directory: 'app/'
     schedule:
       interval: 'monthly'
