@@ -8,7 +8,7 @@ services:
     expose:
       - 5432
 
-  app_pg:
+  app_pg: &django
     build:
       context: .
       args:
@@ -22,3 +22,41 @@ services:
       - "8000:8000"
     depends_on:
       - db_pg
+
+  redis:
+    image: docker.io/redis:6
+    container_name: open_plan_local_redis
+
+    volumes:
+      - open_plan_local_redis_data:/data
+
+
+  celeryworker:
+    <<: *django
+    image: open_plan_local_celeryworker
+    container_name: open_plan_local_celeryworker
+    depends_on:
+      - redis
+      - postgres
+      - mailpit
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: open_plan_local_celerybeat
+    container_name: open_plan_local_celerybeat
+    depends_on:
+      - redis
+      - postgres
+      - mailpit
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: open_plan_local_flower
+    container_name: open_plan_local_flower
+    ports:
+      - '5555:5555'
+    command: /start-flower
