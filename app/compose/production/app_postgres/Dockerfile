@@ -17,7 +17,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt
+    && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
+    && pip install gunicorn
 
 WORKDIR ${APP_ROOT}
 
