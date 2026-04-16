@@ -41,8 +41,6 @@ services:
     depends_on:
       - redis
       - db_pg
-      - postgres
-      - mailpit
     ports: []
     command: /start-celeryworker
 
@@ -53,8 +51,6 @@ services:
     depends_on:
       - redis
       - db_pg
-      - postgres
-      - mailpit
     ports: []
     command: /start-celerybeat
 
