@@ -701,8 +701,9 @@ def request_kpi_table(request, proj_id=None):
                         break
 
                     if param["unit"] == "%":
-                        val = round(float(val) * 100, 2)
-                    values.append(beautify_number(val, 2))
+                        values.append(beautify_number(val, 2))
+                    else:
+                        values.append(beautify_number(val, 0))
 
                 if missing:
                     continue
