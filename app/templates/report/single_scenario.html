@@ -135,7 +135,6 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="header-results" id="technical">
 			<h2 class="title">{% translate "Technical Information" %}</h2>
 		</div>
-				{% include "report/kpis_template.html" with table_styles=table_styles table_id="technical" %}
 
 		<div class="row">
 			<div class="col" id="report_items_technical" style="display:flex;flex-direction:column-reverse;">
@@ -199,7 +198,7 @@ $(document).ready(function () {
     $('#kpiTable').DataTable();
     // update the kpi table
     update_kpi_table_style(current_scen_id, "summary");
-    update_kpi_table_style(current_scen_id, "technical");
+    // update_kpi_table_style(current_scen_id, "technical");
     update_kpi_table_style(current_scen_id, "economic");
     update_kpi_table_style(current_scen_id, "environmental");
     request_system_costs_table(current_scen_id);
