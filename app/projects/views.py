@@ -74,7 +74,6 @@ from projects.helpers import format_scenario_for_mvs, PARAMETERS
 from dashboard.helpers import fetch_user_projects
 from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
-    create_or_delete_simulation_scheduler,
     excuses_design_under_development,
     send_feedback_email,
     get_selected_scenarios_in_cache,
@@ -1575,7 +1574,6 @@ def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
                 sa_item.status = response["status"]
                 # create a task which will update simulation status
                 # TODO check it does the right thing with sensitivity analysis
-                # create_or_delete_simulation_scheduler(mvs_token=sa_item.mvs_token)
 
             sa_item.elapsed_seconds = (
                 datetime.datetime.now() - sa_item.start_date
@@ -2020,8 +2018,6 @@ def request_mvs_simulation(request, scen_id=0):
             simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
-            # create a task which will update simulation status
-            create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
 
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
