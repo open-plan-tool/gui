@@ -542,53 +542,43 @@ class TimeseriesField(forms.MultiValueField):
 def parse_csv_timeseries(file_str):
     io_string = io.StringIO(file_str)
     delimiter = ","
-    # --- 1. case: semicolon CSV ---
-    if file_str.count(";") > 0:
-        delimiter = ";"
-    elif file_str.count(".") > 0:
-        delimiter = ","
+    is_comma_decimal = False
+    has_timestamp = False
 
     lines = file_str.splitlines()
+    # check timestamps
+    has_timestamp = any(":" in line or "-" in line for line in lines)
 
-    # --- 2. case: comma ambiguity ---
+    # --- delimiter detection ---
+    if file_str.count(";") > 0:
+        delimiter = ";"
+
+    # --- comma ambiguity ---
     # If commas exist, we need to distinguish:
     # (A) CSV with comma delimiter
     # (B) decimal comma (single column numeric data)
 
-    if delimiter == "," and file_str.count(",") > 0:
-        comma_split = [line.split(",") for line in lines if line.strip()]
+    if delimiter == ",":
+        comma_per_line = [line.count(",") for line in lines if line.strip()]
 
-        # check if timestamps exist -> strong signal comma is delimiter
-        has_timestamp = any(
-            len(part) > 0 and (":" in part or "-" in part)
-            for row in comma_split
-            for part in row[:1]
-        )
-
-        col_counts = {len(row) for row in comma_split}
-        if has_timestamp:
-            delimiter = ","
-        else:
-            # if inconsistent columns OR mostly >1 columns -> treat as CSV
-            if len(col_counts) > 1 and 1 not in col_counts:
+        if comma_per_line and all(c == 1 for c in comma_per_line):
+            if file_str.count(".") > 0:
+                # if all lines contain a "," AND there is a "." in the file, strong indicator for "," delimiter
                 delimiter = ","
-            else:
-                # likely decimal comma case → ignore csv.reader later
-                delimiter = "DECIMAL_COMMA"
+            elif not has_timestamp:
+                raise ValueError(
+                    "Ambiguous CSV format: each row contains exactly one comma. "
+                    "Cannot determine if this is a delimiter or decimal separator."
+                )
+        else:
+            # safe to assume decimal comma in single-column case
+            if comma_per_line and all(c <= 1 for c in comma_per_line):
+                is_comma_decimal = True
+                delimiter = ";"
 
-    timeseries_values = []
-
-    # --- 3. case: special handling of decimal comma single-column data ---
-    if delimiter == "DECIMAL_COMMA":
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            timeseries_values.append(float(line.replace(",", ".")))
-        return timeseries_values
-
-    # --- normal CSV parsing ---
+    # --- parsing ---
     reader = csv.reader(io_string, delimiter=delimiter)
+    timeseries_values = []
 
     for row in reader:
         if not row:
@@ -597,10 +587,17 @@ def parse_csv_timeseries(file_str):
         if len(row) == 1:
             value = row[0]
         else:
-            # robust: always take last column (fixes timestamp,value cases)
             value = row[-1]
+        value = value.strip()
 
-        timeseries_values.append(float(value.replace(",", ".")))
+        # --- decimal normalization ---
+        if is_comma_decimal:
+            value = value.replace(",", ".")
+        else:
+            if "," in value and "." not in value:
+                value = value.replace(",", ".")
+
+        timeseries_values.append(float(value))
     return timeseries_values
 
 
