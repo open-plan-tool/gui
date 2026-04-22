@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -256,6 +257,14 @@ class UploadTimeseriesTest(TestCase):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
         self.project = Project.objects.get(id=1)
+
+        # set up scenario for timeseries lengths of 4
+        self.scenario = self.project.scenario_set.first()
+        self.scenario.time_step = 360  # 6 hours
+        self.scenario.evaluated_period = 1
+        self.scenario.start_date = datetime.datetime(2020, 1, 1)
+        self.scenario.save()
+
         self.post_url = reverse("asset_create_or_update", args=[2, "demand"])
 
     def test_load_demand_csv_timestamp_format(self):
