@@ -412,3 +412,16 @@ class UploadTimeseriesTest(TestCase):
             }
             response = self.client.post(self.post_url, data, format="multipart")
             self.assertEqual(response.status_code, 422)
+
+    def test_load_demand_csv_timeseries_timestep_length_mismatch_raises_error(self):
+        with open("./test_files/test_ts_length_mismatch.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 422)
