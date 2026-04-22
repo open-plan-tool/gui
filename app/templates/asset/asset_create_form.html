@@ -18,7 +18,7 @@
                 <label for="id_optimized_add_cap">
                 {% translate "Optimized additional capacity" %} ({{ optimized_add_cap|get_item:'unit' }})
                 </label>
-                <input readonly type="number" name="optimized_add_cap" value="{{ optimized_add_cap|get_item:'value' }}" min="0.0"  data-bs-toggle="tooltip" title="" style="font-weight:400; font-size:13px;" class="view-only numberinput form-control form-control" required="" id="id_optimized_add_cap" data-bs-original-title="TBD" aria-label="TDB">
+                <input readonly name="optimized_add_cap" value="{{ optimized_add_cap|get_item:'value' }}" min="0.0"  data-bs-toggle="tooltip" title="" style="font-weight:400; font-size:13px;" class="view-only numberinput form-control form-control" required="" id="id_optimized_add_cap" data-bs-original-title="TBD" aria-label="TDB">
               </div>
               {% endif %}
                 {% if total_flow %}
@@ -27,7 +27,7 @@
 		                  <label for="id_total_flow">
 		                  {% translate "Aggregated flow" %} {{aggregated_flow|get_item:'label'}} ({{ aggregated_flow|get_item:'unit' }})
 		                  </label>
-									    <input readonly type="number" name="total_flow" value="{{ aggregated_flow|get_item:'value' }}" min="0.0"  data-bs-toggle="tooltip" title="" style="font-weight:400; font-size:13px;" class="view-only numberinput form-control form-control" required="" id="id_total_flow" data-bs-original-title="TBD" aria-label="TDB">
+									    <input readonly name="total_flow" value="{{ aggregated_flow|get_item:'value' }}" min="0.0"  data-bs-toggle="tooltip" title="" style="font-weight:400; font-size:13px;" class="view-only numberinput form-control form-control" required="" id="id_total_flow" data-bs-original-title="TBD" aria-label="TDB">
 	                  </div>
 				      {% endfor %}
               {% endif %}
