@@ -411,6 +411,9 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_file": fp,
             }
             response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("invalid format", str(form.errors["input_timeseries"]))
             self.assertEqual(response.status_code, 422)
 
     def test_load_demand_csv_timeseries_timestep_length_mismatch_raises_error(self):

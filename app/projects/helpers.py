@@ -544,6 +544,7 @@ def parse_csv_timeseries(file_str):
     delimiter = ","
     is_comma_decimal = False
     has_timestamp = False
+    msg = "The uploaded file has an invalid format. Please provide a CSV with 1 or 2 columns containing only numeric values (no header). If two columns are used, the first must be the index (e.g., timestamps) and the second the corresponding values."
 
     lines = file_str.splitlines()
     # check timestamps
@@ -566,10 +567,7 @@ def parse_csv_timeseries(file_str):
                 # if all lines contain a "," AND there is a "." in the file, strong indicator for "," delimiter
                 delimiter = ","
             elif not has_timestamp:
-                raise ValueError(
-                    "Ambiguous CSV format: each row contains exactly one comma. "
-                    "Cannot determine if this is a delimiter or decimal separator."
-                )
+                raise ValidationError(msg)
         else:
             # safe to assume decimal comma in single-column case
             if comma_per_line and all(c <= 1 for c in comma_per_line):
@@ -596,7 +594,10 @@ def parse_csv_timeseries(file_str):
         else:
             if "," in value and "." not in value:
                 value = value.replace(",", ".")
-
+        print(value)
+        if not value.isnumeric():
+            # catch if there is a header, then the file cannot be parsed
+            raise ValidationError(msg)
         timeseries_values.append(float(value))
     return timeseries_values
 
