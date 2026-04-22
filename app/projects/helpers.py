@@ -543,11 +543,10 @@ def parse_csv_timeseries(file_str):
     io_string = io.StringIO(file_str)
     delimiter = ","
     is_comma_decimal = False
-    has_timestamp = False
     msg = "The uploaded file has an invalid format. Please provide a CSV with 1 or 2 columns containing only numeric values (no header). If two columns are used, the first must be the index (e.g., timestamps) and the second the corresponding values."
 
     lines = file_str.splitlines()
-    # check timestamps
+    # check if there are timestamps
     has_timestamp = any(":" in line or "-" in line for line in lines)
 
     # --- delimiter detection ---
@@ -589,6 +588,9 @@ def parse_csv_timeseries(file_str):
         if len(row) == 1:
             value = row[0]
         else:
+            # since we have more than 1 col, check if timeseries is only in the first, if not raise error
+            if is_timestamp(row[-1]):
+                raise ValidationError(msg)
             value = row[-1]
         value = value.strip()
 
@@ -603,6 +605,11 @@ def parse_csv_timeseries(file_str):
             raise ValidationError(msg)
         timeseries_values.append(float(value))
     return timeseries_values
+
+
+def is_timestamp(values):
+    # checks if there is a timestamp in the given value/values
+    return ":" in values or "-" in values
 
 
 def parse_xlsx_timeseries(file_buffer):
