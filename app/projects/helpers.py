@@ -574,6 +574,10 @@ def parse_csv_timeseries(file_str):
                 is_comma_decimal = True
                 delimiter = ";"
 
+    # check for number of columns, throw error if more then 2
+    if any(len(line.split(delimiter)) > 2 for line in lines if line.strip()):
+        raise ValidationError(msg)
+
     # --- parsing ---
     reader = csv.reader(io_string, delimiter=delimiter)
     timeseries_values = []
