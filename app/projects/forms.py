@@ -975,6 +975,9 @@ class AssetCreateForm(OpenPlanModelForm):
                 cleaned_data["input_timeseries"] = Timeseries.objects.get(
                     id=timeseries_id
                 )
+            self.add_error(
+                "input_timeseries", "This is just an error message for testing"
+            )
 
         return cleaned_data
 

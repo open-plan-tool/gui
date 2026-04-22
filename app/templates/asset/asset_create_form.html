@@ -80,6 +80,12 @@
         <div class="form-group{% if field.errors %} invalid{% endif %}">
               {{ form|get_field:"input_timeseries"|as_crispy_field }}
         </div>
+        {% for error in form.input_timeseries.errors %}
+        <div class="row">
+            <p style="color:red">{{ error }}</p>
+        </div>
+        {% endfor %}
+
         {% if input_timeseries_timestamps %}
           <div id="input_timeseries_timestamps" style="display:none;">
             <textarea>{{ input_timeseries_timestamps }}</textarea>
