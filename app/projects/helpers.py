@@ -594,8 +594,7 @@ def parse_csv_timeseries(file_str):
         else:
             if "," in value and "." not in value:
                 value = value.replace(",", ".")
-        print(value)
-        if not value.isnumeric():
+        if value.isalpha():
             # catch if there is a header, then the file cannot be parsed
             raise ValidationError(msg)
         timeseries_values.append(float(value))
