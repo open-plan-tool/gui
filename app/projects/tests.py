@@ -293,6 +293,9 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_file": fp,
             }
             response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("invalid format", str(form.errors["input_timeseries"]))
             self.assertEqual(response.status_code, 422)
 
     def test_load_demand_csv_semicolon_format_decimal_comma(self):
@@ -396,6 +399,9 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_file": fp,
             }
             response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("not supported", str(form.errors["input_timeseries"]))
             self.assertEqual(response.status_code, 422)
 
     def test_load_demand_csv_semicolon_header_format_raises_error(self):
@@ -427,4 +433,9 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_file": fp,
             }
             response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn(
+                "does not match the lentgh", str(form.errors["input_timeseries"])
+            )
             self.assertEqual(response.status_code, 422)
