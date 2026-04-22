@@ -802,3 +802,607 @@ function validateNodeConnections(editor) {
     }
     return true;
 }
+
+
+// SVG Export helper functions **written by ChatGPT**
+async function exportDrawflowToSvg(drawflowExport, options = {}) {
+  const cfg = {
+    padding: 32,
+    background: "#ffffff",
+    fontFamily: "lato, Arial, Helvetica, sans-serif",
+    fontSize: 12,
+    assetBasePath: "/static/assets/gui/",
+
+    nodeWidth: 152,   // 9.5rem
+    nodeHeight: 88,   // 5.5rem
+    nodeRadius: 8,
+    nodeStroke: "#A8B5C0",
+
+    iconSize: 32,     // 2rem
+    iconY: 12,
+
+    labelY: 60,
+    labelLineHeight: 14,
+
+    portAssetSize: 12,
+    emptyPortSize: 10,
+    busPortRadius: 4.5,
+
+    connectionStrokeWidth: 3,
+
+    includeUnconnected: true,
+    removeDeleteButtonInfluence: true,
+    componentIconMap: {},
+
+    ...options
+  };
+
+  if (!drawflowExport?.drawflow?.Home?.data) {
+    throw new Error("Invalid Drawflow export");
+  }
+  if (typeof Drawflow === "undefined") {
+    throw new Error("Drawflow must be available on the page");
+  }
+
+  const nodesObj = drawflowExport.drawflow.Home.data;
+  const nodes = Object.values(nodesObj);
+
+  function escapeXml(str) {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&apos;");
+  }
+
+  function normalizeBusType(busType) {
+    const t = String(busType || "").toLowerCase();
+    if (t === "hydrogen") return "h2";
+    return t;
+  }
+
+  function inferPortClass(portTuple = []) {
+    const [busName, carrierLabel] = Array.isArray(portTuple) ? portTuple : [null, null];
+    const text = String(carrierLabel || "").toLowerCase();
+    const bus = String(busName || "").toLowerCase();
+
+    if (text.includes("electricity") || bus.includes("electricity")) return "port--electricity";
+    if (text.includes("heat") || bus.includes("heat")) return "port--heat";
+    if (text.includes("h2") || text.includes("hydrogen") || bus.includes("h2") || bus.includes("hydrogen")) return "port--h2";
+    if (text.includes("fuel") || text.includes("gas") || bus.includes("fuel") || bus.includes("gas")) return "port--fuel";
+    return null;
+  }
+
+  const BUS_STYLES = {
+    electricity: {
+      fill: "#F8F5E8",
+      stroke: "#FBC02D",
+      text: "#976E07",
+      edge: "#FBC02D",
+      port: "#FBC02D",
+      icon: "bus-electricity.svg"
+    },
+    gas: {
+      fill: "#F4F9F4",
+      stroke: "#55B068",
+      text: "#2E8442",
+      edge: "#55B068",
+      port: "#55B068",
+      icon: "bus-gas.svg"
+    },
+    heat: {
+      fill: "#F9F4F4",
+      stroke: "#E28785",
+      text: "#BC5452",
+      edge: "#E28785",
+      port: "#E28785",
+      icon: "bus-heat.svg"
+    },
+    h2: {
+      fill: "#F0F6FC",
+      stroke: "#769ADD",
+      text: "#4E71B1",
+      edge: "#2C92B5",
+      port: "#769ADD",
+      icon: "bus-h2.svg"
+    }
+  };
+
+  const DEFAULT_ICON_MAP = {
+    dso: "dso.svg",
+    gas_dso: "gas_dso.svg",
+    h2_dso: "h2_dso.svg",
+    heat_dso: "heat_dso.svg",
+    pv_plant: "pv_plant.svg",
+    wind_plant: "wind_plant.svg",
+    biogas_plant: "biogas_plant.svg",
+    geothermal_conversion: "geothermal_conversion.svg",
+    solar_thermal_plant: "solar_thermal_plant.svg",
+    transformer_station_in: "transformer_station_in.svg",
+    transformer_station_out: "transformer_station_out.svg",
+    storage_charge_controller_in: "storage_charge_controller_in.svg",
+    storage_charge_controller_out: "storage_charge_controller_out.svg",
+    solar_inverter: "solar_inverter.svg",
+    diesel_generator: "diesel_generator.svg",
+    fuel_cell: "fuel_cell.svg",
+    gas_boiler: "gas_boiler.svg",
+    electrolyzer: "electrolyzer.svg",
+    heat_pump: "heat_pump.svg",
+    chp: "chp.svg",
+    chp_fixed_ratio: "chp_fixed_ratio.svg",
+    bess: "bess.svg",
+    gess: "gess.svg",
+    h2ess: "h2ess.svg",
+    hess: "hess.svg",
+    demand: "demand.svg",
+    gas_demand: "gas_demand.svg",
+    h2_demand: "h2_demand.svg",
+    heat_demand: "heat_demand.svg",
+    ...options.componentIconMap
+  };
+
+  const PORT_ASSET_BY_CLASS = {
+    "port--electricity": "port-electricity.svg",
+    "port--heat": "port-heat.svg",
+    "port--h2": "port-h2.svg",
+    "port--fuel": "port-fuel.svg"
+  };
+
+  function createSvgAssetResolver(assetBasePath = "/static/assets/gui/") {
+    const cache = new Map();
+
+    function assetUrl(name) {
+      return assetBasePath.replace(/\/$/, "") + "/" + name.replace(/^\//, "");
+    }
+
+    function svgTextToDataUrl(svgText) {
+      const encoded = encodeURIComponent(svgText)
+        .replace(/'/g, "%27")
+        .replace(/"/g, "%22");
+      return `data:image/svg+xml;charset=utf-8,${encoded}`;
+    }
+
+    async function toDataUrl(pathOrUrl) {
+      if (!pathOrUrl) return null;
+      if (cache.has(pathOrUrl)) return cache.get(pathOrUrl);
+
+      const promise = fetch(pathOrUrl, { credentials: "same-origin" }).then(async (resp) => {
+        if (!resp.ok) throw new Error(`Failed to fetch asset: ${pathOrUrl}`);
+        const text = await resp.text();
+        return svgTextToDataUrl(text);
+      });
+
+      cache.set(pathOrUrl, promise);
+      return promise;
+    }
+
+    return { assetUrl, toDataUrl };
+  }
+
+  const assetResolver = createSvgAssetResolver(cfg.assetBasePath);
+
+  function renderSvgImage(href, x, y, width, height) {
+    if (!href) return "";
+    const safe = escapeXml(href);
+    return `
+      <image
+        href="${safe}"
+        xlink:href="${safe}"
+        x="${x}"
+        y="${y}"
+        width="${width}"
+        height="${height}"
+        preserveAspectRatio="xMidYMid meet"
+      />
+    `;
+  }
+
+  function wrapLabel(text, maxCharsPerLine = 18, maxLines = 2) {
+    const words = String(text).trim().split(/\s+/);
+    const lines = [];
+    let current = "";
+
+    for (const word of words) {
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length <= maxCharsPerLine) {
+        current = candidate;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+        if (lines.length >= maxLines - 1) break;
+      }
+    }
+    if (lines.length < maxLines && current) lines.push(current);
+    if (lines.length === 0) lines.push(text.slice(0, maxCharsPerLine));
+
+    const joined = lines.join(" ");
+    if (joined.length < text.length) {
+      const last = lines[lines.length - 1];
+      lines[lines.length - 1] = (last.length > 3 ? last.slice(0, last.length - 3) : last) + "...";
+    }
+
+    return lines.slice(0, maxLines);
+  }
+
+  function spreadOffset(index, count, gap) {
+    if (count <= 1) return 0;
+    const total = (count - 1) * gap;
+    return -total / 2 + index * gap;
+  }
+
+  function buildEdgeList(exportNodes) {
+    const edges = [];
+    for (const node of Object.values(exportNodes)) {
+      for (const [outputName, output] of Object.entries(node.outputs || {})) {
+        for (const conn of output.connections || []) {
+          edges.push({
+            sourceId: String(node.id),
+            targetId: String(conn.node),
+            sourcePort: outputName,
+            targetPort: conn.output
+          });
+        }
+      }
+    }
+    return edges;
+  }
+
+  function shiftPath(d, dx, dy) {
+    const tokens = d.match(/[A-Za-z]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) || [];
+    const out = [];
+    let cmd = null;
+    let i = 0;
+
+    const pairCommands = new Set(["M", "L", "T"]);
+    const sixCommands = new Set(["C"]);
+    const fourCommands = new Set(["S", "Q"]);
+    const sevenCommands = new Set(["A"]);
+
+    while (i < tokens.length) {
+      const token = tokens[i];
+      if (/^[A-Za-z]$/.test(token)) {
+        cmd = token;
+        out.push(token);
+        i++;
+        continue;
+      }
+
+      if (!cmd) {
+        out.push(token);
+        i++;
+        continue;
+      }
+
+      if (pairCommands.has(cmd)) {
+        out.push(String(parseFloat(tokens[i]) + dx), String(parseFloat(tokens[i + 1]) + dy));
+        i += 2;
+      } else if (sixCommands.has(cmd)) {
+        out.push(
+          String(parseFloat(tokens[i]) + dx),
+          String(parseFloat(tokens[i + 1]) + dy),
+          String(parseFloat(tokens[i + 2]) + dx),
+          String(parseFloat(tokens[i + 3]) + dy),
+          String(parseFloat(tokens[i + 4]) + dx),
+          String(parseFloat(tokens[i + 5]) + dy)
+        );
+        i += 6;
+      } else if (fourCommands.has(cmd)) {
+        out.push(
+          String(parseFloat(tokens[i]) + dx),
+          String(parseFloat(tokens[i + 1]) + dy),
+          String(parseFloat(tokens[i + 2]) + dx),
+          String(parseFloat(tokens[i + 3]) + dy)
+        );
+        i += 4;
+      } else if (sevenCommands.has(cmd)) {
+        out.push(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i + 4]);
+        out.push(String(parseFloat(tokens[i + 5]) + dx), String(parseFloat(tokens[i + 6]) + dy));
+        i += 7;
+      } else if (cmd === "H") {
+        out.push(String(parseFloat(tokens[i]) + dx));
+        i += 1;
+      } else if (cmd === "V") {
+        out.push(String(parseFloat(tokens[i]) + dy));
+        i += 1;
+      } else {
+        out.push(tokens[i]);
+        i += 1;
+      }
+    }
+
+    return out.join(" ");
+  }
+
+  function edgeBusType(edge) {
+    const sourceNode = nodesObj[edge.sourceId];
+    const targetNode = nodesObj[edge.targetId];
+
+    if (sourceNode?.name === "bus") return normalizeBusType(sourceNode.data?.bustype);
+    if (targetNode?.name === "bus") return normalizeBusType(targetNode.data?.bustype);
+
+    const targetPortTuple = targetNode?.data?.portMapping?.[edge.targetPort];
+    const sourcePortTuple = sourceNode?.data?.portMapping?.[edge.sourcePort];
+
+    const cls = inferPortClass(targetPortTuple) || inferPortClass(sourcePortTuple);
+    if (cls === "port--electricity") return "electricity";
+    if (cls === "port--heat") return "heat";
+    if (cls === "port--h2") return "h2";
+    if (cls === "port--fuel") return "gas";
+    return null;
+  }
+
+  const host = document.createElement("div");
+  host.style.position = "fixed";
+  host.style.left = "-100000px";
+  host.style.top = "0";
+  host.style.width = "2400px";
+  host.style.height = "1400px";
+  host.style.pointerEvents = "none";
+  host.style.opacity = "0";
+
+  const container = document.createElement("div");
+  container.style.width = "2400px";
+  container.style.height = "1400px";
+  host.appendChild(container);
+  document.body.appendChild(host);
+
+  let tempEditor = null;
+
+  try {
+    tempEditor = new Drawflow(container);
+    tempEditor.reroute = true;
+    tempEditor.start();
+    tempEditor.import(drawflowExport);
+
+    for (const node of nodes) {
+      const nodeEl = host.querySelector(`#node-${node.id}`);
+      if (!nodeEl) continue;
+
+      if (node.name === "bus" && node.data?.bustype) {
+        nodeEl.classList.add(`bus_${normalizeBusType(node.data.bustype)}`);
+        nodeEl.setAttribute("bustype", normalizeBusType(node.data.bustype));
+      }
+
+      if (node.data?.portMapping) {
+        for (const [portKey, tuple] of Object.entries(node.data.portMapping)) {
+          const isInput = portKey.startsWith("input");
+          const portType = isInput ? "input" : "output";
+          const portEl = nodeEl.querySelector(`.${portType}.${portKey}`);
+          if (!portEl) continue;
+          const cls = inferPortClass(tuple);
+          if (cls) portEl.classList.add(cls);
+        }
+      }
+
+      if (cfg.removeDeleteButtonInfluence) {
+        nodeEl.querySelector(".node__delete")?.remove();
+      }
+    }
+
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    const renderedNodes = nodes.map(node => {
+      const el = host.querySelector(`#node-${node.id}`);
+      const w = el?.offsetWidth || cfg.nodeWidth;
+      const h = el?.offsetHeight || cfg.nodeHeight;
+      return { node, el, w, h };
+    });
+
+    const filteredNodes = cfg.includeUnconnected
+      ? renderedNodes
+      : renderedNodes.filter(({ node }) => {
+          const inCount = Object.values(node.inputs || {}).reduce((a, p) => a + (p.connections?.length || 0), 0);
+          const outCount = Object.values(node.outputs || {}).reduce((a, p) => a + (p.connections?.length || 0), 0);
+          return inCount + outCount > 0;
+        });
+
+    const minX = Math.min(...filteredNodes.map(n => n.node.pos_x));
+    const minY = Math.min(...filteredNodes.map(n => n.node.pos_y));
+    const maxX = Math.max(...filteredNodes.map(n => n.node.pos_x + n.w));
+    const maxY = Math.max(...filteredNodes.map(n => n.node.pos_y + n.h));
+
+    const width = Math.ceil((maxX - minX) + cfg.padding * 2);
+    const height = Math.ceil((maxY - minY) + cfg.padding * 2);
+    const offsetX = cfg.padding - minX;
+    const offsetY = cfg.padding - minY;
+
+    const edgeList = buildEdgeList(nodesObj);
+    const pathByEdgeKey = new Map();
+
+    for (const edge of edgeList) {
+      const selector = `.node_in_node-${edge.targetId}.node_out_node-${edge.sourceId}`;
+      const connEl = host.querySelector(selector);
+      const pathEl = connEl?.querySelector("path");
+      if (!pathEl) continue;
+
+      const d = pathEl.getAttribute("d") || "";
+      const edgeKey = `${edge.sourceId}|${edge.sourcePort}|${edge.targetId}|${edge.targetPort}`;
+      pathByEdgeKey.set(edgeKey, { d });
+    }
+
+    const iconHrefByType = new Map();
+    for (const type of new Set(filteredNodes.map(n => n.node.name))) {
+      if (type === "bus") continue;
+      const file = DEFAULT_ICON_MAP[type];
+      if (!file) continue;
+      iconHrefByType.set(type, await assetResolver.toDataUrl(assetResolver.assetUrl(file)));
+    }
+
+    const busIconHrefByType = new Map();
+    for (const [busType, style] of Object.entries(BUS_STYLES)) {
+      busIconHrefByType.set(busType, await assetResolver.toDataUrl(assetResolver.assetUrl(style.icon)));
+    }
+
+    const portHrefByClass = new Map();
+    for (const [cls, file] of Object.entries(PORT_ASSET_BY_CLASS)) {
+      portHrefByClass.set(cls, await assetResolver.toDataUrl(assetResolver.assetUrl(file)));
+    }
+
+    function getNodeIconHref(node) {
+      if (node.name === "bus") {
+        return busIconHrefByType.get(normalizeBusType(node.data?.bustype)) || null;
+      }
+      return iconHrefByType.get(node.name) || null;
+    }
+
+    function renderBusPort(color, cx, cy) {
+      return `
+        <circle cx="${cx}" cy="${cy}" r="${cfg.busPortRadius}"
+                fill="${color}" stroke="${color}" stroke-width="1" />
+      `;
+    }
+
+    function renderAssetPort(href, x, y, size) {
+      return renderSvgImage(href, x - size / 2, y - size / 2, size, size);
+    }
+
+    function renderNode(node, x, y, w, h) {
+      const busType = node.name === "bus" ? normalizeBusType(node.data?.bustype) : null;
+      const busStyle = busType ? BUS_STYLES[busType] : null;
+      const style = busStyle || { fill: "#ffffff", stroke: cfg.nodeStroke, text: "#000000" };
+
+      const label = getNodeLabel(node);
+      const lines = wrapLabel(label, 18, 2);
+      const iconHref = getNodeIconHref(node);
+
+      const iconX = x + (w - cfg.iconSize) / 2;
+      const iconY = y + cfg.iconY;
+      const textCenterX = x + w / 2;
+      const shadowId = `node-shadow-${node.id}`;
+
+      let svg = `
+        <g>
+          <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${cfg.nodeRadius}" ry="${cfg.nodeRadius}"
+                fill="${style.fill}" stroke="${style.stroke}" stroke-width="1"
+                filter="url(#${shadowId})" />
+          ${renderSvgImage(iconHref, iconX, iconY, cfg.iconSize, cfg.iconSize)}
+      `;
+
+      lines.forEach((line, idx) => {
+        svg += `
+          <text x="${textCenterX}"
+                y="${y + cfg.labelY + idx * cfg.labelLineHeight}"
+                text-anchor="middle"
+                font-family="${escapeXml(cfg.fontFamily)}"
+                font-size="${cfg.fontSize}"
+                font-weight="${busType ? 700 : 600}"
+                fill="${style.text}">${escapeXml(line)}</text>
+        `;
+      });
+
+      const inputEntries = Object.entries(node.inputs || {});
+      const outputEntries = Object.entries(node.outputs || {});
+
+      inputEntries.forEach(([portKey, portObj], idx) => {
+        const cy = y + h / 2 + spreadOffset(idx, inputEntries.length, 18);
+        const cx = x;
+        const isConnected = (portObj?.connections?.length || 0) > 0;
+
+        if (node.name === "bus") {
+          svg += renderBusPort(style.port || style.stroke, cx, cy);
+        } else {
+          const cls = inferPortClass(node.data?.portMapping?.[portKey]);
+          const href = isConnected ? portHrefByClass.get(cls) : null;
+          if (href) svg += renderAssetPort(href, cx - 6, cy, cfg.portAssetSize);
+        }
+      });
+
+      outputEntries.forEach(([portKey, portObj], idx) => {
+        const cy = y + h / 2 + spreadOffset(idx, outputEntries.length, 18);
+        const cx = x + w;
+        const isConnected = (portObj?.connections?.length || 0) > 0;
+
+        if (node.name === "bus") {
+          svg += renderBusPort(style.port || style.stroke, cx, cy);
+        } else {
+          const cls = inferPortClass(node.data?.portMapping?.[portKey]);
+          const href = isConnected ? portHrefByClass.get(cls) : null;
+          if (href) svg += renderAssetPort(href, cx + 6, cy, cfg.portAssetSize);
+        }
+      });
+
+      svg += `</g>`;
+      return svg;
+    }
+
+    const nodeSvg = filteredNodes
+      .map(({ node, w, h }) => renderNode(node, node.pos_x + offsetX, node.pos_y + offsetY, w, h))
+      .join("\n");
+
+    const edgeSvg = edgeList
+      .filter(edge => {
+        if (cfg.includeUnconnected) return true;
+        const keepIds = new Set(filteredNodes.map(n => String(n.node.id)));
+        return keepIds.has(edge.sourceId) && keepIds.has(edge.targetId);
+      })
+      .map(edge => {
+        const key = `${edge.sourceId}|${edge.sourcePort}|${edge.targetId}|${edge.targetPort}`;
+        const path = pathByEdgeKey.get(key);
+        if (!path?.d) return "";
+
+        const busType = edgeBusType(edge);
+        const stroke = BUS_STYLES[busType]?.edge || "#3b82f6";
+
+        return `
+          <path
+            d="${escapeXml(shiftPath(path.d, offsetX, offsetY))}"
+            fill="none"
+            stroke="${stroke}"
+            stroke-width="${cfg.connectionStrokeWidth}"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            filter="url(#edge-shadow-${edge.sourceId}-${edge.targetId}-${edge.sourcePort}-${edge.targetPort})"
+          />
+        `;
+      })
+      .join("\n");
+
+    const nodeShadowFilters = filteredNodes.map(({ node }) => `
+      <filter id="node-shadow-${node.id}" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1F567D" flood-opacity="0.08"/>
+      </filter>
+    `).join("\n");
+
+    const edgeShadowFilters = edgeList.map(edge => `
+      <filter id="edge-shadow-${edge.sourceId}-${edge.targetId}-${edge.sourcePort}-${edge.targetPort}" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.2"/>
+      </filter>
+    `).join("\n");
+
+    return `
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="${width}"
+     height="${height}"
+     viewBox="0 0 ${width} ${height}">
+  <defs>
+    ${nodeShadowFilters}
+    ${edgeShadowFilters}
+  </defs>
+  <rect x="0" y="0" width="${width}" height="${height}" fill="${cfg.background}" />
+  <g class="connections">${edgeSvg}</g>
+  <g class="nodes">${nodeSvg}</g>
+</svg>`.trim();
+  } finally {
+    try {
+      tempEditor?.clear?.();
+    } catch {}
+    host.remove();
+  }
+
+  function getNodeLabel(node) {
+    return String(node.data?.name || node.name || "");
+  }
+}
+function downloadSvg(svgText, filename = "topology.svg") {
+  const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
