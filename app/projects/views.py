@@ -84,6 +84,29 @@ import traceback
 logger = logging.getLogger(__name__)
 
 
+# views.py
+@login_required
+def timeseries_dashboard(request):
+    timeseries_qs = Timeseries.objects.filter(user=request.user).order_by("name", "id")
+
+    selected_id = request.GET.get("selected")
+    selected_timeseries = None
+
+    if selected_id:
+        try:
+            selected_timeseries = timeseries_qs.get(pk=selected_id)
+        except Timeseries.DoesNotExist:
+            selected_timeseries = None
+    else:
+        selected_timeseries = timeseries_qs.first()
+
+    context = {
+        "timeseries_list": timeseries_qs,
+        "selected_timeseries": selected_timeseries,
+    }
+    return render(request, "asset/timeseries_dashboard.html", context)
+
+
 @require_http_methods(["GET"])
 def not_implemented(request):
     """Function returns a message"""
