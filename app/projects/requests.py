@@ -3,6 +3,12 @@ import httpx as requests
 import json
 import numpy as np
 
+from oemof.datapackage import datapackage
+import tempfile
+from pathlib import Path
+from oemof.eesyplan.datapackage.results import import_results
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+
 # from requests.exceptions import HTTPError
 from epa.settings import (
     PROXY_CONFIG,
@@ -77,7 +83,7 @@ def fetch_ezp_simulation_results(simulation):
                 else None
             )
             simulation.results = (
-                response["results"] if simulation.status == DONE else None
+                json.dumps(response["results"]) if simulation.status == DONE else None
             )
 
             # simulation.mvs_version = response["mvs_version"]
@@ -97,9 +103,113 @@ def fetch_ezp_simulation_results(simulation):
         simulation.end_date = (
             datetime.now() if simulation.status in [ERROR, DONE] else None
         )
+        # TODO also save the dp without the timeseries within an attribute of the simulation object
+
         simulation.save()
 
     return simulation.status != PENDING
+
+
+def parse_ezp_results(simulation, response_results):
+    data = json.loads(response_results)
+
+    res = data["raw_results"]
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(".").resolve() / "test_processing_res"
+        es_path = Path(".").resolve() / "test_processing_es"
+
+        res_path = datapackage.rebuild_dp_from_json(
+            res, destination_path, overwrite=True
+        )
+        # TODO get the datapackage of the simulation's input (re generating it everytime would be quite long)
+        scenario = simulation.scenario
+        es_dp_path = scenario.to_datapackage(es_path)
+        # TODO allow rebuild from a es with less timesteps (have the timesteps within the project.csv)
+        es = create_energy_system_from_dp(es_dp_path)
+
+        ezp_results = import_results(res_path, es)
+        # TODO write this into FancyResults
+
+    asset_key_list = [
+        "energy_consumption",
+        "energy_conversion",
+        "energy_production",
+        "energy_providers",
+        "energy_storage",
+    ]
+
+    if not set(asset_key_list).issubset(data.keys()):
+        raise KeyError("There are missing keys from the received dictionary.")
+
+    # Write Scalar KPIs to db
+    qs = KPIScalarResults.objects.filter(simulation=simulation)
+    if qs.exists():
+        kpi_scalar = qs.first()
+        kpi_scalar.scalar_values = json.dumps(data["kpi"]["scalars"])
+        kpi_scalar.save()
+    else:
+        KPIScalarResults.objects.create(
+            scalar_values=json.dumps(data["kpi"]["scalars"]), simulation=simulation
+        )
+    # Write Cost Matrix KPIs to db
+    qs = KPICostsMatrixResults.objects.filter(simulation=simulation)
+    if qs.exists():
+        kpi_costs = qs.first()
+        kpi_costs.cost_values = json.dumps(data["kpi"]["cost_matrix"])
+        kpi_costs.save()
+    else:
+        KPICostsMatrixResults.objects.create(
+            cost_values=json.dumps(data["kpi"]["cost_matrix"]), simulation=simulation
+        )
+    # Write Assets to db
+    data_subdict = {
+        category: v for category, v in data.items() if category in asset_key_list
+    }
+    qs = AssetsResults.objects.filter(simulation=simulation)
+    if qs.exists():
+        asset_results = qs.first()
+        asset_results.asset_list = json.dumps(data_subdict)
+        asset_results.save()
+    else:
+        AssetsResults.objects.create(
+            assets_list=json.dumps(data_subdict), simulation=simulation
+        )
+
+    qs = FancyResults.objects.filter(simulation=simulation)
+    if qs.exists():
+        raise ValueError("Already existing FancyResults")
+    else:
+        # TODO add safety here with json schema
+        # Raw results is a panda dataframe which was saved to json using "split"
+        if "raw_results" in data:
+            results = data["raw_results"]
+            js = json.loads(results)
+            js_data = np.array(js["data"])
+
+            hdrs = [
+                "bus",
+                "energy_vector",
+                "direction",
+                "asset",
+                "asset_type",
+                "oemof_type",
+                "flow_data",
+                "optimized_capacity",
+            ]
+
+            # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
+            # we append those values here
+            for i, col in enumerate(js["columns"]):
+                col.append(js_data[:-1, i].tolist())
+                col.append(js_data[-1, i])
+
+                kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
+                kwargs["simulation"] = simulation
+                fr = FancyResults(**kwargs)
+                fr.save()
+
+    return response_results
 
 
 def mvs_simulation_request(data: dict):
