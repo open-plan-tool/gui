@@ -26,10 +26,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def ezp_simulation_request(data: str):
+def ezp_simulation_request(data: dict):
     headers = {"content-type": "application/json"}
-    payload = data
-
+    payload = json.dumps(data)
     try:
         response = requests.post(
             EZP_POST_URL,
