@@ -315,7 +315,6 @@ function parseExcelData(data){
           });
       }
       else{
-        console.log("using loadHandler")
         reader.onload = loadHandler;
         // Read file into memory as UTF-8
         reader.readAsText(fileToRead);
