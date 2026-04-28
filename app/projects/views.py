@@ -40,6 +40,7 @@ from .requests import (
     mvs_sensitivity_analysis_request,
     fetch_mvs_sa_results,
     parse_mvs_results,
+    parse_ezp_results,
 )
 from projects.models import (
     Project,
@@ -1168,7 +1169,9 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             simulation = qs.first()
 
             if simulation.status == PENDING:
-                fetch_mvs_simulation_results(simulation)
+                # TODO change
+                # fetch_mvs_simulation_results(simulation)
+                fetch_ezp_simulation_results(simulation)
 
             context.update(
                 {
@@ -1190,7 +1193,10 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                 qs = FancyResults.objects.filter(simulation=simulation)
                 if not qs.exists():
                     # If no updated results exist, try to generate them from simulation results
-                    parse_mvs_results(simulation, simulation.results)
+                    # TODO look for parse_mvs_results and replace with parse_ezp_results
+                    # parse_mvs_results(simulation, simulation.results)
+                    parse_ezp_results(simulation, simulation.results)
+
                     qs = FancyResults.objects.filter(simulation=simulation)
                     # inform the user about the problem if the updated results could not be parsed from the existing simulation
                     if not qs.exists():
@@ -2152,6 +2158,9 @@ def update_simulation_rating(request):
 def fetch_simulation_results(request, sim_id):
     simulation = get_object_or_404(Simulation, id=sim_id)
     are_result_ready = fetch_mvs_simulation_results(simulation)
+    # TODO temporary, remove MVS then
+    if are_result_ready is False:
+        are_result_ready = fetch_ezp_simulation_results(simulation)
     return JsonResponse(
         dict(areResultReady=are_result_ready),
         status=200,
