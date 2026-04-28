@@ -313,7 +313,7 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path, number=None):
+    def to_datapackage(self, destination_path=None, number=None):
         """
 
         Parameters
@@ -326,6 +326,10 @@ class Scenario(models.Model):
         -------
         A Path to the scenario datapackage
         """
+
+        if destination_path is None:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                destination_path = Path(temp_dir)
 
         # Create a folder with a datapackage structure
         def clean_dir_str(name):
