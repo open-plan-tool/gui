@@ -1400,17 +1400,11 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
 @require_http_methods(["GET"])
 def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
     scenario = get_object_or_404(Scenario, id=int(scen_id))
-
     if scenario.project.user != request.user:
         raise PermissionDenied
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        destination_path = Path(temp_dir)
-        # write the content of the scenario into a temp directory
-        scenario_folder = scenario.to_datapackage(destination_path, number=n_timestamps)
-
-        json_dp = json.loads(export_dp_to_json(scenario_folder))
-        response = JsonResponse(json_dp, status=200, content_type="application/json")
+    json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
+    response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
 
@@ -2066,7 +2060,7 @@ def request_ezp_simulation(request, scen_id=0):
         )
     # Load scenario
     scenario = Scenario.objects.get(pk=scen_id)
-    json_dp = scenario_export_as_jsonified_datapackage(request, scen_id)
+    json_dp = scenario.to_jsonified_datapackage()
 
     # if request.method == "POST":
     #     output_lp_file = request.POST.get("output_lp_file", None)
@@ -2074,7 +2068,7 @@ def request_ezp_simulation(request, scen_id=0):
     #         data_clean["simulation_settings"]["output_lp_file"] = "true"
 
     # Make simulation request to eesyplan server
-    results = ezp_simulation_request(json_dp.text)
+    results = ezp_simulation_request(json_dp)
 
     if results is None:
         error_msg = "Could not communicate with the simulation server."

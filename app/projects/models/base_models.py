@@ -6,7 +6,8 @@ from datetime import timedelta
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from oemof.datapackage.datapackage import building
+import tempfile
+from oemof.datapackage.datapackage import building, export_dp_to_json
 
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
@@ -432,6 +433,10 @@ class Scenario(models.Model):
             fk_targets=["project"],
         )
         return scenario_folder
+
+    def to_jsonified_datapackage(self, destination_path=None, number=None):
+        scenario_folder = self.to_datapackage(destination_path, number)
+        return json.loads(export_dp_to_json(scenario_folder))
 
 
 def get_default_timeseries():
