@@ -325,8 +325,7 @@ function parseExcelData(data){
         var csv = event.target.result;
         const lines = csv.split('\n');
         const comma_per_line = lines.map(line => (line.match(/,/g) || []).length);
-
-        if (comma_per_line.length > 0 && comma_per_line.every(c => c <= 1) || csv.includes(";")) {
+        if (comma_per_line.length > 0 && comma_per_line.every(c => c <= 1) && !csv.includes(".") || csv.includes(";")) {
             // Safe to assume decimal comma in single-column case or semicolon as delimiter in csv
             d3array = d3.dsvFormat(";").parseRows(csv);
         } else {
