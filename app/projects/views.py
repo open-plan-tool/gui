@@ -27,14 +27,20 @@ from django.template.loader import get_template
 
 from jsonview.decorators import json_view
 from django.db.models import Q
-from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
+
+from oemof.datapackage.datapackage import export_dp_to_json
+
+from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL, EZP_GET_URL
 from .forms import *
 from .requests import (
     mvs_simulation_request,
     fetch_mvs_simulation_results,
+    ezp_simulation_request,
+    fetch_ezp_simulation_results,
     mvs_sensitivity_analysis_request,
     fetch_mvs_sa_results,
     parse_mvs_results,
+    parse_ezp_results,
 )
 from projects.models import (
     Project,
@@ -1153,6 +1159,7 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             "step_list": STEP_LIST,
             "max_step": max_step,
             "MVS_GET_URL": MVS_GET_URL,
+            "EZP_GET_URL": EZP_GET_URL,
             "MVS_LP_FILE_URL": MVS_LP_FILE_URL,
         }
 
@@ -1162,7 +1169,9 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             simulation = qs.first()
 
             if simulation.status == PENDING:
-                fetch_mvs_simulation_results(simulation)
+                # TODO change
+                # fetch_mvs_simulation_results(simulation)
+                fetch_ezp_simulation_results(simulation)
 
             context.update(
                 {
@@ -1184,7 +1193,10 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                 qs = FancyResults.objects.filter(simulation=simulation)
                 if not qs.exists():
                     # If no updated results exist, try to generate them from simulation results
-                    parse_mvs_results(simulation, simulation.results)
+                    # TODO look for parse_mvs_results and replace with parse_ezp_results
+                    # parse_mvs_results(simulation, simulation.results)
+                    parse_ezp_results(simulation, simulation.results)
+
                     qs = FancyResults.objects.filter(simulation=simulation)
                     # inform the user about the problem if the updated results could not be parsed from the existing simulation
                     if not qs.exists():
@@ -1387,6 +1399,19 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
         response["Content-Disposition"] = (
             f'attachment; filename="datapackage_scenario_{scen_id}.zip"'
         )
+
+    return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
+    scenario = get_object_or_404(Scenario, id=int(scen_id))
+    if scenario.project.user != request.user:
+        raise PermissionDenied
+
+    json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
+    response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
 
@@ -2031,6 +2056,81 @@ def request_mvs_simulation(request, scen_id=0):
     return answer
 
 
+@login_required
+@require_http_methods(["GET", "POST"])
+def request_ezp_simulation(request, scen_id=0):
+    if scen_id == 0:
+        answer = JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(pk=scen_id)
+    json_dp = scenario.to_jsonified_datapackage()
+
+    # if request.method == "POST":
+    #     output_lp_file = request.POST.get("output_lp_file", None)
+    #     if output_lp_file == "on":
+    #         data_clean["simulation_settings"]["output_lp_file"] = "true"
+
+    # Make simulation request to eesyplan server
+    results = ezp_simulation_request(json_dp)
+
+    if results is None:
+        error_msg = "Could not communicate with the simulation server."
+        logger.error(error_msg)
+        messages.error(request, error_msg)
+        # TODO redirect to prefilled feedback form / bug form
+        answer = JsonResponse(
+            {"status": "error", "error": error_msg},
+            status=407,
+            content_type="application/json",
+        )
+    else:
+        # delete existing simulation
+        Simulation.objects.filter(scenario_id=scen_id).delete()
+
+        # Create empty Simulation model object
+        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
+
+        simulation.mvs_token = (
+            results["id"] if results["id"] else None
+        )  # TODO change token
+
+        if "status" in results.keys() and (
+            results["status"] == DONE or results["status"] == ERROR
+        ):
+            simulation.status = results["status"]
+            simulation.results = results["results"]
+            simulation.end_date = datetime.datetime.now()
+        else:  # PENDING
+            simulation.status = results["status"]
+            # create a task which will update simulation status
+            # create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
+
+        simulation.elapsed_seconds = (
+            datetime.datetime.now() - simulation.start_date
+        ).seconds
+
+        # Keep a trace of the input datapackage which defines the simulation
+        # (without the full timeseries to save disk space, but with foreign keys to the timeseries)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            destination_path = Path(temp_dir)
+            # write the content of the scenario into a temp directory
+            scenario_folder = scenario.to_datapackage(destination_path, number=0)
+
+            json_dp = json.loads(export_dp_to_json(scenario_folder))
+            # TODO Save json_dp into a new field Simulation object ?
+        simulation.save()
+
+        answer = HttpResponseRedirect(
+            reverse("scenario_review", args=[scenario.project.id, scen_id])
+        )
+
+    return answer
+
+
 @json_view
 @login_required
 @require_http_methods(["POST"])
@@ -2058,6 +2158,9 @@ def update_simulation_rating(request):
 def fetch_simulation_results(request, sim_id):
     simulation = get_object_or_404(Simulation, id=sim_id)
     are_result_ready = fetch_mvs_simulation_results(simulation)
+    # TODO temporary, remove MVS then
+    if are_result_ready is False:
+        are_result_ready = fetch_ezp_simulation_results(simulation)
     return JsonResponse(
         dict(areResultReady=are_result_ready),
         status=200,

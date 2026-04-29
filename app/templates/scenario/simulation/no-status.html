@@ -44,6 +44,16 @@
 
 					</div>
 		</form>
+
+				<form method="post" action="{% url 'request_ezp_simulation' scen_id %}">
+						 {% csrf_token %}
+					<div class="simulation-footer__btn">
+						<button class="btn btn--medium" type="submit" > {% translate "Run EZP imulation" %}</button>
+						<!--a class="btn btn--medium btn--hollow" href="{% url 'sensitivity_analysis_create' scen_id %}" aria-disabled="true">{% translate "Perform a sensitivity analysis" %}</a-->
+
+					</div>
+		</form>
+
 	</div>
 </footer>
 {% endblock footer %}

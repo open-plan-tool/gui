@@ -15,7 +15,10 @@
         <div class="simulation__content">
           <h2>{% translate "Simulation pending" %}</h2>
           <div class="simulation__id">
-            <a href="{{ MVS_GET_URL }}{{ mvs_token }}">{{ mvs_token }}</a>
+            <a href="{{ MVS_GET_URL }}{{ mvs_token }}">MVS {{ mvs_token }}</a>
+          </div>
+					<div class="simulation__id">
+            <a href="{{ EZP_GET_URL }}{{ mvs_token }}">EasyPlan {{ mvs_token }}</a>
           </div>
           <div class="simulation__feedback">
             <div class="item item--successful">
