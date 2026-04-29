@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -245,78 +246,196 @@ class ExportLoadTest(TestCase):
         self.assertIn("scenario_set_data", response.json())
 
 
-# class UploadTimeseriesTest(TestCase):
-#     fixtures = ["fixtures/benchmarks_fixture.json"]
-#
-#     @classmethod
-#     def setUpTestData(cls):
-#         pass
-#
-#     def setUp(self):
-#         self.factory = RequestFactory()
-#         self.client.login(username="testUser", password="ASas12,.")
-#         self.project = Project.objects.get(id=1)
-#         self.post_url = reverse("asset_create_or_update", args=[2, "demand"])
-#
-#     def test_load_demand_csv_double_timeseries(self):
-#         with open("./test_files/test_ts_double.csv") as fp:
-#             data = {
-#                 "name": "Test_input_timeseries",
-#                 "pos_x": 0,
-#                 "pos_y": 0,
-#                 "input_timeseries": fp,
-#             }
-#             response = self.client.post(self.post_url, data, format="multipart")
-#             self.assertEqual(response.status_code, 200)
-#             asset = Asset.objects.last()
-#         self.assertEqual(asset.input_timeseries_values, [1, 2, 3, 4])
-#
-#     def test_load_demand_csv_double_decimal_point_with_comma(self):
-#         with open("./test_files/test_ts_csv_semicolon.csv") as fp:
-#             data = {
-#                 "name": "Test_input_timeseries",
-#                 "pos_x": 0,
-#                 "pos_y": 0,
-#                 "input_timeseries": fp,
-#             }
-#             response = self.client.post(self.post_url, data, format="multipart")
-#             self.assertEqual(response.status_code, 200)
-#             asset = Asset.objects.last()
-#         self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
-#
-#     def test_load_demand_xlsx_double_timeseries(self):
-#         with open("./test_files/test_ts_double.xlsx", "rb") as fp:
-#             data = {
-#                 "name": "Test_input_timeseries",
-#                 "pos_x": 0,
-#                 "pos_y": 0,
-#                 "input_timeseries": fp,
-#             }
-#             response = self.client.post(self.post_url, data, format="multipart")
-#             self.assertEqual(response.status_code, 200)
-#             asset = Asset.objects.last()
-#         self.assertEqual(asset.input_timeseries_values, [1, 2, 3, 4])
-#
-#     def test_load_demand_csv_decimal_point_with_comma(self):
-#         with open("./test_files/test_ts_comma_decimal.csv") as fp:
-#             data = {
-#                 "name": "Test_input_timeseries",
-#                 "pos_x": 0,
-#                 "pos_y": 0,
-#                 "input_timeseries": fp,
-#             }
-#             response = self.client.post(self.post_url, data, format="multipart")
-#             self.assertEqual(response.status_code, 200)
-#             asset = Asset.objects.last()
-#         self.assertEqual(asset.input_timeseries_values, [1.2, 2, 3.0, 4])
-#
-#     def test_load_demand_file_wrong_format_raises_error(self):
-#         with open("./test_files/test_ts.notsupported") as fp:
-#             data = {
-#                 "name": "Test_input_timeseries",
-#                 "pos_x": 0,
-#                 "pos_y": 0,
-#                 "input_timeseries": fp,
-#             }
-#             response = self.client.post(self.post_url, data, format="multipart")
-#             self.assertEqual(response.status_code, 422)
+class UploadTimeseriesTest(TestCase):
+    fixtures = ["fixtures/benchmarks_fixture.json"]
+
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.client.login(username="testUser", password="ASas12,.")
+        self.project = Project.objects.get(id=1)
+
+        # set up scenario for timeseries lengths of 4
+        self.scenario = self.project.scenario_set.first()
+        self.scenario.time_step = 360  # 6 hours
+        self.scenario.evaluated_period = 1
+        self.scenario.start_date = datetime.datetime(2020, 1, 1)
+        self.scenario.save()
+
+        self.post_url = reverse("asset_create_or_update", args=[2, "demand"])
+
+    def test_load_demand_csv_timestamp_format(self):
+        with open("./test_files/test_ts_timestamp_format.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [1, 2, 3, 4])
+
+    def test_load_demand_csv_timestamp_format_reverse_raises_error(self):
+        with open("./test_files/test_ts_timestamp_format_reverse.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("invalid format", str(form.errors["input_timeseries"]))
+            self.assertEqual(response.status_code, 422)
+
+    def test_load_demand_csv_semicolon_format_decimal_comma(self):
+        with open("./test_files/test_ts_semicolon_format_decimal_comma.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
+
+    def test_load_demand_csv_semicolon_format_decimal_point(self):
+        with open("./test_files/test_ts_semicolon_format_decimal_point.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
+
+    def test_load_demand_csv_comma_format_decimal_point(self):
+        with open("./test_files/test_ts_comma_format_decimal_point.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [8.5, 3.3, 4.0, 6.0])
+
+    def test_load_demand_xlsx_double_timeseries(self):
+        with open("./test_files/test_ts_double.xlsx", "rb") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [1, 2, 3, 4])
+
+    def test_load_demand_csv_1col_format_decimal_comma(self):
+        with open("./test_files/test_ts_1col_format_decimal_comma.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [1.2, 2, 3.0, 4])
+
+    def test_load_demand_csv_1col_format_decimal_point(self):
+        with open("./test_files/test_ts_1col_format_decimal_point.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            self.assertEqual(response.status_code, 200)
+            asset = Asset.objects.last()
+        self.assertEqual(asset.input_timeseries_values, [1.2, 2, 3.0, 4])
+
+    def test_load_demand_file_wrong_format_raises_error(self):
+        with open("./test_files/test_ts_wrong_format.notsupported") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("not supported", str(form.errors["input_timeseries"]))
+            self.assertEqual(response.status_code, 422)
+
+    def test_load_demand_csv_semicolon_header_format_raises_error(self):
+        with open(
+            "./test_files/test_ts_semicolon_header_format_decimal_point.csv"
+        ) as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn("invalid format", str(form.errors["input_timeseries"]))
+            self.assertEqual(response.status_code, 422)
+
+    def test_load_demand_csv_timeseries_timestep_length_mismatch_raises_error(self):
+        with open("./test_files/test_ts_length_mismatch.csv") as fp:
+            data = {
+                "name": "Test_input_timeseries",
+                "pos_x": 0,
+                "pos_y": 0,
+                "input_timeseries_scalar": "",
+                "input_timeseries_select": "",
+                "input_timeseries_file": fp,
+            }
+            response = self.client.post(self.post_url, data, format="multipart")
+            form = response.context["form"]
+            self.assertIn("input_timeseries", form.errors)
+            self.assertIn(
+                "does not match the lentgh", str(form.errors["input_timeseries"])
+            )
+            self.assertEqual(response.status_code, 422)

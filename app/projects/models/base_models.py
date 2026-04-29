@@ -788,7 +788,7 @@ class Asset(TopologyNode):
     @property
     def input_timeseries_values(self):
         if self.is_input_timeseries_empty() is False:
-            answer = json.loads(self.input_timeseries)
+            answer = self.input_timeseries.get_values
         else:
             answer = []
         return answer
@@ -961,7 +961,7 @@ class Asset(TopologyNode):
         return dm
 
     def is_input_timeseries_empty(self):
-        return self.input_timeseries == ""
+        return self.input_timeseries is None
 
 
 class COPCalculator(models.Model):

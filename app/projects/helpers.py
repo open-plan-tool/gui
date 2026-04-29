@@ -438,7 +438,15 @@ class TimeseriesField(forms.MultiValueField):
             timeseries_id = ""
 
         if timeseries_file is not None:
-            input_timeseries_values = parse_input_timeseries(timeseries_file)
+            try:
+                input_timeseries_values = parse_input_timeseries(timeseries_file)
+            except (ValueError, TypeError) as e:
+                self.set_widget_error()
+                raise ValidationError(str(e))
+            except Exception as e:
+                self.set_widget_error()
+                raise ValidationError(f"Could not parse uploaded file: {e}")
+
             answer = input_timeseries_values
             input_dict = dict(type=TS_UPLOAD_TYPE, extra_info=timeseries_file.name)
         elif timeseries_id != "":
@@ -534,25 +542,74 @@ class TimeseriesField(forms.MultiValueField):
 def parse_csv_timeseries(file_str):
     io_string = io.StringIO(file_str)
     delimiter = ","
+    is_comma_decimal = False
+    msg = "The uploaded file has an invalid format. Please provide a CSV with 1 or 2 columns containing only numeric values (no header). If two columns are used, the first must be the index (e.g., timestamps) and the second the corresponding values."
+
+    lines = file_str.splitlines()
+    # check if there are timestamps
+    has_timestamp = any(":" in line or "-" in line for line in lines)
+
+    # --- delimiter detection ---
     if file_str.count(";") > 0:
         delimiter = ";"
 
-    # check if the number of , is an integer time the number of line return
-    # if not, the , is probably not a column separator and a decimal separator indeed
-    if file_str.count(",") % (file_str.count("\n") + 1) != 0:
-        delimiter = ";"
+    # --- comma ambiguity ---
+    # If commas exist, we need to distinguish:
+    # (A) CSV with comma delimiter
+    # (B) decimal comma (single column numeric data)
 
+    if delimiter == ",":
+        comma_per_line = [line.count(",") for line in lines if line.strip()]
+
+        if comma_per_line and all(c == 1 for c in comma_per_line):
+            if file_str.count(".") > 0:
+                # if all lines contain a "," AND there is a "." in the file, strong indicator for "," delimiter
+                delimiter = ","
+            elif not has_timestamp:
+                raise ValidationError(msg)
+        else:
+            # safe to assume decimal comma in single-column case
+            if comma_per_line and all(c <= 1 for c in comma_per_line):
+                is_comma_decimal = True
+                delimiter = ";"
+
+    # check for number of columns, throw error if more then 2
+    if any(len(line.split(delimiter)) > 2 for line in lines if line.strip()):
+        raise ValidationError(msg)
+
+    # --- parsing ---
     reader = csv.reader(io_string, delimiter=delimiter)
     timeseries_values = []
+
     for row in reader:
+        if not row:
+            continue
+
         if len(row) == 1:
             value = row[0]
         else:
-            # assumes the first row is timestamps and read the second one, ignore any other row
-            value = row[1]
-        # convert potential comma used as decimal point to decimal point
-        timeseries_values.append(float(value.replace(",", ".")))
+            # since we have more than 1 col, check if timeseries is only in the first, if not raise error
+            if is_timestamp(row[-1]):
+                raise ValidationError(msg)
+            value = row[-1]
+        value = value.strip()
+
+        # --- decimal normalization ---
+        if is_comma_decimal:
+            value = value.replace(",", ".")
+        else:
+            if "," in value and "." not in value:
+                value = value.replace(",", ".")
+        if value.isalpha():
+            # catch if there is a header, then the file cannot be parsed
+            raise ValidationError(msg)
+        timeseries_values.append(float(value))
     return timeseries_values
+
+
+def is_timestamp(values):
+    # checks if there is a timestamp in the given value/values
+    return ":" in values or "-" in values
 
 
 def parse_xlsx_timeseries(file_buffer):
