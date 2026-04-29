@@ -4527,6 +4527,7 @@ nav.navbar {
   padding-bottom: 6rem; }
   .project-setup.two-columns .left,
   .project-setup.two-columns .right {
+    flex: 1 0 40%;
     display: flex;
     flex-direction: row;
     padding-top: 2rem; }

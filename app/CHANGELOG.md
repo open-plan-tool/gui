@@ -8,6 +8,7 @@
 - Fix certain fields in results display appearing blank for Chromium browsers [[#461](https://github.com/open-plan-tool/gui/pull/461)]
 - Update scenario simulation status on project overview [[#459](https://github.com/open-plan-tool/gui/pull/459)]
 - Improve timeseries file upload display and error handling [[#452](https://github.com/open-plan-tool/gui/pull/452)]
+- Fix map on project create not being displayed on small screen sizes [[#463](https://github.com/open-plan-tool/gui/pull/463)]
 
 ## [v2.1.1] – 2026-04-15
 ### Fixed
