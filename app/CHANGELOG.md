@@ -6,6 +6,7 @@
 - Small usability improvements like additional support messages or fixed translations [[#457](https://github.com/open-plan-tool/gui/pull/457)]
 - Remove faulty KPIs from results view [[#457](https://github.com/open-plan-tool/gui/pull/457)]
 - Fix certain fields in results display appearing blank for Chromium browsers [[#461](https://github.com/open-plan-tool/gui/pull/461)]
+- Update scenario simulation status on project overview [[#459](https://github.com/open-plan-tool/gui/pull/459)]
 
 ## [v2.1.1] – 2026-04-15
 ### Fixed
