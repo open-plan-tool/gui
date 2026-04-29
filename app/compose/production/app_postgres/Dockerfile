@@ -47,6 +47,9 @@ RUN adduser appuser --system --no-create-home --shell /bin/sh \
     && chown -R appuser ${APP_ROOT}
 
 RUN chown appuser /start
+RUN chown appuser /start-celeryworker
+RUN chown appuser /start-celerybeat
+RUN chown appuser /start-flower
 
 USER appuser
 
