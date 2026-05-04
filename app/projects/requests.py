@@ -113,15 +113,44 @@ def fetch_ezp_simulation_results(simulation):
     return simulation.status != PENDING
 
 
+def get_component_type(es_dp, component):
+    """
+
+    Parameters
+    ----------
+    es_dp: datapackage object of the energy system
+    component: a component of the energy system
+
+    Returns
+    -------
+    The type of the component as given within the energy system's datapackage. If the component
+    is a subnode its parent's type is returned instead.
+
+    """
+    if hasattr(component, "parent"):
+        component_label = component.label[-1]
+    else:
+        component_label = component.label
+    for r in es_dp.resources:
+        if "/elements/" in r.descriptor["path"]:
+            df = pd.DataFrame.from_records(r.read(keyed=True))
+            search_component = df.loc[df.name == component_label, "type"]
+            if search_component.empty is False:
+                return search_component[0]
+
+
 def parse_ezp_results(simulation, response_results):
     data = json.loads(response_results)
 
     res = data["raw_results"]
 
     with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir = Path(temp_dir)
         # TODO use temp dir then
-        destination_path = Path(".").resolve() / "test_processing_res"
-        es_path = Path(".").resolve() / "test_processing_es"
+        # destination_path = Path(".").resolve() / "test_processing_res"
+        # es_path = Path(".").resolve() / "test_processing_es"
+        destination_path = temp_dir / "test_processing_res"
+        es_path = temp_dir / "test_processing_es"
 
         res_path = datapackage.rebuild_dp_from_json(
             res, destination_path, overwrite=True
@@ -133,17 +162,8 @@ def parse_ezp_results(simulation, response_results):
         es = create_energy_system_from_dp(es_dp_path)
 
         ezp_results = import_results(res_path, es)
-        # TODO write this into FancyResults
 
         es_dp = dp.Package(str(es_dp_path / "datapackage.json"))
-
-        def get_component_type(es_dp, component_label):
-            for r in es_dp.resources:
-                if "/elements/" in r.descriptor["path"]:
-                    df = pd.DataFrame.from_records(r.read(keyed=True))
-                    search_component = df.loc[df.name == component_label, "type"]
-                    if search_component.empty is False:
-                        return search_component[0]
 
         qs = FancyResults.objects.filter(simulation=simulation)
         if qs.exists():
@@ -177,7 +197,7 @@ def parse_ezp_results(simulation, response_results):
                     "asset": component.label,
                     # TODO this is now not working because of tuple labels of subcomponents
                     "asset_type": get_component_type(
-                        es_dp, component.label
+                        es_dp, component
                     ),  # get it from datapackage
                     # TODO one need to allow the types in MVS_TYPE
                     "oemof_type": str(type(component)),  # get it from mapping
@@ -232,39 +252,6 @@ def parse_ezp_results(simulation, response_results):
     #     AssetsResults.objects.create(
     #         assets_list=json.dumps(data_subdict), simulation=simulation
     #     )
-
-    # qs = FancyResults.objects.filter(simulation=simulation)
-    # if qs.exists():
-    #     raise ValueError("Already existing FancyResults")
-    # else:
-    #     # TODO add safety here with json schema
-    #     # Raw results is a panda dataframe which was saved to json using "split"
-    #     if "raw_results" in data:
-    #         results = data["raw_results"]
-    #         js = json.loads(results)
-    #         js_data = np.array(js["data"])
-    #
-    #         hdrs = [
-    #             "bus",
-    #             "energy_vector",
-    #             "direction",
-    #             "asset",
-    #             "asset_type",
-    #             "oemof_type",
-    #             "flow_data",
-    #             "optimized_capacity",
-    #         ]
-    #
-    #         # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
-    #         # we append those values here
-    #         for i, col in enumerate(js["columns"]):
-    #             col.append(js_data[:-1, i].tolist())
-    #             col.append(js_data[-1, i])
-    #
-    #             kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
-    #             kwargs["simulation"] = simulation
-    #             fr = FancyResults(**kwargs)
-    #             fr.save()
 
     return response_results
 
