@@ -253,6 +253,8 @@ def parse_ezp_results(simulation, response_results):
     #         assets_list=json.dumps(data_subdict), simulation=simulation
     #     )
 
+    simulation.results = "processed"
+    simulation.save()
     return response_results
 
 
