@@ -2,12 +2,15 @@ from datetime import datetime
 import httpx as requests
 import json
 import numpy as np
-
+import datapackage as dp
 from oemof.datapackage import datapackage
 import tempfile
 from pathlib import Path
 from oemof.eesyplan.datapackage.results import import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+import pandas as pd
+from oemof.eesyplan.facades.buses.carrier import CarrierBus
+from oemof.solph import Bus
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
@@ -116,6 +119,7 @@ def parse_ezp_results(simulation, response_results):
     res = data["raw_results"]
 
     with tempfile.TemporaryDirectory() as temp_dir:
+        # TODO use temp dir then
         destination_path = Path(".").resolve() / "test_processing_res"
         es_path = Path(".").resolve() / "test_processing_es"
 
@@ -131,83 +135,136 @@ def parse_ezp_results(simulation, response_results):
         ezp_results = import_results(res_path, es)
         # TODO write this into FancyResults
 
-    asset_key_list = [
-        "energy_consumption",
-        "energy_conversion",
-        "energy_production",
-        "energy_providers",
-        "energy_storage",
-    ]
+        es_dp = dp.Package(str(es_dp_path / "datapackage.json"))
 
-    if not set(asset_key_list).issubset(data.keys()):
-        raise KeyError("There are missing keys from the received dictionary.")
+        def get_component_type(es_dp, component_label):
+            for r in es_dp.resources:
+                if "/elements/" in r.descriptor["path"]:
+                    df = pd.DataFrame.from_records(r.read(keyed=True))
+                    search_component = df.loc[df.name == component_label, "type"]
+                    if search_component.empty is False:
+                        return search_component[0]
 
+        qs = FancyResults.objects.filter(simulation=simulation)
+        if qs.exists():
+            raise ValueError("Already existing FancyResults")
+        else:
+            for i, fl in enumerate(ezp_results["flow"]):
+                print(i, fl)
+                if isinstance(fl[0], CarrierBus) or isinstance(fl[0], Bus):
+                    bus = fl[0]
+                    component = fl[1]
+                    direction = "in"
+                elif isinstance(fl[1], CarrierBus) or isinstance(fl[1], Bus):
+                    bus = fl[1]
+                    component = fl[0]
+                    direction = "out"
+
+                print(component, direction, bus)
+
+                flow_data = ezp_results["flow"][fl].values
+                total_flow = flow_data.sum()
+
+                # print(component.__dict__.keys())
+                print(component.label)
+                comp_type = str(type(component))
+                print(comp_type)
+
+                kwargs = {
+                    "bus": bus.label,
+                    "energy_vector": bus.carrier if hasattr(bus, "carrier") else "None",
+                    "direction": direction,
+                    "asset": component.label,
+                    # TODO this is now not working because of tuple labels of subcomponents
+                    "asset_type": get_component_type(
+                        es_dp, component.label
+                    ),  # get it from datapackage
+                    # TODO one need to allow the types in MVS_TYPE
+                    "oemof_type": str(type(component)),  # get it from mapping
+                    "flow_data": flow_data,
+                    "total_flow": total_flow,
+                    "optimized_capacity": 0,
+                    "simulation": simulation,
+                }
+                fr = FancyResults(**kwargs)
+                fr.save()
+    # asset_key_list = []
+
+    # TODO simply need to write the kpi_scalar dataframe from ezp_results here
     # Write Scalar KPIs to db
+
     qs = KPIScalarResults.objects.filter(simulation=simulation)
     if qs.exists():
         kpi_scalar = qs.first()
-        kpi_scalar.scalar_values = json.dumps(data["kpi"]["scalars"])
+        kpi_scalar.scalar_values = json.dumps({})  # json.dumps(data["kpi"]["scalars"])
         kpi_scalar.save()
     else:
         KPIScalarResults.objects.create(
-            scalar_values=json.dumps(data["kpi"]["scalars"]), simulation=simulation
+            scalar_values=json.dumps(json.dumps({})),
+            simulation=simulation,
+            # scalar_values=json.dumps(data["kpi"]["scalars"]), simulation=simulation
         )
+    # TODO simply need to write the kpi_cost_matrix dataframe from ezp_results here
     # Write Cost Matrix KPIs to db
     qs = KPICostsMatrixResults.objects.filter(simulation=simulation)
     if qs.exists():
         kpi_costs = qs.first()
-        kpi_costs.cost_values = json.dumps(data["kpi"]["cost_matrix"])
+        kpi_costs.cost_values = json.dumps({})  # json.dumps(data["kpi"]["cost_matrix"])
         kpi_costs.save()
     else:
         KPICostsMatrixResults.objects.create(
-            cost_values=json.dumps(data["kpi"]["cost_matrix"]), simulation=simulation
-        )
-    # Write Assets to db
-    data_subdict = {
-        category: v for category, v in data.items() if category in asset_key_list
-    }
-    qs = AssetsResults.objects.filter(simulation=simulation)
-    if qs.exists():
-        asset_results = qs.first()
-        asset_results.asset_list = json.dumps(data_subdict)
-        asset_results.save()
-    else:
-        AssetsResults.objects.create(
-            assets_list=json.dumps(data_subdict), simulation=simulation
+            cost_values=json.dumps({}),
+            simulation=simulation,
+            # cost_values=json.dumps(data["kpi"]["cost_matrix"]), simulation=simulation
         )
 
-    qs = FancyResults.objects.filter(simulation=simulation)
-    if qs.exists():
-        raise ValueError("Already existing FancyResults")
-    else:
-        # TODO add safety here with json schema
-        # Raw results is a panda dataframe which was saved to json using "split"
-        if "raw_results" in data:
-            results = data["raw_results"]
-            js = json.loads(results)
-            js_data = np.array(js["data"])
+    # TODO not very important, only for comparison amongst several scenarii
+    # # Write Assets to db
+    # data_subdict = {
+    #     category: v for category, v in data.items() if category in asset_key_list
+    # }
+    # qs = AssetsResults.objects.filter(simulation=simulation)
+    # if qs.exists():
+    #     asset_results = qs.first()
+    #     asset_results.asset_list = json.dumps(data_subdict)
+    #     asset_results.save()
+    # else:
+    #     AssetsResults.objects.create(
+    #         assets_list=json.dumps(data_subdict), simulation=simulation
+    #     )
 
-            hdrs = [
-                "bus",
-                "energy_vector",
-                "direction",
-                "asset",
-                "asset_type",
-                "oemof_type",
-                "flow_data",
-                "optimized_capacity",
-            ]
-
-            # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
-            # we append those values here
-            for i, col in enumerate(js["columns"]):
-                col.append(js_data[:-1, i].tolist())
-                col.append(js_data[-1, i])
-
-                kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
-                kwargs["simulation"] = simulation
-                fr = FancyResults(**kwargs)
-                fr.save()
+    # qs = FancyResults.objects.filter(simulation=simulation)
+    # if qs.exists():
+    #     raise ValueError("Already existing FancyResults")
+    # else:
+    #     # TODO add safety here with json schema
+    #     # Raw results is a panda dataframe which was saved to json using "split"
+    #     if "raw_results" in data:
+    #         results = data["raw_results"]
+    #         js = json.loads(results)
+    #         js_data = np.array(js["data"])
+    #
+    #         hdrs = [
+    #             "bus",
+    #             "energy_vector",
+    #             "direction",
+    #             "asset",
+    #             "asset_type",
+    #             "oemof_type",
+    #             "flow_data",
+    #             "optimized_capacity",
+    #         ]
+    #
+    #         # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
+    #         # we append those values here
+    #         for i, col in enumerate(js["columns"]):
+    #             col.append(js_data[:-1, i].tolist())
+    #             col.append(js_data[-1, i])
+    #
+    #             kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
+    #             kwargs["simulation"] = simulation
+    #             fr = FancyResults(**kwargs)
+    #             fr.save()
 
     return response_results
 
