@@ -201,7 +201,7 @@ def parse_ezp_results(simulation, response_results):
                     ),  # get it from datapackage
                     # TODO one need to allow the types in MVS_TYPE
                     "oemof_type": str(type(component)),  # get it from mapping
-                    "flow_data": flow_data,
+                    "flow_data": flow_data.tolist(),
                     "total_flow": total_flow,
                     "optimized_capacity": 0,
                     "simulation": simulation,
