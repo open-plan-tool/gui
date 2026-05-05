@@ -170,6 +170,11 @@ def parse_ezp_results(simulation, response_results):
         if qs.exists():
             raise ValueError("Already existing FancyResults")
         else:
+            if "invest" in ezp_results:
+                invest = ezp_results["invest"]
+            else:
+                invest = None
+
             for i, fl in enumerate(ezp_results["flow"]):
                 print(i, fl)
                 if isinstance(fl[0], CarrierBus) or isinstance(fl[0], Bus):
@@ -185,6 +190,11 @@ def parse_ezp_results(simulation, response_results):
 
                 flow_data = ezp_results["flow"][fl].values
                 total_flow = flow_data.sum()
+
+                opt_capacity = None
+                if invest is not None:
+                    if fl in invest.columns:
+                        opt_capacity = invest.loc[0, fl]
 
                 # print(component.__dict__.keys())
                 print(component.label)
@@ -204,7 +214,7 @@ def parse_ezp_results(simulation, response_results):
                     "oemof_type": comp_type.split(".")[-1],  # get it from mapping
                     "flow_data": flow_data.tolist(),
                     "total_flow": total_flow,
-                    "optimized_capacity": 0,
+                    "optimized_capacity": opt_capacity,
                     "simulation": simulation,
                 }
                 fr = FancyResults(**kwargs)
