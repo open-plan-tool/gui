@@ -127,10 +127,11 @@ def get_component_type(es_dp, component):
     is a subnode its parent's type is returned instead.
 
     """
+    component_label = component.label
     if hasattr(component, "parent"):
-        component_label = component.label[-1]
-    else:
-        component_label = component.label
+        if component.parent is not None:
+            component_label = component.label[-1]
+
     for r in es_dp.resources:
         if "/elements/" in r.descriptor["path"]:
             df = pd.DataFrame.from_records(r.read(keyed=True))
@@ -200,7 +201,7 @@ def parse_ezp_results(simulation, response_results):
                         es_dp, component
                     ),  # get it from datapackage
                     # TODO one need to allow the types in MVS_TYPE
-                    "oemof_type": str(type(component)),  # get it from mapping
+                    "oemof_type": comp_type.split(".")[-1],  # get it from mapping
                     "flow_data": flow_data.tolist(),
                     "total_flow": total_flow,
                     "optimized_capacity": 0,
