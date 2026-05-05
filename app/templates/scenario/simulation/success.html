@@ -9,10 +9,17 @@
         </div>
         <div class="simulation__content">
           <h2>{% translate "Simulation successful" %}</h2>
-          <div class="simulation__id">
-            <a href="{{ MVS_GET_URL }}{{ mvs_token }}">{{ mvs_token }}</a>
-						(Using mvs version: {{ mvs_version }})
-          </div>
+					{% if sim_server == "MVS" %}
+						<div class="simulation__id">
+							<a href="{{ MVS_GET_URL }}{{ mvs_token }}">MVS {{ mvs_token }}</a>
+							(Using mvs version: {{ mvs_version }})
+						</div>
+					{% else %}
+						<div class="simulation__id">
+							<a href="{{ EZP_GET_URL }}{{ mvs_token }}">EasyPlan {{ mvs_token }}</a>
+							(Using EZP version: {{ mvs_version }})
+						</div>
+					{% endif %}
           <div class="simulation__feedback">
             <div class="item item--successful">
               <p>{% translate "Your simulation is complete." %}</p>

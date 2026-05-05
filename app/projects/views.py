@@ -1169,9 +1169,10 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             simulation = qs.first()
 
             if simulation.status == PENDING:
-                # TODO change
-                # fetch_mvs_simulation_results(simulation)
-                fetch_ezp_simulation_results(simulation)
+                if simulation.server == "MVS":
+                    fetch_mvs_simulation_results(simulation)
+                else:
+                    fetch_ezp_simulation_results(simulation)
 
             context.update(
                 {
@@ -1179,6 +1180,7 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                     "simulation_status": simulation.status,
                     "secondsElapsed": simulation.elapsed_seconds,
                     "rating": simulation.user_rating,
+                    "sim_server": simulation.server,
                     "mvs_token": simulation.mvs_token,
                     "mvs_version": (
                         simulation.mvs_version
@@ -1194,8 +1196,10 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                 if not qs.exists():
                     # If no updated results exist, try to generate them from simulation results
                     # TODO look for parse_mvs_results and replace with parse_ezp_results
-                    # parse_mvs_results(simulation, simulation.results)
-                    parse_ezp_results(simulation, simulation.results)
+                    if simulation.server == "MVS":
+                        parse_mvs_results(simulation, simulation.results)
+                    else:
+                        parse_ezp_results(simulation, simulation.results)
 
                     qs = FancyResults.objects.filter(simulation=simulation)
                     # inform the user about the problem if the updated results could not be parsed from the existing simulation
@@ -2031,7 +2035,9 @@ def request_mvs_simulation(request, scen_id=0):
         Simulation.objects.filter(scenario_id=scen_id).delete()
 
         # Create empty Simulation model object
-        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
+        simulation = Simulation(
+            start_date=datetime.datetime.now(), scenario_id=scen_id, server="MVS"
+        )
 
         simulation.mvs_token = results["id"] if results["id"] else None
 
@@ -2092,7 +2098,9 @@ def request_ezp_simulation(request, scen_id=0):
         Simulation.objects.filter(scenario_id=scen_id).delete()
 
         # Create empty Simulation model object
-        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
+        simulation = Simulation(
+            start_date=datetime.datetime.now(), scenario_id=scen_id, server="EZP"
+        )
 
         simulation.mvs_token = (
             results["id"] if results["id"] else None

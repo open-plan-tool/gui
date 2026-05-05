@@ -80,6 +80,7 @@ def fetch_ezp_simulation_results(simulation):
         response = ezp_simulation_check_status(token=simulation.mvs_token)
         try:
             simulation.status = response["status"]
+            simulation.mvs_version = response["simulation_version"]
             simulation.errors = (
                 json.dumps(response["results"][ERROR])
                 if simulation.status == ERROR
