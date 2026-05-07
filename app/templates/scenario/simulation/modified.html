@@ -142,7 +142,7 @@
 
 					</div>
 				</form>
-
+{% if show_ezp_button %}
 				<form method="post" action="{% url 'request_ezp_simulation' scen_id %}">
 					{% csrf_token %}
 					<div class="simulation-footer__btn">
@@ -151,6 +151,7 @@
 
 					</div>
 				</form>
+				{% endif %}
 			</div>
 
 

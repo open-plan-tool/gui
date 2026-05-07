@@ -30,7 +30,13 @@ from django.db.models import Q
 
 from oemof.datapackage.datapackage import export_dp_to_json
 
-from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL, EZP_GET_URL
+from epa.settings import (
+    MVS_GET_URL,
+    MVS_LP_FILE_URL,
+    MVS_SA_GET_URL,
+    EZP_GET_URL,
+    SHOW_EZP,
+)
 from .forms import *
 from .requests import (
     mvs_simulation_request,
@@ -1162,6 +1168,9 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             "EZP_GET_URL": EZP_GET_URL,
             "MVS_LP_FILE_URL": MVS_LP_FILE_URL,
         }
+
+        if SHOW_EZP is True:
+            context.update({"show_ezp_button": True})
 
         qs = Simulation.objects.filter(scenario_id=scen_id)
 
