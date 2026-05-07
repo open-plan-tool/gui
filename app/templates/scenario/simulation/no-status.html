@@ -28,6 +28,7 @@
 <footer class="simulation-footer">
 	<div>
 
+
 		<form method="post" action="{% url 'request_mvs_simulation' scen_id %}">
 						 {% csrf_token %}
 					<div class="simulation-footer__btn">
@@ -44,6 +45,18 @@
 
 					</div>
 		</form>
+				{% if show_ezp_button %}
+				<form method="post" action="{% url 'request_ezp_simulation' scen_id %}">
+						 {% csrf_token %}
+					<div class="simulation-footer__btn">
+						<button class="btn btn--medium" type="submit" > {% translate "Run EZP Simulation" %}</button>
+						<!--a class="btn btn--medium btn--hollow" href="{% url 'sensitivity_analysis_create' scen_id %}" aria-disabled="true">{% translate "Perform a sensitivity analysis" %}</a-->
+
+					</div>
+		</form>
+		{% endif %}
+
+
 	</div>
 </footer>
 {% endblock footer %}

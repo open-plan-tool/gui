@@ -450,6 +450,11 @@ SIMULATION_STATUS = (
     (MODIFIED, MODIFIED),
 )
 
+SIMULATION_SERVERS = (
+    ("MVS", "MVS"),
+    ("EZP", "EZP"),
+)
+
 USER_RATING = ((1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"))
 
 MAP_EPA_MVS = {
