@@ -540,10 +540,28 @@ class Scenario(models.Model):
 
         # Save all unique busses to a elements resource
         if bus_resource_records:
+            resource_metadata = {
+                "path": f"data/elements/bus.csv",
+                "profile": "tabular-data-resource",
+                "name": "bus",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [],
+                    "missingValues": [""],
+                    "primaryKey": "name",
+                    "foreignKeys": [],
+                },
+            }
+            schema = infer_metadata(bus_resource_records[0])
+            resource_metadata["schema"].update(schema)
+            datapackage_metadata_dict["resources"].append(resource_metadata)
+
             out_path = elements_folder / f"bus.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-            df = pd.DataFrame(bus_resource_records)
-            df.drop_duplicates("name").to_csv(out_path, index=False)
+            df_bus = pd.DataFrame(bus_resource_records)
+            df_bus.drop_duplicates("name").to_csv(out_path, index=False)
 
         # Save all profiles to a sequences resource
         if profile_resource_records:
