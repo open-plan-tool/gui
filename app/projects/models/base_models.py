@@ -497,6 +497,23 @@ class Scenario(models.Model):
         profile_resource_records = {}
         for facade_name in facade_names:
             resource_records = []
+            bus_names = []
+            profile_names = []
+            resource_metadata = {
+                "path": f"data/elements/{facade_name}.csv",
+                "profile": "tabular-data-resource",
+                "name": facade_name,
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [],
+                    "missingValues": [""],
+                    "primaryKey": "name",
+                    "foreignKeys": [],
+                },
+            }
+
             for i, asset in enumerate(
                 qs_assets.filter(asset_type__asset_type=facade_name)
             ):
@@ -506,14 +523,20 @@ class Scenario(models.Model):
                 resource_records.append(resource_rec)
                 # those constitute the busses and sequences used by this asset
                 bus_resource_records.extend(bus_resource_rec)
+                bus_names.extend([b["name"] for b in bus_resource_rec])
                 profile_resource_records.update(profile_resource_rec)
+                profile_names.extend([k for k in profile_resource_rec.keys()])
 
             # Add the resource's instances to a file in the "elements" folder of the datapackage
             if resource_records:
+                schema = infer_metadata(resource_records[0], bus_names, profile_names)
+                resource_metadata["schema"].update(schema)
                 out_path = elements_folder / f"{facade_name}.csv"
                 Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-                df = pd.DataFrame(resource_records)
-                df.to_csv(out_path, index=False)
+                df_resource = pd.DataFrame(resource_records)
+                df_resource.to_csv(out_path, index=False)
+
+            datapackage_metadata_dict["resources"].append(resource_metadata)
 
         # Save all unique busses to a elements resource
         if bus_resource_records:
