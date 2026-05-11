@@ -214,6 +214,104 @@ class Comment(models.Model):
         return self.name
 
 
+def infer_simple_type(value):
+    """
+    Infer a simple type for Tabular Data Package fields.
+
+    Returns only:
+    - "integer"
+    - "number"
+    - "string"
+    """
+
+    if value is None:
+        return "string"
+
+    if isinstance(value, bool):
+        return "boolean"
+
+    if isinstance(value, int):
+        return "integer"
+
+    if isinstance(value, float):
+        return "number"
+
+    if isinstance(value, str):
+        text = value.strip()
+
+        if text == "":
+            return "string"
+
+        if text == "True" or text == "False":
+            return "boolean"
+
+        try:
+            as_int = int(text)
+            if str(as_int) == text or text in {f"+{as_int}", f"-{abs(as_int)}"}:
+                return "integer"
+        except ValueError:
+            pass
+
+        try:
+            float(text)
+            return "number"
+        except ValueError:
+            return "string"
+
+    return "string"
+
+
+def infer_metadata(resource_records, bus_names=None, profile_names=None):
+    """Helper function to generate the datapackage.json file for scenario's assets"""
+    if bus_names is None:
+        bus_names = []
+
+    if profile_names is None:
+        profile_names = []
+
+    schema = {
+        "fields": [],
+        "foreignKeys": [],
+    }
+    for field_name, field_value in resource_records.items():
+        schema["fields"].append(
+            {
+                "name": field_name,
+                "type": infer_simple_type(field_value),
+                "format": "default",
+            }
+        )
+        if field_value in bus_names:
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {"resource": "bus", "fields": "name"},
+                }
+            )
+        elif field_value in profile_names:
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {
+                        "resource": "profiles",
+                    },
+                }
+            )
+
+        if field_name == "project_data":
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {"resource": "project", "fields": "name"},
+                }
+            )
+    schema["foreignKeys"].sort(key=lambda x: x["fields"])
+    if len(schema["foreignKeys"]) == 0:
+        schema.pop("foreignKeys")
+
+    return schema
+
+
 class Scenario(models.Model):
     name = models.CharField(max_length=60)
 
