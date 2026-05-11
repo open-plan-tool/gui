@@ -444,6 +444,8 @@ class Scenario(models.Model):
 
         scenario_folder = destination_path / f"scenario_{clean_dir_name}"
 
+        datapackage_metadata_file = scenario_folder / "datapackage.json"
+
         data_folder = scenario_folder / "data"
         elements_folder = data_folder / "elements"
         sequences_folder = data_folder / "sequences"
@@ -452,6 +454,13 @@ class Scenario(models.Model):
         (scenario_folder / "scripts").mkdir(parents=True)
         elements_folder.mkdir(parents=True)
         sequences_folder.mkdir(parents=True)
+
+        datapackage_metadata_dict = {
+            "profile": "tabular-data-package",
+            "name": f"scenario_{self.name}".replace(" ", "_"),
+            "oemof_datapackage_version": "0.0.6b3",  # todo: update this one via a variable
+            "resources": [],
+        }
 
         # Save the project specifics
         proj = self.project
@@ -525,12 +534,15 @@ class Scenario(models.Model):
                 df = df.iloc[:number]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
-        # creating datapackage.json metadata file at the root of the datapackage
-        building.infer_metadata_from_data(
-            package_name=f"scenario_{self.name}".replace(" ", "_"),
-            path=scenario_folder,
-            fk_targets=["project"],
+        datapackage_metadata_dict["resources"].sort(
+            key=lambda x: (x["path"], x["name"])
         )
+        # creating datapackage.json metadata file at the root of the datapackage
+        with datapackage_metadata_file.open("w", encoding="utf-8") as file:
+            json.dump(
+                datapackage_metadata_dict, file, indent=4
+            )  # , ensure_ascii=False)
+
         return scenario_folder
 
     def to_jsonified_datapackage(self, destination_path=None, number=None):
