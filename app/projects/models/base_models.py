@@ -464,9 +464,23 @@ class Scenario(models.Model):
 
         # Save the project specifics
         proj = self.project
+        proj_dp = proj.to_datapackage()
+        resource_metadata = {
+            "path": "data/project.csv",
+            "profile": "tabular-data-resource",
+            "name": "project",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {"fields": [], "missingValues": [""]},
+        }
+        schema = infer_metadata(proj_dp)
+        resource_metadata["schema"].update(schema)
+        datapackage_metadata_dict["resources"].append(resource_metadata)
+
         out_path = data_folder / f"project.csv"
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame([proj.to_datapackage()])
+        df = pd.DataFrame([proj_dp])
         df.drop_duplicates("name").to_csv(out_path, index=False)
 
         # List all components of the scenario (except the busses)
