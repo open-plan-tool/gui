@@ -565,6 +565,26 @@ class Scenario(models.Model):
 
         # Save all profiles to a sequences resource
         if profile_resource_records:
+            resource_metadata = {
+                "path": f"data/sequences/profiles.csv",
+                "profile": "tabular-data-resource",
+                "name": "profiles",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [
+                        {"name": "timeindex", "type": "string", "format": "default"}
+                    ],
+                    "missingValues": [""],
+                },
+            }
+            for k in profile_resource_records.keys():
+                resource_metadata["schema"]["fields"].append(
+                    {"name": k, "type": "number", "format": "default"}
+                )
+            datapackage_metadata_dict["resources"].append(resource_metadata)
+
             out_path = sequences_folder / f"profiles.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
             # add timestamps to the profiles
