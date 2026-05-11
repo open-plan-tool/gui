@@ -34,6 +34,7 @@ from projects.constants import (
     TIMESERIES_CATEGORIES,
     TIMESERIES_TYPES,
     TIMESERIES_ASSET_TYPES,
+    SIMULATION_SERVERS,
 )
 from users.models import CustomUser
 
@@ -1181,6 +1182,9 @@ class AbstractSimulation(models.Model):
     elapsed_seconds = models.FloatField(null=True)
     mvs_token = models.CharField(max_length=200, null=True)
     mvs_version = models.CharField(max_length=15, null=True)
+    server = models.CharField(
+        max_length=3, choices=SIMULATION_SERVERS, null=False, default="MVS"
+    )
     status = models.CharField(
         max_length=20, choices=SIMULATION_STATUS, null=False, default=PENDING
     )

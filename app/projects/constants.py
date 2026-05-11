@@ -1,5 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 
+SIMULATION_SERVERS = (
+    ("MVS", "MVS"),
+    ("EZP", "EZP"),
+)
 
 STEP_LIST = [
     _("Scenario Setup"),
