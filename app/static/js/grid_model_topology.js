@@ -711,6 +711,8 @@ function toggle_cop_modal(event){
     fetch(getUrl).then(response => response.text()).then(formContent => {
         // assign the content of the form to the form tag of the modal
         guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+        // enable Bootstrap tooltips (help text icons)
+        $('[data-bs-toggle="tooltip"]').tooltip();
     }).catch(error => {
         console.error(error);
     });

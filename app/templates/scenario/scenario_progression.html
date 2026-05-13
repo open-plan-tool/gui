@@ -43,8 +43,19 @@
         </div>
     </section>
 
-    {% block progression_content %}
+<div class="scenario-create__info-message">
+	{% block step_explanation %}
+	{% if page_information %}
+	<div>
+		<p>
+			{{ page_information }}
+		</p>
+	</div>
+	{% endif %}
+	{% endblock step_explanation %}
+</div>
 
+    {% block progression_content %}
     {% endblock progression_content %}
 
 {% endblock content %}

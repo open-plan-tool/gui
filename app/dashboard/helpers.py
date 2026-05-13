@@ -37,7 +37,7 @@ EMPTY_SUBCAT = "none"
 
 MANAGEMENT_CAT_PARAMS = {
     "General": [
-        "degree_of_autonomy",
+        # "degree_of_autonomy",
         "onsite_energy_fraction",
         "renewable_factor",
         "renewable_share_of_local_generation",
@@ -67,7 +67,7 @@ ECONOMIC_CAT_PARAMS = {
         "costs_investment_over_lifetime",
         "costs_cost_om",
         "costs_dispatch",
-        "attributed_costs:carrier:",
+        # "attributed_costs:carrier:",
         "total_feedin",
         "objective_function_result",
     ]

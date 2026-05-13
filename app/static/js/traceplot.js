@@ -45,9 +45,6 @@ function makePlotly( x, y, plot_id="",userLayout=null){
         if(ts_timestamps.length == y.length){
             x = ts_timestamps
         }
-        else{
-            alert("The number of values in your uploaded timeseries (" + y.length + ") does not match the scenario timestamps (" + ts_timestamps.length + ").\nPlease change the scenario settings or upload a new timeseries")
-        }
     }
 
     var plotLayout = {...layout};
@@ -318,7 +315,6 @@ function parseExcelData(data){
           });
       }
       else{
-
         reader.onload = loadHandler;
         // Read file into memory as UTF-8
         reader.readAsText(fileToRead);
@@ -326,9 +322,16 @@ function parseExcelData(data){
 
 
     function loadHandler(event) {
-      var csv = event.target.result;
-      d3array = d3.csvParseRows(csv);
-      processData(d3array);
+        var csv = event.target.result;
+        const lines = csv.split('\n');
+        const comma_per_line = lines.map(line => (line.match(/,/g) || []).length);
+        if (comma_per_line.length > 0 && comma_per_line.every(c => c <= 1) && !csv.includes(".") || csv.includes(";")) {
+            // Safe to assume decimal comma in single-column case or semicolon as delimiter in csv
+            d3array = d3.dsvFormat(";").parseRows(csv);
+        } else {
+            d3array = d3.csvParseRows(csv);
+        }
+        processData(d3array);
     }
 
 

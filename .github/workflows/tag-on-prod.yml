@@ -22,7 +22,7 @@ jobs:
           set -euo pipefail
           VERSION=$(python - <<'PY'
           import re
-          p = "epa/settings.py"
+          p = "app/epa/settings.py"
           s = open(p, "r", encoding="utf-8").read()
           m = re.search(r'APP_VERSION_NUMBER\s*=\s*"([^"]+)"', s)
           if not m:

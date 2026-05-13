@@ -12,7 +12,7 @@ services:
       - db_data_pg:/var/lib/postgresql/data/
     networks:
       - open_plan_network_pg
-  app_pg:
+  app_pg: &django
     build:
       context: ./app
       dockerfile: ./compose/production/app_postgres/Dockerfile
@@ -29,24 +29,28 @@ services:
       - db_pg
     networks:
       - open_plan_network_pg
-  djangoq_pg:
-    build:
-      context: ./app
-      dockerfile: ./compose/production/app_postgres/Dockerfile
-    container_name: django-q-open_plan_pg
-    restart: always
-    env_file:
-      - .envs/epa.postgres
-    command: python manage.py qcluster
+
+  redis:
+    image: docker.io/redis:6
+
     volumes:
-      - .:/code
-    expose:
-      - 8000
-    depends_on:
-      - db_pg
-      - app_pg
-    networks:
-      - open_plan_network_pg
+      - production_redis_data:/data
+
+  celeryworker:
+    <<: *django
+    image: open_plan_production_celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: open_plan_production_celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: open_plan_production_flower
+    command: /start-flower
+
   nginx_pg:
     image: nginx:1.21-alpine
     container_name: ngx_pg

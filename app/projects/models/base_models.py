@@ -6,7 +6,8 @@ from datetime import timedelta
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from oemof.datapackage.datapackage import building
+import tempfile
+from oemof.datapackage.datapackage import building, export_dp_to_json
 
 
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
@@ -26,6 +27,7 @@ from projects.constants import (
     FLOW_DIRECTION,
     MVS_TYPE,
     SIMULATION_STATUS,
+    SIMULATION_SERVERS,
     PENDING,
     TRUE_FALSE_CHOICES,
     BOOL_CHOICES,
@@ -313,7 +315,7 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path, number=None):
+    def to_datapackage(self, destination_path=None, number=None):
         """
 
         Parameters
@@ -326,6 +328,10 @@ class Scenario(models.Model):
         -------
         A Path to the scenario datapackage
         """
+
+        if destination_path is None:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                destination_path = Path(temp_dir)
 
         # Create a folder with a datapackage structure
         def clean_dir_str(name):
@@ -428,6 +434,10 @@ class Scenario(models.Model):
             fk_targets=["project"],
         )
         return scenario_folder
+
+    def to_jsonified_datapackage(self, destination_path=None, number=None):
+        scenario_folder = self.to_datapackage(destination_path, number)
+        return json.loads(export_dp_to_json(scenario_folder))
 
 
 def get_default_timeseries():
@@ -788,7 +798,7 @@ class Asset(TopologyNode):
     @property
     def input_timeseries_values(self):
         if self.is_input_timeseries_empty() is False:
-            answer = json.loads(self.input_timeseries)
+            answer = self.input_timeseries.get_values
         else:
             answer = []
         return answer
@@ -961,7 +971,7 @@ class Asset(TopologyNode):
         return dm
 
     def is_input_timeseries_empty(self):
-        return self.input_timeseries == ""
+        return self.input_timeseries is None
 
 
 class COPCalculator(models.Model):
@@ -1181,6 +1191,9 @@ class AbstractSimulation(models.Model):
     elapsed_seconds = models.FloatField(null=True)
     mvs_token = models.CharField(max_length=200, null=True)
     mvs_version = models.CharField(max_length=15, null=True)
+    server = models.CharField(
+        max_length=3, choices=SIMULATION_SERVERS, null=False, default="MVS"
+    )
     status = models.CharField(
         max_length=20, choices=SIMULATION_STATUS, null=False, default=PENDING
     )

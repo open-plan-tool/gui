@@ -27,14 +27,26 @@ from django.template.loader import get_template
 
 from jsonview.decorators import json_view
 from django.db.models import Q
-from epa.settings import MVS_GET_URL, MVS_LP_FILE_URL, MVS_SA_GET_URL
+
+from oemof.datapackage.datapackage import export_dp_to_json
+
+from epa.settings import (
+    MVS_GET_URL,
+    MVS_LP_FILE_URL,
+    MVS_SA_GET_URL,
+    EZP_GET_URL,
+    SHOW_EZP,
+)
 from .forms import *
 from .requests import (
     mvs_simulation_request,
     fetch_mvs_simulation_results,
+    ezp_simulation_request,
+    fetch_ezp_simulation_results,
     mvs_sensitivity_analysis_request,
     fetch_mvs_sa_results,
     parse_mvs_results,
+    parse_ezp_results,
 )
 from projects.models import (
     Project,
@@ -74,7 +86,6 @@ from projects.helpers import format_scenario_for_mvs, PARAMETERS
 from dashboard.helpers import fetch_user_projects
 from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
-    create_or_delete_simulation_scheduler,
     excuses_design_under_development,
     send_feedback_email,
     get_selected_scenarios_in_cache,
@@ -568,6 +579,16 @@ def project_search(request, proj_id=None, scen_id=None):
             "translated_text": {
                 "showScenarioText": _("Show scenarios"),
                 "hideScenarioText": _("Hide scenarios"),
+            },
+            "warning_boxes": {
+                "project_delete": _("Are you sure you want to delete this project?")
+                + "\n"
+                + _("This will also delete all related project data")
+                + ".",
+                "scenario_delete": _("Are you sure you want to delete this scenario?")
+                + "\n"
+                + _("This action cannot be undone")
+                + ".",
             },
         },
     )
@@ -1144,8 +1165,12 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             "step_list": STEP_LIST,
             "max_step": max_step,
             "MVS_GET_URL": MVS_GET_URL,
+            "EZP_GET_URL": EZP_GET_URL,
             "MVS_LP_FILE_URL": MVS_LP_FILE_URL,
         }
+
+        if SHOW_EZP is True:
+            context.update({"show_ezp_button": True})
 
         qs = Simulation.objects.filter(scenario_id=scen_id)
 
@@ -1153,7 +1178,10 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
             simulation = qs.first()
 
             if simulation.status == PENDING:
-                fetch_mvs_simulation_results(simulation)
+                if simulation.server == "MVS":
+                    fetch_mvs_simulation_results(simulation)
+                else:
+                    fetch_ezp_simulation_results(simulation)
 
             context.update(
                 {
@@ -1161,6 +1189,7 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                     "simulation_status": simulation.status,
                     "secondsElapsed": simulation.elapsed_seconds,
                     "rating": simulation.user_rating,
+                    "sim_server": simulation.server,
                     "mvs_token": simulation.mvs_token,
                     "mvs_version": (
                         simulation.mvs_version
@@ -1175,7 +1204,12 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                 qs = FancyResults.objects.filter(simulation=simulation)
                 if not qs.exists():
                     # If no updated results exist, try to generate them from simulation results
-                    parse_mvs_results(simulation, simulation.results)
+                    # TODO look for parse_mvs_results and replace with parse_ezp_results
+                    if simulation.server == "MVS":
+                        parse_mvs_results(simulation, simulation.results)
+                    else:
+                        parse_ezp_results(simulation, simulation.results)
+
                     qs = FancyResults.objects.filter(simulation=simulation)
                     # inform the user about the problem if the updated results could not be parsed from the existing simulation
                     if not qs.exists():
@@ -1384,6 +1418,19 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
 
 @login_required
 @require_http_methods(["GET"])
+def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
+    scenario = get_object_or_404(Scenario, id=int(scen_id))
+    if scenario.project.user != request.user:
+        raise PermissionDenied
+
+    json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
+    response = JsonResponse(json_dp, status=200, content_type="application/json")
+
+    return response
+
+
+@login_required
+@require_http_methods(["GET"])
 def project_export_as_datapackage(request, proj_id, n_timestamps=None):
     project = get_object_or_404(Project, id=int(proj_id))
 
@@ -1565,7 +1612,6 @@ def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
                 sa_item.status = response["status"]
                 # create a task which will update simulation status
                 # TODO check it does the right thing with sensitivity analysis
-                # create_or_delete_simulation_scheduler(mvs_token=sa_item.mvs_token)
 
             sa_item.elapsed_seconds = (
                 datetime.datetime.now() - sa_item.start_date
@@ -1998,7 +2044,9 @@ def request_mvs_simulation(request, scen_id=0):
         Simulation.objects.filter(scenario_id=scen_id).delete()
 
         # Create empty Simulation model object
-        simulation = Simulation(start_date=datetime.datetime.now(), scenario_id=scen_id)
+        simulation = Simulation(
+            start_date=datetime.datetime.now(), scenario_id=scen_id, server="MVS"
+        )
 
         simulation.mvs_token = results["id"] if results["id"] else None
 
@@ -2010,12 +2058,87 @@ def request_mvs_simulation(request, scen_id=0):
             simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
-            # create a task which will update simulation status
-            create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
 
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
         ).seconds
+        simulation.save()
+
+        answer = HttpResponseRedirect(
+            reverse("scenario_review", args=[scenario.project.id, scen_id])
+        )
+
+    return answer
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def request_ezp_simulation(request, scen_id=0):
+    if scen_id == 0:
+        answer = JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(pk=scen_id)
+    json_dp = scenario.to_jsonified_datapackage()
+
+    # if request.method == "POST":
+    #     output_lp_file = request.POST.get("output_lp_file", None)
+    #     if output_lp_file == "on":
+    #         data_clean["simulation_settings"]["output_lp_file"] = "true"
+
+    # Make simulation request to eesyplan server
+    results = ezp_simulation_request(json_dp)
+
+    if results is None:
+        error_msg = "Could not communicate with the simulation server."
+        logger.error(error_msg)
+        messages.error(request, error_msg)
+        # TODO redirect to prefilled feedback form / bug form
+        answer = JsonResponse(
+            {"status": "error", "error": error_msg},
+            status=407,
+            content_type="application/json",
+        )
+    else:
+        # delete existing simulation
+        Simulation.objects.filter(scenario_id=scen_id).delete()
+
+        # Create empty Simulation model object
+        simulation = Simulation(
+            start_date=datetime.datetime.now(), scenario_id=scen_id, server="EZP"
+        )
+
+        simulation.mvs_token = (
+            results["id"] if results["id"] else None
+        )  # TODO change token
+
+        if "status" in results.keys() and (
+            results["status"] == DONE or results["status"] == ERROR
+        ):
+            simulation.status = results["status"]
+            simulation.results = results["results"]
+            simulation.end_date = datetime.datetime.now()
+        else:  # PENDING
+            simulation.status = results["status"]
+            # create a task which will update simulation status
+            # create_or_delete_simulation_scheduler(mvs_token=simulation.mvs_token)
+
+        simulation.elapsed_seconds = (
+            datetime.datetime.now() - simulation.start_date
+        ).seconds
+
+        # Keep a trace of the input datapackage which defines the simulation
+        # (without the full timeseries to save disk space, but with foreign keys to the timeseries)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            destination_path = Path(temp_dir)
+            # write the content of the scenario into a temp directory
+            scenario_folder = scenario.to_datapackage(destination_path, number=0)
+
+            json_dp = json.loads(export_dp_to_json(scenario_folder))
+            # TODO Save json_dp into a new field Simulation object ?
         simulation.save()
 
         answer = HttpResponseRedirect(
@@ -2052,6 +2175,9 @@ def update_simulation_rating(request):
 def fetch_simulation_results(request, sim_id):
     simulation = get_object_or_404(Simulation, id=sim_id)
     are_result_ready = fetch_mvs_simulation_results(simulation)
+    # TODO temporary, remove MVS then
+    if are_result_ready is False:
+        are_result_ready = fetch_ezp_simulation_results(simulation)
     return JsonResponse(
         dict(areResultReady=are_result_ready),
         status=200,

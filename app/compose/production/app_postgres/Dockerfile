@@ -17,25 +17,39 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt
+    && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
+    && pip install gunicorn
 
 WORKDIR ${APP_ROOT}
 
 
 ADD app/ ${APP_ROOT}
 
-COPY ./app/djangoq_setup.sh /djangoq_setup.sh
-RUN chmod +x /djangoq_setup.sh
 
 COPY ./app/compose/production/app_postgres/start /start
 #RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
+COPY ./app/compose/production/app_postgres/celery/worker/start /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
+
+COPY ./app/compose/production/app_postgres/celery/beat/start /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
+
+COPY ./app/compose/production/app_postgres/celery/flower/start /start-flower
+RUN sed -i 's/\r$//g' /start-flower
+RUN chmod +x /start-flower
+
+
 RUN adduser appuser --system --no-create-home --shell /bin/sh \
     && chown -R appuser ${APP_ROOT}
 
 RUN chown appuser /start
-RUN chown appuser /djangoq_setup.sh
+RUN chown appuser /start-celeryworker
+RUN chown appuser /start-celerybeat
+RUN chown appuser /start-flower
 
 USER appuser
 
