@@ -5030,3 +5030,6 @@ msgstr "Aufgrund einer laufenden Umstrukturierung ist der Simulationsserver mög
 
 msgid "Due to the ongoing restructuring, the use of variable costs with time series data in the DSO components is not functioning as intended."
 msgstr "Aufgrund der laufenden Umstrukturierung funktioniert die Verwendung von variablen Kosten mit Zeitreihendaten in den DSO-Komponenten nicht wie vorgesehen."
+
+msgid "Further information"
+msgstr "Weitere Informationen"
