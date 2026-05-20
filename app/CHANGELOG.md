@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.1.3] – 2026-05-20
 ### Changed
 - Remove specific workshop dates from courses site (will be redirected to DGS instead) [[#475](https://github.com/open-plan-tool/gui/pull/475)]
 
