@@ -69,6 +69,7 @@ from projects.models import (
     MaxEmissionConstraint,
     NZEConstraint,
 )
+from projects.decorators import viewer_has_view_rights, viewer_has_edit_rights
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
     handle_storage_unit_form_post,
@@ -298,12 +299,6 @@ def ajax_project_viewers_form(request):
 @require_http_methods(["GET"])
 def project_detail(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
-
-    if (project.user != request.user) and (
-        project.viewers.filter(user__email=request.user.email).exists() is False
-    ):
-        raise PermissionDenied
-
     logger.info(f"Populating project and economic details in forms.")
     project_form = ProjectDetailForm(None, instance=project)
     economic_data_form = EconomicDataDetailForm(None, instance=project.economic_data)
