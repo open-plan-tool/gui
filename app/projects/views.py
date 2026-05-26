@@ -297,6 +297,7 @@ def ajax_project_viewers_form(request):
 
 @login_required
 @require_http_methods(["GET"])
+@viewer_has_view_rights
 def project_detail(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
     logger.info(f"Populating project and economic details in forms.")
@@ -341,16 +342,9 @@ def project_create(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@viewer_has_edit_rights
 def project_update(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
-
-    if (project.user != request.user) and (
-        project.viewers.filter(
-            user__email=request.user.email, share_rights="edit"
-        ).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     project_form = ProjectUpdateForm(request.POST or None, instance=project)
     economic_data_form = EconomicDataUpdateForm(
@@ -591,28 +585,14 @@ def project_search(request, proj_id=None, scen_id=None):
 
 @login_required
 @require_http_methods(["POST"])
+@viewer_has_edit_rights
 def project_duplicate(request, proj_id):
     """Duplicates the selected project along with its associated scenarios"""
     project = get_object_or_404(Project, pk=proj_id)
 
     # duplicate the project
     dm = project.export(bind_scenario_data=True)
-    if (project.user == request.user) or (
-        project.viewers.filter(
-            user__email=request.user.email, share_rights="edit"
-        ).exists()
-        is True
-    ):
-        new_proj_id = load_project_from_dict(dm, user=request.user)
-    else:
-        messages.error(
-            request,
-            _(
-                "You cannot duplicate a shared project without the owner granting you 'edit' rights"
-            ),
-        )
-        new_proj_id = project.id
-
+    new_proj_id = load_project_from_dict(dm, user=request.user)
     return HttpResponseRedirect(reverse("project_search", args=[new_proj_id]))
 
 
@@ -1019,6 +999,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@viewer_has_view_rights
 def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4):
     constraints_labels = {
         "minimal_degree_of_autonomy": _("Minimal degree of autonomy"),
@@ -1041,12 +1022,6 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     }
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     if (scenario.project.user != request.user) and (
         scenario.project.viewers.filter(
@@ -1140,14 +1115,9 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@viewer_has_view_rights
 def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     if request.method == "GET":
         html_template = f"scenario/simulation/no-status.html"
@@ -1290,16 +1260,10 @@ def scenario_steps(request, proj_id, step_id=None, scen_id=None):
 # TODO delete this useless code here
 @login_required
 @require_http_methods(["GET"])
+@viewer_has_view_rights
 def scenario_view(request, scen_id, step_id):
     """Scenario View. GET request only."""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
-
     return HttpResponseRedirect(reverse("project_search", args=[scenario.project.id]))
 
 
@@ -1482,16 +1446,9 @@ def scenario_delete(request, scen_id):
 
 @login_required
 @require_http_methods(["POST"])
+@viewer_has_edit_rights
 def reset_scenario_changes(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(
-            user__email=request.user.email, share_rights="edit"
-        ).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     if request.POST:
         qs = ParameterChangeTracker.objects.filter(simulation=scenario.simulation)
