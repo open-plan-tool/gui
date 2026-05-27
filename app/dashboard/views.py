@@ -212,12 +212,6 @@ def scenario_visualize_results(
             scenario = get_object_or_404(Scenario, id=scen_id)
             # TODO: change this when multi-scenario selection is allowed
 
-            if (scenario.project.user != request.user) and (
-                scenario.project.viewers.filter(user__email=request.user.email).exists()
-                is False
-            ):
-                raise PermissionDenied
-
             qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
             if qs.exists() and scenario in user_scenarios:
