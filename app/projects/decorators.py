@@ -19,7 +19,13 @@ def viewer_has_view_rights(view_func):
             project.viewers.filter(user__email=request.user.email).exists() is False
         ):
             raise PermissionDenied
-        return view_func(request, proj_id, scen_id, *args, **kwargs)
+        # check for existing parameters to handle the different view parameters
+        if proj_id is not None and scen_id is not None:
+            return view_func(request, proj_id, scen_id, *args, **kwargs)
+        elif proj_id is not None:
+            return view_func(request, proj_id, *args, **kwargs)
+        elif scen_id is not None:
+            return view_func(request, scen_id, *args, **kwargs)
 
     return _wrapped_view
 
@@ -40,6 +46,12 @@ def viewer_has_edit_rights(view_func):
             is False
         ):
             raise PermissionDenied
-        return view_func(request, proj_id, scen_id, *args, **kwargs)
+        # check for existing parameters to handle the different view parameters
+        if proj_id is not None and scen_id is not None:
+            return view_func(request, proj_id, scen_id, *args, **kwargs)
+        elif proj_id is not None:
+            return view_func(request, proj_id, *args, **kwargs)
+        elif scen_id is not None:
+            return view_func(request, scen_id, *args, **kwargs)
 
     return _wrapped_view
