@@ -754,6 +754,7 @@ def scenario_select_project(request, step_id=0, max_step=1):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@viewer_has_view_rights
 def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_step=2):
     project = get_object_or_404(Project, pk=proj_id)
     # all projects which the user is able to select (the one the user created)
@@ -768,13 +769,6 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
     if request.method == "GET":
         if scen_id is not None:
             scenario = get_object_or_404(Scenario, id=scen_id)
-
-            if (scenario.project.user != request.user) and (
-                scenario.project.viewers.filter(user__email=request.user.email).exists()
-                is False
-            ):
-                raise PermissionDenied
-
             form = ScenarioUpdateForm(
                 None, instance=scenario, project_queryset=user_projects
             )
@@ -820,12 +814,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 
             # Only allow edition in DB for owner or share with edit rights
             selected_project = form.cleaned_data["project"]
-            if (selected_project.user == request.user) or (
-                selected_project.viewers.filter(
-                    user__email=request.user.email, share_rights="edit"
-                ).exists()
-                is True
-            ):
+            if request.user.has_edit_rights(selected_project):
                 qs_sim = Simulation.objects.filter(scenario__id=scenario.id)
                 # update the parameter values which are different from existing values
                 for name, value in form.cleaned_data.items():
@@ -935,13 +924,9 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
     # TODO: if the scenario exists, load it, otherwise default form
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    project = get_object_or_404(Project, pk=proj_id)
 
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(
-            user__email=request.user.email, share_rights="edit"
-        ).exists()
-        is False
-    ):
+    if request.user.has_edit_rights(project):
         user_has_right_to_save = False
         # raise PermissionDenied
     else:
@@ -1022,13 +1007,9 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     }
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    project = get_object_or_404(Project, pk=proj_id)
 
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(
-            user__email=request.user.email, share_rights="edit"
-        ).exists()
-        is False
-    ):
+    if request.user.has_edit_rights(project):
         user_has_right_to_save = False
     else:
         user_has_right_to_save = True
