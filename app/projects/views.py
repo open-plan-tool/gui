@@ -69,7 +69,11 @@ from projects.models import (
     MaxEmissionConstraint,
     NZEConstraint,
 )
-from projects.decorators import viewer_has_view_rights, viewer_has_edit_rights
+from projects.decorators import (
+    user_is_owner,
+    viewer_has_view_rights,
+    viewer_has_edit_rights,
+)
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
     handle_storage_unit_form_post,
