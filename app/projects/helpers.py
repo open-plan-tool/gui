@@ -1,7 +1,9 @@
-import csv
-import io
 import json
 import logging
+import io
+import csv
+
+import pandas as pd
 
 from dashboard.helpers import KPIFinder
 from django import forms
@@ -744,3 +746,24 @@ def parse_input_timeseries(timeseries_file):
                 params={"fname": timeseries_file.name},
             )
     return timeseries_values
+
+
+def add_timeseries_to_database_datapackage(scenario):
+    """Rebuild datapackage including timeseries value from scenario datapackage saved to database, which
+    only contains the timeseries foreignkeys instead of all values"""
+    db_dp = scenario.datapackage
+    ts_fks = db_dp["data"]["profiles"].values()
+    ts_profiles = dict(
+        Timeseries.objects.filter(id__in=ts_fks).values_list("name", "values")
+    )
+
+    # Replace fks with timeseries data
+    ts_df = pd.DataFrame(ts_profiles)
+    ts_df["timeindex"] = scenario.get_timestamps()
+    ts_df = ts_df.astype(str)
+
+    ts_data = ts_df.to_json(orient="records")
+
+    rebuilt_dp = copy.deepcopy(db_dp)
+    rebuilt_dp["data"]["profiles"] = json.loads(ts_data)
+    return rebuilt_dp
