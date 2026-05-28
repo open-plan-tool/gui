@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import logging
@@ -238,6 +239,7 @@ class Scenario(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
 
     description = models.TextField(default="", blank=True)
+    datapackage = models.JSONField(null=True)
 
     def __str__(self):
         return self.name
@@ -315,14 +317,14 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path=None, number=None):
+    def to_datapackage(self, destination_path=None, n_timestamps=None):
         """
 
         Parameters
         ----------
         destination_path: Path
             Path where the datapackage should be saved
-        number: int
+        n_timestamps: int
             Number of timesteps which should be considered for the exported datapackage
         Returns
         -------
@@ -423,8 +425,8 @@ class Scenario(models.Model):
             # TODO check if there are column duplicates
 
             # restrict the size of the profiles
-            if number is not None:
-                df = df.iloc[:number]
+            if n_timestamps is not None:
+                df = df.iloc[:n_timestamps]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
         # creating datapackage.json metadata file at the root of the datapackage
@@ -435,9 +437,38 @@ class Scenario(models.Model):
         )
         return scenario_folder
 
-    def to_jsonified_datapackage(self, destination_path=None, number=None):
-        scenario_folder = self.to_datapackage(destination_path, number)
-        return json.loads(export_dp_to_json(scenario_folder))
+    def to_jsonified_datapackage(
+        self, destination_path=None, n_timestamps=None, store_database_record=False
+    ):
+        scenario_folder = self.to_datapackage(destination_path, n_timestamps)
+        simulation_dp = json.loads(export_dp_to_json(scenario_folder))
+
+        if store_database_record:
+            ts_fks = dict(
+                Timeseries.objects.filter(asset__scenario=self).values_list(
+                    "name", "id"
+                )
+            )
+            # Create a copy to store in the simulation field
+            db_dp = copy.deepcopy(simulation_dp)
+            # Replace timeseries data with Timeseries id references
+            if "profiles" in db_dp.get("data", {}):
+                # Remove foreignkey references that are not actually in the profile data
+                unused_fks = [
+                    key
+                    for key in ts_fks.keys()
+                    if key not in pd.DataFrame(db_dp["data"]["profiles"]).columns
+                ]
+                for key in unused_fks:
+                    ts_fks.pop(key)
+
+                # Save the references in the profile data instead of all values
+                db_dp["data"]["profiles"] = ts_fks
+
+            # Save to datapackage field
+            self.datapackage = db_dp
+            self.save()
+        return simulation_dp
 
 
 def get_default_timeseries():

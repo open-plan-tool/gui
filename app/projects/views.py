@@ -1394,7 +1394,9 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
         # write the content of the scenario into a temp directory
-        scenario_folder = scenario.to_datapackage(destination_path, number=n_timestamps)
+        scenario_folder = scenario.to_datapackage(
+            destination_path, n_timestamps=n_timestamps
+        )
 
         # Place the temp directory into a zip folder
         zip_buffer = io.BytesIO()
@@ -1423,7 +1425,7 @@ def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None
     if scenario.project.user != request.user:
         raise PermissionDenied
 
-    json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
+    json_dp = scenario.to_jsonified_datapackage(n_timestamps=n_timestamps)
     response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
@@ -1441,7 +1443,7 @@ def project_export_as_datapackage(request, proj_id, n_timestamps=None):
         destination_path = Path(temp_dir)
 
         for scenario in project.scenario_set.all():
-            scenario.to_datapackage(destination_path, number=n_timestamps)
+            scenario.to_datapackage(destination_path, n_timestamps=n_timestamps)
 
         # Place the temp directory into a zip folder
         zip_buffer = io.BytesIO()
@@ -2082,7 +2084,7 @@ def request_ezp_simulation(request, scen_id=0):
         )
     # Load scenario
     scenario = Scenario.objects.get(pk=scen_id)
-    json_dp = scenario.to_jsonified_datapackage()
+    json_dp = scenario.to_jsonified_datapackage(store_database_record=True)
 
     # if request.method == "POST":
     #     output_lp_file = request.POST.get("output_lp_file", None)
