@@ -1,4 +1,3 @@
-import copy
 from datetime import datetime
 import httpx as requests
 import json
@@ -12,6 +11,7 @@ from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_d
 import pandas as pd
 from oemof.eesyplan.facades.buses.carrier import CarrierBus
 from oemof.solph import Bus
+from projects.helpers import add_timeseries_to_database_datapackage
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
@@ -162,21 +162,7 @@ def parse_ezp_results(simulation, response_results):
         )
 
         scenario = simulation.scenario
-        db_dp = scenario.datapackage
-        ts_fks = db_dp["data"]["profiles"].values()
-        ts_profiles = dict(
-            Timeseries.objects.filter(id__in=ts_fks).values_list("name", "values")
-        )
-
-        # Replace fks with timeseries data
-        ts_df = pd.DataFrame(ts_profiles)
-        ts_df["timeindex"] = scenario.get_timestamps()
-        ts_df = ts_df.astype(str)
-
-        ts_data = ts_df.to_json(orient="records")
-
-        rebuilt_dp = copy.deepcopy(db_dp)
-        rebuilt_dp["data"]["profiles"] = json.loads(ts_data)
+        rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
 
         with tempfile.TemporaryDirectory(prefix="dp_") as td:
             temp_path = Path(td)
