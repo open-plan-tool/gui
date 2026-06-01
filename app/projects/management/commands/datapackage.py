@@ -20,7 +20,7 @@ class Command(BaseCommand):
             except Scenario.DoesNotExist:
                 raise CommandError('Scenario "%s" does not exist' % scen_id)
             destination_path = options["outfile"]
-            if destination_path == "":
+            if destination_path == "" or destination_path is None:
                 destination_path = Path(__file__).resolve().parents[4]
             else:
                 destination_path = Path(destination_path)
