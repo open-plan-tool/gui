@@ -1250,7 +1250,7 @@ def scenario_update(request, scen_id, step_id):
 
 @login_required
 @require_http_methods(["GET"])
-@user_is_owner
+@user_has_edit_rights
 def scenario_duplicate(request, scen_id):
     """duplicates the selected scenario and all of its associated components (topology data included)"""
     scenario = get_object_or_404(Scenario, pk=scen_id)
