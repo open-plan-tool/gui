@@ -1233,30 +1233,50 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
     ):
         raise PermissionDenied
 
-    # TODO this sankey implementation does not allow for single timesteps
-    # if ts is not None:
-    #     ts = int(ts)
-    rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
+    if scenario.datapackage is None:
+        if ts is not None:
+            ts = int(ts)
 
-    # TODO these flows do not generate the correct sankey result yet
-    with tempfile.TemporaryDirectory(prefix="dp_") as td:
-        temp_path = Path(td)
-        dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
-        es = create_energy_system_from_dp(dp_path)
+        results_json = report_item_render_to_json(
+            report_item_id="sankey",
+            data=REPORT_GRAPHS[GRAPH_SANKEY](
+                simulation=scenario.simulation,
+                energy_vector=scenario.energy_vectors,
+                timestep=ts,
+            ),
+            title="Sankey",
+            report_item_type=GRAPH_SANKEY,
+        )
+        return JsonResponse(
+            results_json, status=200, content_type="application/json", safe=False
+        )
+    else:
+        # TODO this sankey implementation does not allow for single timesteps
+        # if ts is not None:
+        #     ts = int(ts)
+        rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
 
-        qs = FancyResults.objects.filter(simulation=scenario.simulation)
+        # TODO these flows do not generate the correct sankey result yet
+        with tempfile.TemporaryDirectory(prefix="dp_") as td:
+            temp_path = Path(td)
+            dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
+            es = create_energy_system_from_dp(dp_path)
 
-        if qs.exists():
-            flows = {
-                (asset, bus): json.loads(flow_data)
-                for asset, bus, flow_data in qs.values_list("asset", "bus", "flow_data")
-            }
-            flows_df = pd.DataFrame(flows)
-            flows_df.index = scenario.get_timestamps()[: len(flows_df)]
-        fig, links_df = eesyplan_graphs.sankey(flows=flows_df, es=es)
-    return JsonResponse(
-        fig.to_dict(), status=200, content_type="application/json", safe=False
-    )
+            qs = FancyResults.objects.filter(simulation=scenario.simulation)
+
+            if qs.exists():
+                flows = {
+                    (asset, bus): json.loads(flow_data)
+                    for asset, bus, flow_data in qs.values_list(
+                        "asset", "bus", "flow_data"
+                    )
+                }
+                flows_df = pd.DataFrame(flows)
+                flows_df.index = scenario.get_timestamps()[: len(flows_df)]
+            fig, links_df = eesyplan_graphs.sankey(flows=flows_df, es=es)
+        return JsonResponse(
+            fig.to_dict(), status=200, content_type="application/json", safe=False
+        )
 
 
 @login_required
