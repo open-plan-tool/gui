@@ -131,15 +131,12 @@ def landing_default(request, version=1):
 
 @login_required
 @require_http_methods(["POST"])
+@user_is_owner
 def scenario_upload(request, proj_id):
     # read the scenario file to a dict
     scenario_data = request.FILES["file"].read()
     scenario_data = json.loads(scenario_data)
-
     project = get_object_or_404(Project, id=proj_id)
-
-    if project.user != request.user:
-        raise PermissionDenied
 
     answer = HttpResponseRedirect(reverse("project_search"))
     file_format_error = False
@@ -219,15 +216,9 @@ def sponsor_feature(request):
 @login_required
 @json_view
 @require_http_methods(["GET"])
+@user_is_owner
 def project_members_list(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
-
-    if project.user != request.user:
-        return JsonResponse(
-            {"status": "error", "message": "Project does not belong to you."},
-            status=403,
-            content_type="application/json",
-        )
 
     viewers = project.viewers.values_list("email", flat=True)
     return JsonResponse(
@@ -239,13 +230,10 @@ def project_members_list(request, proj_id):
 
 @login_required
 @require_http_methods(["POST"])
+@user_is_owner
 def project_share(request, proj_id):
     qs = request.POST
-
     project = get_object_or_404(Project, id=proj_id)
-
-    if project.user != request.user:
-        raise PermissionDenied
 
     form_item = ProjectShareForm(qs)
 
@@ -262,13 +250,11 @@ def project_share(request, proj_id):
 @login_required
 @json_view
 @require_http_methods(["POST"])
+@user_is_owner
 def project_revoke_access(request, proj_id=None):
     qs = request.POST
-
     project = get_object_or_404(Project, id=proj_id)
 
-    if project.user != request.user:
-        raise PermissionDenied
     form_item = ProjectRevokeForm(qs, proj_id=proj_id)
     if form_item.is_valid():
         success, message = project.revoke_access(**form_item.cleaned_data)
@@ -283,13 +269,10 @@ def project_revoke_access(request, proj_id=None):
 @login_required
 @json_view
 @require_http_methods(["POST"])
+@user_is_owner
 def ajax_project_viewers_form(request):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         proj_id = int(request.POST.get("proj_id"))
-        project = get_object_or_404(Project, id=proj_id)
-
-        if project.user != request.user:
-            raise PermissionDenied
         form_item = ProjectRevokeForm(proj_id=proj_id)
 
         return render(
@@ -427,11 +410,9 @@ def project_update(request, proj_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@user_is_owner
 def project_export(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
-
-    if project.user != request.user:
-        raise PermissionDenied
 
     if request.method == "POST":
         bind_scenario_data = request.POST.get("bind_scenario_data", True)
@@ -508,11 +489,9 @@ def usecase_export(request, usecase_id):
 
 @login_required
 @require_http_methods(["POST"])
+@user_is_owner
 def project_delete(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
-
-    if project.user != request.user:
-        raise PermissionDenied
 
     if request.method == "POST":
         project.delete()
@@ -1255,11 +1234,10 @@ def scenario_view(request, scen_id, step_id):
 # TODO delete this useless code here
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def scenario_update(request, scen_id, step_id):
     """Scenario Update View. POST request only."""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-    if scenario.project.user != request.user:
-        raise PermissionDenied
     if request.POST:
         form = ScenarioUpdateForm(request.POST)
         if form.is_valid():
@@ -1277,12 +1255,10 @@ def scenario_update(request, scen_id, step_id):
 
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def scenario_duplicate(request, scen_id):
     """duplicates the selected scenario and all of its associated components (topology data included)"""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if scenario.project.user != request.user:
-        raise PermissionDenied
 
     # We need to iterate over all the objects related to this scenario and duplicate them
     # and associate them with the new scenario id.
@@ -1329,11 +1305,9 @@ def scenario_export(request, proj_id):
 
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
     scenario = get_object_or_404(Scenario, id=int(scen_id))
-
-    if scenario.project.user != request.user:
-        raise PermissionDenied
 
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
@@ -1362,10 +1336,9 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
 
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
     scenario = get_object_or_404(Scenario, id=int(scen_id))
-    if scenario.project.user != request.user:
-        raise PermissionDenied
 
     json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
     response = JsonResponse(json_dp, status=200, content_type="application/json")
@@ -1375,11 +1348,9 @@ def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None
 
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def project_export_as_datapackage(request, proj_id, n_timestamps=None):
     project = get_object_or_404(Project, id=int(proj_id))
-
-    if project.user != request.user:
-        raise PermissionDenied
 
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
@@ -1409,13 +1380,9 @@ def project_export_as_datapackage(request, proj_id, n_timestamps=None):
 
 @login_required
 @require_http_methods(["POST"])
+@user_is_owner
 def scenario_delete(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
-    if scenario.project.user != request.user:
-        logger.warning(
-            f"Unauthorized user tried to delete project scenario with db id = {scen_id}."
-        )
-        raise PermissionDenied
     if request.POST:
         scenario.delete()
         messages.success(request, "scenario successfully deleted!")
@@ -1451,11 +1418,10 @@ def reset_scenario_changes(request, scen_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@user_is_owner
 def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
     excuses_design_under_development(request)
     scenario = get_object_or_404(Scenario, id=scen_id)
-    if scenario.project.user != request.user:
-        raise PermissionDenied
 
     if request.method == "GET":
         if sa_id is not None:
@@ -1894,6 +1860,7 @@ def asset_cops_create_or_update(
 @json_view
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def view_mvs_data_input(request, scen_id=0, testing=False):
     if scen_id == 0:
         return JsonResponse(
@@ -1903,13 +1870,6 @@ def view_mvs_data_input(request, scen_id=0, testing=False):
         )
     # Load scenario
     scenario = Scenario.objects.get(id=scen_id)
-
-    if scenario.project.user != request.user:
-        logger.warning(
-            f"Unauthorized user tried to access scenario with db id = {scen_id}."
-        )
-        raise PermissionDenied
-
     try:
         data_clean = format_scenario_for_mvs(scenario, testing)
     except Exception as e:
@@ -2137,19 +2097,12 @@ def fetch_sensitivity_analysis_results(request, sa_id):
 
 @login_required
 @require_http_methods(["GET"])
+@user_is_owner
 def simulation_cancel(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
-    if scenario.project.user == request.user:
-        qs = Simulation.objects.filter(scenario=scen_id)
-        if qs.exists():
-            scenario.simulation.delete()
-    else:
-        messages.error(
-            request,
-            _(
-                "You do not have the permission to reset a simulation on a project shared with you"
-            ),
-        )
+    qs = Simulation.objects.filter(scenario=scen_id)
+    if qs.exists():
+        scenario.simulation.delete()
 
     return HttpResponseRedirect(
         reverse("scenario_review", args=[scenario.project.id, scen_id])
