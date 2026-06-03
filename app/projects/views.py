@@ -71,8 +71,8 @@ from projects.models import (
 )
 from projects.decorators import (
     user_is_owner,
-    viewer_has_view_rights,
-    viewer_has_edit_rights,
+    user_has_read_rights,
+    user_has_edit_rights,
 )
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
@@ -284,7 +284,7 @@ def ajax_project_viewers_form(request):
 
 @login_required
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def project_detail(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
     logger.info(f"Populating project and economic details in forms.")
@@ -329,7 +329,7 @@ def project_create(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-@viewer_has_edit_rights
+@user_has_edit_rights
 def project_update(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
 
@@ -568,7 +568,7 @@ def project_search(request, proj_id=None, scen_id=None):
 
 @login_required
 @require_http_methods(["POST"])
-@viewer_has_edit_rights
+@user_has_edit_rights
 def project_duplicate(request, proj_id):
     """Duplicates the selected project along with its associated scenarios"""
     project = get_object_or_404(Project, pk=proj_id)
@@ -737,7 +737,7 @@ def scenario_select_project(request, step_id=0, max_step=1):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_step=2):
     project = get_object_or_404(Project, pk=proj_id)
     # all projects which the user is able to select (the one the user created)
@@ -967,7 +967,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4):
     constraints_labels = {
         "minimal_degree_of_autonomy": _("Minimal degree of autonomy"),
@@ -1079,7 +1079,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
 @login_required
 @require_http_methods(["GET", "POST"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1224,7 +1224,7 @@ def scenario_steps(request, proj_id, step_id=None, scen_id=None):
 # TODO delete this useless code here
 @login_required
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_view(request, scen_id, step_id):
     """Scenario View. GET request only."""
     scenario = get_object_or_404(Scenario, pk=scen_id)
@@ -1398,7 +1398,7 @@ def scenario_delete(request, scen_id):
 
 @login_required
 @require_http_methods(["POST"])
-@viewer_has_edit_rights
+@user_has_edit_rights
 def reset_scenario_changes(request, scen_id):
     scenario = get_object_or_404(Scenario, id=scen_id)
 
