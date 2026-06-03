@@ -489,7 +489,7 @@ def usecase_export(request, usecase_id):
 
 @login_required
 @require_http_methods(["POST"])
-@user_is_owner
+@user_has_read_rights
 def project_delete(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
 
