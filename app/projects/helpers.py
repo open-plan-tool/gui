@@ -699,11 +699,27 @@ def add_timeseries_to_database_datapackage(scenario):
 
     # Replace fks with timeseries data
     ts_df = pd.DataFrame(ts_profiles)
-    ts_df["timeindex"] = scenario.get_timestamps()
-    ts_df = ts_df.astype(str)
 
-    ts_data = ts_df.to_json(orient="records")
+    df = ts_df.astype(str)
+
+    N = len(df.index)
+
+    index = [str(idx) for idx in scenario.get_timestamps()]
+
+    M = len(df.columns)
+
+    if isinstance(df.columns, pd.MultiIndex):
+        cols = [list(c) for c in df.columns]
+    else:
+        cols = list(df.columns)
+
+    values = df.values.reshape((M * N,)).tolist()
 
     rebuilt_dp = copy.deepcopy(db_dp)
-    rebuilt_dp["data"]["profiles"] = json.loads(ts_data)
+
+    rebuilt_dp["data"]["profiles"] = {
+        "index": index,
+        "columns_names": cols,
+        "values": values,
+    }
     return rebuilt_dp

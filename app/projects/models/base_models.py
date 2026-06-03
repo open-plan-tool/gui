@@ -457,7 +457,7 @@ class Scenario(models.Model):
                 unused_fks = [
                     key
                     for key in ts_fks.keys()
-                    if key not in pd.DataFrame(db_dp["data"]["profiles"]).columns
+                    if key not in db_dp["data"]["profiles"]["columns_names"]
                 ]
                 for key in unused_fks:
                     ts_fks.pop(key)
