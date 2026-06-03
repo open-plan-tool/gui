@@ -1066,12 +1066,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
                     if constraint_type == "net_zero_energy":
                         constraint_instance.value = constraint_instance.activated
 
-                    if (scenario.project.user == request.user) or (
-                        scenario.project.viewers.filter(
-                            user__email=request.user.email, share_rights="edit"
-                        ).exists()
-                        is True
-                    ):
+                    if request.user.has_edit_rights(scenario.project):
                         constraint_instance.save()
 
         return HttpResponseRedirect(reverse("scenario_review", args=[proj_id, scen_id]))
