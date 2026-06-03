@@ -22,7 +22,7 @@ msgstr ""
 #: templates/scenario/scenario_progression.html:17
 #: templates/scenario/simulation/modified.html:67
 msgid "Scenario"
-msgstr "Szenarios"
+msgstr "Szenario"
 
 #: dashboard/forms.py:38 templates/report/compare_scenario.html:17
 msgid "Scenarios"
@@ -237,6 +237,18 @@ msgstr "Wärmepumpe"
 msgid "Chiller"
 msgstr "Kühlgerät"
 
+msgid "Electricity Bus"
+msgstr "Strombus"
+
+msgid "Heat Bus"
+msgstr "Wärmebus"
+
+msgid "Fuel Bus"
+msgstr "Brennstoffbus"
+
+msgid "Hydrogen Bus"
+msgstr "Wasserstoffbus"
+
 #: projects/forms.py:72
 msgid "Click on the icon for more help"
 msgstr "Klicken Sie auf das Symbol für weitere Hilfe"
@@ -390,8 +402,8 @@ msgid "Length of the time steps"
 msgstr "Länge der Zeitschritte"
 
 #: projects/forms.py:444
-msgid "The number of days simulated with the energy system model."
-msgstr "Die Anzahl der Tage, die mit dem Energiesystemmodell simuliert wurden."
+msgid "Number of days simulated with the energy system model."
+msgstr "Anzahl der Tage, für die die Simulation durchgeführt werden soll."
 
 #: projects/forms.py:453
 msgid ""
@@ -922,11 +934,17 @@ msgstr "Bus"
 
 #: projects/views.py:986
 msgid "Minimal degree of autonomy"
-msgstr "Minimal Autarkiegrad"
+msgstr "Minimaler Autarkiegrad"
 
 #: projects/views.py:987
 msgid "Minimal share of renewables"
-msgstr "Minimal Anteil Erneuerbarer Energien"
+msgstr "Minimaler Anteil Erneuerbarer Energien"
+
+msgid "Activated"
+msgstr "Aktiviert"
+
+msgid "Value"
+msgstr "Wert"
 
 #: projects/views.py:988
 msgid "Maximal CO2 emissions"
@@ -3976,7 +3994,7 @@ msgid "Your energy system is complete"
 msgstr "Ihr Energiesystem ist vollständig"
 
 #: templates/scenario/simulation/no-status.html:17
-msgid "Typically 1 year simulation will last a few minutes"
+msgid "A one-year simulation usually takes only a few minutes"
 msgstr "Normalerweise dauert eine 1-Jahres-Simulation nur wenige Minuten"
 
 #: templates/scenario/simulation/no-status.html:36
@@ -4166,7 +4184,10 @@ msgid "Feedin tariff"
 msgstr "Einspeisetarif"
 
 msgid "Peak demand price"
-msgstr "Spitzenlasttarif"
+msgstr "Spitzenlastpreis"
+
+msgid "Frequency of peak demand pricing"
+msgstr "Häufigkeit der Spitzenlastpreisregelung"
 
 msgid "Period of peak demand pricing"
 msgstr "Zeitraum der Spitzenlastbepreisung"
@@ -4174,8 +4195,8 @@ msgstr "Zeitraum der Spitzenlastbepreisung"
 msgid "Renewable share electricity mix"
 msgstr "Anteil erneuerbarer Energien im Strommix"
 
-msgid "Renewable share of generation mix"
-msgstr "Anteil erneuerbarer Energien am Energiemix"
+msgid "Renewable share of the generation mix"
+msgstr "Anteil erneuerbarer Energien am Strommix"
 
 msgid "Age of the installed plant"
 msgstr "Alter der installierten Anlage"
@@ -4594,11 +4615,11 @@ msgstr "Emissionen pro Versandeinheit einer Anlage"
 msgid "Price of the energy carrier sourced from the utility grid."
 msgstr "Preis des Energieträgers, der aus dem Versorgungsnetz bezogen wird."
 
-msgid "The number of days for which the simulation is to be run"
-msgstr "Die Anzahl der Tage, für die die Simulation durchgeführt werden soll"
+msgid "Number of days for which the simulation is to be run"
+msgstr "Anzahl der Tage, für die die Simulation durchgeführt werden soll"
 
 msgid "Maximum feedin capacity"
-msgstr "Einspeisungshöchstgrenze"
+msgstr "Maximale Einspeisekapazität"
 
 msgid "kW"
 msgstr "kW"
@@ -4699,7 +4720,7 @@ msgid "Price to be paid additionally for energy consumption based on the peak de
 msgstr "Zusätzlich zu zahlender Preis für den Energieverbrauch auf der Grundlage des Spitzenbedarfs eines bestimmten Zeitraums"
 
 msgid "Number of reference periods in one year for the peak demand pricing"
-msgstr "Anzahl der Referenzperioden in einem Jahr für den Spitzenlasttarif"
+msgstr "Anzahl der Referenzperioden in einem Jahr für den Spitzenlastpreis"
 
 msgid "Project duration"
 msgstr "Projektdauer"
@@ -4743,8 +4764,11 @@ msgstr "Maximaler Ladezustand"
 msgid "Minimum state of charge"
 msgstr "Minimaler Ladezustand"
 
-msgid "Date and time when the simulation starts with the first step"
-msgstr "Datum und Uhrzeit, zu der die Simulation mit dem ersten Schritt beginnt"
+msgid "Date when the simulation starts with the first step"
+msgstr "Datum, zu dem die Simulation mit dem ersten Schritt beginnt"
+
+msgid "Planning and development costs"
+msgstr "Planungs- und Entwicklungskosten"
 
 msgid "Name of a csv file containing the properties of a storage component"
 msgstr "Name einer csv-Datei, die die Eigenschaften einer Speicherkomponente enthält"

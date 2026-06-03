@@ -444,7 +444,7 @@ scenario_widgets = {
             "min": "1",
             "step": "1",
             "data-bs-toggle": "tooltip",
-            "title": _("The number of days simulated with the energy system model."),
+            "title": _("Number of days simulated with the energy system model."),
         }
     ),
     "capex_fix": forms.NumberInput(
