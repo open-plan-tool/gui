@@ -36,7 +36,7 @@ from projects.services import (
     get_selected_scenarios_in_cache,
 )
 
-from projects.decorators import viewer_has_edit_rights, viewer_has_view_rights
+from projects.decorators import user_has_edit_rights, user_has_read_rights
 from projects.forms import BusForm, AssetCreateForm, StorageForm
 
 from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
@@ -73,7 +73,7 @@ logger = logging.getLogger(__name__)
 @login_required
 @json_view
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_available_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -260,7 +260,7 @@ def scenario_visualize_results(
 
 @login_required
 @require_http_methods(["POST", "GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     request.session[COMPARE_VIEW] = True
     user_projects = fetch_user_projects(request.user)
@@ -985,7 +985,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_economic_results(request, scen_id=None):
     """
     This view gathers all simulation specific cost matrix KPI results
@@ -1069,7 +1069,7 @@ def scenario_economic_results(request, scen_id=None):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1095,7 +1095,7 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
 
 
 @login_required
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_visualize_stacked_timeseries(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1120,7 +1120,7 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
 
 
 # TODO exclude sink components
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_visualize_capacities(request, proj_id, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1145,7 +1145,7 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     )
 
 
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_visualize_costs(request, proj_id, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1178,7 +1178,7 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 
 # TODO: Sector coupling must be refined (including transformer flows)
 @login_required
-@viewer_has_view_rights
+@user_has_read_rights
 def scenario_visualize_sankey(request, scen_id, ts=None):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1202,7 +1202,7 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
 
 @login_required
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def download_scalar_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1244,7 +1244,7 @@ def download_scalar_results(request, scen_id):
 
 @login_required
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def download_cost_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
@@ -1285,7 +1285,7 @@ def download_cost_results(request, scen_id):
 
 @login_required
 @require_http_methods(["GET"])
-@viewer_has_view_rights
+@user_has_read_rights
 def download_timeseries_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 

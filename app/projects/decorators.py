@@ -28,7 +28,7 @@ def user_is_owner(view_func):
     return _wrapped_view
 
 
-def viewer_has_view_rights(view_func):
+def user_has_read_rights(view_func):
     @wraps(view_func)
     def _wrapped_view(request, proj_id=None, scen_id=None, *args, **kwargs):
         if proj_id:
@@ -52,7 +52,7 @@ def viewer_has_view_rights(view_func):
     return _wrapped_view
 
 
-def viewer_has_edit_rights(view_func):
+def user_has_edit_rights(view_func):
     @wraps(view_func)
     def _wrapped_view(request, proj_id=None, scen_id=None, *args, **kwargs):
         if proj_id:
