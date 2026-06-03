@@ -1561,7 +1561,10 @@ def get_timeseries(request, ts_id=None):
     if request.method == "GET":
         if ts_id is not None:
             ts = Timeseries.objects.get(id=ts_id)
-            if ts.user != request.user and ts.open_source is False:
+            if (
+                request.user.has_edit_rights(ts.scenario.project)
+                and ts.open_source is False
+            ):
                 raise PermissionDenied
             return JsonResponse({"values": ts.get_values})
 
