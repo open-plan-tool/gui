@@ -470,6 +470,65 @@ class Scenario(models.Model):
             self.save()
         return simulation_dp
 
+    def rebuild_datapackage(self):
+        """Rebuild datapackage including timeseries values from scenario datapackage saved to database, which
+        only contains the timeseries foreignkeys instead of all values"""
+        if not hasattr(self, "datapackage"):
+            logging.warning(
+                "Could not rebuild datapackage, as there is no previous datapackage data saved."
+            )
+            return None
+
+        db_dp = self.datapackage
+        ts_fks = db_dp["data"]["profiles"].values()
+        ts_profiles = dict(
+            Timeseries.objects.filter(id__in=ts_fks).values_list("name", "values")
+        )
+
+        # Replace fks with timeseries data
+        ts_df = pd.DataFrame(ts_profiles)
+
+        df = ts_df.astype(str)
+
+        # Check order of timeseries in dp schema (important for rebuilding)
+        profiles_index = next(
+            (
+                ix
+                for (ix, res) in enumerate(db_dp["metadata"]["resources"])
+                if res["name"] == "profiles"
+            ),
+            None,
+        )
+        profiles_schema = db_dp["metadata"]["resources"][profiles_index]["schema"]
+        profile_names_schema = [field["name"] for field in profiles_schema["fields"]]
+
+        if "timeindex" in profile_names_schema:
+            profile_names_schema.remove("timeindex")
+
+        # Reorder dict columns to preserve datapackage order
+        df = df[profile_names_schema]
+
+        N = len(df.index)
+
+        index = [str(idx) for idx in self.get_timestamps()]
+
+        M = len(df.columns)
+
+        if isinstance(df.columns, pd.MultiIndex):
+            cols = [list(c) for c in df.columns]
+        else:
+            cols = list(df.columns)
+
+        values = df.values.reshape((M * N,)).tolist()
+
+        rebuilt_dp = copy.deepcopy(db_dp)
+        rebuilt_dp["data"]["profiles"] = {
+            "index": index,
+            "columns_names": cols,
+            "values": values,
+        }
+        return rebuilt_dp
+
 
 def get_default_timeseries():
     return list([])

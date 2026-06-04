@@ -11,7 +11,6 @@ from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_d
 import pandas as pd
 from oemof.eesyplan.facades.buses.carrier import CarrierBus
 from oemof.solph import Bus
-from projects.helpers import add_timeseries_to_database_datapackage
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
@@ -162,7 +161,7 @@ def parse_ezp_results(simulation, response_results):
         )
 
         scenario = simulation.scenario
-        rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
+        rebuilt_dp = scenario.rebuild_datapackage()
 
         with tempfile.TemporaryDirectory(prefix="dp_") as td:
             temp_path = Path(td)
