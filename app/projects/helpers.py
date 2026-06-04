@@ -702,6 +702,24 @@ def add_timeseries_to_database_datapackage(scenario):
 
     df = ts_df.astype(str)
 
+    # Check order of timeseries in dp schema (important for rebuilding)
+    profiles_index = next(
+        (
+            ix
+            for (ix, res) in enumerate(db_dp["metadata"]["resources"])
+            if res["name"] == "profiles"
+        ),
+        None,
+    )
+    profiles_schema = db_dp["metadata"]["resources"][profiles_index]["schema"]
+    profile_names_schema = [field["name"] for field in profiles_schema["fields"]]
+
+    if "timeindex" in profile_names_schema:
+        profile_names_schema.remove("timeindex")
+
+    # Reorder dict columns to preserve datapackage order
+    df = df[profile_names_schema]
+
     N = len(df.index)
 
     index = [str(idx) for idx in scenario.get_timestamps()]
@@ -716,7 +734,6 @@ def add_timeseries_to_database_datapackage(scenario):
     values = df.values.reshape((M * N,)).tolist()
 
     rebuilt_dp = copy.deepcopy(db_dp)
-
     rebuilt_dp["data"]["profiles"] = {
         "index": index,
         "columns_names": cols,
