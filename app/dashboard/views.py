@@ -71,7 +71,7 @@ import json
 import datetime
 import logging
 import traceback
-from projects.helpers import parameters_helper, add_timeseries_to_database_datapackage
+from projects.helpers import parameters_helper
 
 import oemof.eesyplan.postprocessing.graphs as eesyplan_graphs
 
@@ -1254,7 +1254,7 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
         # TODO this sankey implementation does not allow for single timesteps
         # if ts is not None:
         #     ts = int(ts)
-        rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
+        rebuilt_dp = scenario.rebuild_datapackage()
 
         # TODO these flows do not generate the correct sankey result yet
         with tempfile.TemporaryDirectory(prefix="dp_") as td:
