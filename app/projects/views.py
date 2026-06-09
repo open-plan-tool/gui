@@ -82,7 +82,7 @@ from .scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
 )
-from projects.helpers import format_scenario_for_mvs, PARAMETERS
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, validate_dp_results
 from dashboard.helpers import fetch_user_projects
 from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
@@ -2056,7 +2056,8 @@ def request_mvs_simulation(request, scen_id=0):
             results["status"] == DONE or results["status"] == ERROR
         ):
             simulation.status = results["status"]
-            simulation.results = results["results"]
+            simulation.results = json.dumps(results["results"])
+            simulation.dp_results = json.dumps(results["results"]["raw_results"])
             simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
@@ -2064,6 +2065,8 @@ def request_mvs_simulation(request, scen_id=0):
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
         ).seconds
+
+        # validate_dp_results(simulation.dp_results)
         simulation.save()
 
         answer = HttpResponseRedirect(
