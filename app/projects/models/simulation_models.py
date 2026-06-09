@@ -5,6 +5,8 @@ import json
 import jsonschema
 import numpy as np
 import logging
+import tempfile
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 from django.db import models
@@ -12,6 +14,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from django.utils.translation import gettext_lazy as _
 from datetime import datetime
+
+from oemof.datapackage import datapackage
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+import oemof.eesyplan as eesyplan
 
 from projects.constants import (
     USER_RATING,
@@ -28,6 +34,8 @@ from projects.helpers import (
     SA_RESPONSE_SCHEMA,
     format_scenario_for_mvs,
     parameters_helper,
+    DP_RESULTS_SCHEMA,
+    validate_dp_results,
 )
 
 from dashboard.helpers import nested_dict_crawler
@@ -38,6 +46,30 @@ class Simulation(AbstractSimulation):
     user_rating = models.PositiveSmallIntegerField(
         null=True, choices=USER_RATING, default=None
     )
+    dp_results = models.JSONField(
+        null=True, blank=True, validators=[validate_dp_results]
+    )
+
+    def clean_dp_results(self):
+        field = self._meta.get_field("dp_results")
+        field.clean(self.dp_results, self)
+
+    def eesyplan_results(self):
+        results = None
+        if self.dp_results is not None:
+            rebuilt_dp = self.scenario.rebuild_datapackage()
+            with tempfile.TemporaryDirectory(prefix="dp_") as td:
+                temp_path = Path(td)
+                dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
+                es = create_energy_system_from_dp(dp_path)
+
+                with tempfile.TemporaryDirectory(prefix="res_") as temp_res:
+                    temp_res = Path(temp_res)
+                    res_path = datapackage.rebuild_dp_from_json(
+                        json.loads(self.dp_results), temp_res
+                    )
+                    results = eesyplan.import_results(res_path, es)
+        return results
 
 
 class ParameterChangeTracker(models.Model):
