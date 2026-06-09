@@ -11,6 +11,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import html_safe
+from django.core.exceptions import ValidationError
+
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 
 from epa.settings import RESOURCES_DIR
 from projects.dtos import convert_to_dto
@@ -686,3 +690,132 @@ def parse_input_timeseries(timeseries_file):
                 params={"fname": timeseries_file.name},
             )
     return timeseries_values
+
+
+DP_RESULTS_SCHEMA = {
+    "type": "object",
+    "required": ["metadata", "data"],
+    "additionalProperties": False,
+    "properties": {
+        "metadata": {
+            "type": "object",
+            "required": ["name", "profile", "resources"],
+            "additionalProperties": False,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                },
+                "profile": {
+                    "type": "string",
+                    "minLength": 1,
+                },
+                "resources": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "path",
+                            "kind",
+                            "format",
+                            "dialect",
+                            "encoding",
+                        ],
+                        "additionalProperties": False,
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                            "path": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": ["element", "sequence"],
+                            },
+                            "format": {
+                                "type": "string",
+                                "enum": ["csv"],
+                            },
+                            "dialect": {
+                                "type": "object",
+                                "required": ["header"],
+                                "additionalProperties": False,
+                                "properties": {
+                                    "header": {
+                                        "type": "boolean",
+                                    },
+                                    "headerRows": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                        },
+                                    },
+                                },
+                            },
+                            "encoding": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "data": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "$ref": "#/$defs/result_table",
+            },
+        },
+    },
+    "$defs": {
+        "result_table": {
+            "type": "object",
+            "required": ["index", "columns_names", "values"],
+            "additionalProperties": False,
+            "properties": {
+                "index": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                },
+                "columns_names": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                },
+                            },
+                        ],
+                    },
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                    },
+                },
+            },
+        },
+    },
+}
+
+
+def validate_dp_results(value):
+    try:
+        validate(instance=value, schema=DP_RESULTS_SCHEMA)
+    except JSONSchemaValidationError as exc:
+        raise ValidationError(f"Invalid dp_results format: {exc.message}")
