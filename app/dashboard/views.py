@@ -1,9 +1,11 @@
 import numpy as np
+import pandas as pd
 from django.core.exceptions import PermissionDenied
 from django.template.loader import get_template
 from django.db.models import Count, Value, F, Q, Case, When
 from django.db.models.functions import Concat, Replace
 from django.http.response import Http404, HttpResponse
+
 from dashboard.helpers import *
 from dashboard.models import (
     AssetsResults,
@@ -65,6 +67,8 @@ import datetime
 import logging
 import traceback
 from projects.helpers import parameters_helper
+
+import oemof.eesyplan.postprocessing.graphs as eesyplan_graphs
 
 logger = logging.getLogger(__name__)
 
@@ -1223,22 +1227,35 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
         is False
     ):
         raise PermissionDenied
-    if ts is not None:
-        ts = int(ts)
-    results_json = report_item_render_to_json(
-        report_item_id="sankey",
-        data=REPORT_GRAPHS[GRAPH_SANKEY](
-            simulation=scenario.simulation,
-            energy_vector=scenario.energy_vectors,
-            timestep=ts,
-        ),
-        title="Sankey",
-        report_item_type=GRAPH_SANKEY,
-    )
 
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
+    if scenario.datapackage is None:
+        if ts is not None:
+            ts = int(ts)
+
+        results_json = report_item_render_to_json(
+            report_item_id="sankey",
+            data=REPORT_GRAPHS[GRAPH_SANKEY](
+                simulation=scenario.simulation,
+                energy_vector=scenario.energy_vectors,
+                timestep=ts,
+            ),
+            title="Sankey",
+            report_item_type=GRAPH_SANKEY,
+        )
+        return JsonResponse(
+            results_json, status=200, content_type="application/json", safe=False
+        )
+    else:
+        # TODO this sankey implementation does not allow for single timesteps
+        # if ts is not None:
+        #     ts = int(ts)
+        results = scenario.simulation.eesyplan_results()
+
+        fig, links_df = eesyplan_graphs.sankey(results["flow"], title="Test Sankey")
+
+        return JsonResponse(
+            fig.to_dict(), status=200, content_type="application/json", safe=False
+        )
 
 
 @login_required
