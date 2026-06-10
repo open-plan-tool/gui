@@ -36,6 +36,7 @@ from projects.services import (
     get_selected_scenarios_in_cache,
 )
 
+from projects.decorators import user_has_edit_rights, user_has_read_rights
 from projects.forms import BusForm, AssetCreateForm, StorageForm
 
 from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
@@ -72,13 +73,9 @@ logger = logging.getLogger(__name__)
 @login_required
 @json_view
 @require_http_methods(["GET"])
+@user_has_read_rights
 def scenario_available_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     try:
         assets_results_obj = AssetsResults.objects.get(simulation=scenario.simulation)
@@ -174,9 +171,7 @@ def scenario_visualize_results(
                 )
     else:
         project = get_object_or_404(Project, id=proj_id)
-        if (project.user != request.user) and (
-            project.viewers.filter(user__email=request.user.email).exists() is False
-        ):
+        if not request.user.has_read_rights(project):
             raise PermissionDenied
 
         selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
@@ -216,12 +211,6 @@ def scenario_visualize_results(
 
             scenario = get_object_or_404(Scenario, id=scen_id)
             # TODO: change this when multi-scenario selection is allowed
-
-            if (scenario.project.user != request.user) and (
-                scenario.project.viewers.filter(user__email=request.user.email).exists()
-                is False
-            ):
-                raise PermissionDenied
 
             qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
@@ -271,6 +260,7 @@ def scenario_visualize_results(
 
 @login_required
 @require_http_methods(["POST", "GET"])
+@user_has_read_rights
 def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     request.session[COMPARE_VIEW] = True
     user_projects = fetch_user_projects(request.user)
@@ -281,10 +271,6 @@ def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     )
 
     project = get_object_or_404(Project, id=proj_id)
-    if (project.user != request.user) and (
-        project.viewers.filter(user__email=request.user.email).exists() is False
-    ):
-        raise PermissionDenied
 
     user_scenarios = project.get_scenarios_with_results()
     report_items_data = [
@@ -340,10 +326,7 @@ def project_sensitivity_analysis(request, proj_id, sa_id=None):
             )
     else:
         project = get_object_or_404(Project, id=proj_id)
-        if (scenario.project.user != request.user) and (
-            scenario.project.viewers.filter(user__email=request.user.email).exists()
-            is False
-        ):
+        if not request.user.has_read_rights(project):
             raise PermissionDenied
 
         user_sa = get_project_sensitivity_analysis(project)
@@ -1002,6 +985,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 @login_required
 @json_view
 @require_http_methods(["GET"])
+@user_has_read_rights
 def scenario_economic_results(request, scen_id=None):
     """
     This view gathers all simulation specific cost matrix KPI results
@@ -1016,14 +1000,6 @@ def scenario_economic_results(request, scen_id=None):
         )
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    # if scenario.project.user != request.user:
-    #     return HttpResponseForbidden()
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     try:
         kpi_cost_results_obj = KPICostsMatrixResults.objects.get(
@@ -1093,6 +1069,7 @@ def scenario_economic_results(request, scen_id=None):
 @login_required
 @json_view
 @require_http_methods(["GET"])
+@user_has_read_rights
 def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1103,11 +1080,6 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
 
     for scen_id in selected_scenario:
         scenario = get_object_or_404(Scenario, pk=scen_id)
-        if (scenario.project.user != request.user) and (
-            scenario.project.viewers.filter(user__email=request.user.email).exists()
-            is False
-        ):
-            raise PermissionDenied
         simulations.append(scenario.simulation)
 
     results_json = report_item_render_to_json(
@@ -1122,13 +1094,10 @@ def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
     )
 
 
+@login_required
+@user_has_read_rights
 def scenario_visualize_stacked_timeseries(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     results_json = []
     for energy_vector in scenario.energy_vectors:
@@ -1151,6 +1120,7 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
 
 
 # TODO exclude sink components
+@user_has_read_rights
 def scenario_visualize_capacities(request, proj_id, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1161,11 +1131,6 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
 
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
-        if (scenario.project.user != request.user) and (
-            scenario.project.viewers.filter(user__email=request.user.email).exists()
-            is False
-        ):
-            raise PermissionDenied
         simulations.append(scenario.simulation)
 
     results_json = report_item_render_to_json(
@@ -1180,6 +1145,7 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     )
 
 
+@user_has_read_rights
 def scenario_visualize_costs(request, proj_id, scen_id=None):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
@@ -1190,11 +1156,6 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
-        if (scenario.project.user != request.user) and (
-            scenario.project.viewers.filter(user__email=request.user.email).exists()
-            is False
-        ):
-            raise PermissionDenied
         simulations.append(scenario.simulation)
 
     results_json = []
@@ -1216,13 +1177,11 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 
 
 # TODO: Sector coupling must be refined (including transformer flows)
+@login_required
+@user_has_read_rights
 def scenario_visualize_sankey(request, scen_id, ts=None):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
+
     if ts is not None:
         ts = int(ts)
     results_json = report_item_render_to_json(
@@ -1243,14 +1202,9 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
 
 @login_required
 @require_http_methods(["GET"])
+@user_has_read_rights
 def download_scalar_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     try:
         kpi_scalar_results_obj = KPIScalarResults.objects.get(
@@ -1290,14 +1244,9 @@ def download_scalar_results(request, scen_id):
 
 @login_required
 @require_http_methods(["GET"])
+@user_has_read_rights
 def download_cost_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     try:
         kpi_cost_results_obj = KPICostsMatrixResults.objects.get(
@@ -1336,14 +1285,9 @@ def download_cost_results(request, scen_id):
 
 @login_required
 @require_http_methods(["GET"])
+@user_has_read_rights
 def download_timeseries_results(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    if (scenario.project.user != request.user) and (
-        scenario.project.viewers.filter(user__email=request.user.email).exists()
-        is False
-    ):
-        raise PermissionDenied
 
     try:
         assets_results_obj = AssetsResults.objects.get(simulation=scenario.simulation)
