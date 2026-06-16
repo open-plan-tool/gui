@@ -500,7 +500,7 @@ def project_delete(request, proj_id):
         else:
             viewer = project.viewers.filter(user=request.user)
             project.revoke_access(viewer)
-            messages.success(request, "Project successfully deleted!")
+            messages.success(request, "Project successfully removed from project list!")
 
     return HttpResponseRedirect(reverse("project_search"))
 
