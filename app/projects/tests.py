@@ -33,6 +33,56 @@ class BasicOperationsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Project.objects.all().count(), 0)
 
+    def test_delete_project_as_owner_removes_project(self):
+        """Make sure when you are the owner of a project, it gets deleted from the database."""
+        response = self.client.post(reverse("project_delete", args=[self.project.id]))
+        self.assertRedirects(response, reverse("project_search"))
+        response = self.client.get(response.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Project.objects.filter(id=self.project.id).count(), 0)
+
+    def test_delete_project_as_read_viewer_removes_access_only(self):
+        """Make sure when you have read rights, project stays in database and you lose rights."""
+        read_user = CustomUser.objects.last()
+        success, _ = self.project.add_viewer_if_not_exist(
+            email=read_user.email, share_rights="read"
+        )
+        self.assertTrue(success)
+
+        self.client.logout()
+        self.client.force_login(read_user)
+
+        response = self.client.post(reverse("project_delete", args=[self.project.id]))
+        self.assertRedirects(response, reverse("project_search"))
+        response = self.client.get(response.url)
+        self.assertEqual(response.status_code, 200)
+        self.project.refresh_from_db()
+        self.assertEqual(
+            Project.objects.filter(id=self.project.id).count(), 1
+        )  # project still in database
+        self.assertFalse(self.project.viewers.filter(user=read_user).exists())
+
+    def test_delete_project_as_edit_viewer_removes_access_only(self):
+        """Make sure when you have edit rights, project stays in database and you lose rights."""
+        edit_user = CustomUser.objects.last()
+        success, _ = self.project.add_viewer_if_not_exist(
+            email=edit_user.email, share_rights="edit"
+        )
+        self.assertTrue(success)
+
+        self.client.logout()
+        self.client.force_login(edit_user)
+
+        response = self.client.post(reverse("project_delete", args=[self.project.id]))
+        self.assertRedirects(response, reverse("project_search"))
+        response = self.client.get(response.url)
+        self.assertEqual(response.status_code, 200)
+        self.project.refresh_from_db()
+        self.assertEqual(
+            Project.objects.filter(id=self.project.id).count(), 1
+        )  # project still in database
+        self.assertFalse(self.project.viewers.filter(user=edit_user).exists())
+
     def test_duplicate_project_redirects(self):
         """Make sure we are redirected to project page once duplicating a project"""
         response = self.client.post(
