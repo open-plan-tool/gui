@@ -133,7 +133,7 @@
                             {% translate "Delete" %}
                         </button>
                     </form>
-                    <div class="dropdown">
+                    <div class="dropdown" style="visibility:{% if project.id|has_viewer_edit_rights:request.user %}visible{% else %}hidden{% endif %}">
                         <button class="btn dropdown-toggle btn--transparent" type="button" id="shareProject-{{ project.id }}" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="icon icon-more"></span>
                         </button>
