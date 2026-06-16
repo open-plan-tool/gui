@@ -199,6 +199,44 @@ class BasicOperationsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "scenario/scenario_step1.html")
 
+    def test_duplicate_scenario_as_edit_viewer(self):
+        self.scenario = self.project.scenario_set.first()
+        edit_user = CustomUser.objects.last()
+        success, _ = self.project.add_viewer_if_not_exist(
+            email=edit_user.email, share_rights="edit"
+        )
+        self.assertTrue(success)
+
+        scenario_count = Scenario.objects.count()
+        self.client.logout()
+        self.client.force_login(edit_user)
+
+        response = self.client.get(
+            reverse("scenario_duplicate", args=[self.scenario.id])
+        )
+        self.assertRedirects(
+            response, reverse("project_search", args=[self.project.id])
+        )
+        self.assertEqual(Scenario.objects.count(), scenario_count + 1)
+
+    def test_duplicate_scenario_as_read_viewer_raises_permission_error(self):
+        self.scenario = self.project.scenario_set.first()
+        read_user = CustomUser.objects.last()
+        success, _ = self.project.add_viewer_if_not_exist(
+            email=read_user.email, share_rights="read"
+        )
+        self.assertTrue(success)
+
+        scenario_count = Scenario.objects.count()
+        self.client.logout()
+        self.client.force_login(read_user)
+
+        response = self.client.get(
+            reverse("scenario_duplicate", args=[self.scenario.id])
+        )
+        self.assertTemplateUsed(response, "error_403.html")
+        self.assertEqual(Scenario.objects.count(), scenario_count)
+
     def test_logout(self):
         response = self.client.post(reverse("logout"), follow=True)
         self.assertEqual(response.status_code, 200)
