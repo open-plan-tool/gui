@@ -494,8 +494,13 @@ def project_delete(request, proj_id):
     project = get_object_or_404(Project, id=proj_id)
 
     if request.method == "POST":
-        project.delete()
-        messages.success(request, "Project successfully deleted!")
+        if request.user.is_owner(project):
+            project.delete()
+            messages.success(request, "Project successfully deleted!")
+        else:
+            viewer = project.viewers.filter(user=request.user)
+            project.revoke_access(viewer)
+            messages.success(request, "Project successfully deleted!")
 
     return HttpResponseRedirect(reverse("project_search"))
 
