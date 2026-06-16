@@ -122,6 +122,8 @@
                             {% translate "Duplicate" %}
                         </button>
                     </form>
+                    {% endif %}
+                    {% if project.id|has_viewer_read_rights:request.user %}
                     <form action="{% url 'project_delete' project.id %}"
                           method="POST">
                         {% csrf_token %}
