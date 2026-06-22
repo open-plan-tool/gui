@@ -9,7 +9,7 @@ from pathlib import Path
 from oemof.eesyplan.datapackage.results import import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 import pandas as pd
-from oemof.eesyplan.facades.buses.carrier import CarrierBus
+from oemof.eesyplan.components.buses.carrier import CarrierBus
 from oemof.solph import Bus
 
 # from requests.exceptions import HTTPError
