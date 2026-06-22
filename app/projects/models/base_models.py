@@ -1057,18 +1057,25 @@ class Asset(TopologyNode):
                     profile_resource_rec[col] = value.values
                     value = col
 
+                if self.asset_type.asset_type in ("ess", "hess", "gess", "h2ess"):
+                    if field == "efficiency":
+                        field = "efficiency_charge"
+
+                if field == "crate":
+                    field = "c_rate_charge"
+
                 if self.asset_type.asset_type == "chp_fixed_ratio":
                     if field == "efficiency":
-                        field = "conversion_factor_to_electricity"
+                        field = "efficiency_electricity_chp"
                     elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
+                        field = "efficiency_heat_chp"
                 elif self.asset_type.asset_type == "chp":
                     if field == "thermal_loss_rate":
-                        field = "beta"
+                        field = "efficiency_electricity_full_condensation"  # "beta"
                     elif field == "efficiency":
-                        field = "conversion_factor_to_electricity"
+                        field = "efficiency_electricity_chp"
                     elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
+                        field = "efficiency_heat_chp"
                 elif self.asset_type.asset_type == "heat_pump":
                     if field == "efficiency":
                         field = "cop"
