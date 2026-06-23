@@ -91,7 +91,6 @@ from .services import (
 logger = logging.getLogger(__name__)
 
 
-# views.py
 @login_required
 def timeseries_dashboard(request):
     timeseries_qs = Timeseries.objects.filter(
@@ -103,7 +102,7 @@ def timeseries_dashboard(request):
 
     if selected_id:
         try:
-            selected_timeseries = timeseries_qs.get(pk=selected_id)
+            selected_timeseries = timeseries_qs.get(pk=selected_id, user=request.user)
         except Timeseries.DoesNotExist:
             selected_timeseries = None
     else:
