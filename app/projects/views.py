@@ -104,7 +104,8 @@ def has_invalid_dp_results(scenario_id):
         return "reparse"
 
     return ""
-# views.py
+
+
 @login_required
 def timeseries_dashboard(request):
     timeseries_qs = Timeseries.objects.filter(
@@ -116,7 +117,7 @@ def timeseries_dashboard(request):
 
     if selected_id:
         try:
-            selected_timeseries = timeseries_qs.get(pk=selected_id)
+            selected_timeseries = timeseries_qs.get(pk=selected_id, user=request.user)
         except Timeseries.DoesNotExist:
             selected_timeseries = None
     else:
