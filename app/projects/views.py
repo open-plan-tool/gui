@@ -1894,6 +1894,7 @@ def test_mvs_data_input(request, scen_id=0):
 # @json_view
 @login_required
 @require_http_methods(["GET", "POST"])
+@user_has_edit_rights
 def request_mvs_simulation(request, scen_id=0):
     if scen_id == 0:
         answer = JsonResponse(
@@ -1968,6 +1969,7 @@ def request_mvs_simulation(request, scen_id=0):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@user_has_edit_rights
 def request_ezp_simulation(request, scen_id=0):
     if scen_id == 0:
         answer = JsonResponse(
