@@ -107,7 +107,9 @@ def has_invalid_dp_results(scenario_id):
 # views.py
 @login_required
 def timeseries_dashboard(request):
-    timeseries_qs = Timeseries.objects.filter(user=request.user).order_by("name", "id")
+    timeseries_qs = Timeseries.objects.filter(
+        Q(user=request.user) & ~Q(ts_type="scalar")
+    ).order_by("name", "id")
 
     selected_id = request.GET.get("selected")
     selected_timeseries = None
