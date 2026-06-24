@@ -701,19 +701,7 @@ class ToggleSwitchWidget(forms.CheckboxInput):
     def render(self, name, value, attrs=None, renderer=None):
         checkbox_html = super().render(name, value, attrs, renderer)
         return format_html(
-            """
-            <style>
-              .toggle-switch {{ position: relative; display: inline-block; width: 48px; height: 24px; }}
-              .toggle-switch input {{ opacity: 0; width: 0; height: 0; }}
-              .toggle-slider {{ position: absolute; cursor: pointer; inset: 0;
-                background-color: #ccc; border-radius: 24px; transition: 0.3s; }}
-              .toggle-slider::before {{ content: ""; position: absolute; height: 18px; width: 18px;
-                left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: 0.3s; }}
-              .toggle-switch input:checked + .toggle-slider {{ background-color: #1F567D; }}
-              .toggle-switch input:checked + .toggle-slider::before {{ transform: translateX(24px); }}
-            </style>
-            <label class="toggle-switch">{}<span class="toggle-slider"></span></label>
-            """,
+            '<label class="toggle-switch">{}<span class="toggle-slider"></span></label>',
             checkbox_html,
         )
 
