@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix issues with read and edit rights on shared projects [[#478](https://github.com/open-plan-tool/gui/pull/478)]
 
 ## [v2.1.4] – 2026-07-01
 ### Fixed
