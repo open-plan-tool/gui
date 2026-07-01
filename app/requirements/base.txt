@@ -12,6 +12,7 @@ flower==2.0.1
 redis==7.4.0
 oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@main
 oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@dev
+oemof-visio
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0
