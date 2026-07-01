@@ -381,6 +381,21 @@ msgstr ""
 "Wählen Sie den/die Benutzer aus, für den/die Sie die Zugriffsrechte "
 "entziehen möchten."
 
+msgid "Revoke access"
+msgstr "Zugriffsrechte entziehen"
+
+msgid "Share"
+msgstr "Teilen"
+
+msgid "You need to be the owner of the project to access this."
+msgstr "Sie müssen der Eigentümer des Projekts sein, um darauf zugreifen zu können."
+
+msgid "You need to be the owner of the project or have read rights to access this."
+msgstr "Sie müssen entweder der Eigentümer des Projekts sein oder über Leserechte verfügen, um darauf zugreifen zu können."
+
+msgid "You need to be the owner of the project or have edit rights to access this."
+msgstr "Sie müssen der Eigentümer des Projekts sein oder über Bearbeitungsrechte verfügen, um darauf zugreifen zu können."
+
 #: projects/forms.py:367
 msgid "Users currently having access to the project"
 msgstr "Benutzer, die derzeit Zugriff auf das Projekt haben"

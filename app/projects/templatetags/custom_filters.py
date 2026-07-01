@@ -57,9 +57,7 @@ def has_viewer_read_rights(proj_id, user):
         if project.user == user:
             answer = True
         else:
-            qs = project.viewers.filter(
-                Q(user__email=user.email) & Q(share_rights="read")
-            )
+            qs = project.viewers.filter(Q(user__email=user.email))
             if qs.exists():
                 answer = True
     return answer
