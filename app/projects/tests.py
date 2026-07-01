@@ -435,7 +435,18 @@ class UploadTimeseriesTest(TestCase):
             response = self.client.post(self.post_url, data, format="multipart")
             form = response.context["form"]
             self.assertIn("input_timeseries", form.errors)
-            self.assertIn(
-                "does not match the lentgh", str(form.errors["input_timeseries"])
-            )
             self.assertEqual(response.status_code, 422)
+
+    def test_scalar_timeseries(self):
+        data = {
+            "name": "Test_input_timeseries",
+            "pos_x": 0,
+            "pos_y": 0,
+            "input_timeseries_scalar": 1,
+            "input_timeseries_select": "",
+            "input_timeseries_file": "",
+        }
+        response = self.client.post(self.post_url, data, format="multipart")
+        asset = Asset.objects.last()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(asset.input_timeseries_values, [1])

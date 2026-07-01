@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [v2.1.4] – 2026-07-01
+### Fixed
+- Update incorrect or missing translation strings [[#480](https://github.com/open-plan-tool/gui/pull/480)]
+- Fix validation error bug on timeseries with constant value [[#486](https://github.com/open-plan-tool/gui/pull/486)]
+
 ## [v2.1.3] – 2026-05-20
 ### Changed
 - Remove specific workshop dates from courses site (will be redirected to DGS instead) [[#475](https://github.com/open-plan-tool/gui/pull/475)]

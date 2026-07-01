@@ -214,6 +214,104 @@ class Comment(models.Model):
         return self.name
 
 
+def infer_simple_type(value):
+    """
+    Infer a simple type for Tabular Data Package fields.
+
+    Returns only:
+    - "integer"
+    - "number"
+    - "string"
+    """
+
+    if value is None:
+        return "string"
+
+    if isinstance(value, bool):
+        return "boolean"
+
+    if isinstance(value, int):
+        return "integer"
+
+    if isinstance(value, float):
+        return "number"
+
+    if isinstance(value, str):
+        text = value.strip()
+
+        if text == "":
+            return "string"
+
+        if text == "True" or text == "False":
+            return "boolean"
+
+        try:
+            as_int = int(text)
+            if str(as_int) == text or text in {f"+{as_int}", f"-{abs(as_int)}"}:
+                return "integer"
+        except ValueError:
+            pass
+
+        try:
+            float(text)
+            return "number"
+        except ValueError:
+            return "string"
+
+    return "string"
+
+
+def infer_metadata(resource_records, bus_names=None, profile_names=None):
+    """Helper function to generate the datapackage.json file for scenario's assets"""
+    if bus_names is None:
+        bus_names = []
+
+    if profile_names is None:
+        profile_names = []
+
+    schema = {
+        "fields": [],
+        "foreignKeys": [],
+    }
+    for field_name, field_value in resource_records.items():
+        schema["fields"].append(
+            {
+                "name": field_name,
+                "type": infer_simple_type(field_value),
+                "format": "default",
+            }
+        )
+        if field_value in bus_names:
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {"resource": "bus", "fields": "name"},
+                }
+            )
+        elif field_value in profile_names:
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {
+                        "resource": "profiles",
+                    },
+                }
+            )
+
+        if field_name == "project_data":
+            schema["foreignKeys"].append(
+                {
+                    "fields": field_name,
+                    "reference": {"resource": "project", "fields": "name"},
+                }
+            )
+    schema["foreignKeys"].sort(key=lambda x: x["fields"])
+    if len(schema["foreignKeys"]) == 0:
+        schema.pop("foreignKeys")
+
+    return schema
+
+
 class Scenario(models.Model):
     name = models.CharField(max_length=60)
 
@@ -346,6 +444,8 @@ class Scenario(models.Model):
 
         scenario_folder = destination_path / f"scenario_{clean_dir_name}"
 
+        datapackage_metadata_file = scenario_folder / "datapackage.json"
+
         data_folder = scenario_folder / "data"
         elements_folder = data_folder / "elements"
         sequences_folder = data_folder / "sequences"
@@ -355,11 +455,32 @@ class Scenario(models.Model):
         elements_folder.mkdir(parents=True)
         sequences_folder.mkdir(parents=True)
 
+        datapackage_metadata_dict = {
+            "profile": "tabular-data-package",
+            "name": f"scenario_{self.name}".replace(" ", "_"),
+            "oemof_datapackage_version": "0.0.6b3",  # todo: update this one via a variable
+            "resources": [],
+        }
+
         # Save the project specifics
         proj = self.project
+        proj_dp = proj.to_datapackage()
+        resource_metadata = {
+            "path": "data/project.csv",
+            "profile": "tabular-data-resource",
+            "name": "project",
+            "format": "csv",
+            "mediatype": "text/csv",
+            "encoding": "utf-8",
+            "schema": {"fields": [], "missingValues": [""]},
+        }
+        schema = infer_metadata(proj_dp)
+        resource_metadata["schema"].update(schema)
+        datapackage_metadata_dict["resources"].append(resource_metadata)
+
         out_path = data_folder / f"project.csv"
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame([proj.to_datapackage()])
+        df = pd.DataFrame([proj_dp])
         df.drop_duplicates("name").to_csv(out_path, index=False)
 
         # List all components of the scenario (except the busses)
@@ -376,6 +497,23 @@ class Scenario(models.Model):
         profile_resource_records = {}
         for facade_name in facade_names:
             resource_records = []
+            bus_names = []
+            profile_names = []
+            resource_metadata = {
+                "path": f"data/elements/{facade_name}.csv",
+                "profile": "tabular-data-resource",
+                "name": facade_name,
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [],
+                    "missingValues": [""],
+                    "primaryKey": "name",
+                    "foreignKeys": [],
+                },
+            }
+
             for i, asset in enumerate(
                 qs_assets.filter(asset_type__asset_type=facade_name)
             ):
@@ -385,24 +523,68 @@ class Scenario(models.Model):
                 resource_records.append(resource_rec)
                 # those constitute the busses and sequences used by this asset
                 bus_resource_records.extend(bus_resource_rec)
+                bus_names.extend([b["name"] for b in bus_resource_rec])
                 profile_resource_records.update(profile_resource_rec)
+                profile_names.extend([k for k in profile_resource_rec.keys()])
 
             # Add the resource's instances to a file in the "elements" folder of the datapackage
             if resource_records:
+                schema = infer_metadata(resource_records[0], bus_names, profile_names)
+                resource_metadata["schema"].update(schema)
                 out_path = elements_folder / f"{facade_name}.csv"
                 Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-                df = pd.DataFrame(resource_records)
-                df.to_csv(out_path, index=False)
+                df_resource = pd.DataFrame(resource_records)
+                df_resource.to_csv(out_path, index=False)
+
+            datapackage_metadata_dict["resources"].append(resource_metadata)
 
         # Save all unique busses to a elements resource
         if bus_resource_records:
+            resource_metadata = {
+                "path": f"data/elements/bus.csv",
+                "profile": "tabular-data-resource",
+                "name": "bus",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [],
+                    "missingValues": [""],
+                    "primaryKey": "name",
+                    "foreignKeys": [],
+                },
+            }
+            schema = infer_metadata(bus_resource_records[0])
+            resource_metadata["schema"].update(schema)
+            datapackage_metadata_dict["resources"].append(resource_metadata)
+
             out_path = elements_folder / f"bus.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-            df = pd.DataFrame(bus_resource_records)
-            df.drop_duplicates("name").to_csv(out_path, index=False)
+            df_bus = pd.DataFrame(bus_resource_records)
+            df_bus.drop_duplicates("name").to_csv(out_path, index=False)
 
         # Save all profiles to a sequences resource
         if profile_resource_records:
+            resource_metadata = {
+                "path": f"data/sequences/profiles.csv",
+                "profile": "tabular-data-resource",
+                "name": "profiles",
+                "format": "csv",
+                "mediatype": "text/csv",
+                "encoding": "utf-8",
+                "schema": {
+                    "fields": [
+                        {"name": "timeindex", "type": "string", "format": "default"}
+                    ],
+                    "missingValues": [""],
+                },
+            }
+            for k in profile_resource_records.keys():
+                resource_metadata["schema"]["fields"].append(
+                    {"name": k, "type": "number", "format": "default"}
+                )
+            datapackage_metadata_dict["resources"].append(resource_metadata)
+
             out_path = sequences_folder / f"profiles.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
             # add timestamps to the profiles
@@ -427,12 +609,15 @@ class Scenario(models.Model):
                 df = df.iloc[:number]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
-        # creating datapackage.json metadata file at the root of the datapackage
-        building.infer_metadata_from_data(
-            package_name=f"scenario_{self.name}".replace(" ", "_"),
-            path=scenario_folder,
-            fk_targets=["project"],
+        datapackage_metadata_dict["resources"].sort(
+            key=lambda x: (x["path"], x["name"])
         )
+        # creating datapackage.json metadata file at the root of the datapackage
+        with datapackage_metadata_file.open("w", encoding="utf-8") as file:
+            json.dump(
+                datapackage_metadata_dict, file, indent=4
+            )  # , ensure_ascii=False)
+
         return scenario_folder
 
     def to_jsonified_datapackage(self, destination_path=None, number=None):
