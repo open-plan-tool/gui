@@ -967,14 +967,11 @@ class AssetCreateForm(OpenPlanModelForm):
             if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                 # replace the dict with a new timeseries instance
                 timeseries_obj = self.assign_timeseries_from_input(ts_data)
-                num_timestamps = self.scenario.get_num_timesteps
-                if len(timeseries_obj.values) != num_timestamps:
-                    msg = _(
-                        f"The length of the timeseries ({len(timeseries_obj.values)}) does not match the lentgh of the selected timesteps ({num_timestamps}). You can check your timeseries file or change the timesteps in step 1."
+                if input_method == TS_UPLOAD_TYPE:
+                    self.timeseries_same_as_timestamps(
+                        timeseries_obj.values, "input_timeseries"
                     )
-                    self.add_error("input_timeseries", msg)
-                else:
-                    cleaned_data["input_timeseries"] = timeseries_obj
+                cleaned_data["input_timeseries"] = timeseries_obj
             if input_method == TS_SELECT_TYPE:
                 # return the timeseries instance
                 timeseries_id = ts_data["input_method"]["extra_info"]
