@@ -1249,12 +1249,17 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
         # TODO this sankey implementation does not allow for single timesteps
         # if ts is not None:
         #     ts = int(ts)
-        results = scenario.simulation.eesyplan_results()
 
-        fig, links_df = eesyplan_graphs.sankey(results["flow"], title="Test Sankey")
+        # TODO This is the only usage of this function and the new architecture will make it obsolete
+        # results = scenario.simulation.eesyplan_results()
+        #
+        # fig, links_df = eesyplan_graphs.sankey(results["flow"], title="Test Sankey")
+        # import pdb; pdb.set_trace()
+
+        sankey_fig = scenario.simulation.figures.get("sankey", None)
 
         return JsonResponse(
-            fig.to_dict(), status=200, content_type="application/json", safe=False
+            sankey_fig, status=200, content_type="application/json", safe=False
         )
 
 
