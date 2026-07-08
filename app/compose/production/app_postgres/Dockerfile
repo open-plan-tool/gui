@@ -7,6 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ARG BUILD_ENVIRONMENT=production
 
+RUN echo Retrigger full install
+
 RUN mkdir ${CONFIG_ROOT}
 COPY app/requirements/base.txt ${CONFIG_ROOT}/base.txt
 COPY app/requirements/${BUILD_ENVIRONMENT}.txt ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt
