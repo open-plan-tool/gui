@@ -921,6 +921,10 @@ class Asset(TopologyNode):
     fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
     fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
 
+    full_load_hours_max_asset = models.FloatField(
+        null=True, blank=True, validators=[MinValueValidator(0.0)]
+    )
+
     @property
     def fields(self):
         return [f.name for f in self._meta.fields + self._meta.many_to_many]
@@ -1157,6 +1161,20 @@ class Asset(TopologyNode):
 
     def is_input_timeseries_empty(self):
         return self.input_timeseries is None
+
+
+# PROTOCOL
+# 1)
+# a) write a new class which inherits from Asset with the new needed fields
+# b) add the fields within the Asset class
+# 2) add an asset_type for this new component with their visible fields (under static/resources/assettypes_list.csv)
+
+
+class Commodity(Asset):
+    full_load_hours_max = models.FloatField(
+        null=True, blank=True, validators=[MinValueValidator(0.0)]
+    )
+    commodity_type = models.CharField(max_length=30, null=True, blank=True)
 
 
 class COPCalculator(models.Model):
