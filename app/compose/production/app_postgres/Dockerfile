@@ -6,6 +6,8 @@ ENV CONFIG_ROOT /config
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ARG BUILD_ENVIRONMENT=production
+# Optional: Cache bust for fresh dependencies (change value to bust cache)
+ARG CACHE_BUST=1
 
 RUN mkdir ${CONFIG_ROOT}
 COPY app/requirements/base.txt ${CONFIG_ROOT}/base.txt
