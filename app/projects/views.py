@@ -915,10 +915,10 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
     project = get_object_or_404(Project, pk=proj_id)
 
     if request.user.has_edit_rights(project):
-        user_has_right_to_save = False
+        user_has_right_to_save = True
         # raise PermissionDenied
     else:
-        user_has_right_to_save = True
+        user_has_right_to_save = False
 
     if request.method == "POST":
         # called by function save_topology() in templates/scenario/scenario_step2.html
@@ -998,9 +998,9 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
     project = get_object_or_404(Project, pk=proj_id)
 
     if request.user.has_edit_rights(project):
-        user_has_right_to_save = False
-    else:
         user_has_right_to_save = True
+    else:
+        user_has_right_to_save = False
 
     qs_sim = Simulation.objects.filter(scenario=scenario)
 
