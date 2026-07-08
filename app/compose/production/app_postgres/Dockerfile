@@ -13,7 +13,7 @@ COPY app/requirements/${BUILD_ENVIRONMENT}.txt ${CONFIG_ROOT}/${BUILD_ENVIRONMEN
 
 # Install gettext utilities for translations
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gettext-base gettext git tk && \
+    apt-get install -y --no-install-recommends gettext-base gettext git && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip \
