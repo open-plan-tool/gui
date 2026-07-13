@@ -20,7 +20,7 @@ from projects.models import (
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from projects.forms import AssetCreateForm, BusForm, StorageForm
+from projects.forms import asset_form_factory, BusForm, StorageForm, get_asset_or_404
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 
@@ -163,7 +163,7 @@ def handle_storage_unit_form_post(
         try:
             # First delete all existing associated storage assets from the db
             if asset_uuid:
-                existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+                existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
                 # existing_asset.delete()  # deletes also automatically all children using models.CASCADE
                 ess_asset = existing_asset
                 ess_capacity_asset = Asset.objects.get(
@@ -299,19 +299,19 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     }
 
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
@@ -333,7 +333,7 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     if form.is_valid():
         qs_sim = Simulation.objects.filter(scenario=scenario)
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
 
             if qs_sim.exists():
                 for param in form.cleaned_data:

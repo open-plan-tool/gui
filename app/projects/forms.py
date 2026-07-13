@@ -7,6 +7,7 @@ import csv
 from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.shortcuts import get_object_or_404
 from openpyxl import load_workbook
 import numpy as np
 
@@ -692,6 +693,481 @@ class BusForm(OpenPlanModelForm):
             ),
         }
         labels = {"name": _("Name"), "type": _("Energy carrier")}
+
+
+# TODO here add the models mapping (maybe there is a smarter way to do this)
+ASSET_MAPPING = {"commodity": Commodity}
+
+
+def get_asset_or_404(asset_type, asset_uuid):
+    asset_type = ASSET_MAPPING.get(asset_type, Asset)
+    return get_object_or_404(asset_type, unique_id=asset_uuid)
+
+
+def asset_form_factory(asset_type=None, **kwargs):
+    # Get the asset model if defined
+    asset_model = ASSET_MAPPING.get(asset_type, Asset)
+
+    class _AssetCreateForm(OpenPlanModelForm):
+        def __init__(self, *args, **kwargs):
+            self.asset_type_name = kwargs.pop("asset_type", None)
+            proj_id = kwargs.pop("proj_id", None)
+            scenario_id = kwargs.pop("scenario_id", None)
+            view_only = kwargs.pop("view_only", False)
+            print(view_only)
+            self.existing_asset = kwargs.get("instance", None)
+            # get the connections with busses
+            self.input_output_mapping = kwargs.pop("input_output_mapping", None)
+
+            super().__init__(*args, **kwargs)
+            # which fields exists in the form are decided upon AssetType saved in the db
+            self.asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
+
+            # remove the fields not needed for the AssetType
+            for field in list(self.fields):
+                if field not in self.asset_type.visible_fields:
+                    self.fields.pop(field)
+                else:
+                    self.add_help_text_icon(field)
+
+            self.timestamps = None
+            if scenario_id is not None:
+                qs = Scenario.objects.filter(id=scenario_id)
+                if qs.exists():
+                    self.scenario = qs.get()
+                    self.timestamps = self.scenario.get_timestamps()
+                    self.user = self.scenario.project.user
+                    if proj_id is None:
+                        proj_id = self.scenario.project.id
+            elif self.existing_asset is not None:
+                self.timestamps = self.existing_asset.timestamps
+                self.user = self.existing_asset.scenario.project.user
+
+            currency = None
+            if proj_id is not None:
+                qs = Project.objects.filter(id=proj_id)
+                if qs.exists():
+                    currency = qs.values_list(
+                        "economic_data__currency", flat=True
+                    ).get()
+                    currency = CURRENCY_SYMBOLS[currency]
+                    # TODO use mapping to display currency symbol
+                    self.user = qs.get().user
+
+            # set the custom timeseries field for timeseries
+            # the qs_ts selects timeseries (excluding scalars) that either belong to the user or are open source
+            if "input_timeseries" in self.fields:
+                self.fields["input_timeseries"] = TimeseriesField(
+                    qs_ts=Timeseries.objects.filter(
+                        ~Q(ts_type="scalar")
+                        & (Q(asset_type=self.asset_type.asset_type))
+                        & (Q(open_source=True) | Q(user=self.user))
+                    ),
+                    default=0,
+                    param_name="input_timeseries",
+                    label=self.fields["input_timeseries"].label,
+                    asset_type=self.asset_type_name,
+                )
+                # TODO here one can play with min, max, max_length as kwargs
+
+            self.fields["inputs"] = forms.CharField(
+                widget=forms.HiddenInput(), required=False, label=""
+            )
+
+            if self.asset_type_name == "heat_pump":
+                self.fields["efficiency"] = DualNumberField(
+                    default=1, min=1, param_name="efficiency"
+                )
+                self.fields["efficiency"].label = "COP"
+                self.fields[
+                    "efficiency"
+                ].help_text = "This is the custom help text for COP"
+                self.add_help_text_icon("efficiency", RTD_link=True)
+                value = self.fields.pop("efficiency")
+                self.fields["efficiency"] = value
+            if self.asset_type_name == "chp":
+                self.fields["efficiency"] = DualNumberField(
+                    default=1, min=0, max=1, param_name="efficiency"
+                )
+                self.fields["efficiency"].label = _(
+                    "Electrical efficiency with no heat extraction"
+                )
+
+                self.fields[
+                    "efficiency"
+                ].help_text = "This is the custom help text for chp efficiency"
+                self.add_help_text_icon("efficiency", RTD_link=True)
+                self.fields["efficiency_multiple"] = DualNumberField(
+                    default=1, min=0, max=1, param_name="efficiency_multiple"
+                )
+                self.fields["efficiency_multiple"].label = _(
+                    "Thermal efficiency with maximal heat extraction"
+                )
+
+                self.fields["thermal_loss_rate"].label = _("Power loss index")
+
+            if self.asset_type_name == "chp_fixed_ratio":
+                self.fields["efficiency"].label = _("Efficiency gas to electricity")
+
+                # TODO
+                self.fields[
+                    "efficiency"
+                ].help_text = "This is the custom help text for chp efficiency"
+                self.add_help_text_icon("efficiency", RTD_link=True)
+
+                self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                    attrs={
+                        "placeholder": _("eg. 0.1"),
+                        "min": 0.0,
+                        "max": 1.0,
+                        "step": "0.00001",
+                    }
+                )
+                self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
+
+            if self.asset_type_name == "electrolyzer":
+                self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                    attrs={
+                        "placeholder": _("eg. 0.1"),
+                        "min": 0.0,
+                        "max": 1.0,
+                        "value": 0,
+                        "step": "0.00001",
+                    }
+                )
+                self.fields["efficiency_multiple"].label = _("Heat loss")
+                self.fields[
+                    "efficiency_multiple"
+                ].help_text = "Ratio of energy converted to heat"
+                self.add_help_text_icon("efficiency_multiple", RTD_link=True)
+
+            if "dso" in self.asset_type_name:
+                for field_name in ("energy_price", "feedin_tariff"):
+                    help_text = self.fields[field_name].help_text
+                    label = self.fields[field_name].label
+                    self.fields[field_name] = DualNumberField(
+                        default=0.1, param_name=field_name
+                    )
+                    self.fields[field_name].help_text = help_text
+                    self.fields[field_name].label = label
+
+            """ DrawFlow specific configuration, add a special attribute to
+                every field in order for the framework to be able to export
+                the data to json.
+                !! This addition doesn't affect the previous behavior !!
+            """
+            for field in self.fields:
+                if (
+                    field == "renewable_asset"
+                    and self.asset_type_name in RENEWABLE_ASSETS
+                ):
+                    self.initial[field] = True
+                self.fields[field].widget.attrs.update({f"df-{field}": ""})
+                if field == "input_timeseries":
+                    self.fields[field].required = self.is_input_timeseries_empty()
+                if view_only is True:
+                    self.fields[field].disabled = True
+                    if "capex_fix" in field:
+                        self.fields[field].label = (
+                            self.fields[field]
+                            .label.replace("project", "")
+                            .replace("Feste Projektkosten", "Fixkosten")
+                        )
+                if "€" in self.fields[field].label and currency is not None:
+                    self.fields[field].label = self.fields[field].label.replace(
+                        "€", currency
+                    )
+                if ":unit:" in self.fields[field].label:
+                    self.fields[field].label = self.fields[field].label.replace(
+                        ":unit:", self.asset_type.unit
+                    )
+
+                self.fields[field].label = format_html(self.fields[field].label)
+
+            """ ----------------------------------------------------- """
+
+        def is_input_timeseries_empty(self):
+            if self.existing_asset is not None:
+                return self.existing_asset.is_input_timeseries_empty()
+            else:
+                return True
+
+        def clean_input_timeseries_old(self):
+            """Override built-in Form method which is called upon form validation"""
+            try:
+                input_timeseries_values = []
+                timeseries_file = self.files.get("input_timeseries_file", None)
+                # read the timeseries from file if any
+                if timeseries_file is not None:
+                    input_timeseries_values = parse_input_timeseries(timeseries_file)
+                    # TODO here list the possible options
+                else:
+                    # set the previous timeseries from the asset if any
+                    if self.is_input_timeseries_empty() is False:
+                        input_timeseries_values = (
+                            self.existing_asset.input_timeseries_values
+                        )
+                return input_timeseries_values
+            except json.decoder.JSONDecodeError as ex:
+                raise ValidationError(
+                    _(
+                        "File not properly formatted. Please ensure you upload a comma separated array of values. E.g. [1,2,0.32]"
+                    )
+                )
+            except TypeError as e:
+                raise ValidationError(str(e))
+            except Exception as ex:
+                raise ValidationError(
+                    _(
+                        f"Could not parse a file due to the following error: {ex}. Did you upload a file?"
+                    )
+                )
+
+        def clean_efficiency_multiple(self):
+            data = self.cleaned_data["efficiency_multiple"]
+            if self.asset_type_name == "chp_fixed_ratio":
+                try:
+                    data = float(data)
+                except ValueError:
+                    raise ValidationError(
+                        "Please enter a float value between 0.0 and 1.0"
+                    )
+                if 0 <= data <= 1:
+                    pass
+                else:
+                    raise ValidationError(
+                        "Please enter a float value between 0.0 and 1.0"
+                    )
+                data = str(data)
+            return data
+
+        def clean(self):
+            cleaned_data = super().clean()
+            if "installed_capacity" in cleaned_data and "age_installed" in cleaned_data:
+                if (
+                    cleaned_data["installed_capacity"] == 0.0
+                    and cleaned_data["age_installed"] > 0
+                ):
+                    self.add_error(
+                        "age_installed",
+                        _(
+                            "If you have no installed capacity, age installed should also be 0"
+                        ),
+                    )
+
+            if self.asset_type_name == "heat_pump":
+                if "efficiency" not in self.errors:
+                    efficiency = cleaned_data["efficiency"]
+                    self.timeseries_same_as_timestamps(efficiency, "efficiency")
+
+            if self.asset_type_name == "chp_fixed_ratio":
+                # efficiency and efficiency_multiple must have been cleaned (no errors)
+                if self.errors.keys().isdisjoint({"efficiency", "efficiency_multiple"}):
+                    if (
+                        float(cleaned_data["efficiency"])
+                        + float(cleaned_data["efficiency_multiple"])
+                        > 1
+                    ):
+                        msg = _("The sum of the efficiencies should not exceed 1")
+                        self.add_error("efficiency", msg)
+                        self.add_error("efficiency_multiple", msg)
+
+            if "dso" in self.asset_type_name:
+                if (
+                    "feedin_tariff" not in self.errors
+                    and "energy_price" not in self.errors
+                ):
+                    feedin_tariff = np.array([cleaned_data["feedin_tariff"]])
+                    energy_price = np.array([cleaned_data["energy_price"]])
+                    diff = feedin_tariff - energy_price
+                    max_capacity = cleaned_data.get("max_capacity", 0)
+                    if (diff > 0).any() is True and max_capacity == 0:
+                        msg = _(
+                            "Feed-in tariff > energy price for some of simulation's timesteps. This would cause an unbound solution and terminate the optimization. Please reconsider your feed-in tariff and energy price."
+                        )
+                        self.add_error("feedin_tariff", msg)
+                    self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
+                    self.timeseries_same_as_timestamps(energy_price, "energy_price")
+
+            if "input_timeseries" in cleaned_data:
+                # TODO add either a checkbox or a user setting to save ts to model
+                ts_data = json.loads(cleaned_data["input_timeseries"])
+                input_method = ts_data["input_method"]["type"]
+                if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
+                    # replace the dict with a new timeseries instance
+                    timeseries_obj = self.assign_timeseries_from_input(ts_data)
+                    if input_method == TS_UPLOAD_TYPE:
+                        self.timeseries_same_as_timestamps(
+                            timeseries_obj.values, "input_timeseries"
+                        )
+                    cleaned_data["input_timeseries"] = timeseries_obj
+                if input_method == TS_SELECT_TYPE:
+                    # return the timeseries instance
+                    timeseries_id = ts_data["input_method"]["extra_info"]
+                    cleaned_data["input_timeseries"] = Timeseries.objects.get(
+                        id=timeseries_id
+                    )
+
+            return cleaned_data
+
+        def assign_timeseries_from_input(self, input_timeseries):
+            # Assign the existing timeseries if already uploaded by the same user, else create a new instance
+            timeseries_name = input_timeseries["input_method"].get(
+                "extra_info", "no_name"
+            )
+            timeseries_values = input_timeseries["values"]
+
+            ts_default_settings = {
+                "ts_type": self.asset_type.mvs_type,
+                "open_source": False,
+            }
+            asset_type_name = self.asset_type.asset_type
+            ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
+
+            if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
+                timeseries_name = f"constant value = {timeseries_values[0]}"
+                timeseries_values = timeseries_values
+                ts_default_settings["ts_type"] = "scalar"
+
+            timeseries, created = Timeseries.objects.get_or_create(
+                values=timeseries_values,
+                user=self.user,
+                name=timeseries_name,
+                scenario=self.scenario,
+                asset_type=ts_asset_type,
+                defaults=ts_default_settings,
+            )
+
+            return timeseries
+
+        def timeseries_same_as_timestamps(self, ts, param):
+            if isinstance(ts, np.ndarray):
+                ts = np.squeeze(ts).tolist()
+            if isinstance(ts, float) is False and isinstance(ts, int) is False:
+                if len(ts) > 1:
+                    if self.timestamps is not None:
+                        if len(ts) != len(self.timestamps):
+                            # TODO look for verbose of param
+                            msg = (
+                                _("The number of values of the parameter ")
+                                + _(param)
+                                + f" ({len(ts)})"
+                                + _(
+                                    " are not equal to the number of simulation timesteps"
+                                )
+                                + f" ({len(self.timestamps)})"
+                                + _(
+                                    ". You can change the number of timesteps in the first step of scenario creation."
+                                )
+                            )
+                            self.add_error(param, msg)
+
+        class Meta:
+            model = asset_model
+            exclude = ["scenario"]
+            widgets = {
+                "optimize_cap": forms.Select(choices=BOOL_CHOICES),
+                "dispatchable": forms.Select(choices=TRUE_FALSE_CHOICES),
+                "renewable_asset": forms.Select(choices=BOOL_CHOICES),
+                "name": forms.TextInput(
+                    attrs={
+                        "placeholder": _("Asset Name"),
+                        # "style": "font-weight:400; font-size:13px;",
+                    }
+                ),
+                "capex_fix": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 10000", "min": "0.0", "step": ".01"}
+                ),
+                "capex_var": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 4000", "min": "0.0", "step": ".01"}
+                ),
+                "opex_fix": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0", "min": "0.0", "step": ".01"}
+                ),
+                "opex_var": forms.NumberInput(
+                    attrs={"placeholder": "Currency", "min": "0.0", "step": ".01"}
+                ),
+                "lifetime": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 10 years", "min": "0", "step": "1"}
+                ),
+                "input_timeseries_old": forms.FileInput(
+                    attrs={
+                        "onchange": "plot_file_trace(obj=this.files, plot_id='timeseries_trace')"
+                    }
+                ),
+                "crate": forms.NumberInput(
+                    attrs={
+                        "placeholder": "factor of total capacity (kWh), e.g. 0.7",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".0001",
+                    }
+                ),
+                "efficiency": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.99",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".01",
+                    }
+                ),
+                "soc_max": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.95",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".01",
+                    }
+                ),
+                "soc_min": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.1",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".01",
+                    }
+                ),
+                "maximum_capacity": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 1000", "min": "0.0", "step": ".01"}
+                ),
+                "energy_price": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.1", "min": "0.0", "step": ".0001"}
+                ),
+                "feedin_tariff": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.0", "min": "0.0", "step": ".0001"}
+                ),
+                "feedin_cap": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.0", "min": "0.0"}
+                ),
+                "peak_demand_pricing": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 60", "min": "0.0", "step": ".01"}
+                ),
+                "peak_demand_pricing_period": forms.Select(
+                    choices=((1, 1), (2, 2), (3, 3), (4, 4), (6, 6), (12, 12))
+                ),
+                "renewable_share": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.1",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".0001",
+                    }
+                ),
+                "installed_capacity": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 50", "min": "0.0", "step": ".01"}
+                ),
+                "age_installed": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 10", "min": "0.0", "step": "1"}
+                ),
+            }
+            labels = {"input_timeseries": _("Timeseries vector")}
+            help_texts = {
+                "input_timeseries": _(
+                    "You can upload your timeseries as xls(x), csv or json format. Either there is one column with the values of the timeseries matching the scenario timesteps, or there are two columns, the first one being the timestamps and the second one the values of the timeseries. If you upload a spreadsheet with more than one tab only the first tab will be considered. The timeseries in csv format is expected to be in comma separated values with dot as decimal separator."
+                )
+            }
+
+    return _AssetCreateForm(asset_type=asset_type, **kwargs)
 
 
 class AssetCreateForm(OpenPlanModelForm):

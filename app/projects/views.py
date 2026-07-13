@@ -873,6 +873,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "biogas_plant": _("Biogas Plant"),
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
+            "commodity": _("Commodity"),
         },
         "conversion": {
             "transformer_station_in": _("Transformer Station (in)"),  #
@@ -1681,8 +1682,8 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
         return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            form = AssetCreateForm(
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+            form = asset_form_factory(
                 asset_type=asset_type_name,
                 instance=existing_asset,
                 input_output_mapping=input_output_mapping,
@@ -1700,7 +1701,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
             n_asset = len(asset_list)
             default_name = f"{asset_type_name}-{n_asset}"
-            form = AssetCreateForm(
+            form = asset_form_factory(
                 asset_type=asset_type_name,
                 initial={"name": default_name},
                 input_output_mapping=input_output_mapping,
@@ -1799,7 +1800,7 @@ def asset_connection_ports_info(request, asset_type_name=None):
 def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     opts = {}
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
         existing_cop = COPCalculator.objects.filter(asset=existing_asset)
         if existing_cop.exists():
             opts["instance"] = existing_cop.get()
@@ -1817,7 +1818,7 @@ def asset_cops_create_or_update(
 
     opts = {}
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
         existing_cop = COPCalculator.objects.filter(asset=existing_asset)
         if existing_cop.exists():
             opts["instance"] = existing_cop.get()
