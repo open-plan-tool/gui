@@ -17,6 +17,7 @@ from django.db import models
 from django.forms.models import model_to_dict
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
 from projects.constants import (
     ASSET_CATEGORY,
     ASSET_TYPE,
@@ -1044,18 +1045,25 @@ class Asset(TopologyNode):
         else:
             attributes = self.asset_type.visible_fields
 
+        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+
         for field in attributes:
             if (
                 field != "dispatchable"
             ):  # TODO remove this when `dispatchable` not a visible field anymore
-                value = getattr(self, field)
+                value = getattr(existing_asset, field)
                 # if the field is a candidate for a scalar/list
                 if isinstance(value, str) and field != "name":
-                    value = json.loads(value)
-                    if isinstance(value, list):
-                        col = f"{self.name}__{field}"
-                        profile_resource_rec[col] = value
-                        value = col
+                    try:
+                        value = json.loads(value)
+                        if isinstance(value, list):
+                            col = f"{self.name}__{field}"
+                            profile_resource_rec[col] = value
+                            value = col
+                    except json.decoder.JSONDecodeError:
+                        pass
+
                 elif isinstance(value, Timeseries):
                     col = value.name
                     profile_resource_rec[col] = value.values
@@ -1175,6 +1183,10 @@ class Commodity(Asset):
         null=True, blank=True, validators=[MinValueValidator(0.0)]
     )
     commodity_type = models.CharField(max_length=30, null=True, blank=True)
+
+
+# TODO here add the models mapping (maybe there is a smarter way to do this)
+ASSET_MAPPING = {"commodity": Commodity}
 
 
 class COPCalculator(models.Model):
