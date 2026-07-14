@@ -9,7 +9,7 @@ from pathlib import Path
 from oemof.eesyplan.datapackage.results import import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 import pandas as pd
-from oemof.eesyplan.facades.buses.carrier import CarrierBus
+from oemof.eesyplan.components.buses.carrier import CarrierBus
 from oemof.solph import Bus
 
 # from requests.exceptions import HTTPError
@@ -149,7 +149,9 @@ def get_component_type(es_dp, component):
 def parse_ezp_results(simulation, response_results):
     data = json.loads(response_results)
 
-    res = data["raw_results"]
+    # Extract figures and raw results
+    simulation.figures = data.get("figures", None)
+    res = data.get("raw_results", None)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_dir = Path(temp_dir)

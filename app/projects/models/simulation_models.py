@@ -49,6 +49,7 @@ class Simulation(AbstractSimulation):
     dp_results = models.JSONField(
         null=True, blank=True, validators=[validate_dp_results]
     )
+    figures = models.JSONField(null=True, blank=True)
 
     def clean_dp_results(self):
         field = self._meta.get_field("dp_results")
