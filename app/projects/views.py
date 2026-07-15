@@ -1696,10 +1696,9 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 else ""
             )
         else:
-            asset_list = Asset.objects.filter(
+            n_asset = Asset.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
-            )
-            n_asset = len(asset_list)
+            ).count()
             default_name = f"{asset_type_name}-{n_asset}"
             form = asset_form_factory(
                 asset_type=asset_type_name,
