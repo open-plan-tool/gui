@@ -472,10 +472,13 @@ def duplicate_scenario_objects(obj_list, scenario, asset_mapping_dict=None):
     mapping_dict = dict()
 
     for obj in obj_list:
-        old_id = obj.id
-
         if hasattr(obj, "unique_id"):  # i.e. it's an asset
+            if obj.asset_type.asset_type in ASSET_MAPPING:
+                obj = get_asset_or_404(obj.asset_type.asset_type, obj.unique_id)
+                obj.pk = None
+
             obj.unique_id = str(uuid.uuid4())
+        old_id = obj.id
         obj.id = None
         obj.scenario = scenario
         obj.save()
