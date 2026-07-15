@@ -982,6 +982,7 @@ def graph_capacities(simulations, y_variables):
         multi_scenario = True
 
     if y_variables is None:
+        # TODO might not work if using components inheriting from Asset
         y_variables = (
             Asset.objects.filter(scenario__simulation__in=simulations)
             .exclude(
@@ -1026,6 +1027,7 @@ def graph_capacities(simulations, y_variables):
 
         # read information about the installed capacity
         qs1 = (
+            # TODO might not work if using components inheriting from Asset
             Asset.objects.filter(scenario__simulation=simulation)
             .exclude(
                 Q(asset_type__asset_type__contains="dso")
@@ -1106,6 +1108,7 @@ def get_costs(simulation, y_variables=None):
     simulations_results = []
     if y_variables is None:
         y_variables = (
+            # TODO might not work if using components inheriting from Asset
             Asset.objects.filter(scenario__simulation=simulation)
             .filter(installed_capacity__isnull=False)
             .annotate(label=Case(default="name"))
@@ -1116,6 +1119,7 @@ def get_costs(simulation, y_variables=None):
 
     # read information about the installed capacity
     qs1 = (
+        # TODO might not work if using components inheriting from Asset
         Asset.objects.filter(scenario__simulation=simulation)
         .annotate(label=Case(default="name"))
         .order_by("label")
