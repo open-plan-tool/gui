@@ -1146,7 +1146,10 @@ class Asset(TopologyNode):
             self.asset_type.asset_fields.replace("[", "").replace("]", "").split(",")
         )
         fields += ["name", "pos_x", "pos_y"]
-        dm = model_to_dict(self, fields=fields)
+        # TODO use get_asset_or_404 here (move if from projects/forms.py)
+        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+        dm = model_to_dict(existing_asset, fields=fields)
         dm["asset_info"] = self.asset_type.export()
 
         cop_parameters = COPCalculator.objects.filter(asset=self)
