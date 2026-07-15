@@ -17,6 +17,7 @@ from projects.models import (
     ParameterChangeTracker,
     AssetChangeTracker,
     Timeseries,
+    ASSET_MAPPING,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -570,9 +571,9 @@ def load_scenario_from_dict(model_data, user, project=None):
             asset_data["parent_asset"] = Asset.objects.get(
                 name=asset_data["parent_asset"], scenario=scenario
             )
-        asset_type = asset_data.pop("asset_info")
+        asset_info = asset_data.pop("asset_info")
         asset_data["asset_type"] = AssetType.objects.get(
-            asset_type=asset_type["asset_type"]
+            asset_type=asset_info["asset_type"]
         )
 
         COP_parameters = asset_data.pop("COP_parameters", None)
@@ -608,7 +609,7 @@ def load_scenario_from_dict(model_data, user, project=None):
                         values=json.loads(input_timeseries),
                         user=user,
                         scenario=scenario,
-                        ts_type=asset_type["mvs_type"],
+                        ts_type=asset_info["mvs_type"],
                         name=f"{asset_data['name']}_ts",
                     )
                     asset_data["input_timeseries"] = input_ts
@@ -620,7 +621,8 @@ def load_scenario_from_dict(model_data, user, project=None):
                 )
                 asset_data.pop("input_timeseries")
 
-        asset = Asset(**asset_data)
+        AssetModel = ASSET_MAPPING.get(asset_info["asset_type"], Asset)
+        asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
 
