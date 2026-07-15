@@ -267,6 +267,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
         Q(scenario=scenario), Q(asset_type__asset_type__contains="ess")
     )
     # Exclude ESS related assets
+    # TODO change this to get the Children Assets
     asset_list = Asset.objects.filter(Q(scenario=scenario)).exclude(
         Q(asset_type__asset_type__contains="ess")
         | Q(parent_asset__asset_type__asset_type__contains="ess")
