@@ -1263,6 +1263,7 @@ def scenario_duplicate(request, scen_id):
 
     # We need to iterate over all the objects related to this scenario and duplicate them
     # and associate them with the new scenario id.
+    # TODO here get the correct asset types
     asset_list = Asset.objects.filter(scenario=scenario)
     bus_list = Bus.objects.filter(scenario=scenario)
     connections_list = ConnectionLink.objects.filter(scenario=scenario)
@@ -1669,6 +1670,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 input_output_mapping=input_output_mapping,
             )
         else:
+            # TODO change this to get the Children Assets
             asset_list = Asset.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
             )

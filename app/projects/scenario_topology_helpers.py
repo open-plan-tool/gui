@@ -410,6 +410,7 @@ def db_bus_nodes_to_list(scen_id):
 
 
 def db_asset_nodes_to_list(scen_id):
+    # TODO change this to get the Children Assets
     all_db_assets = Asset.objects.filter(scenario_id=scen_id)
     # dont return children assets (i.e. for storage assets)
     no_storage_children_assets = all_db_assets.filter(parent_asset_id=None)
@@ -766,6 +767,7 @@ class NodeObject:
 
 def update_deleted_objects_from_database(scenario_id, topo_node_list):
     """Delete Database Scenario Related Objects which are not in the topology before inserting or updating data."""
+    # TODO change this to get the Children Assets
     all_scenario_assets = Asset.objects.filter(scenario_id=scenario_id)
     # dont include storage unit children assets
     scenario_assets_ids_excluding_storage_children = all_scenario_assets.filter(
@@ -798,6 +800,7 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
+        # TODO change this to get the Children Assets
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(

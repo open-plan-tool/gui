@@ -485,6 +485,7 @@ class Scenario(models.Model):
         df.drop_duplicates("name").to_csv(out_path, index=False)
 
         # List all components of the scenario (except the busses)
+        # TODO change this to get the Children Assets
         qs_assets = Asset.objects.filter(scenario=self)
         # List all distinct components' assettypes (or facade name) which are not children
         # The children assets are going to be processed by the parent asset `to_datapackage` method
