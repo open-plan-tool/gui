@@ -1189,8 +1189,27 @@ class Commodity(Asset):
     commodity_type = models.CharField(max_length=30, null=True, blank=True)
 
 
+class CHP(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    conversion_factor_to_electricity = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    conversion_factor_to_heat = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    beta = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
-ASSET_MAPPING = {"commodity": Commodity}
+ASSET_MAPPING = {"commodity": Commodity, "chp": CHP}
 
 
 class COPCalculator(models.Model):
