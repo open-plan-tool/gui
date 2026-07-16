@@ -1,5 +1,7 @@
 import datetime
 import json
+import tempfile
+from pathlib import Path
 
 import pytest
 from django.core.management import call_command
@@ -7,7 +9,15 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
 from projects.forms import asset_form_factory, get_asset_or_404
-from projects.models import Project, Scenario, Asset, AssetType
+from projects.models import (
+    Project,
+    Scenario,
+    Asset,
+    AssetType,
+    Bus,
+    ConnectionLink,
+    Timeseries,
+)
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
@@ -606,6 +616,75 @@ class CHPAssetTest(TestCase):
         self.assertTrue(qs.exists())
         saved_asset = get_asset_or_404("chp", asset.unique_id)
         self.assertEqual(saved_asset.installed_capacity, 100)
+
+    def test_chp_datapackage_loads_in_eesyplan(self):
+        from oemof.eesyplan.components.converters.ChpVariableRatio import (
+            ChpVariableRatio,
+        )
+        from oemof.eesyplan.datapackage.energy_system import (
+            create_energy_system_from_dp,
+        )
+
+        # fresh scenario without the fixture assets, keeping the scenario settings
+        self.scenario.pk = None
+        self.scenario.name = "chp_ezp_scenario"
+        self.scenario.save()
+        asset = self.create_chp_via_form(name="chp-ezp")
+
+        gas_bus = Bus.objects.create(name="gas_bus", type="Gas", scenario=self.scenario)
+        heat_bus = Bus.objects.create(
+            name="heat_bus", type="Heat", scenario=self.scenario
+        )
+        el_bus = Bus.objects.create(
+            name="el_bus", type="Electricity", scenario=self.scenario
+        )
+        for bus, port, direction in (
+            (gas_bus, "input_1", "B2A"),
+            (heat_bus, "output_1", "A2B"),
+            (el_bus, "output_2", "A2B"),
+        ):
+            ConnectionLink.objects.create(
+                bus=bus,
+                bus_connection_port="port_1",
+                asset=asset,
+                asset_connection_port=port,
+                flow_direction=direction,
+                scenario=self.scenario,
+            )
+
+        # a demand with a profile, without which the datapackage has no sequences
+        # resource and oemof.datapackage falls back to a deprecated pandas freq
+        timeseries = Timeseries.objects.create(
+            values=[1.0] * len(self.scenario.get_timestamps()),
+            user=self.project.user,
+            name="demand_ts",
+            scenario=self.scenario,
+        )
+        demand = Asset.objects.create(
+            name="demand-ezp",
+            scenario=self.scenario,
+            asset_type=AssetType.objects.get(asset_type="demand"),
+            input_timeseries=timeseries,
+        )
+        ConnectionLink.objects.create(
+            bus=el_bus,
+            bus_connection_port="port_1",
+            asset=demand,
+            asset_connection_port="input_1",
+            flow_direction="B2A",
+            scenario=self.scenario,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dp_path = self.scenario.to_datapackage(Path(tmp_dir))
+            es = create_energy_system_from_dp(dp_path)
+
+        chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
+        self.assertEqual(len(chp_nodes), 1)
+        self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
+        self.assertEqual(chp_nodes[0].conversion_factor_to_electricity, 0.35)
+        self.assertEqual(chp_nodes[0].conversion_factor_to_heat, 0.5)
+        self.assertEqual(chp_nodes[0].beta, 0.4)
 
     def test_chp_to_datapackage_uses_eesyplan_parameters(self):
         asset = self.create_chp_via_form(name="chp-dp")
