@@ -1147,10 +1147,15 @@ class Asset(TopologyNode):
             self.asset_type.asset_fields.replace("[", "").replace("]", "").split(",")
         )
         fields += ["name", "pos_x", "pos_y"]
-        # TODO use get_asset_or_404 here (move if from projects/forms.py)
-        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
-        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
-        dm = model_to_dict(existing_asset, fields=fields)
+        # get the subclass instance if the asset type has an own model, otherwise
+        # model_to_dict would drop the fields only defined on the subclass
+        asset_model = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        instance = self
+        if asset_model is not Asset:
+            instance = asset_model.objects.filter(unique_id=self.unique_id).first()
+            if instance is None:
+                instance = self
+        dm = model_to_dict(instance, fields=fields)
         dm["asset_info"] = self.asset_type.export()
 
         cop_parameters = COPCalculator.objects.filter(asset=self)
