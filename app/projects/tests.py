@@ -2,10 +2,12 @@ import datetime
 import json
 
 import pytest
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
-from projects.models import Project, Scenario, Asset
+from projects.forms import asset_form_factory, get_asset_or_404
+from projects.models import Project, Scenario, Asset, AssetType
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
@@ -538,3 +540,85 @@ class UploadTimeseriesTest(TestCase):
         asset = Asset.objects.last()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(asset.input_timeseries_values, [1])
+
+
+class CHPAssetTest(TestCase):
+    """Guards the chp component behavior through its migration to an own CHP model"""
+
+    fixtures = ["fixtures/benchmarks_fixture.json"]
+
+    # values for any field name the chp form may expose, valid before and
+    # after the migration to eesyplan field names
+    chp_field_values = {
+        "name": "chp-test",
+        "age_installed": 0,
+        "installed_capacity": 100,
+        "capex_fix": 0,
+        "capex_var": 1000,
+        "opex_var": 0,
+        "opex_fix": 10,
+        "lifetime": 20,
+        "optimize_cap": True,
+        "maximum_capacity": 500,
+        "efficiency": 0.35,
+        "efficiency_multiple": 0.5,
+        "thermal_loss_rate": 0.4,
+        "conversion_factor_to_electricity": 0.35,
+        "conversion_factor_to_heat": 0.5,
+        "beta": 0.4,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("update_assettype")
+
+    def setUp(self):
+        self.project = Project.objects.get(id=1)
+        self.scenario = self.project.scenario_set.first()
+        self.asset_type = AssetType.objects.get(asset_type="chp")
+
+    # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
+    # data keys are suffixed with the subwidget index
+    dual_number_fields = ("efficiency", "efficiency_multiple")
+
+    def create_chp_via_form(self, name="chp-test"):
+        data = {}
+        for field in self.asset_type.visible_fields:
+            if field in self.chp_field_values:
+                if field in self.dual_number_fields:
+                    data[f"{field}_scalar"] = str(self.chp_field_values[field])
+                else:
+                    data[field] = self.chp_field_values[field]
+        data["name"] = name
+        form = asset_form_factory(
+            asset_type="chp", data=data, scenario_id=self.scenario.id
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        asset = form.save(commit=False)
+        asset.scenario = self.scenario
+        asset.asset_type = self.asset_type
+        asset.save()
+        return asset
+
+    def test_chp_form_create_and_save(self):
+        asset = self.create_chp_via_form()
+        qs = Asset.objects.filter(scenario=self.scenario, name="chp-test")
+        self.assertTrue(qs.exists())
+        saved_asset = get_asset_or_404("chp", asset.unique_id)
+        self.assertEqual(saved_asset.installed_capacity, 100)
+
+    def test_chp_to_datapackage_uses_eesyplan_parameters(self):
+        asset = self.create_chp_via_form(name="chp-dp")
+        dp, bus_records, profile_records = asset.to_datapackage()
+
+        self.assertEqual(dp["type"], "chp")
+        self.assertEqual(dp["conversion_factor_to_electricity"], 0.35)
+        self.assertEqual(dp["conversion_factor_to_heat"], 0.5)
+        self.assertEqual(dp["beta"], 0.4)
+        # MVS parameter names may not leak into the datapackage
+        self.assertNotIn("efficiency", dp)
+        self.assertNotIn("efficiency_multiple", dp)
+        self.assertNotIn("thermal_loss_rate", dp)
+        # bus keys expected by the eesyplan ChpVariableRatio signature
+        for bus_key in ("bus_in_fuel", "bus_out_electricity", "bus_out_heat"):
+            self.assertIn(bus_key, dp)
