@@ -1075,13 +1075,6 @@ class Asset(TopologyNode):
                         field = "conversion_factor_to_electricity"
                     elif field == "efficiency_multiple":
                         field = "conversion_factor_to_heat"
-                elif self.asset_type.asset_type == "chp":
-                    if field == "thermal_loss_rate":
-                        field = "beta"
-                    elif field == "efficiency":
-                        field = "conversion_factor_to_electricity"
-                    elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
                 elif self.asset_type.asset_type == "heat_pump":
                     if field == "efficiency":
                         field = "cop"

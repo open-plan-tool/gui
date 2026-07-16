@@ -782,25 +782,13 @@ def asset_form_factory(asset_type=None, **kwargs):
                 value = self.fields.pop("efficiency")
                 self.fields["efficiency"] = value
             if self.asset_type_name == "chp":
-                self.fields["efficiency"] = DualNumberField(
-                    default=1, min=0, max=1, param_name="efficiency"
-                )
-                self.fields["efficiency"].label = _(
+                self.fields["conversion_factor_to_electricity"].label = _(
                     "Electrical efficiency with no heat extraction"
                 )
-
-                self.fields[
-                    "efficiency"
-                ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon("efficiency", RTD_link=True)
-                self.fields["efficiency_multiple"] = DualNumberField(
-                    default=1, min=0, max=1, param_name="efficiency_multiple"
-                )
-                self.fields["efficiency_multiple"].label = _(
+                self.fields["conversion_factor_to_heat"].label = _(
                     "Thermal efficiency with maximal heat extraction"
                 )
-
-                self.fields["thermal_loss_rate"].label = _("Power loss index")
+                self.fields["beta"].label = _("Power loss index")
 
             if self.asset_type_name == "chp_fixed_ratio":
                 self.fields["efficiency"].label = _("Efficiency gas to electricity")
@@ -967,6 +955,15 @@ def asset_form_factory(asset_type=None, **kwargs):
                         msg = _("The sum of the efficiencies should not exceed 1")
                         self.add_error("efficiency", msg)
                         self.add_error("efficiency_multiple", msg)
+
+            if self.asset_type_name == "chp":
+                cf_el = cleaned_data.get("conversion_factor_to_electricity")
+                cf_heat = cleaned_data.get("conversion_factor_to_heat")
+                # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1
+                if cf_el is not None and cf_heat is not None and cf_el + cf_heat >= 1:
+                    msg = _("The sum of the conversion factors must be below 1")
+                    self.add_error("conversion_factor_to_electricity", msg)
+                    self.add_error("conversion_factor_to_heat", msg)
 
             if "dso" in self.asset_type_name:
                 if (
@@ -1154,6 +1151,30 @@ def asset_form_factory(asset_type=None, **kwargs):
                 ),
                 "age_installed": forms.NumberInput(
                     attrs={"placeholder": "e.g. 10", "min": "0.0", "step": "1"}
+                ),
+                "conversion_factor_to_electricity": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.3",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".0001",
+                    }
+                ),
+                "conversion_factor_to_heat": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.5",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".0001",
+                    }
+                ),
+                "beta": forms.NumberInput(
+                    attrs={
+                        "placeholder": "e.g. 0.4",
+                        "min": "0.0",
+                        "max": "1.0",
+                        "step": ".0001",
+                    }
                 ),
             }
             labels = {"input_timeseries": _("Timeseries vector")}
