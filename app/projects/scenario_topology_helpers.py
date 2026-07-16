@@ -10,6 +10,7 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    ASSET_MAPPING,
     Project,
     EconomicData,
     COPCalculator,
