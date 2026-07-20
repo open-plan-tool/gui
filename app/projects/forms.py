@@ -694,6 +694,18 @@ class BusForm(OpenPlanModelForm):
         labels = {"name": _("Name"), "type": _("Energy carrier")}
 
 
+class ToggleSwitchWidget(forms.CheckboxInput):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox_html = super().render(name, value, attrs, renderer)
+        return format_html(
+            '<label class="toggle-switch">{}<span class="toggle-slider"></span></label>',
+            checkbox_html,
+        )
+
+
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         self.asset_type_name = kwargs.pop("asset_type", None)
@@ -1033,9 +1045,9 @@ class AssetCreateForm(OpenPlanModelForm):
         model = Asset
         exclude = ["scenario"]
         widgets = {
-            "optimize_cap": forms.Select(choices=BOOL_CHOICES),
-            "dispatchable": forms.Select(choices=TRUE_FALSE_CHOICES),
-            "renewable_asset": forms.Select(choices=BOOL_CHOICES),
+            "optimize_cap": ToggleSwitchWidget(),
+            "dispatchable": ToggleSwitchWidget(),
+            "renewable_asset": ToggleSwitchWidget(),
             "name": forms.TextInput(
                 attrs={
                     "placeholder": _("Asset Name"),

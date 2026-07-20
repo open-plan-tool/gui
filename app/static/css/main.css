@@ -1176,103 +1176,134 @@ a.dropdown-item:active {
         padding-left: 0; } }
 /* ----------------------------- open_plan 2 ----------------------------- */
 /* ----------------------------- open_plan 2 ----------------------------- */
-form .form-control:focus {
-  border-color: #1F567D;
-  box-shadow: 0 0 0 0.25rem rgba(31, 86, 125, 0.1); }
-
-form .asteriskField {
-  display: none; }
-
-form .form-check-input:focus {
-  box-shadow: 0 0 0 0.25rem rgba(31, 86, 125, 0.1); }
-
-form .form-check-input:checked {
-  background-color: #1F567D; }
-
-form .form-group {
-  margin-bottom: 1rem;
-  color: #343434; }
-  form .form-group label {
-    margin-bottom: 0.5rem; }
-  form .form-group.input-updated {
+form {
+  /*  .toggle-switch {
     position: relative;
-    background-color: #FFF9EB;
-    border-color: #FDC534;
-    border-width: 2px;
-    background-image: url("/static/assets/icons/i_edit_yellow.svg");
-    background-position: center right;
-    background-repeat: no-repeat;
-    background-size: auto 1rem; }
-    form .form-group.input-updated:focus {
-      box-shadow: 0 0 0.5rem rgba(253, 197, 52, 0.8); }
+    display: inline-block;
+    width: 48px;
+    height: 24px;
 
-form .form-control {
-  color: #343434; }
-  form .form-control.input-updated {
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: $primary-gray-color-2;
+      border-radius: 24px;
+      transition: 0.3s;
+
+      &::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: $white;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+    }
+
+    input:checked + .toggle-slider {
+      background-color: $primary-color-1;
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+  }
+*/ }
+  form .form-control:focus {
+    border-color: #1F567D;
+    box-shadow: 0 0 0 0.25rem rgba(31, 86, 125, 0.1); }
+  form .asteriskField {
+    display: none; }
+  form .form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(31, 86, 125, 0.1); }
+  form .form-check-input:checked {
+    background-color: #1F567D; }
+  form .form-group {
+    margin-bottom: 1rem;
+    color: #343434; }
+    form .form-group label {
+      margin-bottom: 0.5rem; }
+    form .form-group.input-updated {
+      position: relative;
+      background-color: #FFF9EB;
+      border-color: #FDC534;
+      border-width: 2px;
+      background-image: url("/static/assets/icons/i_edit_yellow.svg");
+      background-position: center right;
+      background-repeat: no-repeat;
+      background-size: auto 1rem; }
+      form .form-group.input-updated:focus {
+        box-shadow: 0 0 0.5rem rgba(253, 197, 52, 0.8); }
+  form .form-control {
+    color: #343434; }
+    form .form-control.input-updated {
+      position: relative;
+      background-color: #FFF9EB;
+      border-color: #FDC534;
+      border-width: 2px;
+      background-image: url("/static/assets/icons/i_edit_yellow.svg");
+      background-position: center right;
+      background-repeat: no-repeat;
+      background-size: auto 1rem; }
+      form .form-control.input-updated:focus {
+        box-shadow: 0 0 0.5rem rgba(253, 197, 52, 0.8); }
+  form .form-control::placeholder {
+    color: #D6D6D6;
+    font-size: 1rem; }
+  form .form-control::-webkit-input-placeholder {
+    color: #D6D6D6;
+    font-size: 1rem; }
+  form .form-control::-moz-placeholder {
+    color: #D6D6D6;
+    font-size: 1rem; }
+  form .form-control:-ms-input-placeholder {
+    color: #D6D6D6;
+    font-size: 1rem; }
+  form .form-control:-moz-placeholder {
+    color: #D6D6D6;
+    font-size: 1rem; }
+  form .input-item,
+  form .text-item {
     position: relative;
-    background-color: #FFF9EB;
-    border-color: #FDC534;
-    border-width: 2px;
-    background-image: url("/static/assets/icons/i_edit_yellow.svg");
-    background-position: center right;
-    background-repeat: no-repeat;
-    background-size: auto 1rem; }
-    form .form-control.input-updated:focus {
-      box-shadow: 0 0 0.5rem rgba(253, 197, 52, 0.8); }
-
-form .form-control::placeholder {
-  color: #D6D6D6;
-  font-size: 1rem; }
-
-form .form-control::-webkit-input-placeholder {
-  color: #D6D6D6;
-  font-size: 1rem; }
-
-form .form-control::-moz-placeholder {
-  color: #D6D6D6;
-  font-size: 1rem; }
-
-form .form-control:-ms-input-placeholder {
-  color: #D6D6D6;
-  font-size: 1rem; }
-
-form .form-control:-moz-placeholder {
-  color: #D6D6D6;
-  font-size: 1rem; }
-
-form .input-item,
-form .text-item {
-  position: relative;
-  padding-bottom: 1rem; }
-  form .input-item.optional label.form-label::after,
-  form .text-item.optional label.form-label::after {
-    content: '- optional';
-    font-weight: 300;
-    font-style: italic;
-    padding-left: .5rem; }
-  form .input-item .icon-question,
-  form .text-item .icon-question {
-    padding-left: 0.35rem;
-    cursor: pointer;
-    vertical-align: middle; }
-  form .input-item .form-text.to-right,
-  form .text-item .form-text.to-right {
-    position: absolute;
-    right: 0; }
-  form .input-item textarea,
-  form .text-item textarea {
-    max-height: 10rem; }
-  form .input-item .input-group-text,
-  form .text-item .input-group-text {
-    background-color: #E3EAEE;
-    color: #343434;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none; }
-
-form .btn {
-  margin-top: 1rem; }
+    padding-bottom: 1rem; }
+    form .input-item.optional label.form-label::after,
+    form .text-item.optional label.form-label::after {
+      content: '- optional';
+      font-weight: 300;
+      font-style: italic;
+      padding-left: .5rem; }
+    form .input-item .icon-question,
+    form .text-item .icon-question {
+      padding-left: 0.35rem;
+      cursor: pointer;
+      vertical-align: middle; }
+    form .input-item .form-text.to-right,
+    form .text-item .form-text.to-right {
+      position: absolute;
+      right: 0; }
+    form .input-item textarea,
+    form .text-item textarea {
+      max-height: 10rem; }
+    form .input-item .input-group-text,
+    form .text-item .input-group-text {
+      background-color: #E3EAEE;
+      color: #343434;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+  form .btn {
+    margin-top: 1rem; }
 
 .choices {
   width: 100%; }
