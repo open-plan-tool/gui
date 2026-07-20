@@ -288,6 +288,8 @@ function populateForm(nodeDOM, submit=false, show=true) {
 
             updateInputTimeseries();
 
+            updateCapacityFieldsVisibility();
+
             if (submit)
                 submitForm();
             if (show)
@@ -663,6 +665,25 @@ editor.on('connectionUnselected', _ => {
     selectedElement = null;
 });
 
+function updateCapacityFieldsVisibility() {
+    const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
+    console.log("optimize_cap element:", optimizeCapInput);
+    if (!optimizeCapInput) return;
+
+    const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
+    const installedCapacityGroup = guiModalDOM.querySelector('input[name="installed_capacity"]')?.closest('.form-group');
+    const ageInstalledGroup = guiModalDOM.querySelector('input[name="age_installed"]')?.closest('.form-group');
+
+    function toggleFields() {
+        const isOptimized = optimizeCapInput.checked;
+        if (maxCapacityGroup) maxCapacityGroup.style.display = isOptimized ? '' : 'none';
+        if (installedCapacityGroup) installedCapacityGroup.style.display = isOptimized ? 'none' : '';
+        if (ageInstalledGroup) ageInstalledGroup.style.display = isOptimized ? 'none' : '';
+    }
+
+    toggleFields();
+    optimizeCapInput.addEventListener('change', toggleFields);
+}
 
 // TODO potentially remove this function
 function updateInputTimeseries(){
