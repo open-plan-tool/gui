@@ -1191,6 +1191,15 @@ class CHP(Asset):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once chp drops MVS support for good.
+        self.efficiency = self.conversion_factor_to_electricity
+        self.efficiency_multiple = self.conversion_factor_to_heat
+        self.thermal_loss_rate = self.beta
+        super().save(*args, **kwargs)
+
     @staticmethod
     def get_custom_form_fields():
         from projects.helpers import DualNumberField
