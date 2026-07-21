@@ -1189,6 +1189,23 @@ class Commodity(Asset):
     commodity_type = models.CharField(max_length=30, null=True, blank=True)
 
 
+class Storage(Asset):
+    pass
+    # soc_max = models.FloatField(
+    #     null=True,
+    #     blank=False,
+    #     validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    # )
+    # soc_min = models.FloatField(
+    #     null=True,
+    #     blank=False,
+    #     validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    # )
+    # crate = models.FloatField(
+    #     null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    # )
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {"commodity": Commodity}
 
