@@ -570,9 +570,6 @@ class CHPAssetTest(TestCase):
         "lifetime": 20,
         "optimize_cap": True,
         "maximum_capacity": 500,
-        "efficiency": 0.35,
-        "efficiency_multiple": 0.5,
-        "thermal_loss_rate": 0.4,
         "conversion_factor_to_electricity": 0.35,
         "conversion_factor_to_heat": 0.5,
         "beta": 0.4,
@@ -588,8 +585,8 @@ class CHPAssetTest(TestCase):
         self.asset_type = AssetType.objects.get(asset_type="chp")
 
     # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
-    # data keys are suffixed with the subwidget index
-    dual_number_fields = ("efficiency", "efficiency_multiple")
+    # data keys are suffixed with the subwidget name
+    dual_number_fields = ("conversion_factor_to_electricity", "conversion_factor_to_heat")
 
     def create_chp_via_form(self, name="chp-test"):
         data = {}
