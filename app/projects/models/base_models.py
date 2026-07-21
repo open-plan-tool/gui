@@ -38,7 +38,6 @@ from projects.constants import (
     USER_RATING,
 )
 
-
 class Feedback(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=200)
@@ -1193,10 +1192,9 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.FloatField(
+    conversion_factor_to_electricity = models.TextField(
         null=True,
         blank=False,
-        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     conversion_factor_to_heat = models.FloatField(
         null=True,
