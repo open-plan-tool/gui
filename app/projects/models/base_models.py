@@ -1139,15 +1139,10 @@ class Asset(TopologyNode):
             self.asset_type.asset_fields.replace("[", "").replace("]", "").split(",")
         )
         fields += ["name", "pos_x", "pos_y"]
-        # get the subclass instance if the asset type has an own model, otherwise
-        # model_to_dict would drop the fields only defined on the subclass
-        asset_model = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
-        instance = self
-        if asset_model is not Asset:
-            instance = asset_model.objects.filter(unique_id=self.unique_id).first()
-            if instance is None:
-                instance = self
-        dm = model_to_dict(instance, fields=fields)
+        # TODO use get_asset_or_404 here (move if from projects/forms.py)
+        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+        dm = model_to_dict(existing_asset, fields=fields)
         dm["asset_info"] = self.asset_type.export()
 
         cop_parameters = COPCalculator.objects.filter(asset=self)
@@ -1188,20 +1183,34 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.TextField(
-        null=True,
-        blank=False,
-    )
-    conversion_factor_to_heat = models.FloatField(
-        null=True,
-        blank=False,
-        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
-    )
+    conversion_factor_to_electricity = models.TextField(null=True, blank=False)
+    conversion_factor_to_heat = models.TextField(null=True, blank=False)
     beta = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "conversion_factor_to_electricity": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="conversion_factor_to_electricity",
+                label=_("Electrical efficiency with no heat extraction"),
+            ),
+            "conversion_factor_to_heat": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="conversion_factor_to_heat",
+                label=_("Thermal efficiency with maximal heat extraction"),
+            ),
+        }
 
 
 # TODO here add the models mapping (maybe there is a smarter way to do this)
