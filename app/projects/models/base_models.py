@@ -1206,6 +1206,28 @@ class Storage(Asset):
     # )
 
 
+class ElectricalStorage(Storage):
+    pass
+
+
+class FuelStorage(Storage):
+    pass
+
+
+class HydrogenStorage(Storage):
+    pass
+
+
+class ThermalStorage(Storage):
+    pass
+
+    # thermal_loss_rate = models.FloatField(
+    #     null=True, blank=False, validators=[MinValueValidator(0.0)]
+    # )
+    # fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
+    # fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {"commodity": Commodity}
 
