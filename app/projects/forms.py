@@ -782,12 +782,16 @@ def asset_form_factory(asset_type=None, **kwargs):
                 value = self.fields.pop("efficiency")
                 self.fields["efficiency"] = value
             if self.asset_type_name == "chp":
-                self.fields["conversion_factor_to_electricity"].label = _(
+                self.fields["conversion_factor_to_electricity"] = DualNumberField(
+                    default=1, min=0, max=1, param_name="conversion_factor_to_electricity",label = _(
                     "Electrical efficiency with no heat extraction"
+                )
                 )
                 self.fields["conversion_factor_to_heat"].label = _(
                     "Thermal efficiency with maximal heat extraction"
                 )
+
+
                 self.fields["beta"].label = _("Power loss index")
 
             if self.asset_type_name == "chp_fixed_ratio":
