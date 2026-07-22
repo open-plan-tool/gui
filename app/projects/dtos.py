@@ -386,7 +386,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 to_value_type(asset, "renewable_asset"),
                 to_value_type(asset, "capex_var"),
                 to_value_type(asset, "opex_fix"),
-                to_timeseries_data(asset, "input_timeseries"),
+                to_timeseries_data(asset, "input_timeseries", testing=testing),
                 asset.asset_type.unit,
             )
             if (
@@ -496,7 +496,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                     f"ERROR, a {asset.asset_type.asset_type} should have 1 electrical input and one heat output, thus 2 efficiencies!"
                 )
 
-            asset_efficiency.value = efficiencies
+            asset_efficiency.value = (
+                efficiencies if testing is False else efficiencies[:3]
+            )
 
         if asset.asset_type.asset_type == "heat_pump":
             cop = asset_efficiency.value
@@ -547,6 +549,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             elif len(efficiencies) == 1:
                 efficiencies = efficiencies[0]
                 inflow_direction = inflow_direction[0]
+            elif len(efficiencies) > 3:
+                if testing is True:
+                    efficiencies = efficiencies[:3]
 
             asset_efficiency.value = efficiencies
         dso_energy_price = to_value_type(asset, "energy_price")
@@ -584,7 +589,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             to_value_type(asset, "renewable_asset"),
             to_value_type(asset, "capex_var"),
             to_value_type(asset, "opex_fix"),
-            to_timeseries_data(asset, "input_timeseries"),
+            to_timeseries_data(asset, "input_timeseries", testing=testing),
             asset.asset_type.unit,
             **optional_parameters,
         )
@@ -674,7 +679,7 @@ def to_value_type(model_obj, field_name):
         return None
 
 
-def to_timeseries_data(model_obj, field_name):
+def to_timeseries_data(model_obj, field_name, testing=False):
     value_type = ValueType.objects.filter(type=field_name).first()
     unit = value_type.unit if value_type is not None else None
     value_list = (
@@ -687,6 +692,9 @@ def to_timeseries_data(model_obj, field_name):
         if len(value_list) == 1 and getattr(model_obj, field_name).ts_type == "scalar":
             num_timesteps = getattr(model_obj, field_name).scenario.get_num_timesteps
             value_list *= num_timesteps
+        if testing is True and len(value_list) > 3:
+            value_list = value_list[:3]
+
         return TimeseriesDataDto(unit, value_list)
     else:
         return None
