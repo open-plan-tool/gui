@@ -3,23 +3,6 @@ import json
 from django.db import migrations
 
 
-def _to_float(value):
-    """Map an MVS text parameter (scalar or json list) to a float, None if impossible"""
-    if value in (None, ""):
-        return None
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        pass
-    try:
-        parsed = json.loads(value)
-    except (TypeError, json.JSONDecodeError):
-        return None
-    if isinstance(parsed, list) and parsed and all(v == parsed[0] for v in parsed):
-        return float(parsed[0])
-    return None
-
-
 def forwards(apps, schema_editor):
     Asset = apps.get_model("projects", "Asset")
     CHP = apps.get_model("projects", "CHP")
@@ -30,16 +13,16 @@ def forwards(apps, schema_editor):
             continue
         chp = CHP(
             asset_ptr_id=asset.pk,
-            conversion_factor_to_electricity=_to_float(asset.efficiency),
-            conversion_factor_to_heat=_to_float(asset.efficiency_multiple),
+            conversion_factor_to_electricity=asset.efficiency,
+            conversion_factor_to_heat=asset.efficiency_multiple,
             beta=asset.thermal_loss_rate,
         )
         # raw save writes only the child table row of the existing parent asset
         chp.save_base(raw=True)
         if (
-            _to_float(asset.efficiency) is None
+            asset.efficiency is None
             and asset.efficiency not in (None, "")
-            or _to_float(asset.efficiency_multiple) is None
+            or asset.efficiency_multiple is None
             and asset.efficiency_multiple not in (None, "")
         ):
             unmapped.append(asset.pk)
