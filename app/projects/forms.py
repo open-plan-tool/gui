@@ -958,14 +958,41 @@ def asset_form_factory(asset_type=None, **kwargs):
             if self.asset_type_name == "chp":
                 cf_el = cleaned_data.get("conversion_factor_to_electricity")
                 cf_heat = cleaned_data.get("conversion_factor_to_heat")
-                # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1;
-                # only checked for scalar inputs, not when a timeseries was provided
-                if (
-                    isinstance(cf_el, (int, float))
-                    and isinstance(cf_heat, (int, float))
-                    and cf_el + cf_heat >= 1
-                ):
-                    msg = _("The sum of the conversion factors must be below 1")
+                # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1 at any timesteps;
+                error = False
+                if isinstance(cf_el, list):
+                    if isinstance(cf_heat, (int, float)):
+                        idx = np.squeeze(np.where(cf_heat + np.array(cf_el) >= 1))
+                        if idx.size > 0:
+                            error = True
+                            msg = _(
+                                "The sum of the conversion factors must be below 1 at all timesteps"
+                            )
+
+                    elif isinstance(cf_heat, list):
+                        idx = np.squeeze(
+                            np.where(np.array(cf_heat) + np.array(cf_el) >= 1)
+                        )
+                        if idx.size > 0:
+                            error = True
+                            msg = _(
+                                "The sum of the conversion factors must be below 1 at all timesteps"
+                            )
+                elif isinstance(cf_el, (int, float)):
+                    if isinstance(cf_heat, (int, float)):
+                        if cf_el + cf_heat >= 1:
+                            error = True
+                            msg = _("The sum of the conversion factors must be below 1")
+
+                    elif isinstance(cf_heat, list):
+                        idx = np.squeeze(np.where(np.array(cf_heat) + cf_el >= 1))
+                        if idx.size > 0:
+                            error = True
+                            msg = _(
+                                "The sum of the conversion factors must be below 1 at all timesteps"
+                            )
+
+                if error is True:
                     self.add_error("conversion_factor_to_electricity", msg)
                     self.add_error("conversion_factor_to_heat", msg)
 
