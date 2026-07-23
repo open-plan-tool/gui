@@ -790,15 +790,19 @@ def asset_form_factory(asset_type=None, **kwargs):
                 self.fields["beta"].label = _("Power loss index")
 
             if self.asset_type_name == "chp_fixed_ratio":
-                self.fields["efficiency"].label = _("Efficiency gas to electricity")
+                self.fields["conversion_factor_to_electricity"].label = _(
+                    "Efficiency gas to electricity"
+                )
 
                 # TODO
                 self.fields[
-                    "efficiency"
+                    "conversion_factor_to_electricity"
                 ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon("efficiency", RTD_link=True)
+                self.add_help_text_icon(
+                    "conversion_factor_to_electricity", RTD_link=True
+                )
 
-                self.fields["efficiency_multiple"].widget = forms.NumberInput(
+                self.fields["conversion_factor_to_heat"].widget = forms.NumberInput(
                     attrs={
                         "placeholder": _("eg. 0.1"),
                         "min": 0.0,
@@ -806,7 +810,9 @@ def asset_form_factory(asset_type=None, **kwargs):
                         "step": "0.00001",
                     }
                 )
-                self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
+                self.fields["conversion_factor_to_heat"].label = _(
+                    "Efficiency gas to heat"
+                )
 
             if self.asset_type_name == "electrolyzer":
                 self.fields["efficiency_multiple"].widget = forms.NumberInput(
@@ -906,24 +912,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                     )
                 )
 
-        def clean_efficiency_multiple(self):
-            data = self.cleaned_data["efficiency_multiple"]
-            if self.asset_type_name == "chp_fixed_ratio":
-                try:
-                    data = float(data)
-                except ValueError:
-                    raise ValidationError(
-                        "Please enter a float value between 0.0 and 1.0"
-                    )
-                if 0 <= data <= 1:
-                    pass
-                else:
-                    raise ValidationError(
-                        "Please enter a float value between 0.0 and 1.0"
-                    )
-                data = str(data)
-            return data
-
         def clean(self):
             cleaned_data = super().clean()
             if "installed_capacity" in cleaned_data and "age_installed" in cleaned_data:
@@ -943,58 +931,52 @@ def asset_form_factory(asset_type=None, **kwargs):
                     efficiency = cleaned_data["efficiency"]
                     self.timeseries_same_as_timestamps(efficiency, "efficiency")
 
-            if self.asset_type_name == "chp_fixed_ratio":
-                # efficiency and efficiency_multiple must have been cleaned (no errors)
-                if self.errors.keys().isdisjoint({"efficiency", "efficiency_multiple"}):
-                    if (
-                        float(cleaned_data["efficiency"])
-                        + float(cleaned_data["efficiency_multiple"])
-                        > 1
-                    ):
-                        msg = _("The sum of the efficiencies should not exceed 1")
-                        self.add_error("efficiency", msg)
-                        self.add_error("efficiency_multiple", msg)
+            if self.asset_type_name in ("chp", "chp_fixed_ratio"):
+                if self.errors.keys().isdisjoint(
+                    {"conversion_factor_to_electricity", "conversion_factor_to_heat"}
+                ):
+                    cf_el = cleaned_data.get("conversion_factor_to_electricity")
+                    cf_heat = cleaned_data.get("conversion_factor_to_heat")
+                    # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1 at any timesteps;
+                    error = False
 
-            if self.asset_type_name == "chp":
-                cf_el = cleaned_data.get("conversion_factor_to_electricity")
-                cf_heat = cleaned_data.get("conversion_factor_to_heat")
-                # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1 at any timesteps;
-                error = False
-                if isinstance(cf_el, list):
-                    if isinstance(cf_heat, (int, float)):
-                        idx = np.squeeze(np.where(cf_heat + np.array(cf_el) >= 1))
-                        if idx.size > 0:
-                            error = True
-                            msg = _(
-                                "The sum of the conversion factors must be below 1 at all timesteps"
+                    if isinstance(cf_el, list):
+                        if isinstance(cf_heat, (int, float)):
+                            idx = np.squeeze(np.where(cf_heat + np.array(cf_el) > 1))
+                            if idx.size > 0:
+                                error = True
+                                msg = _(
+                                    "The sum of the conversion factors must be below 1 at all timesteps"
+                                )
+
+                        elif isinstance(cf_heat, list):
+                            idx = np.squeeze(
+                                np.where(np.array(cf_heat) + np.array(cf_el) > 1)
                             )
+                            if idx.size > 0:
+                                error = True
+                                msg = _(
+                                    "The sum of the conversion factors must be below 1 at all timesteps"
+                                )
+                    elif isinstance(cf_el, (int, float)):
+                        if isinstance(cf_heat, (int, float)):
+                            if cf_el + cf_heat >= 1:
+                                error = True
+                                msg = _(
+                                    "The sum of the conversion factors must be below 1"
+                                )
 
-                    elif isinstance(cf_heat, list):
-                        idx = np.squeeze(
-                            np.where(np.array(cf_heat) + np.array(cf_el) >= 1)
-                        )
-                        if idx.size > 0:
-                            error = True
-                            msg = _(
-                                "The sum of the conversion factors must be below 1 at all timesteps"
-                            )
-                elif isinstance(cf_el, (int, float)):
-                    if isinstance(cf_heat, (int, float)):
-                        if cf_el + cf_heat >= 1:
-                            error = True
-                            msg = _("The sum of the conversion factors must be below 1")
+                        elif isinstance(cf_heat, list):
+                            idx = np.squeeze(np.where(np.array(cf_heat) + cf_el > 1))
+                            if idx.size > 0:
+                                error = True
+                                msg = _(
+                                    "The sum of the conversion factors must be below 1 at all timesteps"
+                                )
 
-                    elif isinstance(cf_heat, list):
-                        idx = np.squeeze(np.where(np.array(cf_heat) + cf_el >= 1))
-                        if idx.size > 0:
-                            error = True
-                            msg = _(
-                                "The sum of the conversion factors must be below 1 at all timesteps"
-                            )
-
-                if error is True:
-                    self.add_error("conversion_factor_to_electricity", msg)
-                    self.add_error("conversion_factor_to_heat", msg)
+                    if error is True:
+                        self.add_error("conversion_factor_to_electricity", msg)
+                        self.add_error("conversion_factor_to_heat", msg)
 
             if "dso" in self.asset_type_name:
                 if (
@@ -1295,24 +1277,24 @@ class AssetCreateForm(OpenPlanModelForm):
 
             self.fields["thermal_loss_rate"].label = _("Power loss index")
 
-        if self.asset_type_name == "chp_fixed_ratio":
-            self.fields["efficiency"].label = _("Efficiency gas to electricity")
-
-            # TODO
-            self.fields[
-                "efficiency"
-            ].help_text = "This is the custom help text for chp efficiency"
-            self.add_help_text_icon("efficiency", RTD_link=True)
-
-            self.fields["efficiency_multiple"].widget = forms.NumberInput(
-                attrs={
-                    "placeholder": _("eg. 0.1"),
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": "0.00001",
-                }
-            )
-            self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
+        # if self.asset_type_name == "chp_fixed_ratio":
+        #     self.fields["efficiency"].label = _("Efficiency gas to electricity")
+        #
+        #     # TODO
+        #     self.fields[
+        #         "efficiency"
+        #     ].help_text = "This is the custom help text for chp efficiency"
+        #     self.add_help_text_icon("efficiency", RTD_link=True)
+        #
+        #     self.fields["efficiency_multiple"].widget = forms.NumberInput(
+        #         attrs={
+        #             "placeholder": _("eg. 0.1"),
+        #             "min": 0.0,
+        #             "max": 1.0,
+        #             "step": "0.00001",
+        #         }
+        #     )
+        #     self.fields["efficiency_multiple"].label = _("Efficiency gas to heat")
 
         if self.asset_type_name == "electrolyzer":
             self.fields["efficiency_multiple"].widget = forms.NumberInput(
