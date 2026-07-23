@@ -10,6 +10,7 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    ASSET_MAPPING,
     Project,
     EconomicData,
     COPCalculator,
@@ -20,7 +21,7 @@ from projects.models import (
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from projects.forms import AssetCreateForm, BusForm, StorageForm
+from projects.forms import asset_form_factory, BusForm, StorageForm, get_asset_or_404
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 
@@ -163,7 +164,7 @@ def handle_storage_unit_form_post(
         try:
             # First delete all existing associated storage assets from the db
             if asset_uuid:
-                existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+                existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
                 # existing_asset.delete()  # deletes also automatically all children using models.CASCADE
                 ess_asset = existing_asset
                 ess_capacity_asset = Asset.objects.get(
@@ -299,19 +300,19 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     }
 
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
@@ -333,7 +334,7 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     if form.is_valid():
         qs_sim = Simulation.objects.filter(scenario=scenario)
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
 
             if qs_sim.exists():
                 for param in form.cleaned_data:
@@ -409,6 +410,7 @@ def db_bus_nodes_to_list(scen_id):
 
 
 def db_asset_nodes_to_list(scen_id):
+    # TODO change this to get the Children Assets
     all_db_assets = Asset.objects.filter(scenario_id=scen_id)
     # dont return children assets (i.e. for storage assets)
     no_storage_children_assets = all_db_assets.filter(parent_asset_id=None)
@@ -471,10 +473,13 @@ def duplicate_scenario_objects(obj_list, scenario, asset_mapping_dict=None):
     mapping_dict = dict()
 
     for obj in obj_list:
-        old_id = obj.id
-
         if hasattr(obj, "unique_id"):  # i.e. it's an asset
+            if obj.asset_type.asset_type in ASSET_MAPPING:
+                obj = get_asset_or_404(obj.asset_type.asset_type, obj.unique_id)
+                obj.pk = None
+
             obj.unique_id = str(uuid.uuid4())
+        old_id = obj.id
         obj.id = None
         obj.scenario = scenario
         obj.save()
@@ -570,9 +575,9 @@ def load_scenario_from_dict(model_data, user, project=None):
             asset_data["parent_asset"] = Asset.objects.get(
                 name=asset_data["parent_asset"], scenario=scenario
             )
-        asset_type = asset_data.pop("asset_info")
+        asset_info = asset_data.pop("asset_info")
         asset_data["asset_type"] = AssetType.objects.get(
-            asset_type=asset_type["asset_type"]
+            asset_type=asset_info["asset_type"]
         )
 
         COP_parameters = asset_data.pop("COP_parameters", None)
@@ -608,7 +613,7 @@ def load_scenario_from_dict(model_data, user, project=None):
                         values=json.loads(input_timeseries),
                         user=user,
                         scenario=scenario,
-                        ts_type=asset_type["mvs_type"],
+                        ts_type=asset_info["mvs_type"],
                         name=f"{asset_data['name']}_ts",
                     )
                     asset_data["input_timeseries"] = input_ts
@@ -620,7 +625,8 @@ def load_scenario_from_dict(model_data, user, project=None):
                 )
                 asset_data.pop("input_timeseries")
 
-        asset = Asset(**asset_data)
+        AssetModel = ASSET_MAPPING.get(asset_info["asset_type"], Asset)
+        asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
 
@@ -761,6 +767,7 @@ class NodeObject:
 
 def update_deleted_objects_from_database(scenario_id, topo_node_list):
     """Delete Database Scenario Related Objects which are not in the topology before inserting or updating data."""
+    # TODO change this to get the Children Assets
     all_scenario_assets = Asset.objects.filter(scenario_id=scenario_id)
     # dont include storage unit children assets
     scenario_assets_ids_excluding_storage_children = all_scenario_assets.filter(
@@ -793,6 +800,7 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
+        # TODO change this to get the Children Assets
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(

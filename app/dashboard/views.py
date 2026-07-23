@@ -37,7 +37,7 @@ from projects.services import (
 )
 
 from projects.decorators import user_has_edit_rights, user_has_read_rights
-from projects.forms import BusForm, AssetCreateForm, StorageForm
+from projects.forms import BusForm, asset_form_factory, StorageForm, get_asset_or_404
 
 from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
 from dashboard.models import (
@@ -827,9 +827,9 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 
     else:  # all other assets
         template = "asset/asset_create_form.html"
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
 
-        form = AssetCreateForm(
+        form = asset_form_factory(
             asset_type=asset_type_name,
             instance=existing_asset,
             view_only=True,
