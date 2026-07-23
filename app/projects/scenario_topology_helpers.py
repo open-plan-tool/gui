@@ -10,6 +10,7 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    ASSET_MAPPING,
     Project,
     EconomicData,
     COPCalculator,
@@ -17,7 +18,6 @@ from projects.models import (
     ParameterChangeTracker,
     AssetChangeTracker,
     Timeseries,
-    ASSET_MAPPING,
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
