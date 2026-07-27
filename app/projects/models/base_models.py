@@ -1270,6 +1270,7 @@ class HeatPump(Asset):
                 min=1,
                 param_name="cop",
                 label=_("COP"),
+                help_text="This is the custom help text for COP",
             )
         }
 
