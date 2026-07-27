@@ -376,13 +376,13 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 to_value_type(asset, "installed_capacity"),
                 to_value_type(asset, "lifetime"),
                 to_value_type(asset, "maximum_capacity"),
-                to_value_type(asset, "energy_price"),
-                to_value_type(asset, "feedin_tariff"),
-                to_value_type(asset, "feedin_cap"),
+                to_value_type(asset, "energy_price_asset"),
+                to_value_type(asset, "feedin_tariff_asset"),
+                to_value_type(asset, "feedin_cap_asset"),
                 to_value_type(asset, "optimize_cap"),
-                to_value_type(asset, "peak_demand_pricing"),
-                to_value_type(asset, "peak_demand_pricing_period"),
-                to_value_type(asset, "renewable_share"),
+                to_value_type(asset, "peak_demand_pricing_asset"),
+                to_value_type(asset, "peak_demand_pricing_period_asset"),
+                to_value_type(asset, "renewable_share_asset"),
                 to_value_type(asset, "renewable_asset"),
                 to_value_type(asset, "capex_var"),
                 to_value_type(asset, "opex_fix"),
@@ -554,8 +554,8 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                     efficiencies = efficiencies[:3]
 
             asset_efficiency.value = efficiencies
-        dso_energy_price = to_value_type(asset, "energy_price")
-        dso_feedin_tariff = to_value_type(asset, "feedin_tariff")
+        dso_energy_price = to_value_type(asset, "energy_price_asset")
+        dso_feedin_tariff = to_value_type(asset, "feedin_tariff_asset")
         if "dso" in asset.asset_type.asset_type:
             dso_energy_price.value = json.loads(dso_energy_price.value)
             dso_feedin_tariff.value = json.loads(dso_feedin_tariff.value)
@@ -581,11 +581,11 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             to_value_type(asset, "maximum_capacity"),
             dso_energy_price,
             dso_feedin_tariff,
-            to_value_type(asset, "feedin_cap"),
+            to_value_type(asset, "feedin_cap_asset"),
             to_value_type(asset, "optimize_cap"),
-            to_value_type(asset, "peak_demand_pricing"),
-            to_value_type(asset, "peak_demand_pricing_period"),
-            to_value_type(asset, "renewable_share"),
+            to_value_type(asset, "peak_demand_pricing_asset"),
+            to_value_type(asset, "peak_demand_pricing_period_asset"),
+            to_value_type(asset, "renewable_share_asset"),
             to_value_type(asset, "renewable_asset"),
             to_value_type(asset, "capex_var"),
             to_value_type(asset, "opex_fix"),
