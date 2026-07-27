@@ -884,20 +884,20 @@ class Asset(TopologyNode):
     maximum_capacity = models.FloatField(
         null=True, blank=True, validators=[MinValueValidator(0.0)]
     )
-    energy_price = models.TextField(null=True, blank=False)
-    feedin_tariff = models.TextField(null=True, blank=False)
+    energy_price_asset = models.TextField(null=True, blank=False)
+    feedin_tariff_asset = models.TextField(null=True, blank=False)
 
-    feedin_cap = models.FloatField(
+    feedin_cap_asset = models.FloatField(
         default=None, null=True, blank=True, validators=[MinValueValidator(0.0)]
     )
 
-    peak_demand_pricing = models.FloatField(
+    peak_demand_pricing_asset = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    peak_demand_pricing_period = models.SmallIntegerField(
+    peak_demand_pricing_period_asset = models.SmallIntegerField(
         null=True, blank=False, validators=[MinValueValidator(0)]
     )
-    renewable_share = models.FloatField(
+    renewable_share_asset = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
@@ -1285,6 +1285,8 @@ class Electrolyzer(Asset):
                 help_text="This is the custom help text for electrolyzer",
             )
         }
+
+
 
 
 # TODO here add the models mapping (maybe there is a smarter way to do this)
