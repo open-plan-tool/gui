@@ -710,7 +710,6 @@ def asset_form_factory(asset_type=None, **kwargs):
             proj_id = kwargs.pop("proj_id", None)
             scenario_id = kwargs.pop("scenario_id", None)
             view_only = kwargs.pop("view_only", False)
-            print(view_only)
             self.existing_asset = kwargs.get("instance", None)
             # get the connections with busses
             self.input_output_mapping = kwargs.pop("input_output_mapping", None)
@@ -722,6 +721,12 @@ def asset_form_factory(asset_type=None, **kwargs):
             if hasattr(asset_model, "get_custom_form_fields"):
                 for field_name, field in asset_model.get_custom_form_fields().items():
                     if field_name in self.fields:
+                        # If the custom form field doesn't have a help text or label we use the one
+                        # of the field it replaces
+                        if field.label == "":
+                            field.label = self.fields[field_name].label
+                        if field.help_text == "":
+                            field.help_text = self.fields[field_name].help_text
                         self.fields[field_name] = field
 
             # remove the fields not needed for the AssetType
@@ -802,16 +807,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                 self.fields["conversion_factor_to_heat"].label = _(
                     "Efficiency gas to heat"
                 )
-
-            if "dso" in self.asset_type_name:
-                for field_name in ("energy_price", "feedin_tariff"):
-                    help_text = self.fields[field_name].help_text
-                    label = self.fields[field_name].label
-                    self.fields[field_name] = DualNumberField(
-                        default=0.1, param_name=field_name
-                    )
-                    self.fields[field_name].help_text = help_text
-                    self.fields[field_name].label = label
 
             """ DrawFlow specific configuration, add a special attribute to
                 every field in order for the framework to be able to export
@@ -1109,26 +1104,13 @@ def asset_form_factory(asset_type=None, **kwargs):
                 "maximum_capacity": forms.NumberInput(
                     attrs={"placeholder": "e.g. 1000", "min": "0.0", "step": ".01"}
                 ),
-                "energy_price": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 0.1", "min": "0.0", "step": ".0001"}
-                ),
-                "feedin_tariff": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 0.0", "min": "0.0", "step": ".0001"}
-                ),
-                "feedin_cap": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 0.0", "min": "0.0"}
-                ),
+                "feedin_cap": forms.NumberInput(attrs={"placeholder": "e.g. 0.0"}),
                 "peak_demand_pricing": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 60", "min": "0.0", "step": ".01"}
-                ),
-                "peak_demand_pricing_period": forms.Select(
-                    choices=((1, 1), (2, 2), (3, 3), (4, 4), (6, 6), (12, 12))
+                    attrs={"placeholder": "e.g. 60", "step": ".01"}
                 ),
                 "renewable_share": forms.NumberInput(
                     attrs={
                         "placeholder": "e.g. 0.1",
-                        "min": "0.0",
-                        "max": "1.0",
                         "step": ".0001",
                     }
                 ),
