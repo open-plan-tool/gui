@@ -719,6 +719,11 @@ def asset_form_factory(asset_type=None, **kwargs):
             # which fields exists in the form are decided upon AssetType saved in the db
             self.asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
 
+            if hasattr(asset_model, "get_custom_form_fields"):
+                for field_name, field in asset_model.get_custom_form_fields().items():
+                    if field_name in self.fields:
+                        self.fields[field_name] = field
+
             # remove the fields not needed for the AssetType
             for field in list(self.fields):
                 if field not in self.asset_type.visible_fields:
@@ -769,22 +774,6 @@ def asset_form_factory(asset_type=None, **kwargs):
             self.fields["inputs"] = forms.CharField(
                 widget=forms.HiddenInput(), required=False, label=""
             )
-
-            if self.asset_type_name == "heat_pump":
-                self.fields["efficiency"] = DualNumberField(
-                    default=1, min=1, param_name="efficiency"
-                )
-                self.fields["efficiency"].label = "COP"
-                self.fields[
-                    "efficiency"
-                ].help_text = "This is the custom help text for COP"
-                self.add_help_text_icon("efficiency", RTD_link=True)
-                value = self.fields.pop("efficiency")
-                self.fields["efficiency"] = value
-            if hasattr(asset_model, "get_custom_form_fields"):
-                for field_name, field in asset_model.get_custom_form_fields().items():
-                    if field_name in self.fields:
-                        self.fields[field_name] = field
 
             if self.asset_type_name == "chp":
                 self.fields["beta"].label = _("Power loss index")
@@ -927,9 +916,9 @@ def asset_form_factory(asset_type=None, **kwargs):
                     )
 
             if self.asset_type_name == "heat_pump":
-                if "efficiency" not in self.errors:
-                    efficiency = cleaned_data["efficiency"]
-                    self.timeseries_same_as_timestamps(efficiency, "efficiency")
+                if "cop" not in self.errors:
+                    cop = cleaned_data["cop"]
+                    self.timeseries_same_as_timestamps(cop, "cop")
 
             if self.asset_type_name in ("chp", "chp_fixed_ratio"):
                 if self.errors.keys().isdisjoint(

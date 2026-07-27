@@ -63,7 +63,7 @@
               {% if field.name != "input_timeseries" %}
                 <div class="form-group{% if field.errors %} invalid{% endif %}">
                   {{ field|as_crispy_field }}
-									{% if asset_type_name == "heat_pump" and field.name == "efficiency" %}
+									{% if asset_type_name == "heat_pump" and field.name == "cop" %}
 										<input type="hidden" name="copId" id="id_copId">
 										<a onclick="javascript:toggle_cop_modal(event)" class="btn btn--medium" href="#form-computeCOP" data-bs-toggle="collapse" aria-expanded="false" aria-controls="form-computeCOP" >{% translate "Calculate COP from temperature" %}</a>
 									{% endif %}

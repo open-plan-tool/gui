@@ -1245,8 +1245,39 @@ class CHPFixedRatio(Asset):
         super().save(*args, **kwargs)
 
 
+class HeatPump(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    cop = models.TextField(null=True, blank=False)
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once chp drops MVS support for good.
+        self.efficiency = self.cop
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "cop": DualNumberField(
+                default=1,
+                min=1,
+                param_name="cop",
+                label=_("COP"),
+                help_text="This is the custom help text for COP",
+            )
+        }
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
-ASSET_MAPPING = {"commodity": Commodity, "chp": CHP, "chp_fixed_ratio": CHPFixedRatio}
+ASSET_MAPPING = {
+    "commodity": Commodity,
+    "chp": CHP,
+    "chp_fixed_ratio": CHPFixedRatio,
+    "heat_pump": HeatPump,
+}
 
 
 class COPCalculator(models.Model):
