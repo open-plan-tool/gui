@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
+from django.forms.fields import FloatField
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
@@ -1070,18 +1071,6 @@ class Asset(TopologyNode):
                     profile_resource_rec[col] = value.values
                     value = col
 
-                if self.asset_type.asset_type == "chp_fixed_ratio":
-                    if field == "efficiency":
-                        field = "conversion_factor_to_electricity"
-                    elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
-                elif self.asset_type.asset_type == "heat_pump":
-                    if field == "efficiency":
-                        field = "cop"
-
-                elif self.asset_type.asset_type == "electrolyzer":
-                    if field == "efficiency_multiple":
-                        field = "efficiency_heat"
                 dp[field] = value
 
         # to collect the bus(ses) used by the asset
@@ -1271,12 +1260,40 @@ class HeatPump(Asset):
         }
 
 
+class Electrolyzer(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    efficiency_heat = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once electrolyzer drops MVS support for good.
+        self.efficiency_multiple = str(self.efficiency_heat)
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        return {
+            "efficiency_heat": FloatField(
+                min_value=0,
+                max_value=1.0,
+                label=_("Heat loss"),
+                help_text="This is the custom help text for electrolyzer",
+            )
+        }
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
     "chp": CHP,
     "chp_fixed_ratio": CHPFixedRatio,
     "heat_pump": HeatPump,
+    "electrolyzer": Electrolyzer,
 }
 
 
