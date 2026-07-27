@@ -15,11 +15,15 @@ installed_capacity,unit
 lifetime,year
 maximum_capacity,kW
 energy_price,currency/kWh
+energy_price_asset,currency/kWh
 feedin_tariff,currency/kWh
+feedin_tariff_asset,currency/kWh
 optimize_cap,bool
 peak_demand_pricing,currency/kW
+peak_demand_pricing_asset,currency/kW
 peak_demand_pricing_period,"times per year (1,2,3,4,6,12)"
 renewable_share,factor
+renewable_share_asset,factor
 capex_var,currency/unit
 opex_fix,currency/year
 specific_costs_om,currency/year
