@@ -836,7 +836,7 @@ function computeCOP(event){
             // close the cop area
             copCollapse.hide();
 
-            efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
+            efficiencyDOM = guiModalDOM.querySelector('input[name="cop_scalar"]');
             if(efficiencyDOM){
                 efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
             }
