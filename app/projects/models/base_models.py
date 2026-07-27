@@ -15,8 +15,10 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
+from django.forms.fields import FloatField
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
 from projects.constants import (
     ASSET_CATEGORY,
     ASSET_TYPE,
@@ -484,6 +486,7 @@ class Scenario(models.Model):
         df.drop_duplicates("name").to_csv(out_path, index=False)
 
         # List all components of the scenario (except the busses)
+        # TODO change this to get the Children Assets
         qs_assets = Asset.objects.filter(scenario=self)
         # List all distinct components' assettypes (or facade name) which are not children
         # The children assets are going to be processed by the parent asset `to_datapackage` method
@@ -921,6 +924,10 @@ class Asset(TopologyNode):
     fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
     fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
 
+    full_load_hours_max_asset = models.FloatField(
+        null=True, blank=True, validators=[MinValueValidator(0.0)]
+    )
+
     @property
     def fields(self):
         return [f.name for f in self._meta.fields + self._meta.many_to_many]
@@ -1040,42 +1047,30 @@ class Asset(TopologyNode):
         else:
             attributes = self.asset_type.visible_fields
 
+        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+
         for field in attributes:
             if (
                 field != "dispatchable"
             ):  # TODO remove this when `dispatchable` not a visible field anymore
-                value = getattr(self, field)
+                value = getattr(existing_asset, field)
                 # if the field is a candidate for a scalar/list
                 if isinstance(value, str) and field != "name":
-                    value = json.loads(value)
-                    if isinstance(value, list):
-                        col = f"{self.name}__{field}"
-                        profile_resource_rec[col] = value
-                        value = col
+                    try:
+                        value = json.loads(value)
+                        if isinstance(value, list):
+                            col = f"{self.name}__{field}"
+                            profile_resource_rec[col] = value
+                            value = col
+                    except json.decoder.JSONDecodeError:
+                        pass
+
                 elif isinstance(value, Timeseries):
                     col = value.name
                     profile_resource_rec[col] = value.values
                     value = col
 
-                if self.asset_type.asset_type == "chp_fixed_ratio":
-                    if field == "efficiency":
-                        field = "conversion_factor_to_electricity"
-                    elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
-                elif self.asset_type.asset_type == "chp":
-                    if field == "thermal_loss_rate":
-                        field = "beta"
-                    elif field == "efficiency":
-                        field = "conversion_factor_to_electricity"
-                    elif field == "efficiency_multiple":
-                        field = "conversion_factor_to_heat"
-                elif self.asset_type.asset_type == "heat_pump":
-                    if field == "efficiency":
-                        field = "cop"
-
-                elif self.asset_type.asset_type == "electrolyzer":
-                    if field == "efficiency_multiple":
-                        field = "efficiency_heat"
                 dp[field] = value
 
         # to collect the bus(ses) used by the asset
@@ -1134,7 +1129,10 @@ class Asset(TopologyNode):
             self.asset_type.asset_fields.replace("[", "").replace("]", "").split(",")
         )
         fields += ["name", "pos_x", "pos_y"]
-        dm = model_to_dict(self, fields=fields)
+        # TODO use get_asset_or_404 here (move if from projects/forms.py)
+        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+        dm = model_to_dict(existing_asset, fields=fields)
         dm["asset_info"] = self.asset_type.export()
 
         cop_parameters = COPCalculator.objects.filter(asset=self)
@@ -1157,6 +1155,146 @@ class Asset(TopologyNode):
 
     def is_input_timeseries_empty(self):
         return self.input_timeseries is None
+
+
+# PROTOCOL
+# 1)
+# a) write a new class which inherits from Asset with the new needed fields
+# b) add the fields within the Asset class
+# 2) add an asset_type for this new component with their visible fields (under static/resources/assettypes_list.csv)
+
+
+class Commodity(Asset):
+    full_load_hours_max = models.FloatField(
+        null=True, blank=True, validators=[MinValueValidator(0.0)]
+    )
+    commodity_type = models.CharField(max_length=30, null=True, blank=True)
+
+
+class CHP(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    conversion_factor_to_electricity = models.TextField(null=True, blank=False)
+    conversion_factor_to_heat = models.TextField(null=True, blank=False)
+    beta = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once chp drops MVS support for good.
+        self.efficiency = self.conversion_factor_to_electricity
+        self.efficiency_multiple = self.conversion_factor_to_heat
+        self.thermal_loss_rate = self.beta
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "conversion_factor_to_electricity": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="conversion_factor_to_electricity",
+                label=_("Electrical efficiency with no heat extraction"),
+            ),
+            "conversion_factor_to_heat": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="conversion_factor_to_heat",
+                label=_("Thermal efficiency with maximal heat extraction"),
+            ),
+        }
+
+
+class CHPFixedRatio(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    conversion_factor_to_electricity = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    conversion_factor_to_heat = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once chp drops MVS support for good.
+        self.efficiency = self.conversion_factor_to_electricity
+        self.efficiency_multiple = self.conversion_factor_to_heat
+        super().save(*args, **kwargs)
+
+
+class HeatPump(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    cop = models.TextField(null=True, blank=False)
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once chp drops MVS support for good.
+        self.efficiency = self.cop
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "cop": DualNumberField(
+                default=1,
+                min=1,
+                param_name="cop",
+                label=_("COP"),
+                help_text="This is the custom help text for COP",
+            )
+        }
+
+
+class Electrolyzer(Asset):
+    # mirrors the parameters of oemof.eesyplan ChpVariableRatio
+    efficiency_heat = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once electrolyzer drops MVS support for good.
+        self.efficiency_multiple = str(self.efficiency_heat)
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        return {
+            "efficiency_heat": FloatField(
+                min_value=0,
+                max_value=1.0,
+                label=_("Heat loss"),
+                help_text="This is the custom help text for electrolyzer",
+            )
+        }
+
+
+# TODO here add the models mapping (maybe there is a smarter way to do this)
+ASSET_MAPPING = {
+    "commodity": Commodity,
+    "chp": CHP,
+    "chp_fixed_ratio": CHPFixedRatio,
+    "heat_pump": HeatPump,
+    "electrolyzer": Electrolyzer,
+}
 
 
 class COPCalculator(models.Model):
