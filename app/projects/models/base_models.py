@@ -831,11 +831,6 @@ class ValueType(models.Model):
 
 
 class Asset(TopologyNode):
-    def save(self, *args, **kwargs):
-        if self.asset_type.asset_type in ["dso", "gas_dso", "h2_dso", "heat_dso"]:
-            self.optimize_cap = False
-        super().save(*args, **kwargs)
-
     unique_id = models.CharField(
         max_length=120, default=uuid.uuid4, unique=True, editable=False
     )
@@ -1287,6 +1282,60 @@ class Electrolyzer(Asset):
         }
 
 
+class DSO(Asset):
+    # mirrors the parameters of oemof.eesyplan dso
+    energy_price = models.TextField(null=True, blank=False)
+    feedin_tariff = models.TextField(null=True, blank=False)
+
+    feedin_cap = models.FloatField(
+        default=None, null=True, blank=True, validators=[MinValueValidator(0.0)]
+    )
+
+    peak_demand_pricing = models.FloatField(
+        null=True, blank=False, validators=[MinValueValidator(0.0)]
+    )
+    peak_demand_pricing_period = models.SmallIntegerField(
+        null=True,
+        blank=False,
+        choices=((1, 1), (2, 2), (3, 3), (4, 4), (6, 6), (12, 12)),
+        validators=[MinValueValidator(0)],
+    )
+    renewable_share = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    energy_vector = models.CharField(
+        max_length=20, choices=ENERGY_VECTOR, default="electricity"
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once dso drops MVS support for good.
+        self.energy_price_asset = self.energy_price
+        self.feedin_tariff_asset = self.feedin_tariff
+        self.feedin_cap_asset = self.feedin_cap
+        self.peak_demand_pricing_asset = self.peak_demand_pricing
+        self.peak_demand_pricing_period_asset = self.peak_demand_pricing_period
+        self.renewable_share_asset = self.renewable_share
+        self.optimize_cap = False
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "energy_price": DualNumberField(
+                default=0.1,
+                param_name="energy_price",
+            ),
+            "feedin_tariff": DualNumberField(
+                default=0.1,
+                param_name="feedin_tariff",
+            ),
+        }
 
 
 # TODO here add the models mapping (maybe there is a smarter way to do this)
@@ -1296,6 +1345,10 @@ ASSET_MAPPING = {
     "chp_fixed_ratio": CHPFixedRatio,
     "heat_pump": HeatPump,
     "electrolyzer": Electrolyzer,
+    "dso": DSO,
+    "gas_dso": DSO,
+    "heat_dso": DSO,
+    "h2_dso": DSO,
 }
 
 
