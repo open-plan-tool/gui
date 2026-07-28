@@ -1338,6 +1338,132 @@ class DSO(Asset):
         }
 
 
+class ElectricalStorage(Asset):
+    soc_max = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    soc_min = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    crate = models.FloatField(
+        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once storage drops MVS support for good.
+        self.soc_min_asset = self.soc_min
+        self.soc_max_asset = self.soc_max
+        self.crate_asset = self.crate
+        super().save(*args, **kwargs)
+
+
+class FuelStorage(Asset):
+    soc_max = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    soc_min = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    crate = models.FloatField(
+        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once storage drops MVS support for good.
+        self.soc_min_asset = self.soc_min
+        self.soc_max_asset = self.soc_max
+        self.crate_asset = self.crate
+        super().save(*args, **kwargs)
+
+
+class HydrogenStorage(Asset):
+    soc_max = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    soc_min = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    crate = models.FloatField(
+        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once storage drops MVS support for good.
+        self.soc_min_asset = self.soc_min
+        self.soc_max_asset = self.soc_max
+        self.crate_asset = self.crate
+        super().save(*args, **kwargs)
+
+
+class ThermalStorage(Asset):
+    soc_max = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    soc_min = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    crate = models.FloatField(
+        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    )
+    thermal_loss_rate = models.FloatField(
+        null=True, blank=False, validators=[MinValueValidator(0.0)]
+    )
+    fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
+    fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once storage drops MVS support for good.
+        self.soc_min_asset = self.soc_min
+        self.soc_max_asset = self.soc_max
+        self.crate_asset = self.crate
+        self.thermal_loss_rate_asset = self.thermal_loss_rate
+        self.fixed_thermal_losses_relativeA = self.fixed_thermal_losses_relative
+        self.fixed_thermal_losses_absoluteA = self.fixed_thermal_losses_absolute
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "fixed_thermal_losses_relative": DualNumberField(
+                default=0.1,
+                min=0.0,
+                max=1.0,
+                param_name="fixed_thermal_losses_relative",
+            ),
+            "fixed_thermal_losses_absolute": DualNumberField(
+                default=0.1,
+                min=0.0,
+                param_name="fixed_thermal_losses_absolute",
+            ),
+        }
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
@@ -1349,6 +1475,10 @@ ASSET_MAPPING = {
     "gas_dso": DSO,
     "heat_dso": DSO,
     "h2_dso": DSO,
+    "bess": ElectricalStorage,
+    "h2ess": HydrogenStorage,
+    "gess": FuelStorage,
+    "hess": ThermalStorage,
 }
 
 
