@@ -855,7 +855,7 @@ class Asset(TopologyNode):
     input_timeseries = models.ForeignKey(
         Timeseries, on_delete=models.CASCADE, null=True, blank=False
     )
-    crate = models.FloatField(
+    crate_asset = models.FloatField(
         null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
     )
     efficiency = models.TextField(null=True, blank=False)
@@ -863,12 +863,12 @@ class Asset(TopologyNode):
     # or two inputs and one output
     efficiency_multiple = models.TextField(null=True, blank=False)
 
-    soc_max = models.FloatField(
+    soc_max_asset = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    soc_min = models.FloatField(
+    soc_min_asset = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
@@ -913,11 +913,11 @@ class Asset(TopologyNode):
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
 
-    thermal_loss_rate = models.FloatField(
+    thermal_loss_rate_asset = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
-    fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
+    fixed_thermal_losses_relativeA = models.TextField(null=True, blank=False)
+    fixed_thermal_losses_absoluteA = models.TextField(null=True, blank=False)
 
     full_load_hours_max_asset = models.FloatField(
         null=True, blank=True, validators=[MinValueValidator(0.0)]
