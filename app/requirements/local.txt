@@ -4,4 +4,4 @@ click==8.3.1
 django-environ==0.13.0
 pre-commit==4.6.0
 
-pytest==9.0.2
+pytest==9.1.1
