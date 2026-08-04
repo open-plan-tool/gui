@@ -646,6 +646,14 @@ class Timeseries(models.Model):
         blank=True,
         null=True,
     )
+    generation_parameters = models.JSONField(
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+    )
 
     # TODO user or scenario can be both null only if open_source attribute is True --> by way of saving
     # TODO if the timeseries is open_source and the user is deleted, the timeseries user should just be set to null,
