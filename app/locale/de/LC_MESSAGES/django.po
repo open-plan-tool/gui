@@ -3425,6 +3425,10 @@ msgstr "Anwendungsbeispiele"
 msgid "My Projects"
 msgstr "Meine Projekte"
 
+#: templates/navbar.html:85
+msgid "Timeseries dashboard"
+msgstr "Zeitreihen-Dashboard"
+
 #: templates/navbar.html:70
 msgid "Overview"
 msgstr "Übersicht"
