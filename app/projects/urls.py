@@ -313,4 +313,5 @@ urlpatterns = [
     path("timeseries_dashboard", timeseries_dashboard, name="timeseries_dashboard"),
     path("timeseries_upload", timeseries_upload, name="timeseries_upload"),
     path("timeseries_edit/<int:ts_id>", timeseries_edit, name="timeseries_edit"),
+    path("timeseries_delete/<int:ts_id>", timeseries_delete, name="timeseries_delete"),
 ]

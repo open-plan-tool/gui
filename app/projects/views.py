@@ -128,8 +128,6 @@ def timeseries_dashboard(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-@login_required
-@require_http_methods(["GET", "POST"])
 def timeseries_edit(request, ts_id):
     timeseries = get_object_or_404(Timeseries, id=ts_id)
 
@@ -166,6 +164,21 @@ def timeseries_upload(request):
 
             new_timeseries.save()
             return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_delete(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        timeseries.delete()
+        messages.success(request, "Timeseries successfully deleted!")
 
     return HttpResponseRedirect(reverse("timeseries_dashboard"))
 
