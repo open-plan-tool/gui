@@ -311,4 +311,6 @@ urlpatterns = [
     path("user_feedback", user_feedback, name="user_feedback"),
     path("sponsor/feature", sponsor_feature, name="sponsor_feature"),
     path("timeseries_dashboard", timeseries_dashboard, name="timeseries_dashboard"),
+    path("timeseries_upload", timeseries_upload, name="timeseries_upload"),
+    path("timeseries_edit/<int:ts_id>", timeseries_edit, name="timeseries_edit"),
 ]

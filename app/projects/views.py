@@ -87,7 +87,7 @@ from .scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
 )
-from projects.helpers import format_scenario_for_mvs, PARAMETERS
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, parse_input_timeseries
 from dashboard.helpers import fetch_user_projects
 from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
@@ -124,6 +124,50 @@ def timeseries_dashboard(request):
         "timeseries_upload_form": TimeseriesModelForm(),
     }
     return render(request, "asset/timeseries_dashboard.html", context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_edit(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
+        if form.is_valid():
+            updated_timeseries = form.save(commit=False)
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                updated_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            updated_timeseries.save()
+            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_upload(request):
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_timeseries = form.save(commit=False)
+            new_timeseries.user = request.user
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                new_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            new_timeseries.save()
+            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
 
 
 @require_http_methods(["GET"])
