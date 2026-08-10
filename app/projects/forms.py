@@ -1249,4 +1249,27 @@ class TimeseriesModelForm(ModelForm):
 
     class Meta:
         model = Timeseries
-        exclude = ["id", "user", "scenario", "ts_type", "values"]
+        exclude = [
+            "id",
+            "user",
+            "scenario",
+            "ts_type",
+            "values",
+        ]
+        widgets = {
+            "start_date": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local"},
+            ),
+            "end_date": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local"},
+            ),
+            "time_step": forms.NumberInput(attrs={"placeholder": "e.g. 60"}),
+            "name": forms.TextInput(
+                attrs={"placeholder": "e.g. household_demand_2024"}
+            ),
+            "description": forms.Textarea(attrs={"rows": 2}),
+            "generation_parameters": forms.Textarea(attrs={"rows": 2}),
+            "open_source": forms.CheckboxInput(),
+        }
