@@ -1233,6 +1233,20 @@ class TimeseriesModelForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["timeseries_file"] = forms.FileField(required=False)
 
+    def clean_timeseries_file(self):
+        uploaded_file = self.cleaned_data.get("timeseries_file")
+
+        if uploaded_file:
+            try:
+                parse_input_timeseries(uploaded_file)
+                uploaded_file.seek(0)
+            except (ValueError, TypeError) as e:
+                raise ValidationError(str(e))
+            except Exception as e:
+                raise ValidationError(f"Could not parse uploaded file: {e}")
+
+        return uploaded_file
+
     class Meta:
         model = Timeseries
         exclude = ["id", "user", "scenario", "ts_type", "values"]
