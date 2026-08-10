@@ -122,6 +122,11 @@ def timeseries_dashboard(request):
         "selected_timeseries": selected_timeseries,
         "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
         "timeseries_upload_form": TimeseriesModelForm(),
+        "warning_boxes": {
+            "timeseries_delete": _(
+                "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
+            ),
+        },
     }
     return render(request, "asset/timeseries_dashboard.html", context)
 
