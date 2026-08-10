@@ -1226,3 +1226,9 @@ class UploadTimeseriesForm(OpenPlanModelForm):
                 },
             )
         }
+
+
+class TimeseriesModelForm(ModelForm):
+    class Meta:
+        model = Timeseries
+        exclude = ["id", "user", "scenario", "ts_type", "values"]
