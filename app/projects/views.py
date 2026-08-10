@@ -120,6 +120,8 @@ def timeseries_dashboard(request):
     context = {
         "timeseries_list": timeseries_qs,
         "selected_timeseries": selected_timeseries,
+        "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
+        "timeseries_upload_form": TimeseriesModelForm(),
     }
     return render(request, "asset/timeseries_dashboard.html", context)
 
