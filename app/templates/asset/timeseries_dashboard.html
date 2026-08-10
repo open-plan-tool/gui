@@ -274,7 +274,10 @@
                     <div class="detail-actions">
                         <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
                         <a class="btn btn--medium" href="{% url 'not_implemented' %}">Duplicate</a>
-                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Delete</a>
+                        <form action="{% url 'timeseries_delete' selected_timeseries.id %}" method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <button class="btn btn--medium" type="submit">Delete</button>
+                        </form>
                     </div>
                 {% else %}
                     <h2>Details</h2>
