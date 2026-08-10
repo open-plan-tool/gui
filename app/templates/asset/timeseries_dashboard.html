@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block head_block %}
+
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>Time Series Dashboard</title>
@@ -150,7 +152,7 @@
         </div>
 
         <div class="actions">
-            <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#uploadTimeseriesModal">Upload time series</button>
+            <button class="btn btn--medium" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_upload' %}'})">Upload</button>
             <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#createTimeseriesModal">Create manually</button>
         </div>
     </div>
@@ -270,7 +272,7 @@
                     </div>
 
                     <div class="detail-actions">
-                        <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#editTimeseriesModal">Edit</button>
+                        <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
                         <a class="btn btn--medium" href="{% url 'not_implemented' %}">Duplicate</a>
                         <a class="btn btn--medium" href="{% url 'not_implemented' %}">Delete</a>
                     </div>
@@ -353,6 +355,7 @@ function toggleTsFields() {
     document.getElementById('pv-fields').style.display = val === 'pv' ? '' : 'none';
 }
 </script>
+<script src="{% static 'js/modal_utils.js' %}"></script>
 
 </body>
 {% endblock content %}
