@@ -419,6 +419,7 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             ess.asset_type.energy_vector,
             inflow_direction,
             outflow_direction,
+            # TODO: These attributes still trigger an error, both like this and with "_asset"
             ess_sub_assets["charging_power"],
             ess_sub_assets["discharging_power"],
             ess_sub_assets["capacity"],
