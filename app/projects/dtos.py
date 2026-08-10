@@ -367,9 +367,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 None,
                 asset.dispatchable,
                 to_value_type(asset, "age_installed"),
-                to_value_type(asset, "crate"),
-                to_value_type(asset, "soc_max"),
-                to_value_type(asset, "soc_min"),
+                to_value_type(asset, "crate_asset"),
+                to_value_type(asset, "soc_max_asset"),
+                to_value_type(asset, "soc_min_asset"),
                 to_value_type(asset, "capex_fix"),
                 to_value_type(asset, "opex_var"),
                 efficiency,
@@ -393,12 +393,14 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 ess.asset_type.asset_type == "hess"
                 and asset.asset_type.asset_type == "capacity"
             ):
-                asset_dto.thermal_loss_rate = to_value_type(asset, "thermal_loss_rate")
+                asset_dto.thermal_loss_rate = to_value_type(
+                    asset, "thermal_loss_rate_asset"
+                )
                 asset_dto.fixed_thermal_losses_relative = to_value_type(
-                    asset, "fixed_thermal_losses_relative"
+                    asset, "fixed_thermal_losses_relativeA"
                 )
                 fixed_thermal_losses_absolute = to_value_type(
-                    asset, "fixed_thermal_losses_absolute"
+                    asset, "fixed_thermal_losses_absoluteA"
                 )
                 fixed_thermal_losses_absolute.value = float(
                     fixed_thermal_losses_absolute.value
@@ -570,9 +572,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             outflow_direction,
             asset.dispatchable,
             to_value_type(asset, "age_installed"),
-            to_value_type(asset, "crate"),
-            to_value_type(asset, "soc_max"),
-            to_value_type(asset, "soc_min"),
+            to_value_type(asset, "crate_asset"),
+            to_value_type(asset, "soc_max_asset"),
+            to_value_type(asset, "soc_min_asset"),
             to_value_type(asset, "capex_fix"),
             to_value_type(asset, "opex_var"),
             asset_efficiency,
