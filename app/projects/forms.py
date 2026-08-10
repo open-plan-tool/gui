@@ -1229,6 +1229,10 @@ class UploadTimeseriesForm(OpenPlanModelForm):
 
 
 class TimeseriesModelForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["timeseries_file"] = forms.FileField(required=False)
+
     class Meta:
         model = Timeseries
         exclude = ["id", "user", "scenario", "ts_type", "values"]
