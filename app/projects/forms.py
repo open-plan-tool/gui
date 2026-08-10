@@ -1472,3 +1472,9 @@ CUSTOM_TIMESERIES_FORMS = {
     "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
 }
+
+
+class TimeseriesModelForm(ModelForm):
+    class Meta:
+        model = Timeseries
+        exclude = ["id", "user", "scenario", "ts_type", "values"]
