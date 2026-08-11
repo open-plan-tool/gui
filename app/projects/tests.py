@@ -5,7 +5,7 @@ import pytest
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
-from projects.models import Project, Scenario, Asset
+from projects.models import Project, Scenario, Asset, AssetType
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
@@ -538,3 +538,114 @@ class UploadTimeseriesTest(TestCase):
         asset = Asset.objects.last()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(asset.input_timeseries_values, [1])
+
+
+class OptimizeCapacityToggleTest(TestCase):
+    """optimize_cap toggle should zero out installed_capacity/age_installed
+    when turned on, and reset maximum_capacity when turned off (forms.py
+    AssetCreateForm.clean)."""
+
+    fixtures = ["fixtures/benchmarks_fixture.json"]
+
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    def setUp(self):
+        self.client.login(username="testUser", password="ASas12,.")
+        self.project = Project.objects.get(id=1)
+        self.scenario = self.project.scenario_set.first()
+
+        # the fixture predates "maximum_capacity" being added to this asset
+        # type's visible fields, add it so both branches of the toggle can
+        # be exercised
+        self.asset_type = AssetType.objects.get(asset_type="transformer_station_in")
+        self.asset_type.add_field("maximum_capacity")
+        self.asset_type.save()
+
+        self.post_url = reverse(
+            "asset_create_or_update",
+            args=[self.scenario.id, "transformer_station_in"],
+        )
+
+    def asset_data(self, **overrides):
+        data = {
+            "name": "Toggle test asset",
+            "pos_x": 0,
+            "pos_y": 0,
+            "age_installed": 5,
+            "installed_capacity": 50,
+            "capex_fix": 1000,
+            "capex_var": 10,
+            "opex_fix": 5,
+            "opex_var": 2,
+            "lifetime": 10,
+            "efficiency": 0.98,
+            "maximum_capacity": 100,
+        }
+        data.update(overrides)
+        return data
+
+    def test_enabling_optimize_cap_resets_installed_capacity_and_age(self):
+        response = self.client.post(self.post_url, self.asset_data(optimize_cap="true"))
+        self.assertEqual(response.status_code, 200)
+
+        asset = Asset.objects.get(unique_id=response.json()["asset_id"])
+        self.assertTrue(asset.optimize_cap)
+        self.assertEqual(asset.installed_capacity, 0.0)
+        self.assertEqual(asset.age_installed, 0)
+        # maximum_capacity is the optimization bound, kept as submitted
+        self.assertEqual(asset.maximum_capacity, 100.0)
+
+    def test_disabling_optimize_cap_resets_maximum_capacity(self):
+        response = self.client.post(
+            self.post_url, self.asset_data()
+        )  # optimize_cap omitted -> False
+        self.assertEqual(response.status_code, 200)
+
+        asset = Asset.objects.get(unique_id=response.json()["asset_id"])
+        self.assertFalse(asset.optimize_cap)
+        self.assertIsNone(asset.maximum_capacity)
+        self.assertEqual(asset.installed_capacity, 50.0)
+        self.assertEqual(asset.age_installed, 5.0)
+
+    def test_toggling_optimize_cap_on_clears_existing_capacity_and_age_on_update(self):
+        create_response = self.client.post(self.post_url, self.asset_data())
+        asset_uuid = create_response.json()["asset_id"]
+        # reverse() can't place asset_uuid into this route's nested optional
+        # group, so append it to the uuid-less URL instead
+        update_url = f"{self.post_url}/{asset_uuid}"
+
+        response = self.client.post(
+            update_url, self.asset_data(optimize_cap="true", maximum_capacity=200)
+        )
+        self.assertEqual(response.status_code, 200)
+
+        asset = Asset.objects.get(unique_id=asset_uuid)
+        self.assertTrue(asset.optimize_cap)
+        self.assertEqual(asset.installed_capacity, 0.0)
+        self.assertEqual(asset.age_installed, 0)
+        self.assertEqual(asset.maximum_capacity, 200.0)
+
+    def test_toggling_optimize_cap_off_clears_maximum_capacity_on_update(self):
+        create_response = self.client.post(
+            self.post_url, self.asset_data(optimize_cap="true")
+        )
+        asset_uuid = create_response.json()["asset_id"]
+        # reverse() can't place asset_uuid into this route's nested optional
+        # group, so append it to the uuid-less URL instead
+        update_url = f"{self.post_url}/{asset_uuid}"
+
+        response = self.client.post(
+            update_url,
+            self.asset_data(
+                installed_capacity=30, age_installed=3, maximum_capacity=999
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        asset = Asset.objects.get(unique_id=asset_uuid)
+        self.assertFalse(asset.optimize_cap)
+        self.assertIsNone(asset.maximum_capacity)
+        self.assertEqual(asset.installed_capacity, 30.0)
+        self.assertEqual(asset.age_installed, 3.0)

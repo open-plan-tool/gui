@@ -21,6 +21,47 @@ form {
     background-color: $primary-color-1;
   }
 
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: $primary-gray-color-2;
+      border-radius: 24px;
+      transition: 0.3s;
+
+      &::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: $white;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+    }
+
+    input:checked + .toggle-slider {
+      background-color: $primary-color-1;
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+  }
   .form-group {
     margin-bottom: 1rem;
     color: $primary-color-2;

@@ -1023,6 +1023,9 @@ msgstr "Wirtschaftliche Parameter"
 msgid "Technical parameters"
 msgstr "Technische Parameter"
 
+msgid "Settings"
+msgstr "Einstellungen"
+
 #: templates/asset/asset_create_form.html:68
 msgid "Calculate COP from temperature"
 msgstr "COP aus Temperatur berechnen"
