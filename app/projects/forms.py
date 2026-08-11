@@ -1232,6 +1232,7 @@ class TimeseriesModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["timeseries_file"] = forms.FileField(required=False)
+        self.fields["open_source"].required = False
 
     def clean_timeseries_file(self):
         uploaded_file = self.cleaned_data.get("timeseries_file")
