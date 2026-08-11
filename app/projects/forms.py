@@ -941,6 +941,14 @@ class AssetCreateForm(OpenPlanModelForm):
                     ),
                 )
 
+        # If optimize capacity is selected, set the installed capacity and age to zero (as they are explicitly hidden in the form but might contain old values)
+        # otherwise reset maximum capacity instead
+        if cleaned_data["optimize_cap"]:
+            cleaned_data["age_installed"] = 0
+            cleaned_data["installed_capacity"] = 0.0
+        else:
+            cleaned_data["maximum_capacity"] = None
+
         if self.asset_type_name == "heat_pump":
             if "efficiency" not in self.errors:
                 efficiency = cleaned_data["efficiency"]
