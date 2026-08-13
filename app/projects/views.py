@@ -1,101 +1,93 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
-import tempfile
-from pathlib import Path
-import zipfile
-
-
-from django.contrib.auth.decorators import login_required
 import datetime
-from django.http import (
-    HttpResponseForbidden,
-    JsonResponse,
-    HttpResponseRedirect,
-    HttpResponse,
-)
+import tempfile
+import traceback
+import zipfile
+from pathlib import Path
+
+from dashboard.helpers import fetch_user_projects
+from dashboard.models import FancyResults
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
-from django.template.loader import get_template
-from django.utils.translation import gettext_lazy as _
-from django.utils.safestring import mark_safe
 
 # from django.shortcuts import *
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
-from django.core.exceptions import PermissionDenied
-from django.views.decorators.http import require_http_methods
-from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
-
-from jsonview.decorators import json_view
-from django.db.models import Q
-
-from oemof.datapackage.datapackage import export_dp_to_json
-
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from epa.settings import (
+    EZP_GET_URL,
     MVS_GET_URL,
     MVS_LP_FILE_URL,
     MVS_SA_GET_URL,
-    EZP_GET_URL,
     SHOW_EZP,
 )
-from .forms import *
-from .requests import (
-    mvs_simulation_request,
-    fetch_mvs_simulation_results,
-    ezp_simulation_request,
-    fetch_ezp_simulation_results,
-    mvs_sensitivity_analysis_request,
-    fetch_mvs_sa_results,
-    parse_mvs_results,
-    parse_ezp_results,
+from jsonview.decorators import json_view
+from oemof.datapackage.datapackage import export_dp_to_json
+
+from projects.decorators import (
+    user_has_edit_rights,
+    user_has_read_rights,
+    user_is_owner,
 )
+from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
-    Project,
-    EconomicData,
+    Asset,
+    AssetChangeTracker,
+    AssetType,
+    Bus,
     Comment,
     ConnectionLink,
-    AssetType,
-    UseCase,
-    Scenario,
-    Simulation,
-    ParameterChangeTracker,
-    AssetChangeTracker,
-    SensitivityAnalysis,
-    Asset,
-    Bus,
     COPCalculator,
-    Timeseries,
+    EconomicData,
+    MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
-    MaxEmissionConstraint,
     NZEConstraint,
+    ParameterChangeTracker,
+    Project,
+    Scenario,
+    SensitivityAnalysis,
+    Simulation,
+    Timeseries,
+    UseCase,
 )
-from projects.decorators import (
-    user_is_owner,
-    user_has_read_rights,
-    user_has_edit_rights,
+
+from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
+from .forms import *
+from .requests import (
+    ezp_simulation_request,
+    fetch_ezp_simulation_results,
+    fetch_mvs_sa_results,
+    fetch_mvs_simulation_results,
+    mvs_sensitivity_analysis_request,
+    mvs_simulation_request,
+    parse_ezp_results,
+    parse_mvs_results,
 )
-from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
-    handle_storage_unit_form_post,
-    handle_bus_form_post,
-    handle_asset_form_post,
-    load_scenario_topology_from_db,
     NodeObject,
-    update_deleted_objects_from_database,
-    duplicate_scenario_objects,
     duplicate_scenario_connections,
-    load_scenario_from_dict,
+    duplicate_scenario_objects,
+    handle_asset_form_post,
+    handle_bus_form_post,
+    handle_storage_unit_form_post,
     load_project_from_dict,
+    load_scenario_from_dict,
+    load_scenario_topology_from_db,
+    update_deleted_objects_from_database,
 )
-from projects.helpers import format_scenario_for_mvs, PARAMETERS
-from dashboard.helpers import fetch_user_projects
-from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     excuses_design_under_development,
-    send_feedback_email,
     get_selected_scenarios_in_cache,
+    send_feedback_email,
 )
-import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +193,7 @@ def user_feedback(request):
             body = f"Feedback form for OpenPlan Tool  online api\n\nReceived Feedback\n-----------------\n\nTopic: {feedback.subject}\nContent: {feedback.feedback}\n\nInformation about sender\n------------------------\nName: {feedback.name}\n E-mail Address: {feedback.email}"
             try:
                 send_feedback_email(subject, body)
-                messages.success(request, f"Thank you for your feedback.")
+                messages.success(request, "Thank you for your feedback.")
             except Exception as e:
                 messages.success(request, e)
             return HttpResponseRedirect(reverse("project_search"))
@@ -287,7 +279,7 @@ def ajax_project_viewers_form(request):
 @user_has_read_rights
 def project_detail(request, proj_id):
     project = get_object_or_404(Project, pk=proj_id)
-    logger.info(f"Populating project and economic details in forms.")
+    logger.info("Populating project and economic details in forms.")
     project_form = ProjectDetailForm(None, instance=project)
     economic_data_form = EconomicDataDetailForm(None, instance=project.economic_data)
 
@@ -304,7 +296,7 @@ def project_create(request):
     if request.POST:
         form = ProjectCreateForm(request.POST)
         if form.is_valid():
-            logger.info(f"Creating new project with economic data.")
+            logger.info("Creating new project with economic data.")
             economic_data = EconomicData.objects.create(
                 duration=form.cleaned_data["duration"],
                 currency=form.cleaned_data["currency"],
@@ -389,7 +381,7 @@ def project_update(request, proj_id):
                                     )
 
         if project_form.is_valid() and economic_data_form.is_valid():
-            logger.info(f"Updating project with economic data...")
+            logger.info("Updating project with economic data...")
 
             project_form.save()
             economic_data_form.save()
@@ -875,11 +867,11 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "solar_thermal_plant": _("Solar Thermal Plant"),
         },
         "conversion": {
-            "transformer_station_in": _("Transformer Station (in)"),  #
-            "transformer_station_out": _("Transformer Station (out)"),  #
-            "storage_charge_controller_in": _("Storage Charge Controller (in)"),  #
-            "storage_charge_controller_out": _("Storage Charge Controller (out)"),  #
-            "solar_inverter": _("Solar Inverter"),  #
+            "transformer_station_in": _("Transformer Station (in)"),
+            "transformer_station_out": _("Transformer Station (out)"),
+            "storage_charge_controller_in": _("Storage Charge Controller (in)"),
+            "storage_charge_controller_out": _("Storage Charge Controller (out)"),
+            "solar_inverter": _("Solar Inverter"),
             "diesel_generator": _("Diesel Generator"),
             "fuel_cell": _(" Fuel Cell"),
             "gas_boiler": _("Gas Boiler"),
@@ -907,7 +899,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "bus-h2": _("Hydrogen Bus"),
         },
     }
-    group_names = {group: _(group) for group in components.keys()}
+    group_names = {group: _(group) for group in components}
 
     # TODO: if the scenario exists, load it, otherwise default form
 
@@ -1084,7 +1076,7 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if request.method == "GET":
-        html_template = f"scenario/simulation/no-status.html"
+        html_template = "scenario/simulation/no-status.html"
         context = {
             "scenario": scenario,
             "scen_id": scen_id,
@@ -1120,11 +1112,7 @@ def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
                     "rating": simulation.user_rating,
                     "sim_server": simulation.server,
                     "mvs_token": simulation.mvs_token,
-                    "mvs_version": (
-                        simulation.mvs_version
-                        if simulation.mvs_version
-                        else "undefined"
-                    ),
+                    "mvs_version": (simulation.mvs_version or "undefined"),
                 }
             )
             if simulation.status == DONE:
@@ -1841,7 +1829,7 @@ def asset_cops_create_or_update(
         except:
             return JsonResponse({"success": False, "cop_id": cop.id}, status=422)
 
-    logger.warning(f"The submitted asset has erroneous field values.")
+    logger.warning("The submitted asset has erroneous field values.")
 
     form_html = get_template("asset/asset_cops_form.html")
     return JsonResponse(

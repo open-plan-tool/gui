@@ -28,7 +28,26 @@
 	</div>
 	{% else %}
 	<div class="tab-pane fade {% if active_tab == 'upload' %}show active{% endif %}" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+
 		{% include widget.template_name %}
+		<pre>{{asset_type_name}}</pre>
+		<pre>{{custom_form_assets}}</pre>
+		<a onclick="javascript:toggle_sub_modal()" class="btn btn--medium" href="#form-createTS" data-bs-toggle="collapse" aria-expanded="false" aria-controls="form-createTS" >{% translate "Create custom timeseries" %}</a>
+		<div class="row collapse" id="form-createTS">
+			<div class="col"></div>
+			<div class="col">
+				<form id="timeseriesForm">
+					{% csrf_token %}
+					<div class="modal-addendum"></div>
+				</form>
+				<button
+					id="btn-computeCOP"
+					class="btn btn--medium"
+					onclick="computeCOP(event)">
+					{% translate "compute COP" %}
+				</button>
+			</div>
+		</div>
 	</div>
 	{% endif %}
 	{% endfor %}{% endspaceless %}

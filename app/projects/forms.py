@@ -1,47 +1,36 @@
-import logging
-import pickle
-import os
 import json
-import io
-import csv
+import logging
+import os
+import pickle
+
+import numpy as np
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from dashboard.helpers import KPI_PARAMETERS_ASSETS
+from django import forms
+from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.forms import ModelForm
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from openpyxl import load_workbook
-import numpy as np
-
-from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Row,
-    Column,
-    Field,
-    Fieldset,
-    ButtonHolder,
-)
-from django import forms
-from django.forms import ModelForm
-from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings as django_settings
-from projects.models import *
-from projects.constants import MAP_EPA_MVS, RENEWABLE_ASSETS, CURRENCY_SYMBOLS
 
-from dashboard.helpers import KPI_PARAMETERS_ASSETS, KPIFinder
+from projects.constants import (
+    ASSET_TO_TIMESERIES_ASSET_TYPE,
+    CURRENCY_SYMBOLS,
+    RENEWABLE_ASSETS,
+)
 from projects.helpers import (
-    parameters_helper,
     PARAMETERS,
-    DualNumberField,
-    parse_input_timeseries,
-    TimeseriesField,
+    TS_MANUAL_TYPE,
     TS_SELECT_TYPE,
     TS_UPLOAD_TYPE,
-    TS_MANUAL_TYPE,
+    DualNumberField,
+    TimeseriesField,
+    parameters_helper,
 )
-from projects.constants import ASSET_TO_TIMESERIES_ASSET_TYPE
+from projects.models import *
 
 
 def gettext_variables(some_string, lang="de"):
@@ -109,9 +98,7 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
         unit = PARAMETERS[param_name][":Unit:"]
         verbose = PARAMETERS[param_name]["verbose"]
         default_value = PARAMETERS[param_name][":Default:"]
-        if unit == "None" or unit == "":
-            unit = None
-        elif unit == "Factor":
+        if unit == "None" or unit == "" or unit == "Factor":
             unit = None
         if verbose == "None":
             verbose = None
@@ -138,7 +125,7 @@ class OpenPlanModelForm(ModelForm):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
     def __init__(self, *args, **kwargs):
-        super(OpenPlanModelForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field)
 
@@ -151,7 +138,7 @@ class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
     def __init__(self, *args, **kwargs):
-        super(OpenPlanForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field)
 
@@ -168,7 +155,7 @@ class ProjectDetailForm(ModelForm):
         exclude = ["date_created", "date_updated", "economic_data", "user", "viewers"]
 
     def __init__(self, *args, **kwargs):
-        super(ProjectDetailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.disabled = True
 
@@ -179,7 +166,7 @@ class EconomicDataDetailForm(OpenPlanModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        super(EconomicDataDetailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.disabled = True
 
@@ -331,7 +318,7 @@ class ProjectCreateForm(OpenPlanForm):
 
     # Render form
     def __init__(self, *args, **kwargs):
-        super(ProjectCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = "project_form_id"
         # self.helper.form_class = 'blueForm'
@@ -712,7 +699,7 @@ class AssetCreateForm(OpenPlanModelForm):
         proj_id = kwargs.pop("proj_id", None)
         scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
-        self.existing_asset = kwargs.get("instance", None)
+        self.existing_asset = kwargs.get("instance")
         # get the connections with busses
         self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
@@ -1159,7 +1146,7 @@ class AssetCreateForm(OpenPlanModelForm):
 class StorageForm(AssetCreateForm):
     def __init__(self, *args, **kwargs):
         asset_type_name = kwargs.pop("asset_type", None)
-        super(StorageForm, self).__init__(*args, asset_type="capacity", **kwargs)
+        super().__init__(*args, asset_type="capacity", **kwargs)
         self.fields["dispatchable"].widget = forms.HiddenInput()
         self.initial["dispatchable"] = True
 

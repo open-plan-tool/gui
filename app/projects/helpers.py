@@ -1,19 +1,19 @@
+import csv
+import io
 import json
 import logging
-import os
-import io
-import csv
-from openpyxl import load_workbook
+
+from dashboard.helpers import KPIFinder
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import html_safe
-
+from django.utils.translation import gettext_lazy as _
 from epa.settings import RESOURCES_DIR
-from projects.dtos import convert_to_dto
-from projects.models import Timeseries, AssetType
+from openpyxl import load_workbook
+
 from projects.constants import MAP_MVS_EPA
-from dashboard.helpers import KPIFinder
+from projects.dtos import convert_to_dto
+from projects.models import Timeseries
 
 TS_SELECT_TYPE = "select"
 TS_UPLOAD_TYPE = "upload"
@@ -199,7 +199,7 @@ class DualInputWidget(forms.MultiWidget):
                 }
             ),
         }
-        super(DualInputWidget, self).__init__(widgets=widgets, **kwargs)
+        super().__init__(widgets=widgets, **kwargs)
 
     def use_required_attribute(self, initial):
         # overwrite the method of the Widget class of the django.form.widgets module
@@ -354,7 +354,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
             ),
         }
 
-        super(TimeseriesInputWidget, self).__init__(widgets=widgets, **kwargs)
+        super().__init__(widgets=widgets, **kwargs)
 
     def use_required_attribute(self, initial):
         # overwrite the method of the Widget class of the django.form.widgets module
@@ -567,11 +567,10 @@ def parse_csv_timeseries(file_str):
                 delimiter = ","
             elif not has_timestamp:
                 raise ValidationError(msg)
-        else:
-            # safe to assume decimal comma in single-column case
-            if comma_per_line and all(c <= 1 for c in comma_per_line):
-                is_comma_decimal = True
-                delimiter = ";"
+        # safe to assume decimal comma in single-column case
+        elif comma_per_line and all(c <= 1 for c in comma_per_line):
+            is_comma_decimal = True
+            delimiter = ";"
 
     # check for number of columns, throw error if more then 2
     if any(len(line.split(delimiter)) > 2 for line in lines if line.strip()):
@@ -595,11 +594,8 @@ def parse_csv_timeseries(file_str):
         value = value.strip()
 
         # --- decimal normalization ---
-        if is_comma_decimal:
+        if is_comma_decimal or ("," in value and "." not in value):
             value = value.replace(",", ".")
-        else:
-            if "," in value and "." not in value:
-                value = value.replace(",", ".")
         if value.isalpha():
             # catch if there is a header, then the file cannot be parsed
             raise ValidationError(msg)
@@ -623,7 +619,7 @@ def parse_xlsx_timeseries(file_buffer):
     if n_col > 1:
         col_idx = 1
 
-    for j in range(0, worksheet.max_row):
+    for j in range(worksheet.max_row):
         try:
             timeseries_values.append(
                 float(worksheet.cell(row=j + 1, column=col_idx + 1).value)

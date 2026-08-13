@@ -721,7 +721,65 @@ function updateInputTimeseries(){
 
 
 // COP calculation from temperature
-function toggle_cop_modal(event){
+function toggle_sub_modal(){
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    let getUrl = createTimeseriesGetUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        getUrl;
+
+    fetch(getUrl).then(response => response.text()).then(formContent => {
+        // assign the content of the form to the form tag of the modal
+        guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+        // enable Bootstrap tooltips (help text icons)
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+function computeCustomTimeseries(event){
+
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    const form = event.target.closest('.modal-content').querySelector('#timeseriesForm');
+    const formData = new FormData(form);
+
+    let postUrl = copPostUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
+
+    fetch(postUrl, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken},
+        body: formData,
+    }).then(response => response.json()).then(jsonRes => {
+        if (jsonRes.success) {
+            // close the cop area
+            copCollapse.hide();
+
+            efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
+            if(efficiencyDOM){
+                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
+            }
+            copDOM = guiModalDOM.querySelector('input[name="copId"]');
+            if(copDOM){
+                copDOM.value = jsonRes.cop_id;
+            }
+        } else {
+            // not success: assign the content of the form to the form tag of the modal
+            guiModalDOM.querySelector('form .modal-addendum').innerHTML = jsonRes.form_html;
+        }
+    }).catch(error => {
+        console.error(error);
+        alert(error.message);
+    });
+}
+function toggle_cop_modal(){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
@@ -767,8 +825,7 @@ function computeCOP(event){
 
             efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
             if(efficiencyDOM){
-                efficiencyDOM.value = jsonRes.cops;
-                efficiencyDOM.dispatchEvent(new Event('change'));
+                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
             }
             copDOM = guiModalDOM.querySelector('input[name="copId"]');
             if(copDOM){
