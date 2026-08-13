@@ -320,6 +320,7 @@ class DualNumberField(forms.MultiValueField):
 
 class TimeseriesInputWidget(forms.MultiWidget):
     template_name = "asset/timeseries_input.html"
+    custom_form_assets = ["pv_plant", "heat_demand"]
 
     # class Media:
     #     # TODO: currently not loading the content as not within head
@@ -330,6 +331,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
 
         self.default = kwargs.pop("default", None)
         self.param_name = kwargs.pop("param_name", None)
+        self.asset_type = kwargs.pop("asset_type", None)
         select_widget.attrs.update(
             {
                 "class": "form-select",
@@ -393,6 +395,8 @@ class TimeseriesInputWidget(forms.MultiWidget):
             active = "select"  # default
 
         ctx["active_tab"] = active
+        ctx["asset_type"] = self.asset_type
+        ctx["custom_form_assets"] = self.custom_form_assets
         return ctx
 
 
@@ -422,7 +426,10 @@ class TimeseriesField(forms.MultiValueField):
         self.max = kwargs.pop("max", None)
         select_widget = fields[2].widget
         kwargs["widget"] = TimeseriesInputWidget(
-            default=default, param_name=param_name, select_widget=select_widget
+            default=default,
+            param_name=param_name,
+            asset_type=asset_type,
+            select_widget=select_widget,
         )
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
         self.label = label
