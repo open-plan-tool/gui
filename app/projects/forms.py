@@ -1213,3 +1213,194 @@ class UploadTimeseriesForm(OpenPlanModelForm):
                 },
             )
         }
+
+
+class CreatePVProductionTimeseriesForm(OpenPlanForm):
+    mounting_type_choices = (
+        ("fix_tilt", _("Fix Tilt")),
+        ("fix_tilt_two_dir", _("Fix Tilt Two Directions Back To Back")),
+        ("tracker", _("Tracker")),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    # TODO: these parameters would not be manual inputs but come from weather data, I assume? check with Markus
+
+    # direct_irradiation_horizontal =
+    # diffuse_irradiation_horizontal =
+    azimuth = forms.FloatField(
+        label=_("Azimuth"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 180"),
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°...); For tracker: Azimuth angle of the rotation-axis for tracking systems"
+                ),
+            }
+        ),
+    )
+
+    tilt = forms.FloatField(
+        label=_("Tilt"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 180"),
+                "data-bs-toggle": "tooltip",
+                "title": _("Tilt angle in degrees (0° is horizontal, 90° is vertical)"),
+            }
+        ),
+    )
+
+    system_efficiency = forms.FloatField(
+        label=_("System Efficiency"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 0.8"),
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Performance ratio of the total PV-System (usually around 0.8)"
+                ),
+            }
+        ),
+    )
+
+    gcr = forms.FloatField(
+        label=_("Ground Coverage Ratio"),
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Ground Coverage Ratio (Ratio of the module area to the ground area of the module field), only needed for tracker"
+                ),
+            }
+        ),
+        required=False,
+    )
+
+    mounting_type = forms.ChoiceField(
+        choices=mounting_type_choices,
+        label=_("Mounting Type"),
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Static systems, east-west like system or 1-axis tracking system"
+                ),
+            }
+        ),
+    )
+    albedo = forms.FloatField(
+        label=_("Albedo"),
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _("Reflection fraction of sunlight in the surrounding area"),
+            }
+        ),
+    )
+
+    # TODO: Add validation that checks e.g. that this field is only filled in if tracker is selected
+    max_angle = forms.FloatField(
+        label=_("Max. tilt angle"),
+        widget=forms.NumberInput(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
+                ),
+            }
+        ),
+        required=False,
+    )
+
+
+class CreateHeatDemandForm(OpenPlanForm):
+    profile_type_choices = (
+        ("EFH", "Single-family house"),
+        ("MFH", "Apartment building"),
+        ("GHD", "Commerce/Services general"),
+        ("GMF", "Household-like business enterprises"),
+        ("GGA", "Restaurants"),
+        ("GBH", "Retail and wholesale"),
+        ("GMK", "Metal and automotive"),
+        ("GBH", "Accommodation"),
+        ("GKO", "Local authorities, credit institutions and insurance companies"),
+        ("GBD", "Other operational services"),
+        ("GWA", "Laundries, dry cleaning"),
+        ("GGB", "Horticulture"),
+        ("GBA", "Bakery"),
+        ("GPD", "Paper and printing"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    # TODO: is this meant to be a DualNumberField?
+    outdoor_temperature = forms.FloatField(
+        label=_("Outdoor Temperature"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 25"),
+                "data-bs-toggle": "tooltip",
+                "title": _("Outside air temperature in °C"),
+            }
+        ),
+    )
+
+    profile_type = forms.ChoiceField(
+        choices=profile_type_choices,
+        label=_("Profile Type"),
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _("Select from one of the available BDEW heat profiles"),
+            }
+        ),
+    )
+
+    annual_heat_demand = forms.FloatField(
+        label=_("Annual Heat Demand"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 1000"),
+                "data-bs-toggle": "tooltip",
+                "title": _("Total heat demand in the chosen timeperiod"),
+            }
+        ),
+    )
+
+    # TODO: here also check the validation of when the field is required
+    building_year = forms.FloatField(
+        label=_("Building Year"),
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 1970"),
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Only for residential buildings, used for estimating insulation"
+                ),
+            }
+        ),
+        required=False,
+    )
+
+    wind_class = forms.ChoiceField(
+        label=_("Wind class"),
+        choices=(("windy", _("Windy")), ("not_windy", _("Not Windy"))),
+        widget=forms.Select(
+            attrs={
+                "data-bs-toggle": "tooltip",
+                "title": _(
+                    "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities"
+                ),
+            }
+        ),
+    )
+
+
+CUSTOM_TIMESERIES_FORMS = {
+    "pv_plant": CreatePVProductionTimeseriesForm,
+    "heat_demand": CreateHeatDemandForm,
+}

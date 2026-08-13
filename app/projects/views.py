@@ -1697,6 +1697,8 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
             input_timeseries_data = ""
 
+        # these are the assets for which a function to create a custom timeseries is available via eesyplan
+        custom_form_assets = CUSTOM_TIMESERIES_FORMS.keys()
         context = {
             "form": form,
             "asset_type_name": asset_type_name,
@@ -1704,6 +1706,7 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             "input_timeseries_timestamps": json.dumps(
                 scenario.get_timestamps(json_format=True)
             ),
+            "custom_form_assets": custom_form_assets,
         }
 
         return render(request, "asset/asset_create_form.html", context)
@@ -1784,6 +1787,63 @@ def asset_connection_ports_info(request, asset_type_name=None):
 
 @login_required
 @require_http_methods(["GET"])
+def get_timeseries_create_form(request, scen_id=0, asset_type_name=""):
+    if asset_type_name not in CUSTOM_TIMESERIES_FORMS:
+        logger.error(
+            "The given asset type does not have a custom timeseries creation form"
+        )
+        raise Http404()
+    form = CUSTOM_TIMESERIES_FORMS[asset_type_name]
+    context = {"form": form}
+
+    return render(request, "asset/asset_subform.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=None):
+    from oemof.eesyplan.importer.create_timeseries_pv import (
+        create_pv_production_timeseries,
+    )
+    from oemof.eesyplan.importer.heat_demand import create_heat_demand
+
+    if asset_uuid:
+        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+    custom_form = CUSTOM_TIMESERIES_FORMS[asset_type_name]
+    form = custom_form(request.POST)
+
+    custom_timeseries_functions = {
+        "pv_plant": create_pv_production_timeseries,
+        "heat_demand": create_heat_demand,
+    }
+
+    scenario = get_object_or_404(Scenario, id=scen_id)
+    if form.is_valid():
+        try:
+            # TODO: calculate from relevant function
+            # for pv timeseries, add lat/lon to the params dict
+            # should be able to just pass the validated form as dict as **form
+            custom_ts_fun = custom_timeseries_functions[asset_type_name]
+            timeseries = custom_ts_fun(**form.cleaned_data)
+
+            # TODO: assign the timeseries to the asset field and also return it for display (same format as get_timeseries)
+            return JsonResponse(
+                {"success": True, "timeseries": timeseries},
+                status=200,
+            )
+        except:
+            return JsonResponse({"success": False}, status=422)
+
+    logger.warning("The submitted asset has erroneous field values.")
+
+    form_html = get_template("asset/asset_subform.html")
+    return JsonResponse(
+        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+    )
+
+
+@login_required
+@require_http_methods(["GET"])
 def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     opts = {}
     if asset_uuid:
@@ -1793,7 +1853,7 @@ def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None)
             opts["instance"] = existing_cop.get()
     context = {"form": COPCalculatorForm(**opts)}
 
-    return render(request, "asset/asset_cops_form.html", context)
+    return render(request, "asset/asset_subform.html", context)
 
 
 @login_required
@@ -1831,7 +1891,7 @@ def asset_cops_create_or_update(
 
     logger.warning("The submitted asset has erroneous field values.")
 
-    form_html = get_template("asset/asset_cops_form.html")
+    form_html = get_template("asset/asset_subform.html")
     return JsonResponse(
         {"success": False, "form_html": form_html.render({"form": form})}, status=422
     )
