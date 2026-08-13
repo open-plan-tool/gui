@@ -1428,9 +1428,13 @@ form .btn {
 .modal .modal-body {
   padding: 3rem; }
 
-.modal .modal-addendum {
-  padding-right: 3rem;
-  padding-left: 3rem; }
+.modal #form-createTS .modal-addendum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; }
+  .modal #form-createTS .modal-addendum .form-group {
+    flex: 1 1 220px;
+    margin-bottom: 0; }
 
 .system-design-error .modal-body {
   display: flex;
@@ -4598,5 +4602,3 @@ nav.navbar {
       height: 100%;
       background-color: #E3EAEE;
       z-index: 1; }
-
-/*# sourceMappingURL=main.css.map */
