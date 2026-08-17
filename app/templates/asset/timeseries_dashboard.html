@@ -159,6 +159,30 @@
 
     <div class="summary-row">
         <div class="summary-card">
+            <div class="small muted">Filter</div>
+                <form method="GET">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <select name="filter_type" class="form-select" onchange="toggleFilterValue(this.value)">
+                            <option></option>
+                            <option>asset_type</option>
+                            <option>length</option>
+                        </select>
+                        <select name="asset_type" id="assetTypeSelect" class="form-select" style="display:none">
+                            {% for asset_type in existing_asset_types %}
+                            <option value="{{ asset_type }}" {% if asset_type == selected_asset_type %}selected{% endif %}>{{ asset_type }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="length" id="lengthSelect" class="form-select" style="display:none">
+                            {% for length in existing_lengths %}
+                            <option value="{{ length }}" {% if length == selected_length %}selected{% endif %}>{{ length }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn--secondary" type="submit">Filter</button>
+                    <a class="btn btn--secondary" href="{% url 'timeseries_dashboard' %}">Delete Filter</a>
+                </form>
+        </div>
+        <div class="summary-card">
             <div class="small muted">Total</div>
             <div><strong>{{ timeseries_list|length }}</strong></div>
         </div>
@@ -359,6 +383,19 @@ function toggleTsFields() {
 }
 </script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
+
+<script>
+   function toggleFilterValue(filterType){
+    if (filterType === "asset_type") {
+    document.getElementById("assetTypeSelect").style.display = "inline-block";
+    document.getElementById("lengthSelect").style.display = "none";
+    document.getElementById("lengthSelect").value = "";
+    } else {
+    document.getElementById("assetTypeSelect").style.display = "none";
+    document.getElementById("lengthSelect").style.display = "inline-block";
+    document.getElementById("assetTypeSelect").value = "";
+    }}
+</script>
 
 </body>
 {% endblock content %}
