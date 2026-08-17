@@ -117,6 +117,22 @@ def timeseries_dashboard(request):
     else:
         selected_timeseries = timeseries_qs.first()
 
+    existing_lengths = sorted(set(len(ts.values) for ts in timeseries_qs))
+    existing_asset_types = (
+        timeseries_qs.exclude(asset_type__isnull=True)
+        .values_list("asset_type", flat=True)
+        .distinct()
+    )
+
+    selected_length = request.GET.get("length")
+    selected_asset_type = request.GET.get("asset_type")
+
+    if selected_asset_type:
+        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
+
+    if selected_length:
+        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+
     context = {
         "timeseries_list": timeseries_qs,
         "selected_timeseries": selected_timeseries,
@@ -127,6 +143,10 @@ def timeseries_dashboard(request):
                 "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
             ),
         },
+        "existing_lengths": existing_lengths,
+        "existing_asset_types": existing_asset_types,
+        "selected_length": selected_length,
+        "selected_asset_type": selected_asset_type,
     }
     return render(request, "asset/timeseries_dashboard.html", context)
 
