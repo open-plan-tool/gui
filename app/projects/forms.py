@@ -1502,6 +1502,8 @@ class TimeseriesModelForm(ModelForm):
             "scenario",
             "ts_type",
             "values",
+            "units",
+            "time_step",
         ]
         widgets = {
             "start_date": forms.DateTimeInput(
@@ -1512,7 +1514,6 @@ class TimeseriesModelForm(ModelForm):
                 format="%Y-%m-%dT%H:%M",
                 attrs={"type": "datetime-local"},
             ),
-            "time_step": forms.NumberInput(attrs={"placeholder": "e.g. 60"}),
             "name": forms.TextInput(
                 attrs={"placeholder": "e.g. household_demand_2024"}
             ),
