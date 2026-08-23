@@ -166,6 +166,7 @@
                             <option></option>
                             <option>asset_type</option>
                             <option>length</option>
+                            <option>scenario</option>
                         </select>
                         <select name="asset_type" id="assetTypeSelect" class="form-select" style="display:none">
                             {% for asset_type in existing_asset_types %}
@@ -175,6 +176,11 @@
                         <select name="length" id="lengthSelect" class="form-select" style="display:none">
                             {% for length in existing_lengths %}
                             <option value="{{ length }}" {% if length == selected_length %}selected{% endif %}>{{ length }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="scenario" id="scenarioSelect" class="form-select" style="display:none">
+                            {% for scenario in existing_scenarios %}
+                            <option value="{{ scenario }}" {% if scenario == selected_scenario %}selected{% endif %}>{{ scenario }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -390,9 +396,19 @@ function toggleTsFields() {
     document.getElementById("assetTypeSelect").style.display = "inline-block";
     document.getElementById("lengthSelect").style.display = "none";
     document.getElementById("lengthSelect").value = "";
-    } else {
-    document.getElementById("assetTypeSelect").style.display = "none";
+    document.getElementById("scenarioSelect").style.display = "none";
+    document.getElementById("scenarioSelect").value = "";
+    } else if (filterType === "length") {
     document.getElementById("lengthSelect").style.display = "inline-block";
+    document.getElementById("assetTypeSelect").style.display = "none";
+    document.getElementById("assetTypeSelect").value = "";
+    document.getElementById("scenarioSelect").style.display = "none";
+    document.getElementById("scenarioSelect").value = "";
+    } else {
+    document.getElementById("scenarioSelect").style.display = "inline-block";
+    document.getElementById("lengthSelect").style.display = "none";
+    document.getElementById("lengthSelect").value = "";
+    document.getElementById("assetTypeSelect").style.display = "none";
     document.getElementById("assetTypeSelect").value = "";
     }}
 </script>
