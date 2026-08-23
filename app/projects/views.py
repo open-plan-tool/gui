@@ -123,15 +123,24 @@ def timeseries_dashboard(request):
         .values_list("asset_type", flat=True)
         .distinct()
     )
+    existing_scenarios = (
+        timeseries_qs.exclude(scenario__isnull=True)
+        .values_list("scenario_id", flat=True)
+        .distinct()
+    )
 
     selected_length = request.GET.get("length")
     selected_asset_type = request.GET.get("asset_type")
+    selected_scenario = request.GET.get("scenario")
 
     if selected_asset_type:
         timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
 
     if selected_length:
         timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+
+    if selected_scenario:
+        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
 
     context = {
         "timeseries_list": timeseries_qs,
@@ -145,8 +154,10 @@ def timeseries_dashboard(request):
         },
         "existing_lengths": existing_lengths,
         "existing_asset_types": existing_asset_types,
+        "existing_scenarios": existing_scenarios,
         "selected_length": selected_length,
         "selected_asset_type": selected_asset_type,
+        "selected_scenario": selected_scenario,
     }
     return render(request, "asset/timeseries_dashboard.html", context)
 
