@@ -1471,6 +1471,16 @@ class CreateHeatDemandForm(OpenPlanForm):
 CUSTOM_TIMESERIES_FORMS = {
     "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
+ASSET_TYPE_TO_CATEGORY = {
+    "demand": "demand",
+    "gas_demand": "demand",
+    "h2_demand": "demand",
+    "heat_demand": "demand",
+    "pv_plant": "supply",
+    "wind_plant": "supply",
+    "biogas_plant": "supply",
+    "geothermal_conversion": "supply",
+    "solar_thermal_plant": "supply",
 }
 
 
@@ -1494,6 +1504,13 @@ class TimeseriesModelForm(ModelForm):
 
         return uploaded_file
 
+    def clean(self):
+        cleaned_data = super().clean()
+        asset_type = cleaned_data.get("asset_type")
+        if asset_type:
+            self.instance.category = ASSET_TYPE_TO_CATEGORY.get(asset_type, "other")
+        return cleaned_data
+
     class Meta:
         model = Timeseries
         exclude = [
@@ -1504,6 +1521,7 @@ class TimeseriesModelForm(ModelForm):
             "values",
             "units",
             "time_step",
+            "category",
         ]
         widgets = {
             "start_date": forms.DateTimeInput(
