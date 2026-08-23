@@ -182,6 +182,8 @@ def timeseries_upload(request):
         if form.is_valid():
             new_timeseries = form.save(commit=False)
             new_timeseries.user = request.user
+            new_timeseries.units = "kW"
+            new_timeseries.time_step = 60
 
             uploaded_file = form.cleaned_data.get("timeseries_file")
             if uploaded_file:
