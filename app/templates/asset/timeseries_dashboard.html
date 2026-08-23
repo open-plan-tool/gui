@@ -212,7 +212,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Asset type</th>
-                            <th>Time step</th>
+                            <th>Scenario</th>
                             <th>Points</th>
                         </tr>
                     </thead>
@@ -225,7 +225,7 @@
                                     </a>
                                 </td>
                                 <td>{{ ts.get_asset_type_display|default:"-" }}</td>
-                                <td>{{ ts.time_step|default:"-" }}</td>
+                                <td>{{ ts.scenario.id|default:"-" }}</td>
                                 <td>{{ ts.values|length }}</td>
                             </tr>
                         {% endfor %}
