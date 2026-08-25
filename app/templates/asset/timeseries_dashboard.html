@@ -152,7 +152,7 @@
         </div>
 
         <div class="actions">
-            <button class="btn btn--medium" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_upload' %}'})">Upload</button>
+            <button class="btn btn--medium" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'})">Upload</button>
             <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#createTimeseriesModal">Create manually</button>
         </div>
     </div>
@@ -389,6 +389,15 @@ function toggleTsFields() {
 }
 </script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
+
+{% comment %} used when upload form contains errors and needs to be shown again {% endcomment %}
+{% if show_upload_modal %}
+    <script>
+        window.onload = function() {
+            showModal(null, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'});
+        }
+    </script>
+{% endif %}
 
 <script>
    function toggleFilterValue(filterType){
