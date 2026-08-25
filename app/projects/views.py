@@ -209,27 +209,6 @@ def timeseries_edit(request, ts_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def timeseries_upload(request):
-    if request.POST:
-        form = TimeseriesModelForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_timeseries = form.save(commit=False)
-            new_timeseries.user = request.user
-            new_timeseries.units = "kW"
-            new_timeseries.time_step = 60
-
-            uploaded_file = form.cleaned_data.get("timeseries_file")
-            if uploaded_file:
-                new_timeseries.values = parse_input_timeseries(uploaded_file)
-
-            new_timeseries.save()
-            return HttpResponseRedirect(reverse("timeseries_dashboard"))
-
-    return HttpResponseRedirect(reverse("timeseries_dashboard"))
-
-
-@login_required
-@require_http_methods(["GET", "POST"])
 def timeseries_delete(request, ts_id):
     timeseries = get_object_or_404(Timeseries, id=ts_id)
 
