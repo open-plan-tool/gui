@@ -101,6 +101,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def timeseries_dashboard(request):
     timeseries_qs = Timeseries.objects.filter(
         Q(user=request.user) & ~Q(ts_type="scalar")
@@ -142,11 +143,32 @@ def timeseries_dashboard(request):
     if selected_scenario:
         timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
 
+    timeseries_upload_form = TimeseriesModelForm()
+    show_upload_modal = False
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_timeseries = form.save(commit=False)
+            new_timeseries.user = request.user
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                uploaded_file.seek(0)
+                new_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            new_timeseries.save()
+            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+        else:
+            timeseries_upload_form = form
+            show_upload_modal = True
+
     context = {
         "timeseries_list": timeseries_qs,
         "selected_timeseries": selected_timeseries,
         "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
-        "timeseries_upload_form": TimeseriesModelForm(),
+        "timeseries_upload_form": timeseries_upload_form,
+        "show_upload_modal": show_upload_modal,
         "warning_boxes": {
             "timeseries_delete": _(
                 "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
