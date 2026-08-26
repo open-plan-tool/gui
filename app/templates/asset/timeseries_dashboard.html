@@ -179,8 +179,8 @@
                             {% endfor %}
                         </select>
                         <select name="scenario" id="scenarioSelect" class="form-select" style="display:none">
-                            {% for scenario in existing_scenarios %}
-                            <option value="{{ scenario }}" {% if scenario == selected_scenario %}selected{% endif %}>{{ scenario }}</option>
+                            {% for scenario_id, scenario_name in existing_scenarios %}
+                            <option value="{{ scenario_id }}" {% if scenario_id == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
                             {% endfor %}
                         </select>
                     </div>
