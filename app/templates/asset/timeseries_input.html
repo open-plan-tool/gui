@@ -32,14 +32,14 @@
 		{% include subwidget.template_name with widget=subwidget %}
 		{% if asset_type in custom_form_assets %}
 		<a onclick="javascript:toggle_sub_modal()" class="btn btn--medium" href="#form-createTS" data-bs-toggle="collapse" aria-expanded="false" aria-controls="form-createTS" >{% translate "Create timeseries from parameters" %}</a>
-		<div class="collapse" id="form-createTS">
-			<form id="timeseriesForm">
-				{% csrf_token %}
+		<div class="collapse" id="form-createTS" data-param-name="{{ widget.name }}">
+			<div id="timeseriesForm">
 				<div class="modal-addendum"></div>
-			</form>
+			</div>
 			<button
 				id="btn-computeTS"
 				class="btn btn--medium"
+				type="button"
 				onclick="computeCustomTimeseries(event)">
 				{% translate "Compute Timeseries" %}
 			</button>
