@@ -176,7 +176,7 @@
                             <select name="length" id="lengthSelect" class="form-select">
                                 <option value=""></option>
                                 {% for length in existing_lengths %}
-                                <option value="{{ length }}" {% if length == selected_length %}selected{% endif %}>{{ length }}</option>
+                                <option value="{{ length }}" {% if length|stringformat:"s" == selected_length %}selected{% endif %}>{{ length }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -185,7 +185,7 @@
                             <select name="scenario" id="scenarioSelect" class="form-select">
                                 <option value=""></option>
                                 {% for scenario_id, scenario_name in existing_scenarios %}
-                                <option value="{{ scenario_id }}" {% if scenario_id == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
+                                <option value="{{ scenario_id }}" {% if scenario_id|stringformat:"s" == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
