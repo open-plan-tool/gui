@@ -320,7 +320,8 @@ class DualNumberField(forms.MultiValueField):
 
 class TimeseriesInputWidget(forms.MultiWidget):
     template_name = "asset/timeseries_input.html"
-    custom_form_assets = ["pv_plant", "heat_demand"]
+    # TODO: currently hardcoded instead of taken from CUSTOM_FORM_ASSETS to avoid circular import with forms
+    custom_form_assets = ["heat_demand"]
 
     # class Media:
     #     # TODO: currently not loading the content as not within head

@@ -878,12 +878,9 @@ class AssetCreateForm(OpenPlanModelForm):
             if timeseries_file is not None:
                 input_timeseries_values = parse_input_timeseries(timeseries_file)
                 # TODO here list the possible options
-            else:
-                # set the previous timeseries from the asset if any
-                if self.is_input_timeseries_empty() is False:
-                    input_timeseries_values = (
-                        self.existing_asset.input_timeseries_values
-                    )
+            # set the previous timeseries from the asset if any
+            elif self.is_input_timeseries_empty() is False:
+                input_timeseries_values = self.existing_asset.input_timeseries_values
             return input_timeseries_values
         except json.decoder.JSONDecodeError as ex:
             raise ValidationError(
@@ -1401,6 +1398,7 @@ class CreateHeatDemandForm(OpenPlanForm):
 
 
 CUSTOM_TIMESERIES_FORMS = {
-    "pv_plant": CreatePVProductionTimeseriesForm,
+    # TODO: re-enable PV timeseries creation when weather data handling is settled
+    # "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
 }
