@@ -87,7 +87,7 @@ from .scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
 )
-from projects.helpers import format_scenario_for_mvs, PARAMETERS
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, parse_input_timeseries
 from dashboard.helpers import fetch_user_projects
 from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
@@ -98,6 +98,130 @@ from .services import (
 import traceback
 
 logger = logging.getLogger(__name__)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_dashboard(request):
+    timeseries_qs = Timeseries.objects.filter(
+        Q(user=request.user) & ~Q(ts_type="scalar")
+    ).order_by("name", "id")
+
+    selected_id = request.GET.get("selected")
+    selected_timeseries = None
+
+    if selected_id:
+        try:
+            selected_timeseries = timeseries_qs.get(pk=selected_id, user=request.user)
+        except Timeseries.DoesNotExist:
+            selected_timeseries = None
+    else:
+        selected_timeseries = timeseries_qs.first()
+
+    existing_lengths = sorted(set(len(ts.values) for ts in timeseries_qs))
+    existing_asset_types = (
+        timeseries_qs.exclude(asset_type__isnull=True)
+        .values_list("asset_type", flat=True)
+        .order_by()
+        .distinct()
+    )
+    existing_scenarios = (
+        timeseries_qs.exclude(scenario__isnull=True)
+        .values_list("scenario_id", "scenario__name")
+        .order_by()
+        .distinct()
+    )
+
+    selected_length = request.GET.get("length")
+    selected_asset_type = request.GET.get("asset_type")
+    selected_scenario = request.GET.get("scenario")
+
+    if selected_asset_type:
+        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
+
+    if selected_length:
+        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+
+    if selected_scenario:
+        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
+
+    timeseries_upload_form = TimeseriesModelForm()
+    show_upload_modal = False
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_timeseries = form.save(commit=False)
+            new_timeseries.user = request.user
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                uploaded_file.seek(0)
+                new_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            new_timeseries.save()
+            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+        else:
+            timeseries_upload_form = form
+            show_upload_modal = True
+
+    context = {
+        "timeseries_list": timeseries_qs,
+        "selected_timeseries": selected_timeseries,
+        "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
+        "timeseries_upload_form": timeseries_upload_form,
+        "show_upload_modal": show_upload_modal,
+        "warning_boxes": {
+            "timeseries_delete": _(
+                "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
+            ),
+        },
+        "existing_lengths": existing_lengths,
+        "existing_asset_types": existing_asset_types,
+        "existing_scenarios": existing_scenarios,
+        "selected_length": selected_length,
+        "selected_asset_type": selected_asset_type,
+        "selected_scenario": selected_scenario,
+    }
+    return render(request, "asset/timeseries_dashboard.html", context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_edit(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
+        if form.is_valid():
+            updated_timeseries = form.save(commit=False)
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                updated_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            updated_timeseries.save()
+            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_delete(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        timeseries.delete()
+        messages.success(request, "Timeseries successfully deleted!")
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
 
 
 @require_http_methods(["GET"])

@@ -310,4 +310,7 @@ urlpatterns = [
     # User Feedback
     path("user_feedback", user_feedback, name="user_feedback"),
     path("sponsor/feature", sponsor_feature, name="sponsor_feature"),
+    path("timeseries_dashboard", timeseries_dashboard, name="timeseries_dashboard"),
+    path("timeseries_edit/<int:ts_id>", timeseries_edit, name="timeseries_edit"),
+    path("timeseries_delete/<int:ts_id>", timeseries_delete, name="timeseries_delete"),
 ]

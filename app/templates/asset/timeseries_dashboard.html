@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block head_block %}
+
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Time Series Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        .page {
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions a,
+        .actions button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .summary-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            min-width: 140px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        th {
+            font-size: 14px;
+            color: #555;
+        }
+
+        tr.selected {
+            background: #f0f6ff;
+        }
+
+        .row-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .muted {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px 12px;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .placeholder-chart {
+            margin-top: 16px;
+            padding: 16px;
+            border: 1px dashed #bbb;
+            background: #fafafa;
+            color: #666;
+        }
+
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            background: white;
+            border: 1px dashed #ccc;
+        }
+
+        .small {
+            font-size: 13px;
+        }
+    </style>
+</head>
+{% endblock head_block %}
+
+{% block content %}
+<body>
+<div class="page">
+    <div class="header">
+        <div>
+            <h1>Time Series</h1>
+            <div class="muted">Manage uploaded series and inspect metadata.</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn--medium" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'})">Upload</button>
+            <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#createTimeseriesModal">Create manually</button>
+        </div>
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-card">
+            <div class="small muted">Filter</div>
+                <form method="GET">
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div>
+                            <label for="assetTypeSelect" style="display: block;">Asset type</label>
+                            <select name="asset_type" id="assetTypeSelect" class="form-select">
+                                <option value=""></option>
+                                {% for asset_type in existing_asset_types %}
+                                <option value="{{ asset_type }}" {% if asset_type == selected_asset_type %}selected{% endif %}>{{ asset_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="lengthSelect" style="display: block;">Length</label>
+                            <select name="length" id="lengthSelect" class="form-select">
+                                <option value=""></option>
+                                {% for length in existing_lengths %}
+                                <option value="{{ length }}" {% if length|stringformat:"s" == selected_length %}selected{% endif %}>{{ length }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="scenarioSelect" style="display: block;">Scenario</label>
+                            <select name="scenario" id="scenarioSelect" class="form-select">
+                                <option value=""></option>
+                                {% for scenario_id, scenario_name in existing_scenarios %}
+                                <option value="{{ scenario_id }}" {% if scenario_id|stringformat:"s" == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn--secondary" type="submit">Filter</button>
+                    <a class="btn btn--secondary" href="{% url 'timeseries_dashboard' %}">Delete Filter</a>
+                </form>
+        </div>
+        <div class="summary-card">
+            <div class="small muted">Total</div>
+            <div><strong>{{ timeseries_list|length }}</strong></div>
+        </div>
+        <div class="summary-card">
+            <div class="small muted">Open source</div>
+            <div><strong>
+                {% with open_count=0 %}
+                    {# placeholder card; replace later with real count from view #}
+                    -
+                {% endwith %}
+            </strong></div>
+        </div>
+        <div class="summary-card">
+            <div class="small muted">Selected</div>
+            <div><strong>
+                {% if selected_timeseries %}{{ selected_timeseries.name|default:"Unnamed" }}{% else %}-{% endif %}
+            </strong></div>
+        </div>
+    </div>
+
+    {% if timeseries_list %}
+        <div class="layout">
+            <div class="panel">
+                <h2>My time series</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Asset type</th>
+                            <th>Scenario</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ts in timeseries_list %}
+                            <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
+                                <td>
+                                    <a class="row-link" href="?selected={{ ts.pk }}">
+                                        <strong>{{ ts.name|default:"Unnamed" }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ ts.get_asset_type_display|default:"-" }}</td>
+                                <td>{{ ts.scenario.id|default:"-" }}</td>
+                                <td>{{ ts.values|length }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                {% if selected_timeseries %}
+                    <h2>Details</h2>
+                    <div class="muted" style="margin-bottom: 16px;">
+                        Selected time series
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Name</div>
+                        <div>{{ selected_timeseries.name|default:"Unnamed" }}</div>
+
+                        <div class="detail-label">Category</div>
+                        <div>{{ selected_timeseries.get_category_display|default:"-" }}</div>
+
+                        <div class="detail-label">Asset type</div>
+                        <div>{{ selected_timeseries.get_asset_type_display|default:"-" }}</div>
+
+                        <div class="detail-label">Type</div>
+                        <div>{{ selected_timeseries.get_ts_type_display|default:"-" }}</div>
+
+                        <div class="detail-label">Units</div>
+                        <div>{{ selected_timeseries.units|default:"-" }}</div>
+
+                        <div class="detail-label">Scenario</div>
+                        <div>
+                            {% if selected_timeseries.scenario %}
+                                {{ selected_timeseries.scenario }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+
+                        <div class="detail-label">Open source</div>
+                        <div>{{ selected_timeseries.open_source|yesno:"Yes,No" }}</div>
+
+                        <div class="detail-label">Start date</div>
+                        <div>{{ selected_timeseries.start_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+                        <div class="detail-label">End date</div>
+                        <div>{{ selected_timeseries.end_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+                        <div class="detail-label">Time step</div>
+                        <div>{{ selected_timeseries.time_step|default:"-" }}</div>
+
+                        <div class="detail-label">Length</div>
+                        <div>{{ selected_timeseries.values|length }} points</div>
+                    </div>
+
+                    <div class="placeholder-chart">
+                        Preview chart placeholder<br>
+                        <span class="small">
+                            Later this could show a sparkline or mini line chart for the selected series.
+                        </span>
+                    </div>
+
+                    <div class="placeholder-chart">
+                        First values preview placeholder<br>
+                        <span class="small">
+                            Example: show first 10 values, min/max, mean, missing values.
+                        </span>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
+                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Duplicate</a>
+                        <form action="{% url 'timeseries_delete' selected_timeseries.id %}" method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <button class="btn btn--medium" type="submit" onclick="return confirm('{{ warning_boxes.timeseries_delete|escapejs }}')">Delete</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <h2>Details</h2>
+                    <div class="muted">No time series selected.</div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No time series yet</h2>
+            <p class="muted">Upload your first time series or create one manually.</p>
+            <div class="actions" style="justify-content: center;">
+                <a class="btn btn--medium" href="{% url 'not_implemented' %}">Upload timeseries</a>
+                <a class="btn btn--medium" href="{% url 'not_implemented' %}">Create timeseries</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% include "modal_template.html" with id="uploadTimeseriesModal" submit_btn_label="Upload" title="Upload time series" form=timeseries_upload_form enctype=True %}
+{% include "modal_template.html" with id="editTimeseriesModal" submit_btn_label="Edit" title="Edit time series" form=timeseries_edit_form enctype=True %}
+<div class="modal fade" id="createTimeseriesModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create time series</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label for="ts-type-select">Type</label>
+                    <select id="ts-type-select" class="form-select" onchange="toggleTsFields()">
+                        <option value="pv" selected>PV output</option>
+                        <option value="electricity_demand">Electricity demand</option>
+                        <option value="heat_demand">Heat demand</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="ts-name">Name</label>
+                    <input type="text" id="ts-name" class="form-control" placeholder="e.g. My PV series">
+                </div>
+
+                <div id="pv-fields">
+                    <div class="form-group mb-3">
+                        <label for="ts-azimuth">Azimuth (°)</label>
+                        <input type="number" id="ts-azimuth" class="form-control" placeholder="180 = south">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="ts-tilt">Tilt (°)</label>
+                        <input type="number" id="ts-tilt" class="form-control" placeholder="0 = horizontal, 90 = vertical">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="ts-efficiency">System efficiency (%)</label>
+                        <input type="number" id="ts-efficiency" class="form-control" min="0" max="100" placeholder="e.g. 80">
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="ts-weather-file">Weather data</label>
+                        <input type="file" id="ts-weather-file" class="form-control">
+                        <div class="muted small mt-1">Data may be in TRY or ERA5 format.</div>
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn--medium">Use default weather data based on location</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn--medium">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleTsFields() {
+    const val = document.getElementById('ts-type-select').value;
+    document.getElementById('pv-fields').style.display = val === 'pv' ? '' : 'none';
+}
+</script>
+<script src="{% static 'js/modal_utils.js' %}"></script>
+
+{% comment %} used when upload form contains errors and needs to be shown again {% endcomment %}
+{% if show_upload_modal %}
+    <script>
+        window.onload = function() {
+            showModal(null, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'});
+        }
+    </script>
+{% endif %}
+
+
+</body>
+{% endblock content %}
