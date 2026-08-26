@@ -1002,9 +1002,11 @@ class AssetCreateForm(OpenPlanModelForm):
         ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
 
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
-            timeseries_name = f"constant value = {timeseries_values[0]}"
-            timeseries_values = timeseries_values
-            ts_default_settings["ts_type"] = "scalar"
+            if len(timeseries_values) == 1:
+                timeseries_name = f"constant value = {timeseries_values[0]}"
+                ts_default_settings["ts_type"] = "scalar"
+            else:
+                timeseries_name = f"Created timeseries ({self.asset_type_name})"
 
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
@@ -1381,7 +1383,7 @@ class CreateHeatDemandForm(OpenPlanForm):
 
     wind_class = forms.ChoiceField(
         label=_("Wind class"),
-        choices=(("windy", _("Windy")), ("not_windy", _("Not Windy"))),
+        choices=(("Windy", _("Windy")), ("Not windy", _("Not Windy"))),
         widget=forms.Select(
             attrs={
                 "data-bs-toggle": "tooltip",
