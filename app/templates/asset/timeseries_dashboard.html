@@ -161,28 +161,34 @@
         <div class="summary-card">
             <div class="small muted">Filter</div>
                 <form method="GET">
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <select name="filter_type" class="form-select" onchange="toggleFilterValue(this.value)">
-                            <option></option>
-                            <option>asset_type</option>
-                            <option>length</option>
-                            <option>scenario</option>
-                        </select>
-                        <select name="asset_type" id="assetTypeSelect" class="form-select" style="display:none">
-                            {% for asset_type in existing_asset_types %}
-                            <option value="{{ asset_type }}" {% if asset_type == selected_asset_type %}selected{% endif %}>{{ asset_type }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="length" id="lengthSelect" class="form-select" style="display:none">
-                            {% for length in existing_lengths %}
-                            <option value="{{ length }}" {% if length == selected_length %}selected{% endif %}>{{ length }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="scenario" id="scenarioSelect" class="form-select" style="display:none">
-                            {% for scenario_id, scenario_name in existing_scenarios %}
-                            <option value="{{ scenario_id }}" {% if scenario_id == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
-                            {% endfor %}
-                        </select>
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div>
+                            <label for="assetTypeSelect" style="display: block;">Asset type</label>
+                            <select name="asset_type" id="assetTypeSelect" class="form-select">
+                                <option value=""></option>
+                                {% for asset_type in existing_asset_types %}
+                                <option value="{{ asset_type }}" {% if asset_type == selected_asset_type %}selected{% endif %}>{{ asset_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="lengthSelect" style="display: block;">Length</label>
+                            <select name="length" id="lengthSelect" class="form-select">
+                                <option value=""></option>
+                                {% for length in existing_lengths %}
+                                <option value="{{ length }}" {% if length == selected_length %}selected{% endif %}>{{ length }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="scenarioSelect" style="display: block;">Scenario</label>
+                            <select name="scenario" id="scenarioSelect" class="form-select">
+                                <option value=""></option>
+                                {% for scenario_id, scenario_name in existing_scenarios %}
+                                <option value="{{ scenario_id }}" {% if scenario_id == selected_scenario %}selected{% endif %}>{{ scenario_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     <button class="btn btn--secondary" type="submit">Filter</button>
                     <a class="btn btn--secondary" href="{% url 'timeseries_dashboard' %}">Delete Filter</a>
@@ -399,28 +405,6 @@ function toggleTsFields() {
     </script>
 {% endif %}
 
-<script>
-   function toggleFilterValue(filterType){
-    if (filterType === "asset_type") {
-    document.getElementById("assetTypeSelect").style.display = "inline-block";
-    document.getElementById("lengthSelect").style.display = "none";
-    document.getElementById("lengthSelect").value = "";
-    document.getElementById("scenarioSelect").style.display = "none";
-    document.getElementById("scenarioSelect").value = "";
-    } else if (filterType === "length") {
-    document.getElementById("lengthSelect").style.display = "inline-block";
-    document.getElementById("assetTypeSelect").style.display = "none";
-    document.getElementById("assetTypeSelect").value = "";
-    document.getElementById("scenarioSelect").style.display = "none";
-    document.getElementById("scenarioSelect").value = "";
-    } else {
-    document.getElementById("scenarioSelect").style.display = "inline-block";
-    document.getElementById("lengthSelect").style.display = "none";
-    document.getElementById("lengthSelect").value = "";
-    document.getElementById("assetTypeSelect").style.display = "none";
-    document.getElementById("assetTypeSelect").value = "";
-    }}
-</script>
 
 </body>
 {% endblock content %}
