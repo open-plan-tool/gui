@@ -747,11 +747,19 @@ function computeCustomTimeseries(event){
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
 
     const form = event.target.closest('.modal-content').querySelector('#timeseriesForm');
-    const formData = new FormData(form);
+    const formData = new FormData();
+    // because we can't have nested forms in the html, we construct the form data manually from the fields here instead of relying on the form tag
+    // TODO: if some of the custom forms rely on more than input, select, need to adapt
+    form.querySelectorAll('input, select').forEach(el => {
+       formData.append(el.name, el.value);
+    });
 
-    let postUrl = copPostUrl + assetTypeName;
+    let postUrl = createTimeseriesPostUrl + assetTypeName;
     if (nodesToDB.has(topologyNodeId))
         postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
+
+    const createTsDOM = event.target.closest('#form-createTS');
+    const paramName = createTsDOM.dataset.paramName;
 
     fetch(postUrl, {
         method: 'POST',
@@ -759,26 +767,20 @@ function computeCustomTimeseries(event){
         body: formData,
     }).then(response => response.json()).then(jsonRes => {
         if (jsonRes.success) {
-            // close the cop area
-            copCollapse.hide();
-
-            efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
-            if(efficiencyDOM){
-                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
-            }
-            copDOM = guiModalDOM.querySelector('input[name="copId"]');
-            if(copDOM){
-                copDOM.value = jsonRes.cop_id;
-            }
+            // show the computed timeseries in the usual field in the modal (same as select/upload do),
+            // and store it there as the manual/scalar value so it gets saved with the asset
+            const tsValues = jsonRes.timeseries;
+            updateScalarInput(tsValues.map(v => [v]), paramName);
+            plotTimeseriesInputTrace(tsValues, paramName);
         } else {
-            // not success: assign the content of the form to the form tag of the modal
-            guiModalDOM.querySelector('form .modal-addendum').innerHTML = jsonRes.form_html;
+            form.innerHTML = jsonRes.form_html;
         }
     }).catch(error => {
         console.error(error);
         alert(error.message);
     });
 }
+
 function toggle_cop_modal(){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");

@@ -1823,15 +1823,27 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
             # TODO: calculate from relevant function
             # for pv timeseries, add lat/lon to the params dict
             # should be able to just pass the validated form as dict as **form
-            custom_ts_fun = custom_timeseries_functions[asset_type_name]
-            timeseries = custom_ts_fun(**form.cleaned_data)
+            cleaned_data = form.cleaned_data
+            outdoor_temperature = cleaned_data.get("outdoor_temperature")
+            if outdoor_temperature is not None and not isinstance(
+                outdoor_temperature, list
+            ):
+                cleaned_data["outdoor_temperature"] = [
+                    outdoor_temperature
+                ] * scenario.get_num_timesteps
 
-            # TODO: assign the timeseries to the asset field and also return it for display (same format as get_timeseries)
+            custom_ts_fun = custom_timeseries_functions[asset_type_name]
+            timeseries = custom_ts_fun(**cleaned_data)
+
             return JsonResponse(
-                {"success": True, "timeseries": timeseries},
+                {"success": True, "timeseries": timeseries.values.tolist()},
                 status=200,
             )
-        except:
+        except Exception:
+            logger.exception(
+                "Failed to compute custom timeseries for asset type %s",
+                asset_type_name,
+            )
             return JsonResponse({"success": False}, status=422)
 
     logger.warning("The submitted asset has erroneous field values.")
