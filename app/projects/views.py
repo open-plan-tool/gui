@@ -127,7 +127,7 @@ def timeseries_dashboard(request):
     )
     existing_scenarios = (
         timeseries_qs.exclude(scenario__isnull=True)
-        .values_list("scenario_id", flat=True)
+        .values_list("scenario_id", "scenario__name")
         .order_by()
         .distinct()
     )
