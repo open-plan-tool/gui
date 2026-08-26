@@ -122,11 +122,13 @@ def timeseries_dashboard(request):
     existing_asset_types = (
         timeseries_qs.exclude(asset_type__isnull=True)
         .values_list("asset_type", flat=True)
+        .order_by()
         .distinct()
     )
     existing_scenarios = (
         timeseries_qs.exclude(scenario__isnull=True)
         .values_list("scenario_id", flat=True)
+        .order_by()
         .distinct()
     )
 
