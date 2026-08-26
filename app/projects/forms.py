@@ -1337,16 +1337,9 @@ class CreateHeatDemandForm(OpenPlanForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    # TODO: is this meant to be a DualNumberField?
-    outdoor_temperature = forms.FloatField(
+    outdoor_temperature = DualNumberField(
         label=_("Outdoor Temperature"),
-        widget=forms.NumberInput(
-            attrs={
-                "placeholder": _("e.g. 25"),
-                "data-bs-toggle": "tooltip",
-                "title": _("Outside air temperature in °C"),
-            }
-        ),
+        param_name="outdoor_temperature",
     )
 
     profile_type = forms.ChoiceField(
