@@ -772,7 +772,15 @@ function computeCustomTimeseries(event){
             // value so it gets saved with the asset
             const tsValues = jsonRes.timeseries;
             const generationParameters = jsonRes.generation_parameters;
-            updateScalarInput(tsValues.map(v => [v]), paramName);
+            // clear the other subfields first: the scalar field's onchange handler
+            // (initTimeseriesManualValue) re-triggers the select field's own change handler
+            // with whatever it currently holds, which would otherwise re-fetch and clobber
+            // the value we're about to set here with a stale, previously-selected timeseries
+            document.getElementById('id_' + paramName + '_1').value = '';
+            document.getElementById('id_' + paramName + '_2').value = '';
+            const scalarInput = document.getElementById('id_' + paramName + '_0');
+            scalarInput.value = JSON.stringify({values: tsValues, generation_parameters: generationParameters});
+            scalarInput.dispatchEvent(new Event('change'));
             plotTimeseriesInputTrace(tsValues, paramName);
             showGenerationParameters(generationParameters, paramName);
         } else {
