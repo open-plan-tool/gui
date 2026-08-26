@@ -459,17 +459,26 @@ class TimeseriesField(forms.MultiValueField):
             input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
 
         elif scalar_value != "":
-            # check the input string is a number or a list
+            # check the input string is a number, a list, or a
+            # {"values": [...], "generation_parameters": {...}} payload
+            generation_parameters = None
             try:
                 answer = [float(scalar_value.replace(",", "."))]
             except ValueError:
                 try:
-                    answer = json.loads(scalar_value)
-                    if not isinstance(answer, list):
+                    parsed = json.loads(scalar_value)
+                    if isinstance(parsed, list):
+                        answer = parsed
+                    elif isinstance(parsed, dict) and "values" in parsed:
+                        answer = parsed["values"]
+                        generation_parameters = parsed.get("generation_parameters")
+                    else:
                         scalar_value = ""
                 except json.decoder.JSONDecodeError:
                     scalar_value = ""
-            input_dict = dict(type=TS_MANUAL_TYPE)
+            input_dict = dict(
+                type=TS_MANUAL_TYPE, generation_parameters=generation_parameters
+            )
         elif scalar_value == "":
             self.set_widget_error()
             raise ValidationError(

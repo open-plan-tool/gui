@@ -50,5 +50,6 @@
 	{% endfor %}{% endspaceless %}
 </div>
 <div id="{{ widget.name }}_trace"></div>
+<pre id="{{ widget.name }}_generation_parameters" class="small text-muted" style="display:none;"></pre>
 {% url 'get_timeseries' as ts_url %}
 {{ ts_url|json_script:"tsUrl" }}

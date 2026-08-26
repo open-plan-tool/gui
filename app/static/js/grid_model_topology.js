@@ -768,10 +768,13 @@ function computeCustomTimeseries(event){
     }).then(response => response.json()).then(jsonRes => {
         if (jsonRes.success) {
             // show the computed timeseries in the usual field in the modal (same as select/upload do),
-            // and store it there as the manual/scalar value so it gets saved with the asset
+            // and store it (together with the parameters used to generate it) as the manual/scalar
+            // value so it gets saved with the asset
             const tsValues = jsonRes.timeseries;
+            const generationParameters = jsonRes.generation_parameters;
             updateScalarInput(tsValues.map(v => [v]), paramName);
             plotTimeseriesInputTrace(tsValues, paramName);
+            showGenerationParameters(generationParameters, paramName);
         } else {
             form.innerHTML = jsonRes.form_html;
         }

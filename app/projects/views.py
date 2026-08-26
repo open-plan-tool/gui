@@ -1554,7 +1554,12 @@ def get_timeseries(request, ts_id=None):
     if request.method == "GET":
         if ts_id is not None:
             ts = Timeseries.objects.get(id=ts_id)
-            return JsonResponse({"values": ts.get_values})
+            return JsonResponse(
+                {
+                    "values": ts.get_values,
+                    "generation_parameters": ts.generation_parameters,
+                }
+            )
 
 
 @json_view
@@ -1824,6 +1829,15 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
             # for pv timeseries, add lat/lon to the params dict
             # should be able to just pass the validated form as dict as **form
             cleaned_data = form.cleaned_data
+            # outdoor_temperature is excluded from the saved generation parameters:
+            # it can itself be a full timeseries and we don't want to save a whole
+            # other timeseries as metadata
+            generation_parameters = {
+                key: value
+                for key, value in cleaned_data.items()
+                if key != "outdoor_temperature"
+            }
+
             outdoor_temperature = cleaned_data.get("outdoor_temperature")
             if outdoor_temperature is not None and not isinstance(
                 outdoor_temperature, list
@@ -1836,7 +1850,11 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
             timeseries = custom_ts_fun(**cleaned_data)
 
             return JsonResponse(
-                {"success": True, "timeseries": timeseries.values.tolist()},
+                {
+                    "success": True,
+                    "timeseries": timeseries.values.tolist(),
+                    "generation_parameters": generation_parameters,
+                },
                 status=200,
             )
         except Exception:

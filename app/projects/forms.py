@@ -1007,6 +1007,11 @@ class AssetCreateForm(OpenPlanModelForm):
                 ts_default_settings["ts_type"] = "scalar"
             else:
                 timeseries_name = f"Created timeseries ({self.asset_type_name})"
+                generation_parameters = input_timeseries["input_method"].get(
+                    "generation_parameters"
+                )
+                if generation_parameters:
+                    ts_default_settings["generation_parameters"] = generation_parameters
 
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
