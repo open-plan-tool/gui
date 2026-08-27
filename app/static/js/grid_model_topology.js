@@ -721,7 +721,78 @@ function updateInputTimeseries(){
 
 
 // COP calculation from temperature
-function toggle_cop_modal(event){
+function toggle_sub_modal(){
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    let getUrl = createTimeseriesGetUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        getUrl;
+
+    fetch(getUrl).then(response => response.text()).then(formContent => {
+        // assign the content of the form to the form tag of the modal
+        guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+        // enable Bootstrap tooltips (help text icons)
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+function computeCustomTimeseries(event){
+
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    const form = event.target.closest('.modal-content').querySelector('#timeseriesForm');
+    const formData = new FormData();
+    // because we can't have nested forms in the html, we construct the form data manually from the fields here instead of relying on the form tag
+    // TODO: if some of the custom forms rely on more than input, select, need to adapt
+    form.querySelectorAll('input, select').forEach(el => {
+       formData.append(el.name, el.value);
+    });
+
+    let postUrl = createTimeseriesPostUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
+
+    const createTsDOM = event.target.closest('#form-createTS');
+    const paramName = createTsDOM.dataset.paramName;
+
+    fetch(postUrl, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken},
+        body: formData,
+    }).then(response => response.json()).then(jsonRes => {
+        if (jsonRes.success) {
+            // show the computed timeseries in the usual field in the modal (same as select/upload do),
+            // and store it (together with the parameters used to generate it) as the manual/scalar
+            // value so it gets saved with the asset
+            const tsValues = jsonRes.timeseries;
+            const generationParameters = jsonRes.generation_parameters;
+            // clear the other subfields first: the scalar field's onchange handler
+            // (initTimeseriesManualValue) re-triggers the select field's own change handler
+            // with whatever it currently holds, which would otherwise re-fetch and clobber
+            // the value we're about to set here with a stale, previously-selected timeseries
+            document.getElementById('id_' + paramName + '_1').value = '';
+            document.getElementById('id_' + paramName + '_2').value = '';
+            const scalarInput = document.getElementById('id_' + paramName + '_0');
+            scalarInput.value = JSON.stringify({values: tsValues, generation_parameters: generationParameters});
+            scalarInput.dispatchEvent(new Event('change'));
+            plotTimeseriesInputTrace(tsValues, paramName);
+            showGenerationParameters(generationParameters, paramName);
+        } else {
+            form.innerHTML = jsonRes.form_html;
+        }
+    }).catch(error => {
+        console.error(error);
+        alert(error.message);
+    });
+}
+
+function toggle_cop_modal(){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
@@ -767,8 +838,7 @@ function computeCOP(event){
 
             efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
             if(efficiencyDOM){
-                efficiencyDOM.value = jsonRes.cops;
-                efficiencyDOM.dispatchEvent(new Event('change'));
+                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
             }
             copDOM = guiModalDOM.querySelector('input[name="copId"]');
             if(copDOM){

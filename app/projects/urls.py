@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+
 from .views import *
 
 urlpatterns = [
@@ -239,6 +240,16 @@ urlpatterns = [
         r"^asset/cops_create_or_update/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         asset_cops_create_or_update,
         name="asset_cops_create_or_update",
+    ),
+    re_path(
+        r"^asset/get_timeseries_create_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?$",
+        get_timeseries_create_form,
+        name="get_timeseries_create_form",
+    ),
+    re_path(
+        r"^asset/custom_timeseries_create/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+        custom_timeseries_create,
+        name="custom_timeseries_create",
     ),
     # ParameterChangeTracker (track of simulated scenario changes)
     path(

@@ -1,43 +1,42 @@
 import datetime
 import json
 import logging
+import tempfile
 import uuid
 from datetime import timedelta
-import pandas as pd
 from pathlib import Path
+
 import numpy as np
-import tempfile
-from oemof.datapackage.datapackage import building, export_dp_to_json
-
-
 import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
+import pandas as pd
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms.models import model_to_dict
-from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import gettext_lazy as _
+from oemof.datapackage.datapackage import export_dp_to_json
+from users.models import CustomUser
+
 from projects.constants import (
     ASSET_CATEGORY,
     ASSET_TYPE,
+    BOOL_CHOICES,
+    COP_MODES,
     COUNTRY,
     CURRENCY,
     ENERGY_VECTOR,
-    COP_MODES,
     FLOW_DIRECTION,
     MVS_TYPE,
-    SIMULATION_STATUS,
-    SIMULATION_SERVERS,
     PENDING,
-    TRUE_FALSE_CHOICES,
-    BOOL_CHOICES,
-    USER_RATING,
-    TIMESERIES_UNITS,
-    TIMESERIES_CATEGORIES,
-    TIMESERIES_TYPES,
+    SIMULATION_SERVERS,
+    SIMULATION_STATUS,
     TIMESERIES_ASSET_TYPES,
+    TIMESERIES_CATEGORIES,
+    TIMESERIES_UNITS,
+    TRUE_FALSE_CHOICES,
+    USER_RATING,
 )
-from users.models import CustomUser
 
 
 class Feedback(models.Model):
@@ -141,12 +140,11 @@ class Project(models.Model):
             viewers = Viewer.objects.filter(user=user, share_rights=share_rights)
             if viewers.exists():
                 viewer = viewers.get()
+            elif user == self.user:
+                viewer = None
+                message = _("You cannot share a project with yourself")
             else:
-                if user == self.user:
-                    viewer = None
-                    message = _("You cannot share a project with yourself")
-                else:
-                    viewer = Viewer.objects.create(user=user, share_rights=share_rights)
+                viewer = Viewer.objects.create(user=user, share_rights=share_rights)
 
             if viewer not in self.viewers.all() and viewer is not None:
                 self.viewers.add(viewer)
@@ -154,19 +152,18 @@ class Project(models.Model):
                 message = _(
                     f"'{email}' belongs to a valid user, they will be able to {share_rights} the project '{self.name}'"
                 )
-            else:
-                if viewer is not None:
-                    if viewer.share_rights != share_rights:
-                        success = True
-                        message = _(
-                            f"The share rights of the user registered under {email} for the project '{self.name}' have been changed from '{viewer.share_rights}' to '{share_rights}'"
-                        )
-                        viewer.share_rights = share_rights
-                        viewer.save()
-                    else:
-                        message = _(
-                            f"The user registered under {email} for the project '{self.name}' already have '{share_rights}' access"
-                        )
+            elif viewer is not None:
+                if viewer.share_rights != share_rights:
+                    success = True
+                    message = _(
+                        f"The share rights of the user registered under {email} for the project '{self.name}' have been changed from '{viewer.share_rights}' to '{share_rights}'"
+                    )
+                    viewer.share_rights = share_rights
+                    viewer.save()
+                else:
+                    message = _(
+                        f"The user registered under {email} for the project '{self.name}' already have '{share_rights}' access"
+                    )
 
         else:
             message = (
@@ -478,7 +475,7 @@ class Scenario(models.Model):
         resource_metadata["schema"].update(schema)
         datapackage_metadata_dict["resources"].append(resource_metadata)
 
-        out_path = data_folder / f"project.csv"
+        out_path = data_folder / "project.csv"
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         df = pd.DataFrame([proj_dp])
         df.drop_duplicates("name").to_csv(out_path, index=False)
@@ -541,7 +538,7 @@ class Scenario(models.Model):
         # Save all unique busses to a elements resource
         if bus_resource_records:
             resource_metadata = {
-                "path": f"data/elements/bus.csv",
+                "path": "data/elements/bus.csv",
                 "profile": "tabular-data-resource",
                 "name": "bus",
                 "format": "csv",
@@ -558,7 +555,7 @@ class Scenario(models.Model):
             resource_metadata["schema"].update(schema)
             datapackage_metadata_dict["resources"].append(resource_metadata)
 
-            out_path = elements_folder / f"bus.csv"
+            out_path = elements_folder / "bus.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
             df_bus = pd.DataFrame(bus_resource_records)
             df_bus.drop_duplicates("name").to_csv(out_path, index=False)
@@ -566,7 +563,7 @@ class Scenario(models.Model):
         # Save all profiles to a sequences resource
         if profile_resource_records:
             resource_metadata = {
-                "path": f"data/sequences/profiles.csv",
+                "path": "data/sequences/profiles.csv",
                 "profile": "tabular-data-resource",
                 "name": "profiles",
                 "format": "csv",
@@ -579,13 +576,13 @@ class Scenario(models.Model):
                     "missingValues": [""],
                 },
             }
-            for k in profile_resource_records.keys():
+            for k in profile_resource_records:
                 resource_metadata["schema"]["fields"].append(
                     {"name": k, "type": "number", "format": "default"}
                 )
             datapackage_metadata_dict["resources"].append(resource_metadata)
 
-            out_path = sequences_folder / f"profiles.csv"
+            out_path = sequences_folder / "profiles.csv"
             Path(out_path).parent.mkdir(parents=True, exist_ok=True)
             # add timestamps to the profiles
             profile_resource_records["timeindex"] = self.get_timestamps()
@@ -643,6 +640,14 @@ class Timeseries(models.Model):
     asset_type = models.CharField(
         max_length=50,
         choices=TIMESERIES_ASSET_TYPES,
+        blank=True,
+        null=True,
+    )
+    generation_parameters = models.JSONField(
+        blank=True,
+        null=True,
+    )
+    description = models.TextField(
         blank=True,
         null=True,
     )

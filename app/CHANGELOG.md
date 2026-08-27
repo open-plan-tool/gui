@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Allow user to generate custom timeseries (currently only heat demand) from eesyplan functions [[#511](https://github.com/open-plan-tool/gui/pull/511)]
 ### Fixed
 - Fix issues with read and edit rights on shared projects [[#478](https://github.com/open-plan-tool/gui/pull/478)]
 
