@@ -332,7 +332,7 @@
         </div>
     {% endif %}
 </div>
-{% include "modal_template.html" with id="uploadTimeseriesModal" submit_btn_label="Upload" title="Upload time series" form=timeseries_upload_form enctype=True %}
+{% include "modal_template.html" with id="uploadTimeseriesModal" submit_btn_label="Upload" title="Upload time series" form=timeseries_upload_form enctype=True custom_submit_function="getDataForTimeseriesSubmit()"%}
 {% include "modal_template.html" with id="editTimeseriesModal" submit_btn_label="Edit" title="Edit time series" form=timeseries_edit_form enctype=True %}
 <div class="modal fade" id="createTimeseriesModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -394,7 +394,12 @@ function toggleTsFields() {
     document.getElementById('pv-fields').style.display = val === 'pv' ? '' : 'none';
 }
 </script>
+<script>
+    const postTimeseriesFormUrl = `{% url 'timeseries_dashboard' %}`;
+    const csrfToken = '{{ csrf_token }}';
+</script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
+<script src="{% static 'js/timeseries_dashboard_utils.js' %}"></script>
 
 {% comment %} used when upload form contains errors and needs to be shown again {% endcomment %}
 {% if show_upload_modal %}

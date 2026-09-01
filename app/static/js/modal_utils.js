@@ -14,3 +14,26 @@
         }
          modalInstance.modal("show")
     }
+
+    function submitForm(url, formData, onSuccess, onError) {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                onSuccess(data);
+            } else {
+                onError(data);
+            }
+        })
+        .catch(error => {
+            console.error('AJAX Error:', error);
+            onError({ error: error.message || "Netzwerkfehler" });
+        });
+    }
