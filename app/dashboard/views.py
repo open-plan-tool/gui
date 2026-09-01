@@ -783,7 +783,8 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         existing_asset = None
         context = {"form": form}
     elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
-        template = "asset/storage_asset_create_form.html"
+        template = "asset/asset_create_form.html"
+        context.update({"show_input_timeseries": False, "show_cop_calculator": False})
         existing_ess_asset = get_object_or_404(Asset, unique_id=asset_uuid)
         ess_asset_children = Asset.objects.filter(parent_asset=existing_ess_asset.id)
         ess_capacity_asset = ess_asset_children.get(asset_type__asset_type="capacity")
@@ -848,6 +849,8 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                 "input_timeseries_timestamps": json.dumps(
                     scenario.get_timestamps(json_format=True)
                 ),
+                "show_input_timeseries": True,
+                "show_cop_calculator": asset_type_name == "heat_pump",
             }
         )
 
