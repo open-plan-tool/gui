@@ -229,6 +229,27 @@ def timeseries_edit(request, ts_id):
 
 
 @login_required
+@require_http_methods(["GET"])
+def timeseries_duplicate(request, ts_id):
+    selected_timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if selected_timeseries.user != request.user:
+        raise PermissionDenied
+
+    if not selected_timeseries:
+        messages.error(request, "No timeseries selected.")
+        return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    selected_timeseries.pk = None
+    selected_timeseries.name = f"{selected_timeseries.name} (Copy)"
+    selected_timeseries.save()
+
+    messages.success(request, "Timeseries successfully duplicated!")
+
+    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+
+@login_required
 @require_http_methods(["GET", "POST"])
 def timeseries_delete(request, ts_id):
     timeseries = get_object_or_404(Timeseries, id=ts_id)
