@@ -68,7 +68,7 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
                 simulation=scenario.simulation, name=bus.name, action=1
             )
         return JsonResponse({"success": True, "asset_id": bus.id}, status=200)
-    logger.warning(f"The submitted bus has erroneous field values.")
+    logger.warning("The submitted bus has erroneous field values.")
 
     form_html = get_template("asset/bus_create_form.html")
     return JsonResponse(
@@ -245,17 +245,16 @@ def handle_storage_unit_form_post(
                 if param == "opex_var":
                     if ess_charging_power_asset.has_parameter(param):
                         setattr(ess_charging_power_asset, param, 0)
-                else:
-                    if ess_charging_power_asset.has_parameter(param):
-                        if asset_uuid and qs_sim.exists():
-                            track_asset_changes(
-                                scenario,
-                                param,
-                                form,
-                                existing_asset=ess_charging_power_asset,
-                                new_value=value,
-                            )
-                        setattr(ess_charging_power_asset, param, value)
+                elif ess_charging_power_asset.has_parameter(param):
+                    if asset_uuid and qs_sim.exists():
+                        track_asset_changes(
+                            scenario,
+                            param,
+                            form,
+                            existing_asset=ess_charging_power_asset,
+                            new_value=value,
+                        )
+                    setattr(ess_charging_power_asset, param, value)
 
                 if ess_discharging_power_asset.has_parameter(param):
                     if asset_uuid and qs_sim.exists():
@@ -284,8 +283,8 @@ def handle_storage_unit_form_post(
             )
             return JsonResponse({"success": False, "exception": ex}, status=422)
 
-    logger.warning(f"The submitted asset has erroneous field values.")
-    form_html = get_template("asset/storage_asset_create_form.html")
+    logger.warning("The submitted asset has erroneous field values.")
+    form_html = get_template("asset/asset_create_form.html")
     return JsonResponse(
         {
             "success": False,
@@ -372,7 +371,7 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
             existing_cop.save()
 
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
-    logger.warning(f"The submitted asset has erroneous field values.")
+    logger.warning("The submitted asset has erroneous field values.")
 
     form_html = get_template("asset/asset_create_form.html")
     return JsonResponse(
@@ -415,9 +414,7 @@ def db_bus_nodes_to_list(scen_id):
                 "name": db_bus.name,
                 "bustype": db_bus.type,
                 "databaseId": db_bus.id,
-                "parent_asset_id": (
-                    db_bus.parent_asset_id if db_bus.parent_asset_id else ""
-                ),
+                "parent_asset_id": (db_bus.parent_asset_id or ""),
                 "portMapping": {
                     "input_1": ["input_1", db_bus.type],
                     "output_1": ["output_1", db_bus.type],
@@ -444,9 +441,7 @@ def db_asset_nodes_to_list(scen_id):
             "data": {
                 "name": db_asset.name,
                 "unique_id": db_asset.unique_id,
-                "parent_asset_id": (
-                    db_asset.parent_asset_id if db_asset.parent_asset_id else ""
-                ),
+                "parent_asset_id": (db_asset.parent_asset_id or ""),
                 "portMapping": asset_type_obj.connection_ports,
             },
         }
@@ -574,9 +569,8 @@ def load_scenario_from_dict(model_data, user, project=None):
             load_project_from_dict(project_data, user)
         else:
             raise ValueError("Project of a scenario cannot be None")
-    else:
-        if "project" in model_data:
-            project_data = model_data.pop("project")
+    elif "project" in model_data:
+        project_data = model_data.pop("project")
 
     scenario = Scenario(**model_data)
     scenario.project = project
@@ -695,7 +689,7 @@ class NodeObject:
 
     @staticmethod
     def uuid_2_db_id(data):
-        if "db_id" in data and data["db_id"]:
+        if data.get("db_id"):
             if isinstance(data["db_id"], int):
                 return data["db_id"]
             elif isinstance(data["db_id"], str):
