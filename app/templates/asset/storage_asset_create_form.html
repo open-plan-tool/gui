@@ -41,6 +41,25 @@
               {% endif %}
       </div>
   {% endif %}
+    {% if form|has_toggle_parameters %}
+      <div class="row">
+        <div class="col">
+          <h3>{% translate "Settings" %}</h3>
+          <div class="d-flex gap-5">
+            {% for field in form %}
+              {% if field.name|is_toggle_parameter %}
+                <div class="form-group{% if field.errors %} invalid{% endif %}">
+                  {{ field }}
+                  {% if not field.is_hidden %}
+                    <label>{{ field.label }}</label>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
   <div class="row align-items-start">
     <div class="col">
       <h3>{% translate "Economical parameters" %}</h3>
