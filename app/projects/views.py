@@ -1671,7 +1671,15 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 input_output_mapping=input_output_mapping,
                 initial={"name": default_name},
             )
-        return render(request, "asset/storage_asset_create_form.html", {"form": form})
+        return render(
+            request,
+            "asset/asset_create_form.html",
+            {
+                "form": form,
+                "show_input_timeseries": False,
+                "show_cop_calculator": False,
+            },
+        )
     else:  # all other assets
         if asset_uuid:
             existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
@@ -1712,6 +1720,8 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 scenario.get_timestamps(json_format=True)
             ),
             "custom_form_assets": custom_form_assets,
+            "show_input_timeseries": True,
+            "show_cop_calculator": asset_type_name == "heat_pump",
         }
 
         return render(request, "asset/asset_create_form.html", context)

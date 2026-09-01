@@ -287,7 +287,17 @@ def handle_storage_unit_form_post(
     logger.warning(f"The submitted asset has erroneous field values.")
     form_html = get_template("asset/storage_asset_create_form.html")
     return JsonResponse(
-        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+        {
+            "success": False,
+            "form_html": form_html.render(
+                {
+                    "form": form,
+                    "show_input_timeseries": False,
+                    "show_cop_calculator": False,
+                }
+            ),
+        },
+        status=422,
     )
 
 
@@ -366,7 +376,17 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
 
     form_html = get_template("asset/asset_create_form.html")
     return JsonResponse(
-        {"success": False, "form_html": form_html.render({"form": form})}, status=422
+        {
+            "success": False,
+            "form_html": form_html.render(
+                {
+                    "form": form,
+                    "show_input_timeseries": True,
+                    "show_cop_calculator": asset_type_name == "heat_pump",
+                }
+            ),
+        },
+        status=422,
     )
 
 
