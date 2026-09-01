@@ -17,7 +17,7 @@ from django.http.response import Http404
 
 # from django.shortcuts import *
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -154,10 +154,29 @@ def timeseries_dashboard(request):
                 new_timeseries.values = parse_input_timeseries(uploaded_file)
 
             new_timeseries.save()
-            return HttpResponseRedirect(reverse("timeseries_dashboard"))
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": timeseries_upload_form},
+                        request=request,
+                    ),
+                }
+            )
         else:
             timeseries_upload_form = form
             show_upload_modal = True
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
 
     context = {
         "timeseries_list": timeseries_qs,
