@@ -308,10 +308,8 @@ function populateForm(nodeDOM, submit=false, show=true) {
     });
 }
 
-/* onclick method associated to the save button of the modal */
-/* POST information (asset form fields) to the DB */
-function submitForm() {
 
+function getDataForAssetSubmit() {
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
@@ -370,39 +368,29 @@ function submitForm() {
     if (nodesToDB.has(topologyNodeId))
         postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
 
-    // send the form of the asset to be saved in database (projects/views.py::asset_create_or_update)
-    fetch(postUrl, {
-        method: 'POST',
-        headers: {'X-CSRFToken': csrfToken},
-        body: formData,
-    }).then(response => response.json()).then(jsonRes => {
-        if (jsonRes.success) {
-            // rename the node on the fly (to avoid the need of refreshing the page)
+    submitForm(
+        postUrl,
+        formData,
+        // On Success
+        function(data) {
             nodeName.textContent = nodeNameValue;
-            // update node name in node data
-            let oldData = editor.getNodeFromId(drawflowNodeId);
-            let newData = Object.assign({}, oldData, {"name": nodeNameValue});
-            editor.updateNodeDataFromId(drawflowNodeId, newData);
+            const oldData = editor.getNodeFromId(drawflowNodeId);
+            editor.updateNodeDataFromId(drawflowNodeId, Object.assign({}, oldData, { name: nodeNameValue }));
 
-            // add the node id to the nodesToDB mapping
-            if (!nodesToDB.has(topologyNodeId))
-                nodesToDB.set(topologyNodeId, {uid:jsonRes.asset_id, assetTypeName: assetTypeName });
+            if (!nodesToDB.has(topologyNodeId)) {
+                nodesToDB.set(topologyNodeId, { uid: data.asset_id, assetTypeName: assetTypeName });
+            }
 
             guiModal.hide();
-            if(copCollapseDOM){
-                copCollapse.hide();
-            }
-        } else {
-            // assign the content of the form to the form tag of the modal
-            guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
+            if (copCollapseDOM) copCollapse.hide();
+        },
+        // On Error
+        function(data) {
+            guiModalDOM.querySelector('form .modal-body').innerHTML = data.form_html;
             updateCapacityFieldsVisibility();
-            // make certain to show form
             guiModal.show();
         }
-    }).catch(error => {
-        console.error(error);
-        alert(error.message);
-    });
+    );
 }
 
 

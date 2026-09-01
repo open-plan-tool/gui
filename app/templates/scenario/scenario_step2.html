@@ -77,7 +77,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
                 {% if user_has_right_to_save %}
-                <button class="btn btn--medium" onclick="submitForm(event)">{% translate "Save" %}</button>
+                <button class="btn btn--medium" onclick="getDataForAssetSubmit()">{% translate "Save" %}</button>
                 {% endif %}
             </div>
         </div>
@@ -146,6 +146,7 @@
     const tsGetUrl = `{% url 'get_timeseries' %}`;
     const findtsGetUrl = `{% url 'get_constant_timeseries_id' %}`;
 </script>
+<script src="{% static 'js/modal_utils.js' %}"></script>
 <script src="{% static 'js/grid_model_topology.js' %}"></script>
 
 <script>
