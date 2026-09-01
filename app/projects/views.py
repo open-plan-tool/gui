@@ -140,7 +140,6 @@ def timeseries_dashboard(request):
         timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
 
     timeseries_upload_form = TimeseriesModelForm()
-    show_upload_modal = False
 
     if request.POST:
         form = TimeseriesModelForm(request.POST, request.FILES)
@@ -166,7 +165,6 @@ def timeseries_dashboard(request):
             )
         else:
             timeseries_upload_form = form
-            show_upload_modal = True
             return JsonResponse(
                 {
                     "success": False,
@@ -183,7 +181,6 @@ def timeseries_dashboard(request):
         "selected_timeseries": selected_timeseries,
         "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
         "timeseries_upload_form": timeseries_upload_form,
-        "show_upload_modal": show_upload_modal,
         "warning_boxes": {
             "timeseries_delete": _(
                 "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
