@@ -401,15 +401,5 @@ function toggleTsFields() {
 <script src="{% static 'js/modal_utils.js' %}"></script>
 <script src="{% static 'js/timeseries_dashboard_utils.js' %}"></script>
 
-{% comment %} used when upload form contains errors and needs to be shown again {% endcomment %}
-{% if show_upload_modal %}
-    <script>
-        window.onload = function() {
-            showModal(null, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'});
-        }
-    </script>
-{% endif %}
-
-
 </body>
 {% endblock content %}
