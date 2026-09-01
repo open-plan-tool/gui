@@ -309,7 +309,7 @@
 
                     <div class="detail-actions">
                         <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
-                        <a class="btn btn--medium" href="{% url 'not_implemented' %}">Duplicate</a>
+                        <a class="btn btn--medium" href="{% url 'timeseries_duplicate' selected_timeseries.id %}">Duplicate</a>
                         <form action="{% url 'timeseries_delete' selected_timeseries.id %}" method="POST" style="display:inline">
                             {% csrf_token %}
                             <button class="btn btn--medium" type="submit" onclick="return confirm('{{ warning_boxes.timeseries_delete|escapejs }}')">Delete</button>
