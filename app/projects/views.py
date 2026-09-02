@@ -226,7 +226,7 @@ def timeseries_edit(request, ts_id):
 
 
 @login_required
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def timeseries_duplicate(request, ts_id):
     selected_timeseries = get_object_or_404(Timeseries, id=ts_id)
 
@@ -242,8 +242,17 @@ def timeseries_duplicate(request, ts_id):
     selected_timeseries.save()
 
     messages.success(request, "Timeseries successfully duplicated!")
-
-    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+    # load updated timeseries list
+    timeseries_list = Timeseries.objects.filter(user=request.user)
+    html = render_to_string(
+        "asset/timeseries_table.html",
+        {
+            "timeseries_list": timeseries_list,
+            "selected_timeseries": selected_timeseries,
+        },
+        request=request,
+    )
+    return HttpResponse(html)
 
 
 @login_required
