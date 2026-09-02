@@ -199,6 +199,12 @@ def timeseries_dashboard(request):
         "selected_asset_type": selected_asset_type,
         "selected_scenario": selected_scenario,
     }
+    if request.headers.get("HX-Request") == "true":
+        table_html = render_to_string("asset/timeseries_table.html", context, request)
+        details_html = render_to_string(
+            "asset/timeseries_detail_panel.html", context, request
+        )
+        return HttpResponse(table_html + details_html)
     return render(request, "asset/timeseries_dashboard.html", context)
 
 
