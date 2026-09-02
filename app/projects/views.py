@@ -258,7 +258,14 @@ def timeseries_delete(request, ts_id):
         timeseries.delete()
         messages.success(request, "Timeseries successfully deleted!")
 
-    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+    # load updated timeseries list
+    timeseries_list = Timeseries.objects.filter(user=request.user)
+    html = render_to_string(
+        "asset/timeseries_table.html",
+        {"timeseries_list": timeseries_list, "selected_timeseries": None},
+        request=request,
+    )
+    return HttpResponse(html)
 
 
 @require_http_methods(["GET"])
