@@ -1,0 +1,12 @@
+{% for ts in timeseries_list %}
+    <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
+        <td>
+            <a class="row-link" href="?selected={{ ts.pk }}">
+                <strong>{{ ts.name|default:"Unnamed" }}</strong>
+            </a>
+        </td>
+        <td>{{ ts.get_asset_type_display|default:"-" }}</td>
+        <td>{{ ts.scenario.id|default:"-" }}</td>
+        <td>{{ ts.values|length }}</td>
+    </tr>
+{% endfor %}

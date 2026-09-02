@@ -139,11 +139,12 @@
             font-size: 13px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
 </head>
 {% endblock head_block %}
 
 {% block content %}
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 <div class="page">
     <div class="header">
         <div>
@@ -228,7 +229,7 @@
                             <th>Points</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="timeseries_table_body">
                         {% for ts in timeseries_list %}
                             <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
                                 <td>
@@ -310,10 +311,15 @@
                     <div class="detail-actions">
                         <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
                         <a class="btn btn--medium" href="{% url 'timeseries_duplicate' selected_timeseries.id %}">Duplicate</a>
-                        <form action="{% url 'timeseries_delete' selected_timeseries.id %}" method="POST" style="display:inline">
-                            {% csrf_token %}
-                            <button class="btn btn--medium" type="submit" onclick="return confirm('{{ warning_boxes.timeseries_delete|escapejs }}')">Delete</button>
-                        </form>
+                        <button
+                            class="btn btn--medium"
+                            hx-post="{% url 'timeseries_delete' selected_timeseries.id %}"
+                            hx-target="#timeseries_table_body"
+                            hx-swap="innerHTML"
+                            hx-confirm="{{ warning_boxes.timeseries_delete|escapejs }}"
+                        >
+                            Delete
+                        </button>
                     </div>
                 {% else %}
                     <h2>Details</h2>
