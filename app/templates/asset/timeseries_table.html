@@ -5,7 +5,7 @@
             <td>
                 <a
                     class="row-link"
-                    hx-get="{% url 'timeseries_dashboard' %}?selected={{ ts.pk }}"
+                    hx-get="{% url 'timeseries_dashboard' %}?{{ request.GET.urlencode }}&selected={{ ts.pk }}"
                     hx-target="#timeseries_details_panel"
                     hx-swap="outerHTML">
                     <strong>{{ ts.name|default:"Unnamed" }}</strong>
