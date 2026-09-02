@@ -243,6 +243,15 @@ class DualNumberField(forms.MultiValueField):
                         answer = json.loads(scalar_value)
                         if not isinstance(answer, list):
                             scalar_value = ""
+                        elif not all(isinstance(v, (int, float)) for v in answer):
+                            self.set_widget_error()
+                            raise ValidationError(
+                                _(
+                                    "The uploaded timeseries contains a "
+                                    "non-numeric value, likely from a header "
+                                    "row. Please remove it and try again."
+                                ),
+                            )
                     except json.decoder.JSONDecodeError:
                         scalar_value = ""
 
@@ -610,7 +619,7 @@ def parse_csv_timeseries(file_str):
         # --- decimal normalization ---
         if is_comma_decimal or ("," in value and "." not in value):
             value = value.replace(",", ".")
-        if value.isalpha():
+        if not is_number(value):
             # catch if there is a header, then the file cannot be parsed
             raise ValidationError(msg)
         timeseries_values.append(float(value))
@@ -620,6 +629,14 @@ def parse_csv_timeseries(file_str):
 def is_timestamp(values):
     # checks if there is a timestamp in the given value/values
     return ":" in values or "-" in values
+
+
+def is_number(value):
+    try:
+        float(value)
+    except ValueError:
+        return False
+    return True
 
 
 def parse_xlsx_timeseries(file_buffer):
