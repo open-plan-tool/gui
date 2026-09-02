@@ -103,9 +103,7 @@ logger = logging.getLogger(__name__)
 @login_required
 @require_http_methods(["GET", "POST"])
 def timeseries_dashboard(request):
-    timeseries_qs = Timeseries.objects.filter(
-        Q(user=request.user) & ~Q(ts_type="scalar")
-    ).order_by("name", "id")
+    timeseries_qs = timeseries_sort_and_filter(request)
 
     selected_id = request.GET.get("selected")
     selected_timeseries = None
@@ -131,19 +129,6 @@ def timeseries_dashboard(request):
         .order_by()
         .distinct()
     )
-
-    selected_length = request.GET.get("length")
-    selected_asset_type = request.GET.get("asset_type")
-    selected_scenario = request.GET.get("scenario")
-
-    if selected_asset_type:
-        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
-
-    if selected_length:
-        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
-
-    if selected_scenario:
-        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
 
     timeseries_upload_form = TimeseriesModelForm()
 
@@ -195,9 +180,9 @@ def timeseries_dashboard(request):
         "existing_lengths": existing_lengths,
         "existing_asset_types": existing_asset_types,
         "existing_scenarios": existing_scenarios,
-        "selected_length": selected_length,
-        "selected_asset_type": selected_asset_type,
-        "selected_scenario": selected_scenario,
+        "selected_length": request.GET.get("length"),
+        "selected_asset_type": request.GET.get("asset_type"),
+        "selected_scenario": request.GET.get("scenario"),
     }
     if request.headers.get("HX-Request") == "true":
         table_html = render_to_string("asset/timeseries_table.html", context, request)
@@ -206,6 +191,40 @@ def timeseries_dashboard(request):
         )
         return HttpResponse(table_html + details_html)
     return render(request, "asset/timeseries_dashboard.html", context)
+
+
+def timeseries_sort_and_filter(request):
+    """
+    Looks for all the timeseries owned by user and with timeseries type = scalar. Then sorts those
+    for name and id. If the request contains filter parameters, uses these to filter the timeseries.
+
+    Function accessable for all the timeseries views so that sorting and filtering always applies in the same way.
+
+    Args:
+        request: Django HttpRequest (needed for Parameters) either GET or POST
+
+    Returns:
+        QuerySet: timeseries queryset thats sorted and filtered
+    """
+    timeseries_qs = Timeseries.objects.filter(
+        Q(user=request.user) & ~Q(ts_type="scalar")
+    ).order_by("name", "id")
+
+    # apply filters if excisting
+    params = request.GET or request.POST
+
+    selected_length = params.get("length")
+    selected_asset_type = params.get("asset_type")
+    selected_scenario = params.get("scenario")
+
+    if selected_asset_type:
+        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
+    if selected_length:
+        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+    if selected_scenario:
+        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
+
+    return timeseries_qs
 
 
 @login_required
@@ -249,7 +268,7 @@ def timeseries_duplicate(request, ts_id):
 
     messages.success(request, "Timeseries successfully duplicated!")
     # load updated timeseries list
-    timeseries_list = Timeseries.objects.filter(user=request.user)
+    timeseries_list = timeseries_sort_and_filter(request)
     html = render_to_string(
         "asset/timeseries_table.html",
         {
@@ -262,7 +281,7 @@ def timeseries_duplicate(request, ts_id):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def timeseries_delete(request, ts_id):
     timeseries = get_object_or_404(Timeseries, id=ts_id)
 
@@ -274,7 +293,7 @@ def timeseries_delete(request, ts_id):
         messages.success(request, "Timeseries successfully deleted!")
 
     # load updated timeseries list
-    timeseries_list = Timeseries.objects.filter(user=request.user)
+    timeseries_list = timeseries_sort_and_filter(request)
     html = render_to_string(
         "asset/timeseries_table.html",
         {"timeseries_list": timeseries_list, "selected_timeseries": None},
