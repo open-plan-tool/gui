@@ -1,12 +1,19 @@
-{% for ts in timeseries_list %}
-    <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
-        <td>
-            <a class="row-link" href="?selected={{ ts.pk }}">
-                <strong>{{ ts.name|default:"Unnamed" }}</strong>
-            </a>
-        </td>
-        <td>{{ ts.get_asset_type_display|default:"-" }}</td>
-        <td>{{ ts.scenario.id|default:"-" }}</td>
-        <td>{{ ts.values|length }}</td>
-    </tr>
-{% endfor %}
+<!-- swap oob makes it so that this element does not get put into target from previous htmx call but into target with the id of this element itself -->
+<tbody id="timeseries_table_body" hx-swap-oob="true">
+    {% for ts in timeseries_list %}
+        <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
+            <td>
+                <a
+                    class="row-link"
+                    hx-get="{% url 'timeseries_dashboard' %}?selected={{ ts.pk }}"
+                    hx-target="#timeseries_details_panel"
+                    hx-swap="outerHTML">
+                    <strong>{{ ts.name|default:"Unnamed" }}</strong>
+                </a>
+            </td>
+            <td>{{ ts.get_asset_type_display|default:"-" }}</td>
+            <td>{{ ts.scenario.id|default:"-" }}</td>
+            <td>{{ ts.values|length }}</td>
+        </tr>
+    {% endfor %}
+</tbody>

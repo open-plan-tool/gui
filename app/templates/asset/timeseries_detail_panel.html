@@ -1,0 +1,85 @@
+<div class="panel" id="timeseries_details_panel">
+    {% if selected_timeseries %}
+        <h2>Details</h2>
+        <div class="muted" style="margin-bottom: 16px;">
+            Selected time series
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-label">Name</div>
+            <div>{{ selected_timeseries.name|default:"Unnamed" }}</div>
+
+            <div class="detail-label">Category</div>
+            <div>{{ selected_timeseries.get_category_display|default:"-" }}</div>
+
+            <div class="detail-label">Asset type</div>
+            <div>{{ selected_timeseries.get_asset_type_display|default:"-" }}</div>
+
+            <div class="detail-label">Type</div>
+            <div>{{ selected_timeseries.get_ts_type_display|default:"-" }}</div>
+
+            <div class="detail-label">Units</div>
+            <div>{{ selected_timeseries.units|default:"-" }}</div>
+
+            <div class="detail-label">Scenario</div>
+            <div>
+                {% if selected_timeseries.scenario %}
+                    {{ selected_timeseries.scenario }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+
+            <div class="detail-label">Open source</div>
+            <div>{{ selected_timeseries.open_source|yesno:"Yes,No" }}</div>
+
+            <div class="detail-label">Start date</div>
+            <div>{{ selected_timeseries.start_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+            <div class="detail-label">End date</div>
+            <div>{{ selected_timeseries.end_date|date:"Y-m-d H:i"|default:"-" }}</div>
+
+            <div class="detail-label">Time step</div>
+            <div>{{ selected_timeseries.time_step|default:"-" }}</div>
+
+            <div class="detail-label">Length</div>
+            <div>{{ selected_timeseries.values|length }} points</div>
+        </div>
+
+        <div class="placeholder-chart">
+            Preview chart placeholder<br>
+            <span class="small">
+                Later this could show a sparkline or mini line chart for the selected series.
+            </span>
+        </div>
+
+        <div class="placeholder-chart">
+            First values preview placeholder<br>
+            <span class="small">
+                Example: show first 10 values, min/max, mean, missing values.
+            </span>
+        </div>
+
+        <div class="detail-actions">
+            <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
+            <button
+                class="btn btn--medium"
+                hx-post="{% url 'timeseries_duplicate' selected_timeseries.id %}"
+                hx-target="#timeseries_table_body"
+                hx-swap="outerHTML">
+                Duplicate
+            </button>
+            <button
+                class="btn btn--medium"
+                hx-post="{% url 'timeseries_delete' selected_timeseries.id %}"
+                hx-target="#timeseries_table_body"
+                hx-swap="outerHTML"
+                hx-confirm="{{ warning_boxes.timeseries_delete|escapejs }}">
+                Delete
+            </button>
+        </div>
+    {% else %}
+        <h2>Details</h2>
+        <div class="muted">No time series selected.</div>
+    {% endif %}
+</div>
