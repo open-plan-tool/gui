@@ -1241,11 +1241,14 @@ ASSET_TYPE_TO_CATEGORY = {
 }
 
 
-class TimeseriesModelForm(ModelForm):
+class TimeseriesModelForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["timeseries_file"] = forms.FileField(required=False)
         self.fields["open_source"].required = False
+
+        for field in self.fields:
+            self.add_help_text_icon(field, RTD_link=True)
 
     def clean_timeseries_file(self):
         uploaded_file = self.cleaned_data.get("timeseries_file")
