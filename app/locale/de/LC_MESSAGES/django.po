@@ -575,8 +575,7 @@ msgid ""
 "Please provide either a number within %(boundaries) s or upload a timeseries "
 "from a file"
 msgstr ""
-"Please provide either a number within %(boundaries) s or upload a timeseries "
-"from a file. aus einer Datei"
+"Bitte geben Sie entweder eine Zahl innerhalb von %(boundaries) s ein oder laden Sie eine Zeitreihe aus einer Datei hoch."
 
 #: projects/helpers.py:287 projects/helpers.py:474
 #, python-format
@@ -5156,3 +5155,6 @@ msgstr "Zeitreihe aus Eingabeparametern erstellen"
 
 msgid "Compute Timeseries"
 msgstr "Zeitreihe berechnen"
+
+msgid "Constant Temperature or Timeseries"
+msgstr "Konstante Temperatur oder Temperaturzeitreihe"
