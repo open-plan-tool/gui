@@ -76,7 +76,6 @@ from projects.decorators import (
 )
 from dashboard.models import FancyResults
 from .scenario_topology_helpers import (
-    handle_storage_unit_form_post,
     handle_bus_form_post,
     handle_asset_form_post,
     load_scenario_topology_from_db,
@@ -1629,59 +1628,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
         return render(request, "asset/bus_create_form.html", {"form": form})
 
-    elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
-        if asset_uuid:
-            existing_ess_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            ess_asset_children = Asset.objects.filter(
-                parent_asset=existing_ess_asset.id
-            )
-            ess_capacity_asset = ess_asset_children.get(
-                asset_type__asset_type="capacity"
-            )
-            ess_charging_power_asset = ess_asset_children.get(
-                asset_type__asset_type="charging_power"
-            )
-            ess_discharging_power_asset = ess_asset_children.get(
-                asset_type__asset_type="discharging_power"
-            )
-            # also get all child assets
-            form = StorageForm(
-                asset_type=asset_type_name,
-                initial={
-                    "name": existing_ess_asset.name,
-                    "installed_capacity": ess_capacity_asset.installed_capacity,
-                    "age_installed": ess_capacity_asset.age_installed,
-                    "capex_fix": ess_capacity_asset.capex_fix,
-                    "capex_var": ess_capacity_asset.capex_var,
-                    "opex_fix": ess_capacity_asset.opex_fix,
-                    "opex_var": ess_capacity_asset.opex_var,
-                    "lifetime": ess_capacity_asset.lifetime,
-                    "crate": ess_capacity_asset.crate,
-                    "efficiency": ess_capacity_asset.efficiency,
-                    "dispatchable": ess_capacity_asset.dispatchable,
-                    "optimize_cap": ess_capacity_asset.optimize_cap,
-                    "maximum_capacity": ess_capacity_asset.maximum_capacity,
-                    "soc_max": ess_capacity_asset.soc_max,
-                    "soc_min": ess_capacity_asset.soc_min,
-                    "thermal_loss_rate": ess_capacity_asset.thermal_loss_rate,
-                    "fixed_thermal_losses_relative": ess_capacity_asset.fixed_thermal_losses_relative,
-                    "fixed_thermal_losses_absolute": ess_capacity_asset.fixed_thermal_losses_absolute,
-                },
-                input_output_mapping=input_output_mapping,
-            )
-        else:
-            # TODO change this to get the Children Assets
-            asset_list = Asset.objects.filter(
-                asset_type__asset_type=asset_type_name, scenario=scenario
-            )
-            n_asset = len(asset_list)
-            default_name = f"{asset_type_name}-{n_asset}"
-            form = StorageForm(
-                asset_type=asset_type_name,
-                input_output_mapping=input_output_mapping,
-                initial={"name": default_name},
-            )
-        return render(request, "asset/storage_asset_create_form.html", {"form": form})
     else:  # all other assets
         if asset_uuid:
             existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
@@ -1728,10 +1674,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=None):
     if asset_type_name == "bus":
         answer = handle_bus_form_post(request, scen_id, asset_type_name, asset_uuid)
-    elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
-        answer = handle_storage_unit_form_post(
-            request, scen_id, asset_type_name, asset_uuid
-        )
     else:  # all assets
         answer = handle_asset_form_post(request, scen_id, asset_type_name, asset_uuid)
     return answer
