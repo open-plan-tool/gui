@@ -5075,3 +5075,84 @@ msgstr "Aufgrund der laufenden Umstrukturierung funktioniert die Verwendung von 
 
 msgid "Further information"
 msgstr "Weitere Informationen"
+
+msgid "Outdoor Temperature"
+msgstr "Außentemperatur"
+
+msgid "Profile Type"
+msgstr "Bedarfstyp"
+
+msgid "Select from one of the available BDEW heat profiles"
+msgstr "Wählen Sie eines der verfügbaren BDEW-Wärmeprofile aus"
+
+msgid "Annual Heat Demand"
+msgstr "Jährlicher Wärmebedarf"
+
+msgid "Total heat demand in the chosen timeperiod"
+msgstr "Gesamtwärmebedarf im ausgewählten Zeitraum"
+
+msgid "Building Year"
+msgstr "Baujahr"
+
+msgid "Only for residential buildings, used for estimating insulation"
+msgstr "Nur für Wohngebäude, zur Berechnung der Wärmedämmung"
+
+msgid "Wind class"
+msgstr "Windklasse"
+
+msgid "Windy"
+msgstr "Windig"
+
+msgid "Not Windy"
+msgstr "Nicht windig"
+
+msgid "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities"
+msgstr "Windig bei exponierten Gebäuden auf freiem Feld, in Küstennähe oder in höher gelegenen Lagen. Nicht windig bei nicht exponierten Gebäuden in Dörfern/Städten"
+
+msgid "Single-family house"
+msgstr "Einfamilienhaus"
+
+msgid "Apartment building"
+msgstr "Mehrfamilienhaus"
+
+msgid "Commerce/Services general"
+msgstr "Handel/Dienstleistungen allgemein"
+
+msgid "Household-like business enterprises"
+msgstr "Haushaltsähnliche Unternehmen"
+
+msgid "Restaurants"
+msgstr "Gastronomie"
+
+msgid "Retail and wholesale"
+msgstr "Einzel- und Großhandel"
+
+msgid "Metal and automotive"
+msgstr "Metall und Automobil"
+
+msgid "Accommodation"
+msgstr "Beherbergung"
+
+msgid "Local authorities, credit institutions and insurance companies"
+msgstr "Kommunen, Kreditinstitute und Versicherungsgesellschaften"
+
+msgid "Other operational services"
+msgstr "Sonstige operative Dienstleistungen"
+
+msgid "Laundries, dry cleaning"
+msgstr "Wäschereien, chemische Reinigung"
+
+msgid "Horticulture"
+msgstr "Gartenbau"
+
+msgid "Bakery"
+msgstr "Bäckerei"
+
+msgid "Paper and printing"
+msgstr "Papier und Druck"
+
+msgid "Create timeseries from parameters"
+msgstr "Zeitreihe aus Eingabeparametern erstellen"
+
+msgid "Compute Timeseries"
+msgstr "Zeitreihe berechnen"

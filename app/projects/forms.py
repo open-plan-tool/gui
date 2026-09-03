@@ -1322,20 +1322,20 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
 
 class CreateHeatDemandForm(OpenPlanForm):
     profile_type_choices = (
-        ("EFH", "Single-family house"),
-        ("MFH", "Apartment building"),
-        ("GHD", "Commerce/Services general"),
-        ("GMF", "Household-like business enterprises"),
-        ("GGA", "Restaurants"),
-        ("GBH", "Retail and wholesale"),
-        ("GMK", "Metal and automotive"),
-        ("GBH", "Accommodation"),
-        ("GKO", "Local authorities, credit institutions and insurance companies"),
-        ("GBD", "Other operational services"),
-        ("GWA", "Laundries, dry cleaning"),
-        ("GGB", "Horticulture"),
-        ("GBA", "Bakery"),
-        ("GPD", "Paper and printing"),
+        ("EFH", _("Single-family house")),
+        ("MFH", _("Apartment building")),
+        ("GHD", _("Commerce/services general")),
+        ("GMF", _("Household-like business enterprises")),
+        ("GGA", _("Restaurants")),
+        ("GBH", _("Retail and wholesale")),
+        ("GMK", _("Metal and automotive")),
+        ("GBH", _("Accommodation")),
+        ("GKO", _("Local authorities, credit institutions and insurance companies")),
+        ("GBD", _("Other operational services")),
+        ("GWA", _("Laundries, dry cleaning")),
+        ("GGB", _("Horticulture")),
+        ("GBA", _("Bakery")),
+        ("GPD", _("Paper and printing")),
     )
 
     def __init__(self, *args, **kwargs):
