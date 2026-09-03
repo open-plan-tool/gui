@@ -141,6 +141,7 @@ class OpenPlanForm(forms.Form):
         super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field)
+            add_help_text_icon(field, fieldname, RTD_link=False)
 
 
 class FeedbackForm(ModelForm):
@@ -203,114 +204,92 @@ class EconomicDataUpdateForm(OpenPlanModelForm):
 class ProjectCreateForm(OpenPlanForm):
     name = forms.CharField(
         label=_("Project Name"),
+        help_text=_("A self explanatory name for the project."),
         widget=forms.TextInput(
             attrs={
                 "placeholder": _("Name..."),
-                "data-bs-toggle": "tooltip",
-                "title": _("A self explanatory name for the project."),
             }
         ),
     )
     description = forms.CharField(
         label=_("Project Description"),
+        help_text=_("A description of what this project objectives or test cases."),
         widget=forms.Textarea(
             attrs={
                 "placeholder": _("More detailed description here..."),
                 "data-bs-toggle": "tooltip",
-                "title": _(
-                    "A description of what this project objectives or test cases."
-                ),
             }
         ),
     )
     country = forms.ChoiceField(
         label=_("Country"),
+        help_text=_("Name of the country where the project is being deployed"),
         choices=COUNTRY,
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _("Name of the country where the project is being deployed"),
-            }
-        ),
+        widget=forms.Select(),
     )
     longitude = forms.FloatField(
         label=_("Location, longitude"),
+        help_text=_("Longitude coordinate of the project's geographical location."),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("click on the map"),
                 "readonly": "",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Longitude coordinate of the project's geographical location."
-                ),
             }
         ),
     )
     latitude = forms.FloatField(
         label=_("Location, latitude"),
+        help_text=_("Latitude coordinate of the project's geographical location."),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("click on the map"),
                 "readonly": "",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Latitude coordinate of the project's geographical location."
-                ),
             }
         ),
     )
     duration = forms.IntegerField(
         label=_("Project Duration"),
+        help_text=_(
+            "The number of years the project is intended to be operational. The project duration also sets the installation time of the assets used in the simulation. After the project ends these assets are 'sold' and the refund is charged against the initial investment costs."
+        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("eg. 1"),
                 "min": "0",
                 "max": "100",
                 "step": "1",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "The number of years the project is intended to be operational. The project duration also sets the installation time of the assets used in the simulation. After the project ends these assets are 'sold' and the refund is charged against the initial investment costs."
-                ),
             }
         ),
     )
     currency = forms.ChoiceField(
         label=_("Currency"),
         choices=CURRENCY,
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "The currency of the country where the project is implemented."
-                ),
-            }
-        ),
+        help_text=_("The currency of the country where the project is implemented."),
+        widget=forms.Select(),
     )
     discount = forms.FloatField(
         label=_("Discount Factor"),
+        help_text=_(
+            "Discount factor is the factor which accounts for the depreciation in the value of money in the future, compared to the current value of the same money. The common method is to calculate the weighted average cost of capital (WACC) and use it as the discount rate."
+        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("eg. 0.1"),
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Discount factor is the factor which accounts for the depreciation in the value of money in the future, compared to the current value of the same money. The common method is to calculate the weighted average cost of capital (WACC) and use it as the discount rate."
-                ),
             }
         ),
     )
     tax = forms.FloatField(
         label=_("Tax"),
+        help_text=_("Tax factor"),
         widget=forms.HiddenInput(
             attrs={
                 "placeholder": _("eg. 0.3"),
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-bs-toggle": "tooltip",
-                "title": _("Tax factor"),
                 "value": 0,
             }
         ),
@@ -1343,40 +1322,33 @@ class CreateHeatDemandForm(OpenPlanForm):
 
     outdoor_temperature = DualNumberField(
         label=_("Outdoor Temperature"),
+        help_text=_("Constant Temperature or Timeseries"),
         param_name="outdoor_temperature",
     )
 
     profile_type = forms.ChoiceField(
         choices=profile_type_choices,
         label=_("Profile Type"),
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _("Select from one of the available BDEW heat profiles"),
-            }
-        ),
+        help_text=_("Select from one of the available BDEW heat profiles"),
+        widget=forms.Select(),
     )
 
     annual_heat_demand = forms.FloatField(
         label=_("Annual Heat Demand"),
+        help_text=_("Total heat demand in the chosen timeperiod"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 1000"),
-                "data-bs-toggle": "tooltip",
-                "title": _("Total heat demand in the chosen timeperiod"),
             }
         ),
     )
 
     building_year = forms.FloatField(
         label=_("Building Year"),
+        help_text=_("Only for residential buildings, used for estimating insulation"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 1970"),
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Only for residential buildings, used for estimating insulation"
-                ),
             }
         ),
         required=False,
@@ -1385,14 +1357,10 @@ class CreateHeatDemandForm(OpenPlanForm):
     wind_class = forms.ChoiceField(
         label=_("Wind class"),
         choices=(("Windy", _("Windy")), ("Not windy", _("Not Windy"))),
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities"
-                ),
-            }
+        help_text=_(
+            "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities"
         ),
+        widget=forms.Select(),
     )
 
     def clean_building_year(self):
