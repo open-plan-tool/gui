@@ -1368,7 +1368,6 @@ class CreateHeatDemandForm(OpenPlanForm):
         ),
     )
 
-    # TODO: here also check the validation of when the field is required
     building_year = forms.FloatField(
         label=_("Building Year"),
         widget=forms.NumberInput(
@@ -1395,6 +1394,22 @@ class CreateHeatDemandForm(OpenPlanForm):
             }
         ),
     )
+
+    def clean_building_year(self):
+        building_year = self.cleaned_data["building_year"]
+        profile_type = self.cleaned_data["profile_type"]
+        if (
+            profile_type
+            in [
+                "EFH",
+                "MFH",
+            ]
+            and not building_year
+        ):
+            raise ValidationError(
+                _("Building year is required for residential buildings")
+            )
+        return building_year
 
 
 CUSTOM_TIMESERIES_FORMS = {
