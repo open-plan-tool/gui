@@ -728,6 +728,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 param_name="input_timeseries",
                 label=self.fields["input_timeseries"].label,
                 asset_type=self.asset_type_name,
+                custom_form_assets=list(CUSTOM_TIMESERIES_FORMS.keys()),
             )
             # TODO here one can play with min, max, max_length as kwargs
 

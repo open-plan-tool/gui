@@ -329,8 +329,6 @@ class DualNumberField(forms.MultiValueField):
 
 class TimeseriesInputWidget(forms.MultiWidget):
     template_name = "asset/timeseries_input.html"
-    # TODO: currently hardcoded instead of taken from CUSTOM_FORM_ASSETS to avoid circular import with forms
-    custom_form_assets = ["heat_demand"]
 
     # class Media:
     #     # TODO: currently not loading the content as not within head
@@ -342,6 +340,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
         self.default = kwargs.pop("default", None)
         self.param_name = kwargs.pop("param_name", None)
         self.asset_type = kwargs.pop("asset_type", None)
+        self.custom_form_assets = kwargs.pop("custom_form_assets", None) or []
         select_widget.attrs.update(
             {
                 "class": "form-select",
@@ -415,6 +414,7 @@ class TimeseriesField(forms.MultiValueField):
         param_name=None,
         asset_type=None,
         qs_ts=None,
+        custom_form_assets=None,
         **kwargs,
     ):
         fields = (
@@ -437,6 +437,7 @@ class TimeseriesField(forms.MultiValueField):
             param_name=param_name,
             asset_type=asset_type,
             select_widget=select_widget,
+            custom_form_assets=custom_form_assets,
         )
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
         self.label = label
