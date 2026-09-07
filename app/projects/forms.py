@@ -1201,21 +1201,20 @@ class UploadTimeseriesForm(OpenPlanModelForm):
 
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
     mounting_type_choices = (
-        ("fix_tilt", _("Fix Tilt")),
-        ("fix_tilt_two_dir", _("Fix Tilt Two Directions Back To Back")),
+        ("fix tilt", _("Fix Tilt")),
+        (
+            "fix tilt two directions back to back",
+            _("Fix Tilt Two Directions Back To Back"),
+        ),
         ("tracker", _("Tracker")),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    # TODO: these parameters would not be manual inputs but come from weather data, I assume? check with Markus
-
     weather_file = forms.FileField(
         label=_("Weather data file"),
-        help_text=_(
-            "Upload weather data file. Currently only TRY files are supported."
-        ),
+        help_text=_("Upload weather data file. Currently only TRY files are supported"),
     )
 
     azimuth = forms.FloatField(
@@ -1279,7 +1278,6 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         ),
     )
 
-    # TODO: Add validation that checks e.g. that this field is only filled in if tracker is selected
     max_angle = forms.FloatField(
         help_text=_(
             "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
@@ -1289,6 +1287,18 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         required=False,
         initial=60,
     )
+
+    def clean_weather_file(self):
+        from oemof.eesyplan.weather.weather_data import WeatherData
+
+        file = self.cleaned_data["weather_file"]
+        wd = WeatherData.from_try_file(file)
+        # only return the weather data fields relevant for generating the custom pv timeseries
+        return {
+            "file_name": file.name,
+            "direct_irradiation_horizontal": wd.direct_solar_wm2,
+            "diffuse_irradiation_horizontal": wd.diffuse_solar_wm2,
+        }
 
 
 class CreateHeatDemandForm(OpenPlanForm):
@@ -1373,7 +1383,6 @@ class CreateHeatDemandForm(OpenPlanForm):
 
 
 CUSTOM_TIMESERIES_FORMS = {
-    # TODO: re-enable PV timeseries creation when weather data handling is settled
-    # "pv_plant": CreatePVProductionTimeseriesForm,
+    "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
 }
