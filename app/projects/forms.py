@@ -1210,92 +1210,83 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
 
     # TODO: these parameters would not be manual inputs but come from weather data, I assume? check with Markus
 
-    # direct_irradiation_horizontal =
-    # diffuse_irradiation_horizontal =
+    weather_file = forms.FileField(
+        label=_("Weather data file"),
+        help_text=_(
+            "Upload weather data file. Currently only TRY files are supported."
+        ),
+    )
+
     azimuth = forms.FloatField(
         label=_("Azimuth"),
+        help_text=_(
+            "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems"
+        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 180"),
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°...); For tracker: Azimuth angle of the rotation-axis for tracking systems"
-                ),
             }
         ),
     )
 
-    tilt = forms.FloatField(
-        label=_("Tilt"),
-        widget=forms.NumberInput(
-            attrs={
-                "placeholder": _("e.g. 180"),
-                "data-bs-toggle": "tooltip",
-                "title": _("Tilt angle in degrees (0° is horizontal, 90° is vertical)"),
-            }
+    tilt = (
+        forms.FloatField(
+            label=_("Tilt"),
+            help_text=_("Tilt angle in degrees (0° is horizontal, 90° is vertical)"),
+            widget=forms.NumberInput(
+                attrs={
+                    "placeholder": _("e.g. 15"),
+                }
+            ),
         ),
     )
 
-    system_efficiency = forms.FloatField(
+    system_eff = forms.FloatField(
         label=_("System Efficiency"),
+        help_text=_("Performance ratio of the total PV-System (usually around 0.8)"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 0.8"),
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Performance ratio of the total PV-System (usually around 0.8)"
-                ),
             }
         ),
+        initial=0.85,
     )
 
     gcr = forms.FloatField(
-        label=_("Ground Coverage Ratio"),
-        widget=forms.NumberInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Ground Coverage Ratio (Ratio of the module area to the ground area of the module field), only needed for tracker"
-                ),
-            }
+        help_text=_(
+            "Ratio of the module area to the ground area of the module field, only needed for tracker"
         ),
+        label=_("Ground Coverage Ratio"),
+        widget=forms.NumberInput(),
         required=False,
+        initial=100,
     )
 
     mounting_type = forms.ChoiceField(
         choices=mounting_type_choices,
+        help_text=_("Static systems, east-west like system or 1-axis tracking system"),
         label=_("Mounting Type"),
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Static systems, east-west like system or 1-axis tracking system"
-                ),
-            }
-        ),
+        widget=forms.Select(),
+        initial="fix_tilt",
     )
-    albedo = forms.FloatField(
-        label=_("Albedo"),
-        widget=forms.NumberInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _("Reflection fraction of sunlight in the surrounding area"),
-            }
+    albedo = (
+        forms.FloatField(
+            help_text=_("Reflection fraction of sunlight in the surrounding area"),
+            label=_("Albedo"),
+            widget=forms.HiddenInput(),
+            initial=0.25,
         ),
     )
 
     # TODO: Add validation that checks e.g. that this field is only filled in if tracker is selected
     max_angle = forms.FloatField(
-        label=_("Max. tilt angle"),
-        widget=forms.NumberInput(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
-                ),
-            }
+        help_text=_(
+            "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
         ),
+        label=_("Max. tilt angle"),
+        widget=forms.HiddenInput(),
         required=False,
+        initial=60,
     )
 
 
