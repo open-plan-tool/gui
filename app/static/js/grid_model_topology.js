@@ -749,9 +749,12 @@ function computeCustomTimeseries(event){
     const form = event.target.closest('.modal-content').querySelector('#timeseriesForm');
     const formData = new FormData();
     // because we can't have nested forms in the html, we construct the form data manually from the fields here instead of relying on the form tag
-    // TODO: if some of the custom forms rely on more than input, select, need to adapt
     form.querySelectorAll('input, select').forEach(el => {
-       formData.append(el.name, el.value);
+        if (el.type === 'file') {
+            if (el.files.length) formData.append(el.name, el.files[0]);
+        } else {
+           formData.append(el.name, el.value);
+        }
     });
 
     let postUrl = createTimeseriesPostUrl + assetTypeName;
