@@ -599,6 +599,46 @@ def usecase_search(request, usecase_id=None, scen_id=None):
     )
 
 
+@login_required
+@require_http_methods(["GET"])
+def usecase_asset_info(request, proj_id):
+    project = get_object_or_404(UseCase, pk=proj_id)
+
+    result = {
+        "project_id": project.id,
+        "project_name": project.name,
+        "assets": [],
+    }
+
+    scenarios = Scenario.objects.filter(project=project).order_by("id")
+
+    assets_info = []
+
+    for scenario in scenarios:
+        assets = (
+            Asset.objects.filter(
+                scenario=scenario,
+                parent_asset__isnull=True,
+            )
+            .select_related("asset_type")
+            .order_by("id")
+        )
+
+        for asset in assets:
+            assets_info.append(
+                {
+                    "name": asset.name,
+                    "asset_type": asset.asset_type.asset_type,
+                    "uuid": str(asset.unique_id),
+                    "scenario_id": scenario.id,
+                }
+            )
+
+    result["assets"] = assets_info
+
+    return JsonResponse(result)
+
+
 # endregion Usecase
 
 # region Comment

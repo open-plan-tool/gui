@@ -66,6 +66,11 @@ urlpatterns = [
         usecase_search,
         name="usecase_search",
     ),
+    path(
+        "usecase/<int:proj_id>/asset_info/",
+        usecase_asset_info,
+        name="usecase_asset_info",
+    ),
     # Comment
     path("comment/create/<int:proj_id>", comment_create, name="comment_create"),
     path("comment/update/<int:com_id>", comment_update, name="comment_update"),
