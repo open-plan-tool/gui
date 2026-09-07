@@ -460,7 +460,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                     None,
                     ess.dispatchable,
                     to_value_type(ess, "age_installed"),
-                    to_value_type(ess, "crate_asset"),
+                    to_value_type(
+                        ess, "crate_asset"
+                    ),  # change to new crate if existing
                     soc_max,
                     soc_min,
                     capex_fix,
