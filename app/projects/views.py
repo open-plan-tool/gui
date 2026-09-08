@@ -1554,10 +1554,19 @@ def get_timeseries(request, ts_id=None):
     if request.method == "GET":
         if ts_id is not None:
             ts = Timeseries.objects.get(id=ts_id)
+            generation_parameters = ts.generation_parameters
+            units = {}
+            labels = {}
+            if generation_parameters and ts.asset_type in CUSTOM_TIMESERIES_FORMS:
+                parameters = CUSTOM_TIMESERIES_FORMS[ts.asset_type].parameters
+                units = get_field_units(parameters, generation_parameters.keys())
+                labels = get_field_labels(parameters, generation_parameters.keys())
             return JsonResponse(
                 {
                     "values": ts.get_values,
-                    "generation_parameters": ts.generation_parameters,
+                    "generation_parameters": generation_parameters,
+                    "units": units,
+                    "labels": labels,
                 }
             )
 
@@ -1825,7 +1834,7 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
     if asset_uuid:
         existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
     custom_form = CUSTOM_TIMESERIES_FORMS[asset_type_name]
-    form = custom_form(request.POST)
+    form = custom_form(request.POST, request.FILES)
 
     custom_timeseries_functions = {
         "pv_plant": create_pv_production_timeseries,
@@ -1835,35 +1844,63 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
     scenario = get_object_or_404(Scenario, id=scen_id)
     if form.is_valid():
         try:
-            # TODO: calculate from relevant function
-            # for pv timeseries, add lat/lon to the params dict
-            # should be able to just pass the validated form as dict as **form
             cleaned_data = form.cleaned_data
-            # outdoor_temperature is excluded from the saved generation parameters:
-            # it can itself be a full timeseries and we don't want to save a whole
-            # other timeseries as metadata
-            generation_parameters = {
-                key: value
-                for key, value in cleaned_data.items()
-                if key != "outdoor_temperature"
-            }
-
-            outdoor_temperature = cleaned_data.get("outdoor_temperature")
-            if outdoor_temperature is not None and not isinstance(
-                outdoor_temperature, list
-            ):
-                cleaned_data["outdoor_temperature"] = [
-                    outdoor_temperature
-                ] * scenario.get_num_timesteps
-
             custom_ts_fun = custom_timeseries_functions[asset_type_name]
+            if asset_type_name == "heat_demand":
+                # outdoor_temperature is excluded from the saved generation parameters:
+                # it can itself be a full timeseries and we don't want to save a whole
+                # other timeseries as metadata
+                generation_parameters = {
+                    key: value
+                    for key, value in cleaned_data.items()
+                    if key != "outdoor_temperature"
+                }
+
+                outdoor_temperature = cleaned_data.get("outdoor_temperature")
+                if outdoor_temperature is not None and not isinstance(
+                    outdoor_temperature, list
+                ):
+                    cleaned_data["outdoor_temperature"] = [
+                        outdoor_temperature
+                    ] * scenario.get_num_timesteps
+
+            elif asset_type_name == "pv_plant":
+                # set the generation parameters, neglect timeseries and set only file name as reference
+                generation_parameters = {}
+                for key, value in cleaned_data.items():
+                    if key == "weather_file":
+                        generation_parameters[key] = cleaned_data["weather_file"][
+                            "file_name"
+                        ]
+                    else:
+                        generation_parameters[key] = value
+
+                # pop the weather data from the file dictionary to match the keys to the generation function arguments
+                for param, data in cleaned_data["weather_file"].items():
+                    if param != "file_name":
+                        cleaned_data[param] = data
+                cleaned_data.pop("weather_file")
+
+                # add latitude and longitude to the generation parameters
+                for attr in ["latitude", "longitude"]:
+                    cleaned_data[attr] = getattr(scenario.project, attr)
+
             timeseries = custom_ts_fun(**cleaned_data)
+
+            units = get_field_units(
+                custom_form.parameters, generation_parameters.keys()
+            )
+            labels = get_field_labels(
+                custom_form.parameters, generation_parameters.keys()
+            )
 
             return JsonResponse(
                 {
                     "success": True,
                     "timeseries": timeseries.values.tolist(),
                     "generation_parameters": generation_parameters,
+                    "units": units,
+                    "labels": labels,
                 },
                 status=200,
             )

@@ -5158,3 +5158,72 @@ msgstr "Zeitreihe berechnen"
 
 msgid "Constant Temperature or Timeseries"
 msgstr "Konstante Temperatur oder Temperaturzeitreihe"
+
+msgid "Fix Tilt"
+msgstr "Feste Neigung"
+
+msgid "Fix Tilt Two Directions Back To Back"
+msgstr "Feste Neigung, zwei Richtungen Rücken an Rücken"
+
+msgid "Tracker"
+msgstr "Nachführsystem"
+
+msgid "Weather data file"
+msgstr "Wetterdatendatei"
+
+msgid "Upload weather data file. Currently only TRY files are supported"
+msgstr "Wetterdatendatei hochladen. Derzeit werden nur TRY-Dateien unterstützt"
+
+msgid "Azimuth"
+msgstr "Azimut"
+
+msgid "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems"
+msgstr "Bei fester Neigung: Azimutwinkel der Modulausrichtung in Grad (Norden ist 0°, Osten ist 90°); Bei Nachführsystemen: Azimutwinkel der Rotationsachse des Nachführsystems"
+
+msgid "e.g. 180"
+msgstr "z.B. 180"
+
+msgid "Tilt"
+msgstr "Neigung"
+
+msgid "Tilt angle in degrees (0° is horizontal, 90° is vertical)"
+msgstr "Neigungswinkel in Grad (0° ist horizontal, 90° ist vertikal)"
+
+msgid "e.g. 15"
+msgstr "z.B. 15"
+
+msgid "System Efficiency"
+msgstr "Systemwirkungsgrad"
+
+msgid "Performance ratio of the total PV-System (usually around 0.8)"
+msgstr "Performance Ratio des gesamten PV-Systems (üblicherweise etwa 0,8)"
+
+msgid "e.g. 0.8"
+msgstr "z.B. 0,8"
+
+msgid "Ratio of the module area to the ground area of the module field, only needed for tracker"
+msgstr "Verhältnis der Modulfläche zur Grundfläche des Modulfelds, nur für Nachführsysteme erforderlich"
+
+msgid "Ground Coverage Ratio"
+msgstr "Bodenbedeckungsgrad"
+
+msgid "Static systems, east-west like system or 1-axis tracking system"
+msgstr "Statische Systeme, Ost-West-System oder einachsiges Nachführsystem"
+
+msgid "Mounting Type"
+msgstr "Montageart"
+
+msgid "Reflection fraction of sunlight in the surrounding area"
+msgstr "Reflexionsanteil des Sonnenlichts in der Umgebung"
+
+msgid "Albedo"
+msgstr "Albedo"
+
+msgid "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
+msgstr "Maximaler Neigungswinkel für Nachführsysteme. Dieser Wert wird nur für 'Tracker'-Systeme verwendet"
+
+msgid "Max. tilt angle"
+msgstr "Max. Neigungswinkel"
+
+msgid "Add"
+msgstr "Hinzufügen"

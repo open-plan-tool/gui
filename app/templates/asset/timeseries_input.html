@@ -6,7 +6,7 @@
 		<button class="nav-link {% if active_tab == 'select' %}active{% endif %}" id="select-tab" data-bs-toggle="tab" data-bs-target="#select" type="button" role="tab" aria-controls="select" aria-selected="{% if active_tab == 'select' %}true{% else %}false{% endif %}">{% translate "Select" %}</button>
 	</li>
 	<li class="nav-item" role="presentation" title="{% translate 'Upload a timeseries from a file' %}">
-		<button class="nav-link {% if active_tab == 'upload' %}active{% endif %}" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="{% if active_tab == 'upload' %}true{% else %}false{% endif %}">{% translate "Upload" %}</button>
+		<button class="nav-link {% if active_tab == 'upload' %}active{% endif %}" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="{% if active_tab == 'upload' %}true{% else %}false{% endif %}">{% translate "Add" %}</button>
 	</li>
 	<li class="nav-item" role="presentation" title="{% translate 'You can input a constant timeseries here: simply type in the number you want it will be turned into a timeseries upon save' %}">
 		<button class="nav-link {% if active_tab == 'manual' %}active{% endif %}" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="{% if active_tab == 'manual' %}true{% else %}false{% endif %}">{% translate "Constant value" %}</button>
@@ -50,6 +50,8 @@
 	{% endfor %}{% endspaceless %}
 </div>
 <div id="{{ widget.name }}_trace"></div>
-<pre id="{{ widget.name }}_generation_parameters" class="small text-muted" style="display:none;"></pre>
+<div id="{{ widget.name }}_generation_parameters" class="ts-generation-params" style="display:none;">
+	<dl class="ts-generation-params__list"></dl>
+</div>
 {% url 'get_timeseries' as ts_url %}
 {{ ts_url|json_script:"tsUrl" }}
