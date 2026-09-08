@@ -775,6 +775,8 @@ function computeCustomTimeseries(event){
             // value so it gets saved with the asset
             const tsValues = jsonRes.timeseries;
             const generationParameters = jsonRes.generation_parameters;
+            const units = jsonRes.units;
+            const labels = jsonRes.labels;
             // clear the other subfields first: the scalar field's onchange handler
             // (initTimeseriesManualValue) re-triggers the select field's own change handler
             // with whatever it currently holds, which would otherwise re-fetch and clobber
@@ -785,7 +787,7 @@ function computeCustomTimeseries(event){
             scalarInput.value = JSON.stringify({values: tsValues, generation_parameters: generationParameters});
             scalarInput.dispatchEvent(new Event('change'));
             plotTimeseriesInputTrace(tsValues, paramName);
-            showGenerationParameters(generationParameters, paramName);
+            showGenerationParameters(generationParameters, units, labels, paramName);
         } else {
             form.innerHTML = jsonRes.form_html;
         }

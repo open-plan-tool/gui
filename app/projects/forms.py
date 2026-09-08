@@ -82,43 +82,76 @@ def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
         field.label = mark_safe(field.label + question_icon)
 
 
+def resolve_parameter(parameters, param_name):
+    """Look up param_name in a PARAMETERS-shaped dict (verbose/:Definition_Short:/:Unit:/:Default:).
+    Returns None if param_name isn't in parameters.
+    """
+    row = parameters.get(param_name)
+    if row is None:
+        return None
+
+    def clean(value, unit=False):
+        if value in (None, "None", "") or (unit and value == "Factor"):
+            return None
+        return value
+
+    return {
+        "verbose": clean(row["verbose"]),
+        "help_text": row[":Definition_Short:"],
+        "unit": clean(row[":Unit:"], unit=True),
+        "default": clean(row[":Default:"]),
+    }
+
+
 def set_parameter_info(param_name, field, parameters=PARAMETERS):
     # For the storage unit
     if param_name.split("_")[0] in ("cp", "dchp", "chp"):
         param_name = "_".join(param_name.split("_")[1:])
-
-    help_text = None
-    unit = None
-    verbose = None
-    default_value = None
     if param_name == "optimize_cap":
         param_name = "optimize_capacity"
-    if param_name in parameters:
-        help_text = parameters[param_name][":Definition_Short:"]
-        unit = parameters[param_name][":Unit:"]
-        verbose = parameters[param_name]["verbose"]
-        default_value = parameters[param_name][":Default:"]
-        if unit == "None" or unit == "" or unit == "Factor":
-            unit = None
-        if verbose == "None":
-            verbose = None
-        if default_value == "None":
-            default_value = None
-    else:
-        logging.debug(f"{param_name} not in the parameters file")
 
-    if verbose is not None:
-        field.label = verbose
-    if unit is not None:
-        field.label = _(str(field.label)) + " (" + _(unit) + ")"
+    resolved = resolve_parameter(parameters, param_name)
+    if resolved is None:
+        logging.debug(f"{param_name} not in the parameters file")
+        resolved = {"verbose": None, "help_text": None, "unit": None, "default": None}
+
+    if resolved["verbose"] is not None:
+        field.label = resolved["verbose"]
+    if resolved["unit"] is not None:
+        field.label = _(str(field.label)) + " (" + _(resolved["unit"]) + ")"
     else:
         field.label = _(str(field.label))
 
-    if help_text is not None:
-        field.help_text = _(help_text)
+    if resolved["help_text"] is not None:
+        field.help_text = _(resolved["help_text"])
 
-    if default_value is not None:
-        field.initial = default_value
+    if resolved["default"] is not None:
+        field.initial = resolved["default"]
+
+
+def get_field_units(parameters, param_names):
+    """
+    Return {param_name: unit} for the given params. Matches the unit set on the form label.
+    """
+    units = {}
+    for param_name in param_names:
+        resolved = resolve_parameter(parameters, param_name)
+        if resolved and resolved["unit"]:
+            units[param_name] = resolved["unit"]
+    return units
+
+
+def get_field_labels(parameters, param_names):
+    """
+    Return {param_name: verbose label} for the given params. Matches the verbose
+    set on the form label.
+    """
+    labels = {}
+    for param_name in param_names:
+        resolved = resolve_parameter(parameters, param_name)
+        if resolved and resolved["verbose"]:
+            labels[param_name] = str(_(resolved["verbose"]))
+    return labels
 
 
 class OpenPlanModelForm(ModelForm):
