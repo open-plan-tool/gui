@@ -58,7 +58,7 @@ def gettext_variables(some_string, lang="de"):
             pickle.dump(trans_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def add_help_text_icon(field, param_name, RTD_link=True):
+def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
     if field.help_text is not None:
         help_text = field.help_text + ". "
         field.help_text = None
@@ -66,8 +66,8 @@ def add_help_text_icon(field, param_name, RTD_link=True):
         help_text = ""
     if field.label is not None:
         RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
-        if param_name in PARAMETERS:
-            param_ref = PARAMETERS[param_name]["label"].replace("_", "-")
+        if param_name in parameters:
+            param_ref = parameters[param_name]["label"].replace("_", "-")
         else:
             param_ref = ""
         if param_name != "name":
@@ -93,11 +93,11 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
     default_value = None
     if param_name == "optimize_cap":
         param_name = "optimize_capacity"
-    if param_name in PARAMETERS:
-        help_text = PARAMETERS[param_name][":Definition_Short:"]
-        unit = PARAMETERS[param_name][":Unit:"]
-        verbose = PARAMETERS[param_name]["verbose"]
-        default_value = PARAMETERS[param_name][":Default:"]
+    if param_name in parameters:
+        help_text = parameters[param_name][":Definition_Short:"]
+        unit = parameters[param_name][":Unit:"]
+        verbose = parameters[param_name]["verbose"]
+        default_value = parameters[param_name][":Default:"]
         if unit == "None" or unit == "" or unit == "Factor":
             unit = None
         if verbose == "None":
@@ -131,17 +131,21 @@ class OpenPlanModelForm(ModelForm):
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
-            add_help_text_icon(self.fields[param_name], param_name, RTD_link)
+            add_help_text_icon(self.fields[param_name], param_name, RTD_link=True)
 
 
 class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
+    parameters = PARAMETERS
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field)
-            add_help_text_icon(field, fieldname, RTD_link=False)
+            set_parameter_info(fieldname, field, parameters=self.parameters)
+            add_help_text_icon(
+                field, fieldname, parameters=self.parameters, RTD_link=False
+            )
 
 
 class FeedbackForm(ModelForm):
@@ -1199,7 +1203,69 @@ class UploadTimeseriesForm(OpenPlanModelForm):
         }
 
 
+PV_TIMESERIES_PARAMETERS = {
+    "weather_file": {
+        "verbose": "Weather data file",
+        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "weather_file",
+    },
+    "azimuth": {
+        "verbose": "Azimuth",
+        ":Definition_Short:": "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "azimuth",
+    },
+    "tilt": {
+        "verbose": "Tilt",
+        ":Definition_Short:": "Tilt angle in degrees (0° is horizontal, 90° is vertical)",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "tilt",
+    },
+    "system_eff": {
+        "verbose": "System Efficiency",
+        ":Definition_Short:": "Performance ratio of the total PV-System (usually around 0.8)",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "system_eff",
+    },
+    "gcr": {
+        "verbose": "Ground Coverage Ratio",
+        ":Definition_Short:": "Ratio of the module area to the ground area of the module field, only needed for tracker",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "gcr",
+    },
+    "mounting_type": {
+        "verbose": "Mounting Type",
+        ":Definition_Short:": "Static systems, east-west like system or 1-axis tracking system",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "mounting_type",
+    },
+    "albedo": {
+        "verbose": "Albedo",
+        ":Definition_Short:": "Reflection fraction of sunlight in the surrounding area",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "albedo",
+    },
+    "max_angle": {
+        "verbose": "Max. tilt angle",
+        ":Definition_Short:": "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "max_angle",
+    },
+}
+
+
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
+    parameters = PV_TIMESERIES_PARAMETERS
+
     mounting_type_choices = (
         ("fix tilt", _("Fix Tilt")),
         (
@@ -1212,16 +1278,9 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    weather_file = forms.FileField(
-        label=_("Weather data file"),
-        help_text=_("Upload weather data file. Currently only TRY files are supported"),
-    )
+    weather_file = forms.FileField()
 
     azimuth = forms.FloatField(
-        label=_("Azimuth"),
-        help_text=_(
-            "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems"
-        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 180"),
@@ -1229,21 +1288,15 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         ),
     )
 
-    tilt = (
-        forms.FloatField(
-            label=_("Tilt"),
-            help_text=_("Tilt angle in degrees (0° is horizontal, 90° is vertical)"),
-            widget=forms.NumberInput(
-                attrs={
-                    "placeholder": _("e.g. 15"),
-                }
-            ),
+    tilt = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 15"),
+            }
         ),
     )
 
     system_eff = forms.FloatField(
-        label=_("System Efficiency"),
-        help_text=_("Performance ratio of the total PV-System (usually around 0.8)"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 0.8"),
@@ -1253,10 +1306,6 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
     )
 
     gcr = forms.FloatField(
-        help_text=_(
-            "Ratio of the module area to the ground area of the module field, only needed for tracker"
-        ),
-        label=_("Ground Coverage Ratio"),
         widget=forms.NumberInput(),
         required=False,
         initial=100,
@@ -1264,25 +1313,15 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
 
     mounting_type = forms.ChoiceField(
         choices=mounting_type_choices,
-        help_text=_("Static systems, east-west like system or 1-axis tracking system"),
-        label=_("Mounting Type"),
         widget=forms.Select(),
         initial="fix_tilt",
     )
-    albedo = (
-        forms.FloatField(
-            help_text=_("Reflection fraction of sunlight in the surrounding area"),
-            label=_("Albedo"),
-            widget=forms.HiddenInput(),
-            initial=0.25,
-        ),
+    albedo = forms.FloatField(
+        widget=forms.HiddenInput(),
+        initial=0.25,
     )
 
     max_angle = forms.FloatField(
-        help_text=_(
-            "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems"
-        ),
-        label=_("Max. tilt angle"),
         widget=forms.HiddenInput(),
         required=False,
         initial=60,
@@ -1301,7 +1340,48 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         }
 
 
+HEAT_DEMAND_PARAMETERS = {
+    "outdoor_temperature": {
+        "verbose": "Outdoor Temperature",
+        ":Definition_Short:": "Constant Temperature or Timeseries",
+        ":Unit:": "°C",
+        ":Default:": "None",
+        "label": "outdoor_temperature",
+    },
+    "profile_type": {
+        "verbose": "Profile Type",
+        ":Definition_Short:": "Select from one of the available BDEW heat profiles",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "profile_type",
+    },
+    "annual_heat_demand": {
+        "verbose": "Annual Heat Demand",
+        ":Definition_Short:": "Total heat demand in the chosen timeperiod",
+        ":Unit:": "kWh",
+        ":Default:": "None",
+        "label": "annual_heat_demand",
+    },
+    "building_year": {
+        "verbose": "Building Year",
+        ":Definition_Short:": "Only for residential buildings, used for estimating insulation",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "building_year",
+    },
+    "wind_class": {
+        "verbose": "Wind class",
+        ":Definition_Short:": "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "wind_class",
+    },
+}
+
+
 class CreateHeatDemandForm(OpenPlanForm):
+    parameters = HEAT_DEMAND_PARAMETERS
+
     profile_type_choices = (
         ("EFH", _("Single-family house")),
         ("MFH", _("Apartment building")),
@@ -1323,21 +1403,15 @@ class CreateHeatDemandForm(OpenPlanForm):
         super().__init__(*args, **kwargs)
 
     outdoor_temperature = DualNumberField(
-        label=_("Outdoor Temperature"),
-        help_text=_("Constant Temperature or Timeseries"),
         param_name="outdoor_temperature",
     )
 
     profile_type = forms.ChoiceField(
         choices=profile_type_choices,
-        label=_("Profile Type"),
-        help_text=_("Select from one of the available BDEW heat profiles"),
         widget=forms.Select(),
     )
 
     annual_heat_demand = forms.FloatField(
-        label=_("Annual Heat Demand"),
-        help_text=_("Total heat demand in the chosen timeperiod"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 1000"),
@@ -1346,8 +1420,6 @@ class CreateHeatDemandForm(OpenPlanForm):
     )
 
     building_year = forms.FloatField(
-        label=_("Building Year"),
-        help_text=_("Only for residential buildings, used for estimating insulation"),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("e.g. 1970"),
@@ -1357,11 +1429,7 @@ class CreateHeatDemandForm(OpenPlanForm):
     )
 
     wind_class = forms.ChoiceField(
-        label=_("Wind class"),
         choices=(("Windy", _("Windy")), ("Not windy", _("Not Windy"))),
-        help_text=_(
-            "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities"
-        ),
         widget=forms.Select(),
     )
 
