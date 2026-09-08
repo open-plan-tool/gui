@@ -196,13 +196,23 @@ urlpatterns = [
         name="get_constant_timeseries_id",
     ),
     # Grid Model (Assets Creation)
-    re_path(
-        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+    path(
+        "asset/get_form/<int:scen_id>/",
         get_asset_create_form,
         name="get_asset_create_form",
     ),
-    re_path(
-        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+    path(
+        "asset/get_form/<int:scen_id>/<str:asset_type_name>/<uuid:asset_uuid>",
+        get_asset_create_form,
+        name="get_asset_create_form",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/",
+        asset_create_or_update,
+        name="asset_create_or_update",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/<str:asset_type_name>/<uuid:asset_uuid>",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
