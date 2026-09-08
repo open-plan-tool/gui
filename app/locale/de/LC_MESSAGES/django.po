@@ -5224,3 +5224,6 @@ msgstr "Maximaler Neigungswinkel für Nachführsysteme. Dieser Wert wird nur fü
 
 msgid "Max. tilt angle"
 msgstr "Max. Neigungswinkel"
+
+msgid "Add"
+msgstr "Hinzufügen"
