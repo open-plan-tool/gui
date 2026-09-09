@@ -33,6 +33,11 @@ urlpatterns = [
     ),
     path("project/export/<int:proj_id>", project_export, name="project_export"),
     path("project/upload", project_upload, name="project_upload"),
+    path(
+        "project/<int:proj_id>/asset_info/",
+        project_asset_info,
+        name="project_asset_info",
+    ),
     path("project/from/usecase", project_from_usecase, name="project_from_usecase"),
     path(
         "project/from/usecase/<int:usecase_id>",
