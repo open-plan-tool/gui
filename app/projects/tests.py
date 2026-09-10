@@ -386,7 +386,8 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
             }
-            response = self.client.post(self.post_url, data, format="multipart")
+            with self.assertLogs(level="WARNING"):
+                response = self.client.post(self.post_url, data, format="multipart")
             form = response.context["form"]
             self.assertIn("input_timeseries", form.errors)
             self.assertIn("invalid format", str(form.errors["input_timeseries"]))
@@ -492,7 +493,8 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
             }
-            response = self.client.post(self.post_url, data, format="multipart")
+            with self.assertLogs(level="WARNING"):
+                response = self.client.post(self.post_url, data, format="multipart")
             form = response.context["form"]
             self.assertIn("input_timeseries", form.errors)
             self.assertIn("not supported", str(form.errors["input_timeseries"]))
@@ -510,7 +512,8 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
             }
-            response = self.client.post(self.post_url, data, format="multipart")
+            with self.assertLogs(level="WARNING"):
+                response = self.client.post(self.post_url, data, format="multipart")
             form = response.context["form"]
             self.assertIn("input_timeseries", form.errors)
             self.assertIn("invalid format", str(form.errors["input_timeseries"]))
@@ -526,7 +529,8 @@ class UploadTimeseriesTest(TestCase):
                 "input_timeseries_select": "",
                 "input_timeseries_file": fp,
             }
-            response = self.client.post(self.post_url, data, format="multipart")
+            with self.assertLogs(level="WARNING"):
+                response = self.client.post(self.post_url, data, format="multipart")
             form = response.context["form"]
             self.assertIn("input_timeseries", form.errors)
             self.assertEqual(response.status_code, 422)
