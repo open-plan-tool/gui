@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 
 import pytest
 import requests
@@ -8,7 +7,7 @@ import requests
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, Client
+from django.test import TestCase, Client, tag
 from django.test.client import RequestFactory
 from django.urls import reverse
 from projects.models import Project, Scenario, Asset, AssetType
@@ -664,6 +663,7 @@ class OptimizeCapacityToggleTest(TestCase):
 from .integration_tests import check_all_asset_forms
 
 
+@tag("integration_test")
 class ImportedUsecaseTest(TestCase):
     SOURCE_HOST = "https://open-plan-tool.org"
 
