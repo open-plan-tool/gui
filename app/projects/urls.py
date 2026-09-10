@@ -202,7 +202,7 @@ urlpatterns = [
     ),
     # Grid Model (Assets Creation)
     path(
-        "asset/get_form/<int:scen_id>",
+        "asset/get_form/<int:scen_id>/",
         get_asset_create_form,
         name="get_asset_create_form",
     ),
@@ -217,7 +217,7 @@ urlpatterns = [
         name="get_asset_create_form",
     ),
     path(
-        "asset/create_or_update_post/<int:scen_id>",
+        "asset/create_or_update_post/<int:scen_id>/",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
