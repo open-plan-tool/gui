@@ -750,7 +750,7 @@ class AssetCreateForm(OpenPlanModelForm):
             )
             self.fields["efficiency"].label = _(
                 "Electrical efficiency with no heat extraction"
-            )
+            )  # Electrical efficiency with maximal heat extraction
 
             self.fields[
                 "efficiency"
@@ -763,7 +763,9 @@ class AssetCreateForm(OpenPlanModelForm):
                 "Thermal efficiency with maximal heat extraction"
             )
 
-            self.fields["thermal_loss_rate"].label = _("Power loss index")
+            self.fields["thermal_loss_rate"].label = _(
+                "Power loss index"
+            )  # Electrical efficiency with no heat extraction
 
         if self.asset_type_name == "chp_fixed_ratio":
             self.fields["efficiency"].label = _("Efficiency gas to electricity")
