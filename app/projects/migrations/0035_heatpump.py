@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0033_chp_fixed_ratio_data_migration"),
+        ("projects", "0034_chp_fixed_ratio_data_migration"),
     ]
 
     operations = [
