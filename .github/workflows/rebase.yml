@@ -11,3 +11,5 @@ jobs:
       with:
         changelog_regex: '/CHANGELOG\/.*\/*.md'
         customPrMessage: 'Remember to describe your changes in the changelog!'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
