@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0038_rename_energy_price_asset_energy_price_asset_and_more"),
+        ("projects", "0039_rename_energy_price_asset_energy_price_asset_and_more"),
     ]
 
     operations = [
