@@ -33,6 +33,11 @@ urlpatterns = [
     ),
     path("project/export/<int:proj_id>", project_export, name="project_export"),
     path("project/upload", project_upload, name="project_upload"),
+    path(
+        "project/<int:proj_id>/asset_info/",
+        project_asset_info,
+        name="project_asset_info",
+    ),
     path("project/from/usecase", project_from_usecase, name="project_from_usecase"),
     path(
         "project/from/usecase/<int:usecase_id>",
@@ -65,6 +70,11 @@ urlpatterns = [
         "usecase/search/<int:usecase_id>/scenario/<int:scen_id>",
         usecase_search,
         name="usecase_search",
+    ),
+    path(
+        "usecase/<int:proj_id>/asset_info/",
+        usecase_asset_info,
+        name="usecase_asset_info",
     ),
     # Comment
     path("comment/create/<int:proj_id>", comment_create, name="comment_create"),
@@ -191,13 +201,33 @@ urlpatterns = [
         name="get_constant_timeseries_id",
     ),
     # Grid Model (Assets Creation)
-    re_path(
-        r"^asset/get_form/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+    path(
+        "asset/get_form/<int:scen_id>/",
         get_asset_create_form,
         name="get_asset_create_form",
     ),
-    re_path(
-        r"^asset/create_or_update_post/(?P<scen_id>\d+)/(?P<asset_type_name>[\w-]+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
+    path(
+        "asset/get_form/<int:scen_id>/<str:asset_type_name>",
+        get_asset_create_form,
+        name="get_asset_create_form",
+    ),
+    path(
+        "asset/get_form/<int:scen_id>/<str:asset_type_name>/<uuid:asset_uuid>",
+        get_asset_create_form,
+        name="get_asset_create_form",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/",
+        asset_create_or_update,
+        name="asset_create_or_update",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/<str:asset_type_name>",
+        asset_create_or_update,
+        name="asset_create_or_update",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/<str:asset_type_name>/<uuid:asset_uuid>",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
