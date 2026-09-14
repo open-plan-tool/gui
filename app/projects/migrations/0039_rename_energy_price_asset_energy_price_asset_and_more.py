@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0037_electrolyzer_data_migration"),
+        ("projects", "0038_electrolyzer_data_migration"),
     ]
 
     operations = [
