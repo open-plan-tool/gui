@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- Allow user to generate custom timeseries (currently only heat demand) from eesyplan functions [[#511](https://github.com/open-plan-tool/gui/pull/511)]
+- Allow user to generate custom timeseries from eesyplan functions [[#511](https://github.com/open-plan-tool/gui/pull/511)][[#516](https://github.com/open-plan-tool/gui/pull/516)]
 ### Changed
 - Add toggle for fixed capacity vs. optimized instead of allowing both options on a single asset [[#487](https://github.com/open-plan-tool/gui/pull/487)][[#514](https://github.com/open-plan-tool/gui/pull/514)]
 ### Fixed
