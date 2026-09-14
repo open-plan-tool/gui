@@ -84,21 +84,32 @@ function getTimeseriesValues(ts_id, param_name=""){
         else {
             plotTimeseriesInputTrace(ts_values, param_name=param_name);
         }
-        showGenerationParameters(data["generation_parameters"], param_name);
+        showGenerationParameters(data["generation_parameters"], data["units"], data["labels"], param_name);
         console.log("retrieved values", ts_values);
     });
 }
 
-/* Show the parameters a timeseries was generated from (if any) in a small
-   <pre> block under its trace plot, e.g. templates/asset/timeseries_input.html */
-function showGenerationParameters(generationParameters, param_name=""){
+function showGenerationParameters(generationParameters, units, labels, param_name=""){
     const el = document.getElementById(param_name + "_generation_parameters");
     if (!el) return;
+    const list = el.querySelector(".ts-generation-params__list");
+    list.innerHTML = "";
     if (generationParameters && Object.keys(generationParameters).length > 0){
-        el.textContent = JSON.stringify(generationParameters, null, 2);
+        Object.entries(generationParameters).forEach(([key, value]) => {
+            const item = document.createElement("div");
+            const dt = document.createElement("dt");
+            const label = labels ? labels[key] : null;
+            dt.textContent = label + ":";
+            const dd = document.createElement("dd");
+            const unit = units ? units[key] : null;
+            dd.textContent = unit ? `${value} ${unit}` : value;
+            dd.title = String(value);
+            item.appendChild(dt);
+            item.appendChild(dd);
+            list.appendChild(item);
+        });
         el.style.display = "block";
     } else {
-        el.textContent = "";
         el.style.display = "none";
     }
 }
