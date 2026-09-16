@@ -52,7 +52,6 @@ def send_email(to_email, subject, message):
         with smtplib.SMTP(EXCHANGE_SERVER, 587) as server:
             server.starttls()
             try:
-                # Some other change
                 server.login(EXCHANGE_EMAIL, EXCHANGE_PW)
                 server.sendmail(EXCHANGE_EMAIL, to_email, _message.as_string())
                 return True

@@ -9,7 +9,7 @@ jobs:
     - name: Changelog Reminder
       uses: peterjgrainger/action-changelog-reminder@v1.2.0
       with:
-        changelog_regex: '/CHANGELOG\/.*\/*.md'
+        changelog_regex: 'CHANGELOG\.md'
         customPrMessage: 'Remember to describe your changes in the changelog!'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
