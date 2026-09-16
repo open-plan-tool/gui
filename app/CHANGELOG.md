@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.2.0] – 2026-09-16
 ### Added
 - Allow user to generate custom timeseries from eesyplan functions [[#511](https://github.com/open-plan-tool/gui/pull/511)][[#516](https://github.com/open-plan-tool/gui/pull/516)]
 ### Changed
