@@ -138,4 +138,4 @@ extend-unsafe-fixes = [
 ]
 
 [tool.ruff.lint.isort]
-force-single-line = true
+# force-single-line = true
