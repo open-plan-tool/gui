@@ -777,7 +777,7 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
     if asset_type_name == "bus":
         template = "asset/bus_create_form.html"
         existing_bus = get_object_or_404(Bus, pk=asset_uuid)
-        form = BusForm(<
+        form = BusForm(
             asset_type=asset_type_name, instance=existing_bus, view_only=True
         )
         existing_asset = None
