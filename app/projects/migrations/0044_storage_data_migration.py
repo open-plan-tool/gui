@@ -69,7 +69,7 @@ def backwards(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("projects", "0042_storages"),
+        ("projects", "0043_storages"),
     ]
 
     operations = [
