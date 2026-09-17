@@ -718,9 +718,6 @@ class ToggleSwitchWidget(forms.CheckboxInput):
             checkbox_html,
         )
 
-# TODO here add the models mapping (maybe there is a smarter way to do this)
-ASSET_MAPPING = {"commodity": Commodity}
-
 
 def get_asset_or_404(asset_type, asset_uuid):
     asset_type = ASSET_MAPPING.get(asset_type, Asset)
