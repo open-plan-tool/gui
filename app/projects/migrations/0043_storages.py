@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0041_rename_crate_asset_crate_asset_and_more"),
+        ("projects", "0042_rename_crate_asset_crate_asset_and_more"),
     ]
 
     operations = [
