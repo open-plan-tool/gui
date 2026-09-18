@@ -1,6 +1,7 @@
 import datetime
 import json
 import tempfile
+import traceback
 from pathlib import Path
 
 import pytest
@@ -28,6 +29,89 @@ from projects.scenario_topology_helpers import (
     load_project_from_dict,
 )
 from users.models import CustomUser
+
+
+def check_all_asset_forms(project_id, client, verbose=False):
+    response = client.get(
+        reverse(
+            "project_asset_info",
+            kwargs={"proj_id": project_id},
+        )
+    )
+    project_data = response.json()
+
+    if verbose is True:
+        print(f"Checking project {project_data['project_name']} (ID {project_id})")
+
+        print(f"Assets: {len(project_data['assets'])}")
+
+    failures = []
+
+    for asset in project_data["assets"]:
+        try:
+            form_url = reverse(
+                "get_asset_create_form",
+                kwargs={
+                    "scen_id": asset["scenario_id"],
+                    "asset_type_name": asset["asset_type"],
+                    "asset_uuid": asset["uuid"],
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "get_asset_create_form cannot be reversed",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        try:
+            response = client.get(
+                form_url,
+                {
+                    "inputs": json.dumps([]),
+                    "outputs": json.dumps([]),
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "the form url cannot be get",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        if response.status_code == 200:
+            if verbose is True:
+                print(f"✓ {asset['name']} [{asset['asset_type']}]")
+
+        else:
+            if verbose is True:
+                print(
+                    f"✗ {asset['name']} "
+                    f"[{asset['asset_type']}] "
+                    f"-> HTTP {response.status_code}"
+                )
+
+            failures.append(
+                {
+                    **asset,
+                    "status_code": response.status_code,
+                    "response": response.content.decode(),
+                }
+            )
+
+    if verbose is True:
+        if failures:
+            print(
+                f"{len(failures)} / {len(project_data['assets'])} asset forms failed."
+            )
+        else:
+            print(f"All {len(project_data['assets'])} asset forms are callable.")
+
+    return failures
 
 
 class BasicOperationsTest(TestCase):
@@ -672,9 +756,6 @@ class OptimizeCapacityToggleTest(TestCase):
         self.assertEqual(asset.age_installed, 3.0)
 
 
-from .integration_tests import check_all_asset_forms
-
-
 @tag("integration_test")
 class ImportedUsecaseTest(TestCase):
     SOURCE_HOST = "https://open-plan-tool.org"
@@ -826,7 +907,10 @@ class CHPAssetTest(TestCase):
 
     # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
     # data keys are suffixed with the subwidget name
-    dual_number_fields = ("conversion_factor_to_electricity", "conversion_factor_to_heat")
+    dual_number_fields = (
+        "conversion_factor_to_electricity",
+        "conversion_factor_to_heat",
+    )
 
     def create_chp_via_form(self, name="chp-test"):
         data = {}
