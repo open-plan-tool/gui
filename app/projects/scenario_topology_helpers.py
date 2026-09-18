@@ -31,6 +31,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+COMPATIBILITY_PARAMETER_NAME_MAPPING = {
+    "chp": {
+        "efficiency": "conversion_factor_to_electricity",
+        "efficiency_multiple": "conversion_factor_to_heat",
+        "thermal_loss_rate": "beta",
+    },
+    "chp_fixed_ratio": {
+        "efficiency": "conversion_factor_to_electricity",
+        "efficiency_multiple": "conversion_factor_to_heat",
+    },
+    "heat_pump": {
+        "efficiency": "cop",
+    },
+    "electrolyzer": {
+        "efficiency_multiple": "efficiency_heat",
+    },
+}
+
 
 def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
     if asset_uuid:
@@ -385,6 +403,116 @@ def load_project_from_dict(model_data, user=None):
     return project.id
 
 
+def merge_legacy_storage_assets(assets):
+    """
+    Convert storage assets from the legacy representation
+
+        ess
+        ├── capacity
+        ├── charging_power
+        └── discharging_power
+
+    into the new representation where all user-facing storage
+    parameters are stored directly on the storage asset.
+
+    New-format storage assets, which have no children, are left untouched.
+    Generated with GPT-5.6 Sol.
+    """
+
+    storage_types = {
+        "ess",
+        "bess",
+        "hess",
+        "h2ess",
+    }
+
+    legacy_child_types = {
+        "capacity",
+        "charging_power",
+        "discharging_power",
+    }
+
+    # Identify the actual storage parent assets first.
+    storage_parents = {
+        asset["name"]: asset
+        for asset in assets
+        if asset.get("asset_info", {}).get("asset_type") in storage_types
+    }
+
+    # Collect legacy children by parent name and child type.
+    children_by_parent = {}
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+
+        if parent_name not in storage_parents:
+            continue
+
+        child_type = asset.get("asset_info", {}).get("asset_type")
+
+        if child_type not in legacy_child_types:
+            continue
+
+        children_by_parent.setdefault(parent_name, {})[child_type] = asset
+
+    # Merge the capacity child into each legacy storage parent.
+    for parent_name, children in children_by_parent.items():
+        parent = storage_parents[parent_name]
+
+        capacity = children.get("capacity")
+
+        if capacity is None:
+            raise ValueError(
+                f"Legacy storage '{parent_name}' has child assets "
+                f"but no capacity child."
+            )
+
+        # These describe the child object itself and must not be
+        # copied to the parent.
+        excluded_keys = {
+            "name",
+            "pos_x",
+            "pos_y",
+            "asset_info",
+            "parent_asset",
+        }
+
+        for key, value in capacity.items():
+            if key not in excluded_keys:
+                parent[key] = value
+
+        # The old parent only has asset_fields="[name]".
+        # Replace that with the fields that were previously stored
+        # on the capacity child.
+        if (
+            "asset_info" in parent
+            and "asset_info" in capacity
+            and "asset_fields" in capacity["asset_info"]
+        ):
+            parent["asset_info"]["asset_fields"] = capacity["asset_info"][
+                "asset_fields"
+            ]
+
+    # Drop legacy storage children.
+    #
+    # Do NOT simply remove every asset with parent_asset because
+    # other kinds of parent/child relationships may exist.
+    merged_assets = []
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+        asset_type = asset.get("asset_info", {}).get("asset_type")
+
+        is_legacy_storage_child = (
+            parent_name in storage_parents and asset_type in legacy_child_types
+        )
+
+        if not is_legacy_storage_child:
+            merged_assets.append(asset)
+
+    return merged_assets
+
+
 def load_scenario_from_dict(model_data, user, project=None):
     """Create a new scenario for a user within a given project
 
@@ -414,8 +542,8 @@ def load_scenario_from_dict(model_data, user, project=None):
     scenario.project = project
     scenario.save()
 
-    # push the children asset at the end of the list to make sure we create the parents first
-    assets.sort(key=lambda asset_data: 1 if "parent_asset" in asset_data else 0)
+    # merge the storage assets into one asset for back compatibility
+    assets = merge_legacy_storage_assets(assets)
 
     for asset_data in assets:
         if "parent_asset" in asset_data:
@@ -423,9 +551,8 @@ def load_scenario_from_dict(model_data, user, project=None):
                 name=asset_data["parent_asset"], scenario=scenario
             )
         asset_info = asset_data.pop("asset_info")
-        asset_data["asset_type"] = AssetType.objects.get(
-            asset_type=asset_info["asset_type"]
-        )
+        asset_type = asset_info["asset_type"]
+        asset_data["asset_type"] = AssetType.objects.get(asset_type=asset_type)
 
         COP_parameters = asset_data.pop("COP_parameters", None)
 
@@ -472,7 +599,24 @@ def load_scenario_from_dict(model_data, user, project=None):
                 )
                 asset_data.pop("input_timeseries")
 
-        AssetModel = ASSET_MAPPING.get(asset_info["asset_type"], Asset)
+        AssetModel = ASSET_MAPPING.get(asset_type, Asset)
+
+        # Allow exported files before the breaking changes to be reimported
+        compatibility_mapping = COMPATIBILITY_PARAMETER_NAME_MAPPING.get(asset_type, {})
+        if compatibility_mapping:
+            for old_param, new_param in compatibility_mapping.items():
+                if old_param in asset_data:
+                    asset_data[new_param] = asset_data.pop(old_param)
+
+        if asset_type != "hess":
+            for hess_param in [
+                "thermal_loss_rate",
+                "fixed_thermal_losses_relative",
+                "fixed_thermal_losses_absolute",
+            ]:
+                if hess_param in asset_data:
+                    asset_data.pop(hess_param)
+
         asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
