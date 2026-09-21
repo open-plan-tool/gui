@@ -641,7 +641,6 @@ def usecase_search(request, usecase_id=None, scen_id=None):
     )
 
 
-@login_required
 @require_http_methods(["GET"])
 def usecase_asset_info(request, proj_id):
     project = get_object_or_404(UseCase, pk=proj_id)
@@ -679,6 +678,23 @@ def usecase_asset_info(request, proj_id):
     result["assets"] = assets_info
 
     return JsonResponse(result)
+
+
+@json_view
+@require_http_methods(["GET"])
+def usecase_scenarios_info(request):
+    data = {}
+
+    usecases = UseCase.objects.all().order_by("id")
+
+    for usecase in usecases:
+        for scenario in usecase.scenario_set.all().order_by("name"):
+            data[scenario.name] = {
+                "scenario_id": scenario.id,
+                "project_id": usecase.id,
+            }
+
+    return JsonResponse(data)
 
 
 # endregion Usecase
