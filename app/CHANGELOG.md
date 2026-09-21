@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix broken datapackage export [[#522](https://github.com/open-plan-tool/gui/pull/522)]
 
 ## [v2.2.0] – 2026-09-16
 ### Added
