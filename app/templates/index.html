@@ -7,52 +7,52 @@
 {% endblock head_block %}
 
 {% block index %}
-{% get_current_language as LANGUAGE_CODE %}
+    {% get_current_language as LANGUAGE_CODE %}
 
-{% if LANGUAGE_CODE == 'de' %}
-	{% url 'landing_commune_de' as landing_commune_url %}
-{% else %}
-  {% url 'landing_commune' as landing_commune_url %}
-{% endif %}
-
-
+    {% if LANGUAGE_CODE == 'de' %}
+        {% url 'landing_commune_de' as landing_commune_url %}
+    {% else %}
+        {% url 'landing_commune' as landing_commune_url %}
+    {% endif %}
 
 
-<main class="landing-page">
 
-	<section class="cellular2 section" id="hero" data-aos="fade-up">
-		<div>
-			<div class="cellular2__text">
-				<h1>{% translate "The open-source planning tool for the energy transition" %}</h1>
-				<span>{% translate "With the OpenPlan Tool, you can plan and design energy systems in an open and free framework. " %}</span>
-				<a href="{% url 'project_search' %}" class="btn btn--medium">{% translate "To the OpenPlan Tool" %}</a>
-			</div>
-			<div class="cellular2__image">
-				<img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
-			</div>
-		</div>
-	</section>
 
-	<section class="application2">
-		<div>
-			<h2>{% translate "Application areas" %}</h2>
+    <main class="landing-page">
+
+        <section class="cellular2 section" id="hero" data-aos="fade-up">
+            <div>
+                <div class="cellular2__text">
+                    <h1>{% translate "The open-source planning tool for the energy transition" %}</h1>
+                    <span>{% translate "With the OpenPlan Tool, you can plan and design energy systems in an open and free framework. " %}</span>
+                    <a href="{% url 'project_search' %}" class="btn btn--medium">{% translate "To the OpenPlan Tool" %}</a>
+                </div>
+                <div class="cellular2__image">
+                    <img src="{% static 'assets/illustrations/cellular_bg.png' %}" alt="">
+                </div>
+            </div>
+        </section>
+
+        <section class="application2">
+            <div>
+                <h2>{% translate "Application areas" %}</h2>
 			<!--div class="dev__text">
 				<p style="font-size: 1.5rem;">{% translate "Use the GUI to include sector-coupling and optimize the energy system model subject to equality constraints" %}</p>
 			</div-->
-			<div class="application2__cards">
-				<div class="application2__card">
-					<img src="{% static 'assets/icons/i_heating_hex.png' %}" alt="" width="60">
-					<a href="{{ landing_commune_url }}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
-				</div>
-				<div class="application2__card">
-					<img src="{% static 'assets/icons/i_cells_hex.png' %}" alt="" width="60">
-					<a href="{% url 'landing_cellular' %}" class="btn btn--medium btn--hollow">{% translate "Cellular energy systems" %}</a>
-				</div>
-				<div class="application2__card">
-					<img src="{% static 'assets/icons/i_analysis_hex.png' %}" alt="" width="60">
-					<a href="{% url 'landing_default' %}" class="btn btn--medium btn--hollow">{% translate "General energy system analysis" %}</a>
-				</div>
-			</div>
+                <div class="application2__cards">
+                    <div class="application2__card">
+                        <img src="{% static 'assets/icons/i_heating_hex.png' %}" alt="" width="60">
+                        <a href="{{ landing_commune_url }}" class="btn btn--medium btn--hollow">{% translate "Municipal heating planning" %}</a>
+                    </div>
+                    <div class="application2__card">
+                        <img src="{% static 'assets/icons/i_cells_hex.png' %}" alt="" width="60">
+                        <a href="{% url 'landing_cellular' %}" class="btn btn--medium btn--hollow">{% translate "Cellular energy systems" %}</a>
+                    </div>
+                    <div class="application2__card">
+                        <img src="{% static 'assets/icons/i_analysis_hex.png' %}" alt="" width="60">
+                        <a href="{% url 'landing_default' %}" class="btn btn--medium btn--hollow">{% translate "General energy system analysis" %}</a>
+                    </div>
+                </div>
 			<!-- THIS SHOULD BE ADDED TO THE DOCUMENTATION div class="dev__text">
 <p>{% translate "If you want to collaborate or are interested in the project, you can find more information on:" %}</p>
 <div class="dev__links">
@@ -61,24 +61,24 @@
 	<a href="https://open-plan-documentation.readthedocs.io/en/latest/" class="btn btn--hollow">Read the Docs</a>
 	<a href="https://www.youtube.com/channel/UCg8NUlNM4m9iT94K3Zf8S2A" class="btn btn--hollow" target="_blank" rel="noopener noreferrer">YouTube</a>
 </div-->
-		</div>
-	</section>
-	<section class="application2">
-		<div>
-			<h2>{% translate "Courses, workshops and webinars" %}</h2>
-			<div class="involvement2__cards">
+            </div>
+        </section>
+        <section class="application2">
+            <div>
+                <h2>{% translate "Courses, workshops and webinars" %}</h2>
+                <div class="involvement2__cards">
                     <div class="involvement2__card">
                         <img src="{% static 'assets/icons/i_coop_hex.png' %}" alt="" width="60">
                         <p>{% translate "Stakeholder-Workshop" %}</p>
                         <p>{% translate "New features are presented, the current state of development is discussed, and feedback is gathered in interactive stakeholder workshops." %}</p>
                         <a href="https://events.teams.microsoft.com/event/e076ba01-bfb0-4714-beeb-fb8c3a7d4dc1@039d85e5-be25-4a36-8a01-d480397b8e69" class="btn btn&#45;&#45;hollow">{% translate "To the workshop" %}</a>
                     </div>
-			</div>
-		</div>
-	</section>
+                </div>
+            </div>
+        </section>
 
-	{% include 'landing/newsletter_insert.html' %}
-	{% include 'landing/logos.html' %}
+        {% include 'landing/newsletter_insert.html' %}
+        {% include 'landing/logos.html' %}
 
-</main>
+    </main>
 {% endblock index %}
