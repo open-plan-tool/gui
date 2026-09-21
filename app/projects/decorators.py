@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from functools import wraps
 
-from projects.models import Project, Scenario
+from projects.models import Project, Scenario, UseCase
 
 
 def get_project_from_proj_or_scen_id(proj_id, scen_id):
@@ -48,7 +48,11 @@ def user_has_read_rights(view_func):
     def _wrapped_view(request, proj_id=None, scen_id=None, *args, **kwargs):
         project = get_project_from_proj_or_scen_id(proj_id, scen_id)
 
-        if (project.user != request.user) and (
+        qs_usecase = UseCase.objects.filter(id=project.id)
+        # allow access to usecases data
+        if qs_usecase.exists():
+            pass
+        elif (project.user != request.user) and (
             project.viewers.filter(user__email=request.user.email).exists() is False
         ):
             reason = _(
