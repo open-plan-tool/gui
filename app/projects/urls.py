@@ -76,6 +76,11 @@ urlpatterns = [
         usecase_asset_info,
         name="usecase_asset_info",
     ),
+    path(
+        "usecases/scenarios/info",
+        usecase_scenarios_info,
+        name="usecase_scenarios_info",
+    ),
     # Comment
     path("comment/create/<int:proj_id>", comment_create, name="comment_create"),
     path("comment/update/<int:com_id>", comment_update, name="comment_update"),
@@ -300,6 +305,11 @@ urlpatterns = [
         "test_mvs_data_input/<int:scen_id>",
         test_mvs_data_input,
         name="test_mvs_data_input",
+    ),
+    path(
+        "usecase_mvs_data_input/<int:scen_id>",
+        usecase_mvs_data_input,
+        name="usecase_mvs_data_input",
     ),
     path(
         "topology/mvs_simulation/<int:scen_id>",
