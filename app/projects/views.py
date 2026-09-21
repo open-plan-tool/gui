@@ -2081,7 +2081,7 @@ def asset_cops_create_or_update(
 @json_view
 @login_required
 @require_http_methods(["GET"])
-@user_is_owner
+@user_has_read_rights
 def view_mvs_data_input(request, scen_id=0, testing=False):
     if scen_id == 0:
         return JsonResponse(
