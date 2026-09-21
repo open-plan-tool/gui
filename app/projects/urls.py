@@ -307,6 +307,11 @@ urlpatterns = [
         name="test_mvs_data_input",
     ),
     path(
+        "usecase_mvs_data_input/<int:scen_id>",
+        usecase_mvs_data_input,
+        name="usecase_mvs_data_input",
+    ),
+    path(
         "topology/mvs_simulation/<int:scen_id>",
         request_mvs_simulation,
         name="request_mvs_simulation",

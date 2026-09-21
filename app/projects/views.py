@@ -2113,6 +2113,13 @@ def test_mvs_data_input(request, scen_id=0):
     return view_mvs_data_input(request, scen_id=scen_id, testing=True)
 
 
+@json_view
+@user_has_read_rights
+@require_http_methods(["GET"])
+def usecase_mvs_data_input(request, scen_id=0):
+    return view_mvs_data_input(request, scen_id=scen_id, testing=True)
+
+
 # End-point to send MVS simulation request
 # @json_view
 @login_required
