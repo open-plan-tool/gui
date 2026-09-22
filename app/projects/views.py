@@ -319,12 +319,13 @@ def timeseries_delete(request, ts_id):
 
     # load updated timeseries list
     timeseries_list = timeseries_sort_and_filter(request)
-    html = render_to_string(
-        "asset/timeseries_table.html",
-        {"timeseries_list": timeseries_list, "selected_timeseries": None},
-        request=request,
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
     )
-    return HttpResponse(html)
+    return HttpResponse(table_html + details_html)
 
 
 @require_http_methods(["GET"])
