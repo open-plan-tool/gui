@@ -231,7 +231,7 @@ def timeseries_edit(request, ts_id):
 
     if request.method == "GET":
         form = TimeseriesModelForm(instance=timeseries)
-        return render(request, "asset/timeseries_upload_form.html", {"form": form})
+        return render(request, "asset/timeseries_edit_form.html", {"form": form})
 
     if request.POST:
         form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
@@ -247,7 +247,7 @@ def timeseries_edit(request, ts_id):
                 {
                     "success": True,
                     "form_html": render_to_string(
-                        "asset/timeseries_upload_form.html",
+                        "asset/timeseries_edit_form.html",
                         {
                             "form": TimeseriesModelForm(instance=updated_timeseries),
                             "selected_timeseries": timeseries,
@@ -261,7 +261,7 @@ def timeseries_edit(request, ts_id):
                 {
                     "success": False,
                     "form_html": render_to_string(
-                        "asset/timeseries_upload_form.html",
+                        "asset/timeseries_edit_form.html",
                         {"form": form},
                         request=request,
                     ),
