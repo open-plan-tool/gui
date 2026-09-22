@@ -235,6 +235,10 @@ def timeseries_edit(request, ts_id):
     if timeseries.user != request.user:
         raise PermissionDenied
 
+    if request.method == "GET":
+        form = TimeseriesModelForm(instance=timeseries)
+        return render(request, "asset/timeseries_upload_form.html", {"form": form})
+
     if request.POST:
         form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
         if form.is_valid():
@@ -245,9 +249,30 @@ def timeseries_edit(request, ts_id):
                 updated_timeseries.values = parse_input_timeseries(uploaded_file)
 
             updated_timeseries.save()
-            return HttpResponseRedirect(reverse("timeseries_dashboard"))
-
-    return HttpResponseRedirect(reverse("timeseries_dashboard"))
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {
+                            "form": TimeseriesModelForm(instance=updated_timeseries),
+                            "selected_timeseries": timeseries,
+                        },
+                        request=request,
+                    ),
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
 
 
 @login_required

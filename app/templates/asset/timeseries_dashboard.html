@@ -245,8 +245,8 @@
         </div>
     {% endif %}
 </div>
-{% include "modal_template.html" with id="uploadTimeseriesModal" submit_btn_label="Upload" title="Upload time series" form=timeseries_upload_form enctype=True custom_submit_function="getDataForTimeseriesSubmit()"%}
-{% include "modal_template.html" with id="editTimeseriesModal" submit_btn_label="Edit" title="Edit time series" form=timeseries_edit_form enctype=True %}
+{% include "modal_template.html" with id="uploadTimeseriesModal" submit_btn_label="Upload" title="Upload time series" form=timeseries_upload_form enctype=True custom_submit_function="handleTimeseriesForm(postTimeseriesFormUrl, 'uploadTimeseriesModal')"%}
+{% include "modal_template.html" with id="editTimeseriesModal" submit_btn_label="Edit" title="Edit time series" form=timeseries_edit_form enctype=True custom_submit_function="handleTimeseriesForm(editTimeseriesFormUrl, 'editTimeseriesModal')" %}
 <div class="modal fade" id="createTimeseriesModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -309,6 +309,7 @@ function toggleTsFields() {
 </script>
 <script>
     const postTimeseriesFormUrl = `{% url 'timeseries_dashboard' %}`;
+    let editTimeseriesFormUrl = `{% url 'timeseries_edit' selected_timeseries.id %}`;
     const csrfToken = '{{ csrf_token }}';
 </script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
