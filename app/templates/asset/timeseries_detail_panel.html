@@ -61,7 +61,7 @@
         </div>
 
         <div class="detail-actions">
-            <button class="btn btn--medium" onclick="showModal(event, 'editTimeseriesModal', {'action': '{% url 'timeseries_edit' selected_timeseries.id %}'})">Edit</button>
+            <button class="btn btn--medium" onclick="getEditTimeseriesForm(event)">Edit</button>
             <button
                 class="btn btn--medium"
                 hx-post="{% url 'timeseries_duplicate' selected_timeseries.id %}?{{ request.GET.urlencode }}"
