@@ -11,10 +11,15 @@ def forwards(apps, schema_editor):
     for asset in Asset.objects.filter(asset_type__asset_type="electrolyzer"):
         if Electrolyzer.objects.filter(asset_ptr_id=asset.pk).exists():
             continue
+        heat_eff = None
+        if (asset.efficiency_multiple is not None) and (asset.efficiency_multiple != 'None'):
+            heat_eff = float(asset.efficiency_multiple)
+
         elzer = Electrolyzer(
             asset_ptr_id=asset.pk,
-            efficiency_heat=float(asset.efficiency_multiple) if asset.efficiency_multiple is not None else None,
+            efficiency_heat=heat_eff,
         )
+
         # raw save writes only the child table row of the existing parent asset
         elzer.save_base(raw=True)
         if (
