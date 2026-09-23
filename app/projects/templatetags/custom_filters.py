@@ -2,6 +2,7 @@ from math import floor
 
 from django import template
 from django.db.models import Q
+
 from projects.models import Project
 
 register = template.Library()
@@ -116,10 +117,9 @@ def is_toggle_parameter(param):
 @register.filter
 def is_economical_parameter(param):
     return param in [
-        "capex_fix",
-        "capex_var",
-        "opex_fix",
-        "opex_var",
+        "capex_spec",
+        "opex_spec",
+        "variable_costs",
         "energy_price",
         "feedin_tariff",
     ]

@@ -1151,10 +1151,9 @@ def get_costs(simulation, y_variables=None):
     qs1 = qs1.filter(label__in=y_variables).values(
         "label",
         "installed_capacity",
-        "capex_fix",
-        "capex_var",
-        "opex_fix",
-        "opex_var",
+        "capex_spec",
+        "opex_spec",
+        "variable_costs",
         "lifetime",
         "energy_price_asset",
         "parent_asset__name",
@@ -1214,7 +1213,7 @@ def get_costs(simulation, y_variables=None):
     # TODO costs for dso not implemented yet
     df["capex_total"] = df.apply(
         lambda x: annualize_capex(
-            ((x.installed_capacity + x.optimized_capacity) * x.capex_var),
+            ((x.installed_capacity + x.optimized_capacity) * x.capex_spec),
             wacc,
             x.lifetime,
         ),
@@ -1222,9 +1221,9 @@ def get_costs(simulation, y_variables=None):
     )
 
     df["opex_fix_total"] = df.apply(
-        lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
+        lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_spec, axis=1
     )
-    df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
+    df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.variable_costs, axis=1)
 
     # nur für dso ...
     df["fuel_costs_total"] = df.apply(
