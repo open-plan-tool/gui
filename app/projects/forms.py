@@ -797,6 +797,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                     param_name="input_timeseries",
                     label=self.fields["input_timeseries"].label,
                     asset_type=self.asset_type_name,
+                    custom_form_assets=list(CUSTOM_TIMESERIES_FORMS.keys()),
                 )
                 # TODO here one can play with min, max, max_length as kwargs
 
@@ -882,12 +883,11 @@ def asset_form_factory(asset_type=None, **kwargs):
                 if timeseries_file is not None:
                     input_timeseries_values = parse_input_timeseries(timeseries_file)
                     # TODO here list the possible options
-                else:
-                    # set the previous timeseries from the asset if any
-                    if self.is_input_timeseries_empty() is False:
-                        input_timeseries_values = (
-                            self.existing_asset.input_timeseries_values
-                        )
+                # set the previous timeseries from the asset if any
+                elif self.is_input_timeseries_empty() is False:
+                    input_timeseries_values = (
+                        self.existing_asset.input_timeseries_values
+                    )
                 return input_timeseries_values
             except json.decoder.JSONDecodeError as ex:
                 raise ValidationError(
@@ -917,6 +917,15 @@ def asset_form_factory(asset_type=None, **kwargs):
                             "If you have no installed capacity, age installed should also be 0"
                         ),
                     )
+
+            # If optimize capacity is selected, set the installed capacity and age to zero (as they are explicitly hidden in the form but might contain old values)
+            # otherwise reset maximum capacity instead
+            if "optimize_cap" in cleaned_data:
+                if cleaned_data["optimize_cap"]:
+                    cleaned_data["age_installed"] = 0
+                    cleaned_data["installed_capacity"] = 0.0
+                else:
+                    cleaned_data["maximum_capacity"] = None
 
             if self.asset_type_name == "heat_pump":
                 if "cop" not in self.errors:
@@ -1023,9 +1032,18 @@ def asset_form_factory(asset_type=None, **kwargs):
             ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
 
             if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
-                timeseries_name = f"constant value = {timeseries_values[0]}"
-                timeseries_values = timeseries_values
-                ts_default_settings["ts_type"] = "scalar"
+                if len(timeseries_values) == 1:
+                    timeseries_name = f"constant value = {timeseries_values[0]}"
+                    ts_default_settings["ts_type"] = "scalar"
+                else:
+                    timeseries_name = f"Created timeseries ({self.asset_type_name})"
+                    generation_parameters = input_timeseries["input_method"].get(
+                        "generation_parameters"
+                    )
+                    if generation_parameters:
+                        ts_default_settings["generation_parameters"] = (
+                            generation_parameters
+                        )
 
             timeseries, created = Timeseries.objects.get_or_create(
                 values=timeseries_values,
@@ -1064,9 +1082,9 @@ def asset_form_factory(asset_type=None, **kwargs):
             model = asset_model
             exclude = ["scenario"]
             widgets = {
-                "optimize_cap": forms.Select(choices=BOOL_CHOICES),
-                "dispatchable": forms.Select(choices=TRUE_FALSE_CHOICES),
-                "renewable_asset": forms.Select(choices=BOOL_CHOICES),
+                "optimize_cap": ToggleSwitchWidget(),
+                "dispatchable": ToggleSwitchWidget(),
+                "renewable_asset": ToggleSwitchWidget(),
                 "name": forms.TextInput(
                     attrs={
                         "placeholder": _("Asset Name"),
@@ -1128,13 +1146,26 @@ def asset_form_factory(asset_type=None, **kwargs):
                 "maximum_capacity": forms.NumberInput(
                     attrs={"placeholder": "e.g. 1000", "min": "0.0", "step": ".01"}
                 ),
-                "feedin_cap": forms.NumberInput(attrs={"placeholder": "e.g. 0.0"}),
+                "energy_price": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.1", "min": "0.0", "step": ".0001"}
+                ),
+                "feedin_tariff": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.0", "min": "0.0", "step": ".0001"}
+                ),
+                "feedin_cap": forms.NumberInput(
+                    attrs={"placeholder": "e.g. 0.0", "min": "0.0"}
+                ),
                 "peak_demand_pricing": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 60", "step": ".01"}
+                    attrs={"placeholder": "e.g. 60", "min": "0.0", "step": ".01"}
+                ),
+                "peak_demand_pricing_period": forms.Select(
+                    choices=((1, 1), (2, 2), (3, 3), (4, 4), (6, 6), (12, 12))
                 ),
                 "renewable_share": forms.NumberInput(
                     attrs={
                         "placeholder": "e.g. 0.1",
+                        "min": "0.0",
+                        "max": "1.0",
                         "step": ".0001",
                     }
                 ),
@@ -1143,14 +1174,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                 ),
                 "age_installed": forms.NumberInput(
                     attrs={"placeholder": "e.g. 10", "min": "0.0", "step": "1"}
-                ),
-                "beta": forms.NumberInput(
-                    attrs={
-                        "placeholder": "e.g. 0.4",
-                        "min": "0.0",
-                        "max": "1.0",
-                        "step": ".0001",
-                    }
                 ),
             }
             labels = {"input_timeseries": _("Timeseries vector")}
