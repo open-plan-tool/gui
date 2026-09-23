@@ -3,6 +3,8 @@
 ## [Unreleased]
 ### Added
 - Allow user to get information about usecases's scenarios via endpoint [[#524](https://github.com/open-plan-tool/gui/pull/524)]
+### Changed
+- Updated courses page with workshop information [[#526](https://github.com/open-plan-tool/gui/pull/526)]
 ### Fixed
 - Fix broken datapackage export [[#522](https://github.com/open-plan-tool/gui/pull/522)]
 
