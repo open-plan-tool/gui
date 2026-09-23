@@ -1016,17 +1016,17 @@ class Asset(TopologyNode):
                 "opex_fix",
                 "opex_var",
                 "lifetime",
-                "crate",
+                "crate_asset",
                 "efficiency",
-                "soc_max",
-                "soc_min",
+                "soc_max_asset",
+                "soc_min_asset",
                 "maximum_capacity",
                 "optimize_cap",
                 "installed_capacity",
                 "age_installed",
-                "thermal_loss_rate",  # only for hess
-                "fixed_thermal_losses_relative",  # only for hess
-                "fixed_thermal_losses_absolute",  # only for hess
+                "thermal_loss_rate_asset",  # only for hess
+                "fixed_thermal_losses_relativeA",  # only for hess
+                "fixed_thermal_losses_absoluteA",  # only for hess
             ]:
                 setattr(self, attribute, getattr(capacity, attribute))
 
