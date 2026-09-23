@@ -120,9 +120,7 @@ class Project(models.Model):
         dp["name"] = self.name
         dp["type"] = "project"
         dp["discount_factor"] = dp.pop("discount")
-        dp["lifetime"] = dp.pop("duration")
-        dp["shortage_cost"] = 999
-        dp["excess_cost"] = 99
+        dp["economic_period"] = dp.pop("duration")
         return dp
 
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
@@ -1050,9 +1048,11 @@ class Asset(TopologyNode):
         existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
 
         for field in attributes:
-            if (
-                field != "dispatchable"
-            ):  # TODO remove this when `dispatchable` not a visible field anymore
+            # remove optimize cap from the datapackage -> only used for GUI setting, eesyplan only takes installed/maximum capacity
+            if field not in [
+                "dispatchable",
+                "optimize_cap",
+            ]:  # TODO remove this when `dispatchable` not a visible field anymore
                 value = getattr(existing_asset, field)
                 # if the field is a candidate for a scalar/list
                 if isinstance(value, str) and field != "name":
@@ -1561,8 +1561,7 @@ class Bus(TopologyNode):
         dm["carrier"] = dm["type"]
         dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
-        dm["excess"] = "False"
-        dm["excess_costs"] = "0.0"
+        dm["excess_cost"] = "0.0"
         return dm
 
 
