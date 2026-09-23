@@ -1156,7 +1156,7 @@ def get_costs(simulation, y_variables=None):
         "opex_fix",
         "opex_var",
         "lifetime",
-        "energy_price",
+        "energy_price_asset",
         "parent_asset__name",
     )
 
@@ -1227,7 +1227,9 @@ def get_costs(simulation, y_variables=None):
     df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
 
     # nur für dso ...
-    df["fuel_costs_total"] = df.apply(lambda x: x.total_flow * x.energy_price, axis=1)
+    df["fuel_costs_total"] = df.apply(
+        lambda x: x.total_flow * x.energy_price_asset, axis=1
+    )
 
     # TODO fuel costs
 

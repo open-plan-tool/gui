@@ -2,8 +2,6 @@ import json
 from typing import List
 from django.db.models import Q
 import numpy as np
-from numpy.core import long
-from datetime import date, datetime, time
 
 from projects.models import (
     ConnectionLink,
@@ -367,9 +365,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 None,
                 asset.dispatchable,
                 to_value_type(asset, "age_installed"),
-                to_value_type(asset, "crate"),
-                to_value_type(asset, "soc_max"),
-                to_value_type(asset, "soc_min"),
+                to_value_type(asset, "crate_asset"),
+                to_value_type(asset, "soc_max_asset"),
+                to_value_type(asset, "soc_min_asset"),
                 to_value_type(asset, "capex_fix"),
                 to_value_type(asset, "opex_var"),
                 efficiency,
@@ -393,12 +391,14 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                 ess.asset_type.asset_type == "hess"
                 and asset.asset_type.asset_type == "capacity"
             ):
-                asset_dto.thermal_loss_rate = to_value_type(asset, "thermal_loss_rate")
+                asset_dto.thermal_loss_rate = to_value_type(
+                    asset, "thermal_loss_rate_asset"
+                )
                 asset_dto.fixed_thermal_losses_relative = to_value_type(
-                    asset, "fixed_thermal_losses_relative"
+                    asset, "fixed_thermal_losses_relativeA"
                 )
                 fixed_thermal_losses_absolute = to_value_type(
-                    asset, "fixed_thermal_losses_absolute"
+                    asset, "fixed_thermal_losses_absoluteA"
                 )
                 fixed_thermal_losses_absolute.value = float(
                     fixed_thermal_losses_absolute.value
@@ -409,6 +409,110 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
                     efficiency - asset_dto.thermal_loss_rate.value, 0
                 )
             ess_sub_assets.update({asset.asset_type.asset_type: asset_dto})
+
+        # back-compatibility layer for MVS
+        if not ess_sub_assets:
+            suffixes = {
+                "capacity": " capacity",
+                "charging_power": " input power",
+                "discharging_power": " output power",
+            }
+            for asset_type in ("capacity", "charging_power", "discharging_power"):
+                if asset_type == "capacity":
+                    efficiency = ValueTypeDto(unit="factor", value=1)
+                    soc_max = to_value_type(ess, "soc_max_asset")
+                    soc_min = to_value_type(ess, "soc_min_asset")
+                    capex_var = to_value_type(ess, "capex_var")  # specific_costs
+                    opex_fix = to_value_type(ess, "opex_fix")  # specific_costs_om
+                    optimize_cap = to_value_type(ess, "optimize_cap")
+                    maximum_cap = to_value_type(ess, "maximum_capacity")
+                    unit = "kWh"
+                else:
+                    efficiency = to_value_type(ess, "efficiency")
+                    efficiency = ValueTypeDto(
+                        unit="factor", value=np.sqrt(efficiency.value)
+                    )
+                    soc_max = None
+                    soc_min = None
+                    capex_var = ValueTypeDto(
+                        unit="currency/unit", value=0.0
+                    )  # specific_costs
+                    opex_fix = ValueTypeDto(
+                        unit="currency/year", value=0.0
+                    )  # specific_costs_om
+                    optimize_cap = ValueTypeDto(unit="bool", value=False)
+                    maximum_cap = None
+                    unit = "kW"
+
+                if asset_type == "charging_power":
+                    opex_var = ValueTypeDto(
+                        unit="currency/unit/year", value=0.0
+                    )  # dispatch_price
+                else:
+                    opex_var = to_value_type(ess, "opex_var")  # dispatch_price
+
+                capex_fix = ValueTypeDto(
+                    unit="currency", value=0.0
+                )  # development_costs
+
+                asset_dto = AssetDto(
+                    asset_type,
+                    ess.name + suffixes[asset_type],
+                    ess.unique_id,
+                    None,
+                    None,
+                    None,
+                    None,
+                    ess.dispatchable,
+                    to_value_type(ess, "age_installed"),
+                    to_value_type(
+                        ess, "crate_asset"
+                    ),  # change to new crate if existing
+                    soc_max,
+                    soc_min,
+                    capex_fix,
+                    opex_var,
+                    efficiency,
+                    to_value_type(ess, "installed_capacity"),
+                    to_value_type(ess, "lifetime"),
+                    maximum_cap,
+                    to_value_type(ess, "energy_price_asset"),
+                    to_value_type(ess, "feedin_tariff_asset"),
+                    to_value_type(ess, "feedin_cap_asset"),
+                    optimize_cap,
+                    to_value_type(ess, "peak_demand_pricing_asset"),
+                    to_value_type(ess, "peak_demand_pricing_period_asset"),
+                    to_value_type(ess, "renewable_share_asset"),
+                    to_value_type(ess, "renewable_asset"),
+                    capex_var,
+                    opex_fix,
+                    to_timeseries_data(ess, "input_timeseries", testing=testing),
+                    unit,
+                )
+                if ess.asset_type.asset_type == "hess" and asset_type == "capacity":
+                    asset_dto.thermal_loss_rate = to_value_type(
+                        ess, "thermal_loss_rate_asset"
+                    )
+                    asset_dto.fixed_thermal_losses_relative = to_value_type(
+                        ess, "fixed_thermal_losses_relativeA"
+                    )
+                    fixed_thermal_losses_absolute = to_value_type(
+                        ess, "fixed_thermal_losses_absoluteA"
+                    )
+                    fixed_thermal_losses_absolute.value = float(
+                        fixed_thermal_losses_absolute.value
+                    )
+                    # fixed_thermal_losses_relative.value = float(
+                    #     fixed_thermal_losses_relative.value
+                    # )
+                    asset_dto.fixed_thermal_losses_absolute = (
+                        fixed_thermal_losses_absolute
+                    )
+                    efficiency = asset_dto.efficiency.value
+                    asset_dto.efficiency.value = max(
+                        efficiency - asset_dto.thermal_loss_rate.value, 0
+                    )
+                ess_sub_assets.update({asset_type: asset_dto})
 
         ess_dto = EssDto(
             ess.asset_type.asset_type,
@@ -463,7 +567,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             )
 
             if asset.asset_type.asset_type == "chp":
-                optional_parameters["beta"] = to_value_type(asset, "thermal_loss_rate")
+                optional_parameters["beta"] = to_value_type(
+                    asset, "thermal_loss_rate_asset"
+                )
 
             # for chp it corresponds to efficiency_el_wo_heat_extraction
             e_el = asset_efficiency.value
@@ -570,9 +676,9 @@ def convert_to_dto(scenario: Scenario, testing: bool = False):
             outflow_direction,
             asset.dispatchable,
             to_value_type(asset, "age_installed"),
-            to_value_type(asset, "crate"),
-            to_value_type(asset, "soc_max"),
-            to_value_type(asset, "soc_min"),
+            None,  # to_value_type(asset, "crate_asset"),
+            to_value_type(asset, "soc_max_asset"),
+            to_value_type(asset, "soc_min_asset"),
             to_value_type(asset, "capex_fix"),
             to_value_type(asset, "opex_var"),
             asset_efficiency,
@@ -668,6 +774,8 @@ def map_to_dto(model_obj, dto_obj):
 def to_value_type(model_obj, field_name):
     value_type = ValueType.objects.filter(type=field_name).first()
     unit = value_type.unit if value_type is not None else None
+    if field_name == "peak_demand_pricing_period_asset":
+        unit = "times per year (1,2,3,4,6,12)"
     value = getattr(model_obj, field_name)
 
     if value is not None:
@@ -692,7 +800,7 @@ def to_timeseries_data(model_obj, field_name, testing=False):
         if len(value_list) == 1 and getattr(model_obj, field_name).ts_type == "scalar":
             num_timesteps = getattr(model_obj, field_name).scenario.get_num_timesteps
             value_list *= num_timesteps
-        if testing is True and len(value_list) > 3:
+        if testing is True and len(value_list) >= 3:
             value_list = value_list[:3]
 
         return TimeseriesDataDto(unit, value_list)

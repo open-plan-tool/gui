@@ -1,10 +1,12 @@
 import datetime
 import json
 import tempfile
+import traceback
 from pathlib import Path
 
 import pytest
 import requests
+import difflib
 
 
 from django.contrib.auth import get_user_model
@@ -28,6 +30,89 @@ from projects.scenario_topology_helpers import (
     load_project_from_dict,
 )
 from users.models import CustomUser
+
+
+def check_all_asset_forms(project_id, client, verbose=False):
+    response = client.get(
+        reverse(
+            "project_asset_info",
+            kwargs={"proj_id": project_id},
+        )
+    )
+    project_data = response.json()
+
+    if verbose is True:
+        print(f"Checking project {project_data['project_name']} (ID {project_id})")
+
+        print(f"Assets: {len(project_data['assets'])}")
+
+    failures = []
+
+    for asset in project_data["assets"]:
+        try:
+            form_url = reverse(
+                "get_asset_create_form",
+                kwargs={
+                    "scen_id": asset["scenario_id"],
+                    "asset_type_name": asset["asset_type"],
+                    "asset_uuid": asset["uuid"],
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "get_asset_create_form cannot be reversed",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        try:
+            response = client.get(
+                form_url,
+                {
+                    "inputs": json.dumps([]),
+                    "outputs": json.dumps([]),
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "the form url cannot be get",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        if response.status_code == 200:
+            if verbose is True:
+                print(f"✓ {asset['name']} [{asset['asset_type']}]")
+
+        else:
+            if verbose is True:
+                print(
+                    f"✗ {asset['name']} "
+                    f"[{asset['asset_type']}] "
+                    f"-> HTTP {response.status_code}"
+                )
+
+            failures.append(
+                {
+                    **asset,
+                    "status_code": response.status_code,
+                    "response": response.content.decode(),
+                }
+            )
+
+    if verbose is True:
+        if failures:
+            print(
+                f"{len(failures)} / {len(project_data['assets'])} asset forms failed."
+            )
+        else:
+            print(f"All {len(project_data['assets'])} asset forms are callable.")
+
+    return failures
 
 
 class BasicOperationsTest(TestCase):
@@ -672,9 +757,6 @@ class OptimizeCapacityToggleTest(TestCase):
         self.assertEqual(asset.age_installed, 3.0)
 
 
-from .integration_tests import check_all_asset_forms
-
-
 @tag("integration_test")
 class ImportedUsecaseTest(TestCase):
     SOURCE_HOST = "https://open-plan-tool.org"
@@ -789,6 +871,221 @@ class ImportedUsecaseTest(TestCase):
             )
 
 
+@tag("mvs")
+class CompareMVSDataInputTest(TestCase):
+    SERVER_A = "https://staging.open-plan-tool.org"
+    SERVER_B = "http://127.0.0.1:8000"
+
+    SCENARIO_PAIRS = {}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session_a = requests.Session()
+        cls.session_b = requests.Session()
+
+        scenarios_a = cls.get_scenario_info(
+            cls.session_a,
+            cls.SERVER_A,
+        )
+
+        scenarios_b = cls.get_scenario_info(
+            cls.session_b,
+            cls.SERVER_B,
+        )
+
+        cls.SCENARIO_PAIRS.update(
+            cls.create_scenario_pairs(
+                scenarios_a,
+                scenarios_b,
+            )
+        )
+        print(cls.SCENARIO_PAIRS)
+
+        # Login here if required
+        cls.login(cls.session_a, cls.SERVER_A)
+        cls.login(cls.session_b, cls.SERVER_B)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.session_a.close()
+        cls.session_b.close()
+
+    @classmethod
+    def login(cls, session, host, username="testUser", password="ASas12,."):
+        login_url = f"{host}/en/users/login/"
+
+        response = session.get(login_url, timeout=30)
+        response.raise_for_status()
+
+        csrf_token = session.cookies["csrftoken"]
+
+        response = session.post(
+            login_url,
+            data={
+                "username": username,
+                "password": password,
+                "csrfmiddlewaretoken": csrf_token,
+            },
+            headers={
+                "Referer": login_url,
+            },
+            allow_redirects=True,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        if "/users/login" in response.url:
+            raise RuntimeError(f"Login failed for {host}")
+
+    @classmethod
+    def get_scenario_info(cls, session, host):
+        url = f"{host}/en/usecases/scenarios/info"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    @classmethod
+    def create_scenario_pairs(cls, scenarios_a, scenarios_b):
+        pairs = {}
+
+        for scenario_name, data_a in scenarios_a.items():
+            if scenario_name not in scenarios_b:
+                continue
+
+            data_b = scenarios_b[scenario_name]
+
+            pairs[data_a["scenario_id"]] = data_b["scenario_id"]
+
+        return pairs
+
+    def get_mvs_data_input(self, session, host, scen_id):
+        url = f"{host}/en/usecase_mvs_data_input/{scen_id}"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            msg = (
+                f"GET failed for scenario {scen_id}\n"
+                f"URL: {url}\n"
+                f"HTTP {response.status_code}\n"
+                f"{response.text}"
+            )
+            print(msg)
+            return {}
+        else:
+            return response.json()
+
+    def test_mvs_data_input_is_identical(self):
+        all_failures = []
+        for scen_id_a, scen_id_b in self.SCENARIO_PAIRS.items():
+            data_a = self.get_mvs_data_input(
+                self.session_a,
+                self.SERVER_A,
+                scen_id_a,
+            )
+
+            data_b = self.get_mvs_data_input(
+                self.session_b,
+                self.SERVER_B,
+                scen_id_b,
+            )
+
+            IGNORED_KEYS = {
+                "unique_id",
+                "start_date",
+                "scenario_id",
+                "project_id",
+                "evaluated_period",
+            }
+
+            def normalize(data):
+                if isinstance(data, dict):
+                    return {
+                        key: normalize(value)
+                        for key, value in data.items()
+                        if key not in IGNORED_KEYS
+                    }
+
+                if isinstance(data, list):
+                    normalized_items = [normalize(value) for value in data]
+                    return sorted(
+                        normalized_items,
+                        key=lambda item: json.dumps(
+                            item,
+                            sort_keys=True,
+                            ensure_ascii=False,
+                        ),
+                    )
+
+                return data
+
+            data_a = normalize(data_a)
+            data_b = normalize(data_b)
+
+            if not data_a or not data_b:
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": "One of scenario could not get MVS",
+                    }
+                )
+            elif data_a != data_b:
+                json_a = json.dumps(
+                    data_a,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                json_b = json.dumps(
+                    data_b,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                diff = "\n".join(
+                    difflib.unified_diff(
+                        json_a,
+                        json_b,
+                        fromfile=f"{self.SERVER_A} / scenario {scen_id_a}",
+                        tofile=f"{self.SERVER_B} / scenario {scen_id_b}",
+                        lineterm="",
+                    )
+                )
+
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": diff,
+                    }
+                )
+
+        if all_failures:
+            message = "\n\n".join(
+                (
+                    f"Scenario {failure['scenario_a']} "
+                    f"!= {failure['scenario_b']}\n"
+                    f"{failure['diff']}"
+                )
+                for failure in all_failures
+            )
+
+            self.fail("MVS input data differs between servers:\n\n" + message)
+
+
 class CHPAssetTest(TestCase):
     """Guards the chp component behavior through its migration to an own CHP model"""
 
@@ -807,6 +1104,9 @@ class CHPAssetTest(TestCase):
         "lifetime": 20,
         "optimize_cap": True,
         "maximum_capacity": 500,
+        "efficiency": 0.35,
+        "efficiency_multiple": 0.5,
+        "thermal_loss_rate": 0.4,
         "conversion_factor_to_electricity": 0.35,
         "conversion_factor_to_heat": 0.5,
         "beta": 0.4,
@@ -823,7 +1123,10 @@ class CHPAssetTest(TestCase):
 
     # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
     # data keys are suffixed with the subwidget name
-    dual_number_fields = ("conversion_factor_to_electricity", "conversion_factor_to_heat")
+    dual_number_fields = (
+        "conversion_factor_to_electricity",
+        "conversion_factor_to_heat",
+    )
 
     def create_chp_via_form(self, name="chp-test"):
         data = {}

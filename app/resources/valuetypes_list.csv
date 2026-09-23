@@ -5,9 +5,12 @@ discount,factor
 tax,factor
 crf,factor
 crate,factor of total capacity (kWh)
+crate_asset,factor of total capacity (kWh)
 age_installed,year
 soc_max,factor
+soc_max_asset,factor
 soc_min,factor
+soc_min_asset,factor
 capex_fix,currency
 opex_var,currency/unit/year
 efficiency,factor
@@ -31,7 +34,10 @@ input_timeseries,kWh
 evaluated_period,days
 renewable_asset,bool
 thermal_loss_rate,factor
+thermal_loss_rate_asset,factor
 efficiency_multiple,factor
 beta,factor
 fixed_thermal_losses_relative,factor
 fixed_thermal_losses_absolute,kWh
+fixed_thermal_losses_relativeA,factor
+fixed_thermal_losses_absoluteA,kWh
