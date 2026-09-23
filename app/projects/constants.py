@@ -486,9 +486,9 @@ MAP_EPA_MVS = {
     "specific_replacement_costs_of_optimized_capacity": "specific_replacement_costs_of_optimized_capacity",
     "asset_type": "type_asset",
     "capex_fix": "development_costs",
-    "capex_var": "specific_costs",
-    "opex_fix": "specific_costs_om",
-    "opex_var": "dispatch_price",
+    "capex_spec": "specific_costs",
+    "opex_spec": "specific_costs_om",
+    "variable_costs": "dispatch_price",
     "discount": "discount_factor",
     "duration": "project_duration",
 }
