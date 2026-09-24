@@ -837,6 +837,9 @@ class Asset(TopologyNode):
     unique_id = models.CharField(
         max_length=120, default=uuid.uuid4, unique=True, editable=False
     )
+    capex_fix = models.FloatField(
+        null=True, blank=False, validators=[MinValueValidator(0.0)]
+    )  # development_costs
     capex_spec = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # specific_costs
@@ -1007,6 +1010,7 @@ class Asset(TopologyNode):
             # Only keep the values from the capacity children asset of the storage
             capacity = qs_children.get(asset_type__asset_type="capacity")
             for attribute in [
+                "capex_fix",
                 "capex_spec",
                 "opex_spec",
                 "variable_costs",
