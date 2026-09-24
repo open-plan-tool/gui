@@ -380,7 +380,7 @@ function submitForm() {
             // rename the node on the fly (to avoid the need of refreshing the page)
             nodeName.textContent = nodeNameValue;
             // update node name in node data
-            let oldData = editor.getNodeFromId(drawflowNodeId);
+            let oldData = editor.getNodeFromId(drawflowNodeId).data;
             let newData = Object.assign({}, oldData, {"name": nodeNameValue});
             editor.updateNodeDataFromId(drawflowNodeId, newData);
 
