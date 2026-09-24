@@ -1354,8 +1354,34 @@ class ElectricalStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
     def save(self, *args, **kwargs):
@@ -1364,7 +1390,7 @@ class ElectricalStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1379,8 +1405,34 @@ class FuelStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
     def save(self, *args, **kwargs):
@@ -1389,7 +1441,7 @@ class FuelStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1404,8 +1456,34 @@ class HydrogenStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
     def save(self, *args, **kwargs):
@@ -1414,7 +1492,7 @@ class HydrogenStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1429,13 +1507,38 @@ class ThermalStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    # sqrt of efficiency in asset
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    thermal_loss_rate = models.FloatField(
+    # sqrt of efficiency in asset
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    # previously thermal_loss_rate
+    thermal_losses_variable = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
+    # previously fixed_thermal_losses_relative
+    thermal_losses_fixed = models.TextField(null=True, blank=False)
+    # apparently always = 0, so not implemented
     fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
 
     def save(self, *args, **kwargs):
@@ -1444,9 +1547,9 @@ class ThermalStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
-        self.thermal_loss_rate_asset = self.thermal_loss_rate
-        self.fixed_thermal_losses_relativeA = self.fixed_thermal_losses_relative
+        self.crate_asset = self.c_rate_charge
+        self.thermal_loss_rate_asset = self.thermal_losses_variable
+        self.fixed_thermal_losses_relativeA = self.thermal_losses_fixed
         self.fixed_thermal_losses_absoluteA = self.fixed_thermal_losses_absolute
         super().save(*args, **kwargs)
 
