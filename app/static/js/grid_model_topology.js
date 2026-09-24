@@ -486,7 +486,11 @@ editor.on("keydown", e => {
         selectedNode.inputs = {};
         selectedNode.outputs = {};
         // create new node with same type (name), slightly off original
-        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1, {}).then(node => {
+        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1,
+            selectedNode.name === BUS ?
+                { portMapping: selectedNode.data.portMapping, bustype: selectedNode.data.bustype, energyCarrier: selectedNode.data.energyCarrier }
+                : {}
+        ).then(node => {
             const newNodeId = node.editorNodeId;
             populateForm(selectedElement, submit=false, show=false).then(_ => {
                 // update form info
