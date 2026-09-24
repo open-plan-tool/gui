@@ -217,6 +217,11 @@ urlpatterns = [
         name="get_asset_create_form",
     ),
     path(
+        "asset/get_form/<int:scen_id>/<str:asset_type_name>/<int:asset_uuid>",
+        get_asset_create_form,
+        name="get_asset_create_form",
+    ),
+    path(
         "asset/get_form/<int:scen_id>/<str:asset_type_name>/<uuid:asset_uuid>",
         get_asset_create_form,
         name="get_asset_create_form",
@@ -228,6 +233,11 @@ urlpatterns = [
     ),
     path(
         "asset/create_or_update_post/<int:scen_id>/<str:asset_type_name>",
+        asset_create_or_update,
+        name="asset_create_or_update",
+    ),
+    path(
+        "asset/create_or_update_post/<int:scen_id>/<str:asset_type_name>/<int:asset_uuid>",
         asset_create_or_update,
         name="asset_create_or_update",
     ),
