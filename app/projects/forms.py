@@ -1091,6 +1091,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                         # "style": "font-weight:400; font-size:13px;",
                     }
                 ),
+                "capex_fix": forms.HiddenInput(),
                 "capex_spec": forms.NumberInput(
                     attrs={"placeholder": "e.g. 4000", "min": "0.0", "step": ".01"}
                 ),
