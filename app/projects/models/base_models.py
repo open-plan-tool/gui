@@ -13,12 +13,13 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.forms.models import model_to_dict
 from django.forms.fields import FloatField
+from django.forms.models import model_to_dict
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from oemof.datapackage.datapackage import export_dp_to_json
 from users.models import CustomUser
-from django.shortcuts import get_object_or_404
+
 from projects.constants import (
     ASSET_CATEGORY,
     ASSET_TYPE,
@@ -120,9 +121,7 @@ class Project(models.Model):
         dp["name"] = self.name
         dp["type"] = "project"
         dp["discount_factor"] = dp.pop("discount")
-        dp["lifetime"] = dp.pop("duration")
-        dp["shortage_cost"] = 999
-        dp["excess_cost"] = 99
+        dp["economic_period"] = dp.pop("duration")
         return dp
 
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
@@ -841,13 +840,13 @@ class Asset(TopologyNode):
     capex_fix = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # development_costs
-    capex_var = models.FloatField(
+    capex_spec = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # specific_costs
-    opex_fix = models.FloatField(
+    opex_spec = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # specific_costs_om
-    opex_var = models.FloatField(
+    variable_costs = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # dispatch_price
     lifetime = models.IntegerField(
@@ -1012,9 +1011,9 @@ class Asset(TopologyNode):
             capacity = qs_children.get(asset_type__asset_type="capacity")
             for attribute in [
                 "capex_fix",
-                "capex_var",
-                "opex_fix",
-                "opex_var",
+                "capex_spec",
+                "opex_spec",
+                "variable_costs",
                 "lifetime",
                 "crate_asset",
                 "efficiency",
@@ -1050,9 +1049,11 @@ class Asset(TopologyNode):
         existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
 
         for field in attributes:
-            if (
-                field != "dispatchable"
-            ):  # TODO remove this when `dispatchable` not a visible field anymore
+            # remove optimize cap from the datapackage -> only used for GUI setting, eesyplan only takes installed/maximum capacity
+            if field not in [
+                "dispatchable",
+                "optimize_cap",
+            ]:  # TODO remove this when `dispatchable` not a visible field anymore
                 value = getattr(existing_asset, field)
                 # if the field is a candidate for a scalar/list
                 if isinstance(value, str) and field != "name":
@@ -1561,8 +1562,7 @@ class Bus(TopologyNode):
         dm["carrier"] = dm["type"]
         dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
-        dm["excess"] = "False"
-        dm["excess_costs"] = "0.0"
+        dm["excess_cost"] = "0.0"
         return dm
 
 
