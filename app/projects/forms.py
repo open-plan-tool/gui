@@ -1091,16 +1091,14 @@ def asset_form_factory(asset_type=None, **kwargs):
                         # "style": "font-weight:400; font-size:13px;",
                     }
                 ),
-                "capex_fix": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 10000", "min": "0.0", "step": ".01"}
-                ),
-                "capex_var": forms.NumberInput(
+                "capex_fix": forms.HiddenInput(),
+                "capex_spec": forms.NumberInput(
                     attrs={"placeholder": "e.g. 4000", "min": "0.0", "step": ".01"}
                 ),
-                "opex_fix": forms.NumberInput(
+                "opex_spec": forms.NumberInput(
                     attrs={"placeholder": "e.g. 0", "min": "0.0", "step": ".01"}
                 ),
-                "opex_var": forms.NumberInput(
+                "variable_costs": forms.NumberInput(
                     attrs={"placeholder": "Currency", "min": "0.0", "step": ".01"}
                 ),
                 "lifetime": forms.NumberInput(
