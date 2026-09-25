@@ -49,6 +49,13 @@ COMPATIBILITY_PARAMETER_NAME_MAPPING = {
     },
 }
 
+ASSET_PARAMETERS_RENAMED = {
+    "capex_var": "capex_spec",
+    "opex_fix": "opex_spec",
+    "opex_var": "variable_costs",
+}
+ASSET_PARAMETERS_DISCONTINUED = ["capex_fix"]
+
 
 def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
     if asset_uuid:
@@ -603,10 +610,15 @@ def load_scenario_from_dict(model_data, user, project=None):
 
         # Allow exported files before the breaking changes to be reimported
         compatibility_mapping = COMPATIBILITY_PARAMETER_NAME_MAPPING.get(asset_type, {})
+        compatibility_mapping.update(ASSET_PARAMETERS_RENAMED)
         if compatibility_mapping:
             for old_param, new_param in compatibility_mapping.items():
                 if old_param in asset_data:
                     asset_data[new_param] = asset_data.pop(old_param)
+
+        for old_param in ASSET_PARAMETERS_DISCONTINUED:
+            if old_param in asset_data:
+                asset_data.pop(old_param)
 
         if asset_type != "hess":
             for hess_param in [
