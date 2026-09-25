@@ -33,13 +33,13 @@ logger = logging.getLogger(__name__)
 
 COMPATIBILITY_PARAMETER_NAME_MAPPING = {
     "chp": {
-        "efficiency": "conversion_factor_to_electricity",
-        "efficiency_multiple": "conversion_factor_to_heat",
-        "thermal_loss_rate": "beta",
+        "efficiency": "efficiency_electricity_chp",
+        "efficiency_multiple": "efficiency_heat_chp",
+        "thermal_loss_rate": "efficiency_electricity_full_condensation",
     },
     "chp_fixed_ratio": {
-        "efficiency": "conversion_factor_to_electricity",
-        "efficiency_multiple": "conversion_factor_to_heat",
+        "efficiency": "efficiency_electricity_chp",
+        "efficiency_multiple": "efficiency_heat_chp",
     },
     "heat_pump": {
         "efficiency": "cop",
