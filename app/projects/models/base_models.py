@@ -1073,6 +1073,10 @@ class Asset(TopologyNode):
 
                 dp[field] = value
 
+        if "optimize_cap" in attributes and "installed_capacity" in attributes:
+            optimize_cap = existing_asset.optimize_cap
+            if optimize_cap is True:
+                dp["installed_capacity"] = None
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
