@@ -10,6 +10,7 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    ASSET_MAPPING,
     Project,
     EconomicData,
     COPCalculator,
@@ -20,7 +21,7 @@ from projects.models import (
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from projects.forms import AssetCreateForm, BusForm, StorageForm
+from projects.forms import asset_form_factory, BusForm, get_asset_or_404
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 
@@ -29,6 +30,24 @@ from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
+
+COMPATIBILITY_PARAMETER_NAME_MAPPING = {
+    "chp": {
+        "efficiency": "conversion_factor_to_electricity",
+        "efficiency_multiple": "conversion_factor_to_heat",
+        "thermal_loss_rate": "beta",
+    },
+    "chp_fixed_ratio": {
+        "efficiency": "conversion_factor_to_electricity",
+        "efficiency_multiple": "conversion_factor_to_heat",
+    },
+    "heat_pump": {
+        "efficiency": "cop",
+    },
+    "electrolyzer": {
+        "efficiency_multiple": "efficiency_heat",
+    },
+}
 
 
 def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
@@ -133,173 +152,6 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
                 )
 
 
-def handle_storage_unit_form_post(
-    request, scen_id=0, asset_type_name="", asset_uuid=None
-):
-    input_output_mapping = {
-        "inputs": request.POST.get("inputs", "").split(","),
-        "outputs": request.POST.get("outputs", "").split(","),
-    }
-
-    form = StorageForm(
-        request.POST,
-        request.FILES,
-        asset_type=asset_type_name,
-        input_output_mapping=input_output_mapping,
-    )
-    scenario = get_object_or_404(Scenario, id=scen_id)
-
-    # make sure the name is not already used by another asset
-    form.full_clean()
-    qs = Asset.objects.filter(
-        scenario=scenario, name=form.cleaned_data["name"]
-    ).exclude(unique_id=asset_uuid)
-    if qs.exists():
-        form.add_error(
-            "name", _("There is already a storage with this name in the scenario")
-        )
-
-    if form.is_valid():
-        try:
-            # First delete all existing associated storage assets from the db
-            if asset_uuid:
-                existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-                # existing_asset.delete()  # deletes also automatically all children using models.CASCADE
-                ess_asset = existing_asset
-                ess_capacity_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="capacity"
-                )
-                ess_charging_power_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="charging_power"
-                )
-                ess_discharging_power_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="discharging_power"
-                )
-                new_name = form.cleaned_data.pop("name", None)
-                if new_name is not None:
-                    ess_asset.name = new_name
-                    ess_capacity_asset.name = f"{ess_asset.name} capacity"
-                    ess_charging_power_asset.name = f"{ess_asset.name} input power"
-                    ess_discharging_power_asset.name = f"{ess_asset.name} output power"
-                    ess_asset.save()
-            else:
-                # Create the ESS Parent Asset
-
-                ess_asset = Asset.objects.create(
-                    name=form.cleaned_data.pop("name"),
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type=f"{asset_type_name}"
-                    ),
-                    pos_x=float(form.data["pos_x"]),
-                    pos_y=float(form.data["pos_y"]),
-                    unique_id=asset_uuid
-                    or str(
-                        uuid.uuid4()
-                    ),  # if exising asset create an asset with the exact same unique_id else generate a new one
-                    scenario=scenario,
-                )
-
-                # Create the ess charging power
-                ess_charging_power_asset = Asset(
-                    name=f"{ess_asset.name} input power",
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type="charging_power"
-                    ),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-                # Create the ess discharging power
-                ess_discharging_power_asset = Asset(
-                    name=f"{ess_asset.name} output power",
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type="discharging_power"
-                    ),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-                # Create the ess capacity
-                ess_capacity_asset = Asset(
-                    name=f"{ess_asset.name} capacity",
-                    asset_type=get_object_or_404(AssetType, asset_type="capacity"),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-
-            qs_sim = Simulation.objects.filter(scenario=scenario)
-            # Populate all subassets
-            for param, value in form.cleaned_data.items():
-                if asset_uuid and qs_sim.exists():
-                    track_asset_changes(
-                        scenario, param, form, existing_asset=ess_capacity_asset
-                    )
-                setattr(ess_capacity_asset, param, value)
-
-                # split efficiency between charge and discharge
-                if param == "efficiency":
-                    value = np.sqrt(float(value))
-                # for the charge and discharge set all costs to 0
-                if param in ["capex_fix", "capex_var", "opex_fix"]:
-                    value = 0
-
-                # set dispatch price to 0 only for charging power
-                if param == "opex_var":
-                    if ess_charging_power_asset.has_parameter(param):
-                        setattr(ess_charging_power_asset, param, 0)
-                elif ess_charging_power_asset.has_parameter(param):
-                    if asset_uuid and qs_sim.exists():
-                        track_asset_changes(
-                            scenario,
-                            param,
-                            form,
-                            existing_asset=ess_charging_power_asset,
-                            new_value=value,
-                        )
-                    setattr(ess_charging_power_asset, param, value)
-
-                if ess_discharging_power_asset.has_parameter(param):
-                    if asset_uuid and qs_sim.exists():
-                        track_asset_changes(
-                            scenario,
-                            param,
-                            form,
-                            existing_asset=ess_discharging_power_asset,
-                            new_value=value,
-                        )
-                    setattr(ess_discharging_power_asset, param, value)
-
-            ess_capacity_asset.save()
-            ess_charging_power_asset.save()
-            ess_discharging_power_asset.save()
-            if not asset_uuid and qs_sim.exists():
-                AssetChangeTracker.objects.create(
-                    simulation=scenario.simulation, name=ess_asset.name, action=1
-                )
-            return JsonResponse(
-                {"success": True, "asset_id": ess_asset.unique_id}, status=200
-            )
-        except Exception as ex:
-            logger.warning(
-                f"Failed to create storage asset {ess_asset.name} in scenario: {scen_id}."
-            )
-            return JsonResponse({"success": False, "exception": ex}, status=422)
-
-    logger.warning("The submitted asset has erroneous field values.")
-    form_html = get_template("asset/asset_create_form.html")
-    return JsonResponse(
-        {
-            "success": False,
-            "form_html": form_html.render(
-                {
-                    "form": form,
-                    "show_input_timeseries": False,
-                    "show_cop_calculator": False,
-                }
-            ),
-        },
-        status=422,
-    )
-
-
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
@@ -308,19 +160,19 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     }
 
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
@@ -342,7 +194,7 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     if form.is_valid():
         qs_sim = Simulation.objects.filter(scenario=scenario)
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
 
             if qs_sim.exists():
                 for param in form.cleaned_data:
@@ -426,6 +278,7 @@ def db_bus_nodes_to_list(scen_id):
 
 
 def db_asset_nodes_to_list(scen_id):
+    # TODO change this to get the Children Assets
     all_db_assets = Asset.objects.filter(scenario_id=scen_id)
     # dont return children assets (i.e. for storage assets)
     no_storage_children_assets = all_db_assets.filter(parent_asset_id=None)
@@ -486,10 +339,13 @@ def duplicate_scenario_objects(obj_list, scenario, asset_mapping_dict=None):
     mapping_dict = dict()
 
     for obj in obj_list:
-        old_id = obj.id
-
         if hasattr(obj, "unique_id"):  # i.e. it's an asset
+            if obj.asset_type.asset_type in ASSET_MAPPING:
+                obj = get_asset_or_404(obj.asset_type.asset_type, obj.unique_id)
+                obj.pk = None
+
             obj.unique_id = str(uuid.uuid4())
+        old_id = obj.id
         obj.id = None
         obj.scenario = scenario
         obj.save()
@@ -547,6 +403,116 @@ def load_project_from_dict(model_data, user=None):
     return project.id
 
 
+def merge_legacy_storage_assets(assets):
+    """
+    Convert storage assets from the legacy representation
+
+        ess
+        ├── capacity
+        ├── charging_power
+        └── discharging_power
+
+    into the new representation where all user-facing storage
+    parameters are stored directly on the storage asset.
+
+    New-format storage assets, which have no children, are left untouched.
+    Generated with GPT-5.6 Sol.
+    """
+
+    storage_types = {
+        "ess",
+        "bess",
+        "hess",
+        "h2ess",
+    }
+
+    legacy_child_types = {
+        "capacity",
+        "charging_power",
+        "discharging_power",
+    }
+
+    # Identify the actual storage parent assets first.
+    storage_parents = {
+        asset["name"]: asset
+        for asset in assets
+        if asset.get("asset_info", {}).get("asset_type") in storage_types
+    }
+
+    # Collect legacy children by parent name and child type.
+    children_by_parent = {}
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+
+        if parent_name not in storage_parents:
+            continue
+
+        child_type = asset.get("asset_info", {}).get("asset_type")
+
+        if child_type not in legacy_child_types:
+            continue
+
+        children_by_parent.setdefault(parent_name, {})[child_type] = asset
+
+    # Merge the capacity child into each legacy storage parent.
+    for parent_name, children in children_by_parent.items():
+        parent = storage_parents[parent_name]
+
+        capacity = children.get("capacity")
+
+        if capacity is None:
+            raise ValueError(
+                f"Legacy storage '{parent_name}' has child assets "
+                f"but no capacity child."
+            )
+
+        # These describe the child object itself and must not be
+        # copied to the parent.
+        excluded_keys = {
+            "name",
+            "pos_x",
+            "pos_y",
+            "asset_info",
+            "parent_asset",
+        }
+
+        for key, value in capacity.items():
+            if key not in excluded_keys:
+                parent[key] = value
+
+        # The old parent only has asset_fields="[name]".
+        # Replace that with the fields that were previously stored
+        # on the capacity child.
+        if (
+            "asset_info" in parent
+            and "asset_info" in capacity
+            and "asset_fields" in capacity["asset_info"]
+        ):
+            parent["asset_info"]["asset_fields"] = capacity["asset_info"][
+                "asset_fields"
+            ]
+
+    # Drop legacy storage children.
+    #
+    # Do NOT simply remove every asset with parent_asset because
+    # other kinds of parent/child relationships may exist.
+    merged_assets = []
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+        asset_type = asset.get("asset_info", {}).get("asset_type")
+
+        is_legacy_storage_child = (
+            parent_name in storage_parents and asset_type in legacy_child_types
+        )
+
+        if not is_legacy_storage_child:
+            merged_assets.append(asset)
+
+    return merged_assets
+
+
 def load_scenario_from_dict(model_data, user, project=None):
     """Create a new scenario for a user within a given project
 
@@ -576,18 +542,17 @@ def load_scenario_from_dict(model_data, user, project=None):
     scenario.project = project
     scenario.save()
 
-    # push the children asset at the end of the list to make sure we create the parents first
-    assets.sort(key=lambda asset_data: 1 if "parent_asset" in asset_data else 0)
+    # merge the storage assets into one asset for back compatibility
+    assets = merge_legacy_storage_assets(assets)
 
     for asset_data in assets:
         if "parent_asset" in asset_data:
             asset_data["parent_asset"] = Asset.objects.get(
                 name=asset_data["parent_asset"], scenario=scenario
             )
-        asset_type = asset_data.pop("asset_info")
-        asset_data["asset_type"] = AssetType.objects.get(
-            asset_type=asset_type["asset_type"]
-        )
+        asset_info = asset_data.pop("asset_info")
+        asset_type = asset_info["asset_type"]
+        asset_data["asset_type"] = AssetType.objects.get(asset_type=asset_type)
 
         COP_parameters = asset_data.pop("COP_parameters", None)
 
@@ -622,7 +587,7 @@ def load_scenario_from_dict(model_data, user, project=None):
                         values=json.loads(input_timeseries),
                         user=user,
                         scenario=scenario,
-                        ts_type=asset_type["mvs_type"],
+                        ts_type=asset_info["mvs_type"],
                         name=f"{asset_data['name']}_ts",
                     )
                     asset_data["input_timeseries"] = input_ts
@@ -634,7 +599,25 @@ def load_scenario_from_dict(model_data, user, project=None):
                 )
                 asset_data.pop("input_timeseries")
 
-        asset = Asset(**asset_data)
+        AssetModel = ASSET_MAPPING.get(asset_type, Asset)
+
+        # Allow exported files before the breaking changes to be reimported
+        compatibility_mapping = COMPATIBILITY_PARAMETER_NAME_MAPPING.get(asset_type, {})
+        if compatibility_mapping:
+            for old_param, new_param in compatibility_mapping.items():
+                if old_param in asset_data:
+                    asset_data[new_param] = asset_data.pop(old_param)
+
+        if asset_type != "hess":
+            for hess_param in [
+                "thermal_loss_rate",
+                "fixed_thermal_losses_relative",
+                "fixed_thermal_losses_absolute",
+            ]:
+                if hess_param in asset_data:
+                    asset_data.pop(hess_param)
+
+        asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
 
@@ -775,6 +758,7 @@ class NodeObject:
 
 def update_deleted_objects_from_database(scenario_id, topo_node_list):
     """Delete Database Scenario Related Objects which are not in the topology before inserting or updating data."""
+    # TODO change this to get the Children Assets
     all_scenario_assets = Asset.objects.filter(scenario_id=scenario_id)
     # dont include storage unit children assets
     scenario_assets_ids_excluding_storage_children = all_scenario_assets.filter(
@@ -807,6 +791,7 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
+        # TODO change this to get the Children Assets
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(

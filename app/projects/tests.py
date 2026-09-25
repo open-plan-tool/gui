@@ -1,8 +1,12 @@
 import datetime
 import json
+import tempfile
+import traceback
+from pathlib import Path
 
 import pytest
 import requests
+import difflib
 
 
 from django.contrib.auth import get_user_model
@@ -10,12 +14,105 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client, tag
 from django.test.client import RequestFactory
 from django.urls import reverse
-from projects.models import Project, Scenario, Asset, AssetType
+from django.core.management import call_command
+from projects.forms import asset_form_factory, get_asset_or_404
+from projects.models import (
+    Project,
+    Scenario,
+    Asset,
+    AssetType,
+    Bus,
+    ConnectionLink,
+    Timeseries,
+)
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
 )
 from users.models import CustomUser
+
+
+def check_all_asset_forms(project_id, client, verbose=False):
+    response = client.get(
+        reverse(
+            "project_asset_info",
+            kwargs={"proj_id": project_id},
+        )
+    )
+    project_data = response.json()
+
+    if verbose is True:
+        print(f"Checking project {project_data['project_name']} (ID {project_id})")
+
+        print(f"Assets: {len(project_data['assets'])}")
+
+    failures = []
+
+    for asset in project_data["assets"]:
+        try:
+            form_url = reverse(
+                "get_asset_create_form",
+                kwargs={
+                    "scen_id": asset["scenario_id"],
+                    "asset_type_name": asset["asset_type"],
+                    "asset_uuid": asset["uuid"],
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "get_asset_create_form cannot be reversed",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        try:
+            response = client.get(
+                form_url,
+                {
+                    "inputs": json.dumps([]),
+                    "outputs": json.dumps([]),
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "the form url cannot be get",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        if response.status_code == 200:
+            if verbose is True:
+                print(f"✓ {asset['name']} [{asset['asset_type']}]")
+
+        else:
+            if verbose is True:
+                print(
+                    f"✗ {asset['name']} "
+                    f"[{asset['asset_type']}] "
+                    f"-> HTTP {response.status_code}"
+                )
+
+            failures.append(
+                {
+                    **asset,
+                    "status_code": response.status_code,
+                    "response": response.content.decode(),
+                }
+            )
+
+    if verbose is True:
+        if failures:
+            print(
+                f"{len(failures)} / {len(project_data['assets'])} asset forms failed."
+            )
+        else:
+            print(f"All {len(project_data['assets'])} asset forms are callable.")
+
+    return failures
 
 
 class BasicOperationsTest(TestCase):
@@ -660,9 +757,6 @@ class OptimizeCapacityToggleTest(TestCase):
         self.assertEqual(asset.age_installed, 3.0)
 
 
-from .integration_tests import check_all_asset_forms
-
-
 @tag("integration_test")
 class ImportedUsecaseTest(TestCase):
     SOURCE_HOST = "https://open-plan-tool.org"
@@ -775,3 +869,372 @@ class ImportedUsecaseTest(TestCase):
                     ensure_ascii=False,
                 )
             )
+
+
+@tag("mvs")
+class CompareMVSDataInputTest(TestCase):
+    SERVER_A = "https://staging.open-plan-tool.org"
+    SERVER_B = "http://127.0.0.1:8000"
+
+    SCENARIO_PAIRS = {}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session_a = requests.Session()
+        cls.session_b = requests.Session()
+
+        scenarios_a = cls.get_scenario_info(
+            cls.session_a,
+            cls.SERVER_A,
+        )
+
+        scenarios_b = cls.get_scenario_info(
+            cls.session_b,
+            cls.SERVER_B,
+        )
+
+        cls.SCENARIO_PAIRS.update(
+            cls.create_scenario_pairs(
+                scenarios_a,
+                scenarios_b,
+            )
+        )
+        print(cls.SCENARIO_PAIRS)
+
+        # Login here if required
+        cls.login(cls.session_a, cls.SERVER_A)
+        cls.login(cls.session_b, cls.SERVER_B)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.session_a.close()
+        cls.session_b.close()
+
+    @classmethod
+    def login(cls, session, host, username="testUser", password="ASas12,."):
+        login_url = f"{host}/en/users/login/"
+
+        response = session.get(login_url, timeout=30)
+        response.raise_for_status()
+
+        csrf_token = session.cookies["csrftoken"]
+
+        response = session.post(
+            login_url,
+            data={
+                "username": username,
+                "password": password,
+                "csrfmiddlewaretoken": csrf_token,
+            },
+            headers={
+                "Referer": login_url,
+            },
+            allow_redirects=True,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        if "/users/login" in response.url:
+            raise RuntimeError(f"Login failed for {host}")
+
+    @classmethod
+    def get_scenario_info(cls, session, host):
+        url = f"{host}/en/usecases/scenarios/info"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    @classmethod
+    def create_scenario_pairs(cls, scenarios_a, scenarios_b):
+        pairs = {}
+
+        for scenario_name, data_a in scenarios_a.items():
+            if scenario_name not in scenarios_b:
+                continue
+
+            data_b = scenarios_b[scenario_name]
+
+            pairs[data_a["scenario_id"]] = data_b["scenario_id"]
+
+        return pairs
+
+    def get_mvs_data_input(self, session, host, scen_id):
+        url = f"{host}/en/usecase_mvs_data_input/{scen_id}"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            msg = (
+                f"GET failed for scenario {scen_id}\n"
+                f"URL: {url}\n"
+                f"HTTP {response.status_code}\n"
+                f"{response.text}"
+            )
+            print(msg)
+            return {}
+        else:
+            return response.json()
+
+    def test_mvs_data_input_is_identical(self):
+        all_failures = []
+        for scen_id_a, scen_id_b in self.SCENARIO_PAIRS.items():
+            data_a = self.get_mvs_data_input(
+                self.session_a,
+                self.SERVER_A,
+                scen_id_a,
+            )
+
+            data_b = self.get_mvs_data_input(
+                self.session_b,
+                self.SERVER_B,
+                scen_id_b,
+            )
+
+            IGNORED_KEYS = {
+                "unique_id",
+                "start_date",
+                "scenario_id",
+                "project_id",
+                "evaluated_period",
+            }
+
+            def normalize(data):
+                if isinstance(data, dict):
+                    return {
+                        key: normalize(value)
+                        for key, value in data.items()
+                        if key not in IGNORED_KEYS
+                    }
+
+                if isinstance(data, list):
+                    normalized_items = [normalize(value) for value in data]
+                    return sorted(
+                        normalized_items,
+                        key=lambda item: json.dumps(
+                            item,
+                            sort_keys=True,
+                            ensure_ascii=False,
+                        ),
+                    )
+
+                return data
+
+            data_a = normalize(data_a)
+            data_b = normalize(data_b)
+
+            if not data_a or not data_b:
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": "One of scenario could not get MVS",
+                    }
+                )
+            elif data_a != data_b:
+                json_a = json.dumps(
+                    data_a,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                json_b = json.dumps(
+                    data_b,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                diff = "\n".join(
+                    difflib.unified_diff(
+                        json_a,
+                        json_b,
+                        fromfile=f"{self.SERVER_A} / scenario {scen_id_a}",
+                        tofile=f"{self.SERVER_B} / scenario {scen_id_b}",
+                        lineterm="",
+                    )
+                )
+
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": diff,
+                    }
+                )
+
+        if all_failures:
+            message = "\n\n".join(
+                (
+                    f"Scenario {failure['scenario_a']} "
+                    f"!= {failure['scenario_b']}\n"
+                    f"{failure['diff']}"
+                )
+                for failure in all_failures
+            )
+
+            self.fail("MVS input data differs between servers:\n\n" + message)
+
+
+class CHPAssetTest(TestCase):
+    """Guards the chp component behavior through its migration to an own CHP model"""
+
+    fixtures = ["fixtures/benchmarks_fixture.json"]
+
+    # values for any field name the chp form may expose, valid before and
+    # after the migration to eesyplan field names
+    chp_field_values = {
+        "name": "chp-test",
+        "age_installed": 0,
+        "installed_capacity": 100,
+        "capex_fix": 0,
+        "capex_var": 1000,
+        "opex_var": 0,
+        "opex_fix": 10,
+        "lifetime": 20,
+        "optimize_cap": True,
+        "maximum_capacity": 500,
+        "efficiency": 0.35,
+        "efficiency_multiple": 0.5,
+        "thermal_loss_rate": 0.4,
+        "conversion_factor_to_electricity": 0.35,
+        "conversion_factor_to_heat": 0.5,
+        "beta": 0.4,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("update_assettype")
+
+    def setUp(self):
+        self.project = Project.objects.get(id=1)
+        self.scenario = self.project.scenario_set.first()
+        self.asset_type = AssetType.objects.get(asset_type="chp")
+
+    # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
+    # data keys are suffixed with the subwidget name
+    dual_number_fields = (
+        "conversion_factor_to_electricity",
+        "conversion_factor_to_heat",
+    )
+
+    def create_chp_via_form(self, name="chp-test"):
+        data = {}
+        for field in self.asset_type.visible_fields:
+            if field in self.chp_field_values:
+                if field in self.dual_number_fields:
+                    data[f"{field}_scalar"] = str(self.chp_field_values[field])
+                else:
+                    data[field] = self.chp_field_values[field]
+        data["name"] = name
+        form = asset_form_factory(
+            asset_type="chp", data=data, scenario_id=self.scenario.id
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        asset = form.save(commit=False)
+        asset.scenario = self.scenario
+        asset.asset_type = self.asset_type
+        asset.save()
+        return asset
+
+    def test_chp_form_create_and_save(self):
+        asset = self.create_chp_via_form()
+        qs = Asset.objects.filter(scenario=self.scenario, name="chp-test")
+        self.assertTrue(qs.exists())
+        saved_asset = get_asset_or_404("chp", asset.unique_id)
+        self.assertEqual(saved_asset.installed_capacity, 100)
+
+    def test_chp_datapackage_loads_in_eesyplan(self):
+        from oemof.eesyplan.components.converters.ChpVariableRatio import (
+            ChpVariableRatio,
+        )
+        from oemof.eesyplan.datapackage.energy_system import (
+            create_energy_system_from_dp,
+        )
+
+        # fresh scenario without the fixture assets, keeping the scenario settings
+        self.scenario.pk = None
+        self.scenario.name = "chp_ezp_scenario"
+        self.scenario.save()
+        asset = self.create_chp_via_form(name="chp-ezp")
+
+        gas_bus = Bus.objects.create(name="gas_bus", type="Gas", scenario=self.scenario)
+        heat_bus = Bus.objects.create(
+            name="heat_bus", type="Heat", scenario=self.scenario
+        )
+        el_bus = Bus.objects.create(
+            name="el_bus", type="Electricity", scenario=self.scenario
+        )
+        for bus, port, direction in (
+            (gas_bus, "input_1", "B2A"),
+            (heat_bus, "output_1", "A2B"),
+            (el_bus, "output_2", "A2B"),
+        ):
+            ConnectionLink.objects.create(
+                bus=bus,
+                bus_connection_port="port_1",
+                asset=asset,
+                asset_connection_port=port,
+                flow_direction=direction,
+                scenario=self.scenario,
+            )
+
+        # a demand with a profile, without which the datapackage has no sequences
+        # resource and oemof.datapackage falls back to a deprecated pandas freq
+        timeseries = Timeseries.objects.create(
+            values=[1.0] * len(self.scenario.get_timestamps()),
+            user=self.project.user,
+            name="demand_ts",
+            scenario=self.scenario,
+        )
+        demand = Asset.objects.create(
+            name="demand-ezp",
+            scenario=self.scenario,
+            asset_type=AssetType.objects.get(asset_type="demand"),
+            input_timeseries=timeseries,
+        )
+        ConnectionLink.objects.create(
+            bus=el_bus,
+            bus_connection_port="port_1",
+            asset=demand,
+            asset_connection_port="input_1",
+            flow_direction="B2A",
+            scenario=self.scenario,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dp_path = self.scenario.to_datapackage(Path(tmp_dir))
+            es = create_energy_system_from_dp(dp_path)
+
+        chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
+        self.assertEqual(len(chp_nodes), 1)
+        self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
+        self.assertEqual(chp_nodes[0].conversion_factor_to_electricity, 0.35)
+        self.assertEqual(chp_nodes[0].conversion_factor_to_heat, 0.5)
+        self.assertEqual(chp_nodes[0].beta, 0.4)
+
+    def test_chp_to_datapackage_uses_eesyplan_parameters(self):
+        asset = self.create_chp_via_form(name="chp-dp")
+        dp, bus_records, profile_records = asset.to_datapackage()
+
+        self.assertEqual(dp["type"], "chp")
+        self.assertEqual(dp["conversion_factor_to_electricity"], 0.35)
+        self.assertEqual(dp["conversion_factor_to_heat"], 0.5)
+        self.assertEqual(dp["beta"], 0.4)
+        # MVS parameter names may not leak into the datapackage
+        self.assertNotIn("efficiency", dp)
+        self.assertNotIn("efficiency_multiple", dp)
+        self.assertNotIn("thermal_loss_rate", dp)
+        # bus keys expected by the eesyplan ChpVariableRatio signature
+        for bus_key in ("bus_in_fuel", "bus_out_electricity", "bus_out_heat"):
+            self.assertIn(bus_key, dp)
