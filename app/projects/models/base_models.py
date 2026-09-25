@@ -1173,21 +1173,22 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.TextField(null=True, blank=False)
-    conversion_factor_to_heat = models.TextField(null=True, blank=False)
-    beta = models.FloatField(
+    efficiency_electricity_chp = models.TextField(null=True, blank=False)
+    efficiency_electricity_full_condensation = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
+    efficiency_heat_chp = models.TextField(null=True, blank=False)
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        self.efficiency = self.conversion_factor_to_electricity
-        self.efficiency_multiple = self.conversion_factor_to_heat
-        self.thermal_loss_rate = self.beta
+        # TODO here one need to make some calculation as those parameters are not one to one mapped
+        self.efficiency = self.efficiency_electricity_chp
+        self.efficiency_multiple = self.efficiency_heat_chp
+        self.thermal_loss_rate_asset = self.efficiency_electricity_full_condensation
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -1195,31 +1196,33 @@ class CHP(Asset):
         from projects.helpers import DualNumberField
 
         return {
-            "conversion_factor_to_electricity": DualNumberField(
+            "efficiency_heat_chp": DualNumberField(
                 default=1,
                 min=0,
                 max=1,
-                param_name="conversion_factor_to_electricity",
-                label=_("Electrical efficiency with no heat extraction"),
-            ),
-            "conversion_factor_to_heat": DualNumberField(
-                default=1,
-                min=0,
-                max=1,
-                param_name="conversion_factor_to_heat",
+                param_name="efficiency_heat_chp",
                 label=_("Thermal efficiency with maximal heat extraction"),
+            ),
+            "efficiency_electricity_chp": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="efficiency_electricity_chp",
+                label=_("Electrical efficiency with no heat extraction"),
             ),
         }
 
 
 class CHPFixedRatio(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.FloatField(
+    # previously conversion_factor_to_electricity
+    efficiency_electricity_chp = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    conversion_factor_to_heat = models.FloatField(
+    # previously conversion_factor_to_electricity
+    efficiency_heat_chp = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
@@ -1229,8 +1232,8 @@ class CHPFixedRatio(Asset):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        self.efficiency = self.conversion_factor_to_electricity
-        self.efficiency_multiple = self.conversion_factor_to_heat
+        self.efficiency = self.efficiency_electricity_chp
+        self.efficiency_multiple = self.efficiency_heat_chp
         super().save(*args, **kwargs)
 
 
