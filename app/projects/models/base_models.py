@@ -1375,6 +1375,18 @@ class ElectricalStorage(Asset):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
+    initial_storage_level = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    end_storage_level = models.BooleanField(
+        default=True,
+        blank=True,
+        choices=BOOL_CHOICES,
+    )
+
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
