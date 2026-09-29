@@ -1687,7 +1687,6 @@ class Bus(TopologyNode):
         dm["carrier"] = dm["type"]
         dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
-        dm["excess_cost"] = "0.0"
         return dm
 
 
