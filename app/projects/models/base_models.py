@@ -537,6 +537,7 @@ class Scenario(models.Model):
 
             # Add the resource's instances to a file in the "elements" folder of the datapackage
             if resource_records:
+                # TODO here we could write the schema explicitely, at least installed_capacity is erroneously taken as a string
                 schema = infer_metadata(resource_records[0], bus_names, profile_names)
                 resource_metadata["schema"].update(schema)
                 out_path = elements_folder / f"{facade_name}.csv"
@@ -1017,43 +1018,11 @@ class Asset(TopologyNode):
         # Storage assets are the only one to have children (namely `capacity`, `charge` and `discharge`
         qs_children = Asset.objects.filter(parent_asset__id=self.id)
         if qs_children.exists():
-            # Only keep the values from the capacity children asset of the storage
-            capacity = qs_children.get(asset_type__asset_type="capacity")
-            for attribute in [
-                "capex_fix",
-                "capex_spec",
-                "opex_spec",
-                "variable_costs",
-                "lifetime",
-                "crate_asset",
-                "efficiency",
-                "soc_max_asset",
-                "soc_min_asset",
-                "maximum_capacity",
-                "optimize_cap",
-                "installed_capacity",
-                "age_installed",
-                "thermal_loss_rate_asset",  # only for hess
-                "fixed_thermal_losses_relativeA",  # only for hess
-                "fixed_thermal_losses_absoluteA",  # only for hess
-            ]:
-                setattr(self, attribute, getattr(capacity, attribute))
+            print(
+                f"There are still existing children for assets: {','.join([str(i) for i in qs_children.values_list('name')])}!"
+            )
 
-            if self.asset_type.asset_type != "hess":
-                attributes = [
-                    f
-                    for f in AssetType.objects.get(asset_type="capacity").visible_fields
-                    if f
-                    not in (
-                        "thermal_loss_rate",
-                        "fixed_thermal_losses_relative",
-                        "fixed_thermal_losses_absolute",
-                    )
-                ]
-            else:
-                attributes = AssetType.objects.get(asset_type="capacity").visible_fields
-        else:
-            attributes = self.asset_type.visible_fields
+        attributes = self.asset_type.visible_fields
 
         asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
         existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
