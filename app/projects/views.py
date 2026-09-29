@@ -2056,6 +2056,37 @@ def usecase_mvs_data_input(request, scen_id=0):
     return view_mvs_data_input(request, scen_id=scen_id, testing=True)
 
 
+@json_view
+@login_required
+@require_http_methods(["GET"])
+@user_has_read_rights
+def view_ezp_data_input(request, scen_id=0, testing=False):
+    if scen_id == 0:
+        return JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(id=scen_id)
+
+    if testing is True:
+        number = 3
+    else:
+        number = None
+
+    json_dp = scenario.to_jsonified_datapackage(number=number)
+
+    return JsonResponse(json_dp, status=200, content_type="application/json")
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def test_ezp_data_input(request, scen_id=0):
+    return view_ezp_data_input(request, scen_id=scen_id, testing=True)
+
+
 # End-point to send MVS simulation request
 # @json_view
 @login_required
