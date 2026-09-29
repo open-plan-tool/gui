@@ -211,7 +211,13 @@ class Comment(models.Model):
         return self.name
 
 
-def infer_simple_type(value):
+FIELD_TYPES = {
+    "installed_capacity": "number",
+    "maximum_capacity": "number",
+}
+
+
+def infer_simple_type(value, field_name=None):
     """
     Infer a simple type for Tabular Data Package fields.
 
@@ -220,6 +226,9 @@ def infer_simple_type(value):
     - "number"
     - "string"
     """
+
+    if field_name in FIELD_TYPES:
+        return FIELD_TYPES[field_name]
 
     if value is None:
         return "string"
@@ -271,10 +280,11 @@ def infer_metadata(resource_records, bus_names=None, profile_names=None):
         "foreignKeys": [],
     }
     for field_name, field_value in resource_records.items():
+        # TODO here get the type from valuetype or similar
         schema["fields"].append(
             {
                 "name": field_name,
-                "type": infer_simple_type(field_value),
+                "type": infer_simple_type(field_value, field_name),
                 "format": "default",
             }
         )
@@ -1073,10 +1083,15 @@ class Asset(TopologyNode):
 
                 dp[field] = value
 
-        if "optimize_cap" in attributes and "installed_capacity" in attributes:
+        if "optimize_cap" in attributes:
             optimize_cap = existing_asset.optimize_cap
+
             if optimize_cap is True:
-                dp["installed_capacity"] = None
+                if "installed_capacity" in attributes:
+                    dp["installed_capacity"] = None
+            else:
+                if "maximum_capacity" in attributes:
+                    dp["maximum_capacity"] = None
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
