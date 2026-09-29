@@ -33,26 +33,47 @@ logger = logging.getLogger(__name__)
 
 COMPATIBILITY_PARAMETER_NAME_MAPPING = {
     "chp": {
-        "efficiency": "efficiency_electricity_chp",
-        "efficiency_multiple": "efficiency_heat_chp",
-        "thermal_loss_rate": "efficiency_electricity_full_condensation",
+        "efficiency_electricity_chp": "efficiency",
+        "efficiency_heat_chp": "efficiency_multiple",
+        "efficiency_electricity_full_condensation": "thermal_loss_rate",
     },
     "chp_fixed_ratio": {
-        "efficiency": "efficiency_electricity_chp",
-        "efficiency_multiple": "efficiency_heat_chp",
+        "efficiency_electricity_chp": "efficiency",
+        "efficiency_heat_chp": "efficiency_multiple",
     },
     "heat_pump": {
-        "efficiency": "cop",
+        "cop": "efficiency",
     },
     "electrolyzer": {
-        "efficiency_multiple": "efficiency_heat",
+        "efficiency_heat": "efficiency_multiple",
+    },
+    "bess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "hess": {
+        "thermal_losses_variable": "thermal_loss_rate",
+        "thermal_losses_fixed": "fixed_thermal_losses_relative",
+        "efficiency_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "gess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "h2ess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
     },
 }
 
 ASSET_PARAMETERS_RENAMED = {
-    "capex_var": "capex_spec",
-    "opex_fix": "opex_spec",
-    "opex_var": "variable_costs",
+    "capex_spec": "capex_var",
+    "opex_spec": "opex_fix",
+    "variable_costs": "opex_var",
 }
 ASSET_PARAMETERS_DISCONTINUED = ["capex_fix"]
 
@@ -612,9 +633,14 @@ def load_scenario_from_dict(model_data, user, project=None):
         compatibility_mapping = COMPATIBILITY_PARAMETER_NAME_MAPPING.get(asset_type, {})
         compatibility_mapping.update(ASSET_PARAMETERS_RENAMED)
         if compatibility_mapping:
-            for old_param, new_param in compatibility_mapping.items():
+            param_to_remove = []
+            for new_param, old_param in compatibility_mapping.items():
                 if old_param in asset_data:
-                    asset_data[new_param] = asset_data.pop(old_param)
+                    asset_data[new_param] = asset_data[old_param]
+                    if old_param not in param_to_remove:
+                        param_to_remove.append(old_param)
+            for old_param in param_to_remove:
+                asset_data.pop(old_param)
 
         for old_param in ASSET_PARAMETERS_DISCONTINUED:
             if old_param in asset_data:
