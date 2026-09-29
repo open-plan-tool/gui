@@ -10,7 +10,7 @@ django-sass-processor==1.4.2
 django-celery-beat==2.9.0
 flower==2.0.1
 redis==8.0.1
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op0.0.1
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@fix/openplan_simulation
 oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@dev
 httpx<0.28
 jsonschema==4.26.0
