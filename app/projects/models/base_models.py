@@ -1385,6 +1385,7 @@ class ElectricalStorage(Asset):
         default=True,
         blank=True,
         choices=BOOL_CHOICES,
+        verbose_name=_("Balance end storage level"),
     )
 
     def save(self, *args, **kwargs):
@@ -1554,6 +1555,7 @@ class ThermalStorage(Asset):
         default=True,
         blank=True,
         choices=BOOL_CHOICES,
+        verbose_name=_("Balance end storage level"),
     )
 
     def save(self, *args, **kwargs):
