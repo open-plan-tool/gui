@@ -1107,8 +1107,8 @@ class CHPAssetTest(TestCase):
         "efficiency": 0.35,
         "efficiency_multiple": 0.5,
         "thermal_loss_rate": 0.4,
-        "conversion_factor_to_electricity": 0.35,
-        "conversion_factor_to_heat": 0.5,
+        "efficiency_electricity_chp": 0.35,
+        "efficiency_heat_chp": 0.5,
         "beta": 0.4,
     }
 
@@ -1124,8 +1124,8 @@ class CHPAssetTest(TestCase):
     # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
     # data keys are suffixed with the subwidget name
     dual_number_fields = (
-        "conversion_factor_to_electricity",
-        "conversion_factor_to_heat",
+        "efficiency_electricity_chp",
+        "efficiency_heat_chp",
     )
 
     def create_chp_via_form(self, name="chp-test"):
@@ -1219,8 +1219,8 @@ class CHPAssetTest(TestCase):
         chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
         self.assertEqual(len(chp_nodes), 1)
         self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
-        self.assertEqual(chp_nodes[0].conversion_factor_to_electricity, 0.35)
-        self.assertEqual(chp_nodes[0].conversion_factor_to_heat, 0.5)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_chp, 0.35)
+        self.assertEqual(chp_nodes[0].efficiency_heat_chp, 0.5)
         self.assertEqual(chp_nodes[0].beta, 0.4)
 
     def test_chp_to_datapackage_uses_eesyplan_parameters(self):
@@ -1228,8 +1228,8 @@ class CHPAssetTest(TestCase):
         dp, bus_records, profile_records = asset.to_datapackage()
 
         self.assertEqual(dp["type"], "chp")
-        self.assertEqual(dp["conversion_factor_to_electricity"], 0.35)
-        self.assertEqual(dp["conversion_factor_to_heat"], 0.5)
+        self.assertEqual(dp["efficiency_electricity_chp"], 0.35)
+        self.assertEqual(dp["efficiency_heat_chp"], 0.5)
         self.assertEqual(dp["beta"], 0.4)
         # MVS parameter names may not leak into the datapackage
         self.assertNotIn("efficiency", dp)
