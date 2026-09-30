@@ -1589,6 +1589,27 @@ class ThermalStorage(Asset):
         }
 
 
+class HeatingPipe(Asset):
+    absolute_losses = models.FloatField(
+        null=True,
+        blank=True,
+        # validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    relative_losses = models.FloatField(
+        null=True,
+        default=0.0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    end_storage_level = models.BooleanField(
+        default=True,
+        blank=True,
+        choices=BOOL_CHOICES,
+        # verbose_name=_("Balance end storage level"),
+    )
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
@@ -1604,6 +1625,7 @@ ASSET_MAPPING = {
     "h2ess": HydrogenStorage,
     "gess": FuelStorage,
     "hess": ThermalStorage,
+    "heating_pipe": HeatingPipe,
 }
 
 
