@@ -977,6 +977,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
+            "heating_pipe": _("Heating pipe"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
