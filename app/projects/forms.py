@@ -720,8 +720,8 @@ class ToggleSwitchWidget(forms.CheckboxInput):
 
 
 def get_asset_or_404(asset_type, asset_uuid):
-    asset_type = ASSET_MAPPING.get(asset_type, Asset)
-    return get_object_or_404(asset_type, unique_id=asset_uuid)
+    asset_type_model = ASSET_MAPPING.get(asset_type, Asset)
+    return get_object_or_404(asset_type_model, unique_id=asset_uuid)
 
 
 def asset_form_factory(asset_type=None, **kwargs):

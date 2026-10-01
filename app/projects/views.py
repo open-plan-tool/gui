@@ -42,6 +42,7 @@ from projects.models import (
     Asset,
     AssetChangeTracker,
     AssetType,
+    ASSET_MAPPING,
     Bus,
     Comment,
     ConnectionLink,
@@ -1739,13 +1740,14 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 proj_id=scenario.project.id,
                 scenario_id=scenario.id,
             )
-            input_timeseries_data = (
-                existing_asset.input_timeseries.values
-                if existing_asset.input_timeseries
-                else ""
-            )
+            if hasattr(existing_asset, "input_timeseries"):
+                input_timeseries_data = existing_asset.input_timeseries.values
+            else:
+                input_timeseries_data = ""
+
         else:
-            n_asset = Asset.objects.filter(
+            AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+            n_asset = AssetModel.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
             ).count()
             default_name = f"{asset_type_name}-{n_asset}"
