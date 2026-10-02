@@ -10,6 +10,7 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    HeatingNetwork,
     ASSET_MAPPING,
     Project,
     EconomicData,
@@ -87,6 +88,7 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
+    # TODO if it stays by busses, then this have to be changed
     # make sure the name is not already used by another bus
     form.full_clean()
     qs = Bus.objects.filter(scenario=scenario, name=form.cleaned_data["name"]).exclude(
@@ -211,7 +213,8 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
 
     # make sure the name is not already used by another asset
     form.full_clean()
-    qs = Asset.objects.filter(
+    AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+    qs = AssetModel.objects.filter(
         scenario=scenario, name=form.cleaned_data["name"]
     ).exclude(unique_id=asset_uuid)
     if qs.exists():
@@ -249,7 +252,6 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
             existing_cop = get_object_or_404(COPCalculator, id=cop_calculator_id)
             existing_cop.asset = asset
             existing_cop.save()
-
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
     logger.warning("The submitted asset has erroneous field values.")
 
@@ -270,19 +272,31 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
 
 
 def load_scenario_topology_from_db(scen_id):
-    bus_nodes_list = db_bus_nodes_to_list(scen_id)
+    bus_nodes_list, heating_network_list = db_bus_nodes_to_list(scen_id)
     asset_nodes_list = db_asset_nodes_to_list(scen_id)
     connection_links_list = db_connection_links_to_list(scen_id)
+
+    # replace the bus id by the heating_network unique_id
+    for hn in heating_network_list:
+        for i, connection in enumerate(connection_links_list):
+            if connection["bus_id"] == hn["data"]["databaseId"]:
+                connection_links_list[i]["bus_id"] = hn["data"]["unique_id"]
+
     return {
         "busses": bus_nodes_list,
-        "assets": asset_nodes_list,
+        "assets": asset_nodes_list + heating_network_list,
         "links": connection_links_list,
     }
 
 
 def db_bus_nodes_to_list(scen_id):
-    all_db_busses = Bus.objects.filter(scenario_id=scen_id)
+    all_db_heating_networks = HeatingNetwork.objects.filter(scenario_id=scen_id)
+    heating_networks_ids = all_db_heating_networks.values_list("id", flat=True)
+    all_db_busses = Bus.objects.filter(scenario_id=scen_id).exclude(
+        id__in=heating_networks_ids
+    )
     bus_nodes_list = list()
+    heating_network_list = list()
     for db_bus in all_db_busses:
         db_bus_dict = {
             "name": "bus",
@@ -302,7 +316,24 @@ def db_bus_nodes_to_list(scen_id):
             },
         }
         bus_nodes_list.append(db_bus_dict)
-    return bus_nodes_list
+    for db_asset in all_db_heating_networks:
+        asset_type_obj = get_object_or_404(AssetType, pk=db_asset.asset_type_id)
+        db_asset_dict = {
+            "name": asset_type_obj.asset_type,
+            "pos_x": db_asset.pos_x,
+            "pos_y": db_asset.pos_y,
+            "input_ports": asset_type_obj.n_inputs,
+            "output_ports": asset_type_obj.n_outputs,
+            "data": {
+                "name": db_asset.name,
+                "databaseId": db_asset.bus_ptr_id,
+                "unique_id": db_asset.unique_id,
+                "parent_asset_id": (db_asset.parent_asset_id or ""),
+                "portMapping": asset_type_obj.connection_ports,
+            },
+        }
+        heating_network_list.append(db_asset_dict)
+    return bus_nodes_list, heating_network_list
 
 
 def db_asset_nodes_to_list(scen_id):
@@ -692,7 +723,9 @@ class NodeObject:
             if "parent_asset_id" in node_data["data"]
             else None
         )
-        self.node_obj_type = "bus" if self.name == "bus" else "asset"
+        self.node_obj_type = (
+            "bus" if self.name in ("bus", "heating_network") else "asset"
+        )
         self.inputs = node_data["inputs"]
         self.outputs = node_data["outputs"]
         self.pos_x = node_data["pos_x"]
@@ -714,7 +747,9 @@ class NodeObject:
             if isinstance(data["db_id"], int):
                 return data["db_id"]
             elif isinstance(data["db_id"], str):
-                asset = Asset.objects.filter(unique_id=data["db_id"]).first()
+                asset_type = data.get("name", "")
+                AssetModel = ASSET_MAPPING.get(asset_type, Asset)
+                asset = AssetModel.objects.filter(unique_id=data["db_id"]).first()
                 return asset.id if asset else None
             else:
                 return None
@@ -732,9 +767,11 @@ class NodeObject:
         -------
 
         """
+
         # TODO here with the exception of load scenario from dict is the only place where ConnectionLink are created
         if self.node_obj_type == "bus":
-            bus_obj = get_object_or_404(Bus, pk=self.db_obj_id)
+            asset_type = ASSET_MAPPING.get(self.name, Bus)
+            bus_obj = get_object_or_404(asset_type, pk=self.db_obj_id)
             for asset_connection in self.outputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
                     ConnectionLink.objects.create(
@@ -813,14 +850,14 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
     asset_node_positions = {}
     bus_node_positions = {}
     for node in topo_node_list:
-        if node.name != "bus" and node.db_obj_id:
-            topology_asset_ids.append(node.db_obj_id)
-            asset_node_positions[node.db_obj_id] = dict(
-                pos_x=node.pos_x, pos_y=node.pos_y
-            )
-        elif node.name == "bus" and node.db_obj_id:
+        if node.name in ("bus", "heating_network") and node.db_obj_id:
             topology_busses_ids.append(node.db_obj_id)
             bus_node_positions[node.db_obj_id] = dict(
+                pos_x=node.pos_x, pos_y=node.pos_y
+            )
+        elif node.name != "bus" and node.db_obj_id:
+            topology_asset_ids.append(node.db_obj_id)
+            asset_node_positions[node.db_obj_id] = dict(
                 pos_x=node.pos_x, pos_y=node.pos_y
             )
 
