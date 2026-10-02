@@ -240,6 +240,7 @@ function update_selected_single_scenario(target){
             scenario_visualize_sankey(scen_id);
             scenario_visualize_capacities(scen_id);
             scenario_visualize_costs(scen_id);
+            // data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
             updateDrawflow(data.topology_data_list);
 
             // set new state
@@ -273,6 +274,7 @@ function update_selected_single_scenario(target){
 
         /* First retrieve the busses and assets, then draw the links */
         $(window).on('load', _ => {
+            // data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
             const data = JSON.parse(`{{topology_data_list| escapejs }}`);
             updateDrawflow(data);
         });
