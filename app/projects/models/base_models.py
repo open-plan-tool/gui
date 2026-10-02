@@ -844,6 +844,20 @@ class ValueType(models.Model):
     unit = models.CharField(max_length=30, null=True)
 
 
+class Bus(TopologyNode):
+    type = models.CharField(max_length=20, choices=ENERGY_VECTOR)
+    # TODO now these parameters are useless ...
+    input_ports = models.IntegerField(null=False, default=1)
+    output_ports = models.IntegerField(null=False, default=1)
+
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name"])
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
+        dm["balanced"] = "True"
+        return dm
+
+
 class Asset(TopologyNode):
     unique_id = models.CharField(
         max_length=120, default=uuid.uuid4, unique=True, editable=False
@@ -1589,6 +1603,42 @@ class ThermalStorage(Asset):
         }
 
 
+class HeatingNetwork(Bus):
+    absolute_losses = models.TextField(null=True, blank=False)
+
+    unique_id = models.CharField(
+        max_length=120, default=uuid.uuid4, unique=True, editable=False
+    )
+
+    asset_type = models.ForeignKey(
+        AssetType, on_delete=models.CASCADE, null=False, blank=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.asset_type = AssetType.objects.get(asset_type="heating_network")
+        self.type = "Heat"
+
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name", "absolute_losses"])
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
+        dm["balanced"] = "True"
+        return dm
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "absolute_losses": DualNumberField(
+                default=0.0,
+                min=0.0,
+                param_name="absolute_losses",
+            )
+        }
+
+
 class HeatingPipe(Asset):
     absolute_losses = models.FloatField(
         null=True,
@@ -1601,8 +1651,7 @@ class HeatingPipe(Asset):
         default=0.0,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-
-    end_storage_level = models.BooleanField(
+    return_pipe = models.BooleanField(
         default=True,
         blank=True,
         choices=BOOL_CHOICES,
@@ -1626,6 +1675,7 @@ ASSET_MAPPING = {
     "gess": FuelStorage,
     "hess": ThermalStorage,
     "heating_pipe": HeatingPipe,
+    "heating_network": HeatingNetwork,
 }
 
 
@@ -1690,20 +1740,6 @@ class COPCalculator(models.Model):
 
     def export(self):
         dm = model_to_dict(self, exclude=["id", "scenario", "asset"])
-        return dm
-
-
-class Bus(TopologyNode):
-    type = models.CharField(max_length=20, choices=ENERGY_VECTOR)
-    # TODO now these parameters are useless ...
-    input_ports = models.IntegerField(null=False, default=1)
-    output_ports = models.IntegerField(null=False, default=1)
-
-    def to_datapackage(self):
-        dm = model_to_dict(self, fields=["type", "name"])
-        dm["carrier"] = dm["type"]
-        dm["type"] = "CarrierBus"
-        dm["balanced"] = "True"
         return dm
 
 
