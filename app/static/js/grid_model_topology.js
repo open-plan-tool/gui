@@ -628,7 +628,32 @@ editor.on('connectionCreated', function (connection) {
     let nodeOut = editor.getNodeFromId(connection.output_id);
     let busIn = nodeIn.name === BUS? nodeIn : null;
     let busOut = nodeOut.name === BUS? nodeOut : null;
-    if (Boolean(busIn) ^ Boolean(busOut)) {
+    console.log(nodeIn);
+    console.log(nodeOut);
+
+    let heatingIn = nodeIn.name === 'heating_network';
+    let heatingOut = nodeOut.name === 'heating_network';
+
+    if ((heatingIn && busOut) || (heatingOut && busIn)) {
+        // heating_network must not connect to a bus
+        editor.removeSingleConnection(
+            connection.output_id,
+            connection.input_id,
+            connection.output_class,
+            connection.input_class
+        );
+
+        Swal.fire(
+            'Unexpected Connection',
+            'A heating network cannot be connected to a bus.',
+            'error'
+        );
+    } else if (heatingIn || heatingOut) {
+        // valid connection involving heating_network as input or output
+        let busType = "heat";
+        let busHtml = document.getElementsByClassName('node_in_node-' + nodeIn.id + ' node_out_node-' + nodeOut.id);
+        updateBusConnections(busHtml, busType);
+    } else if (Boolean(busIn) ^ Boolean(busOut)) {
         // success
         let bus = busIn || busOut;
         let busType = getBusType(bus);
