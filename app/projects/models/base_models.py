@@ -13,12 +13,13 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.forms.models import model_to_dict
 from django.forms.fields import FloatField
+from django.forms.models import model_to_dict
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from oemof.datapackage.datapackage import export_dp_to_json
 from users.models import CustomUser
-from django.shortcuts import get_object_or_404
+
 from projects.constants import (
     ASSET_CATEGORY,
     ASSET_TYPE,
@@ -120,9 +121,7 @@ class Project(models.Model):
         dp["name"] = self.name
         dp["type"] = "project"
         dp["discount_factor"] = dp.pop("discount")
-        dp["lifetime"] = dp.pop("duration")
-        dp["shortage_cost"] = 999
-        dp["excess_cost"] = 99
+        dp["economic_period"] = dp.pop("duration")
         return dp
 
     def add_viewer_if_not_exist(self, email=None, share_rights=""):
@@ -212,7 +211,13 @@ class Comment(models.Model):
         return self.name
 
 
-def infer_simple_type(value):
+FIELD_TYPES = {
+    "installed_capacity": "number",
+    "maximum_capacity": "number",
+}
+
+
+def infer_simple_type(value, field_name=None):
     """
     Infer a simple type for Tabular Data Package fields.
 
@@ -221,6 +226,9 @@ def infer_simple_type(value):
     - "number"
     - "string"
     """
+
+    if field_name in FIELD_TYPES:
+        return FIELD_TYPES[field_name]
 
     if value is None:
         return "string"
@@ -272,10 +280,11 @@ def infer_metadata(resource_records, bus_names=None, profile_names=None):
         "foreignKeys": [],
     }
     for field_name, field_value in resource_records.items():
+        # TODO here get the type from valuetype or similar
         schema["fields"].append(
             {
                 "name": field_name,
-                "type": infer_simple_type(field_value),
+                "type": infer_simple_type(field_value, field_name),
                 "format": "default",
             }
         )
@@ -528,6 +537,7 @@ class Scenario(models.Model):
 
             # Add the resource's instances to a file in the "elements" folder of the datapackage
             if resource_records:
+                # TODO here we could write the schema explicitely, at least installed_capacity is erroneously taken as a string
                 schema = infer_metadata(resource_records[0], bus_names, profile_names)
                 resource_metadata["schema"].update(schema)
                 out_path = elements_folder / f"{facade_name}.csv"
@@ -834,6 +844,20 @@ class ValueType(models.Model):
     unit = models.CharField(max_length=30, null=True)
 
 
+class Bus(TopologyNode):
+    type = models.CharField(max_length=20, choices=ENERGY_VECTOR)
+    # TODO now these parameters are useless ...
+    input_ports = models.IntegerField(null=False, default=1)
+    output_ports = models.IntegerField(null=False, default=1)
+
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name"])
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
+        dm["balanced"] = "True"
+        return dm
+
+
 class Asset(TopologyNode):
     unique_id = models.CharField(
         max_length=120, default=uuid.uuid4, unique=True, editable=False
@@ -841,13 +865,13 @@ class Asset(TopologyNode):
     capex_fix = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # development_costs
-    capex_var = models.FloatField(
+    capex_spec = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # specific_costs
-    opex_fix = models.FloatField(
+    opex_spec = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # specific_costs_om
-    opex_var = models.FloatField(
+    variable_costs = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )  # dispatch_price
     lifetime = models.IntegerField(
@@ -1008,51 +1032,21 @@ class Asset(TopologyNode):
         # Storage assets are the only one to have children (namely `capacity`, `charge` and `discharge`
         qs_children = Asset.objects.filter(parent_asset__id=self.id)
         if qs_children.exists():
-            # Only keep the values from the capacity children asset of the storage
-            capacity = qs_children.get(asset_type__asset_type="capacity")
-            for attribute in [
-                "capex_fix",
-                "capex_var",
-                "opex_fix",
-                "opex_var",
-                "lifetime",
-                "crate_asset",
-                "efficiency",
-                "soc_max_asset",
-                "soc_min_asset",
-                "maximum_capacity",
-                "optimize_cap",
-                "installed_capacity",
-                "age_installed",
-                "thermal_loss_rate_asset",  # only for hess
-                "fixed_thermal_losses_relativeA",  # only for hess
-                "fixed_thermal_losses_absoluteA",  # only for hess
-            ]:
-                setattr(self, attribute, getattr(capacity, attribute))
+            print(
+                f"There are still existing children for assets: {','.join([str(i) for i in qs_children.values_list('name')])}!"
+            )
 
-            if self.asset_type.asset_type != "hess":
-                attributes = [
-                    f
-                    for f in AssetType.objects.get(asset_type="capacity").visible_fields
-                    if f
-                    not in (
-                        "thermal_loss_rate",
-                        "fixed_thermal_losses_relative",
-                        "fixed_thermal_losses_absolute",
-                    )
-                ]
-            else:
-                attributes = AssetType.objects.get(asset_type="capacity").visible_fields
-        else:
-            attributes = self.asset_type.visible_fields
+        attributes = self.asset_type.visible_fields
 
         asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
         existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
 
         for field in attributes:
-            if (
-                field != "dispatchable"
-            ):  # TODO remove this when `dispatchable` not a visible field anymore
+            # remove optimize cap from the datapackage -> only used for GUI setting, eesyplan only takes installed/maximum capacity
+            if field not in [
+                "dispatchable",
+                "optimize_cap",
+            ]:  # TODO remove this when `dispatchable` not a visible field anymore
                 value = getattr(existing_asset, field)
                 # if the field is a candidate for a scalar/list
                 if isinstance(value, str) and field != "name":
@@ -1072,6 +1066,15 @@ class Asset(TopologyNode):
 
                 dp[field] = value
 
+        if "optimize_cap" in attributes:
+            optimize_cap = existing_asset.optimize_cap
+
+            if optimize_cap is True:
+                if "installed_capacity" in attributes:
+                    dp["installed_capacity"] = None
+            else:
+                if "maximum_capacity" in attributes:
+                    dp["maximum_capacity"] = None
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
@@ -1172,21 +1175,22 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.TextField(null=True, blank=False)
-    conversion_factor_to_heat = models.TextField(null=True, blank=False)
-    beta = models.FloatField(
+    efficiency_electricity_chp = models.TextField(null=True, blank=False)
+    efficiency_electricity_full_condensation = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
+    efficiency_heat_chp = models.TextField(null=True, blank=False)
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        self.efficiency = self.conversion_factor_to_electricity
-        self.efficiency_multiple = self.conversion_factor_to_heat
-        self.thermal_loss_rate = self.beta
+        # TODO here one need to make some calculation as those parameters are not one to one mapped
+        self.efficiency = self.efficiency_electricity_chp
+        self.efficiency_multiple = self.efficiency_heat_chp
+        self.thermal_loss_rate_asset = self.efficiency_electricity_full_condensation
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -1194,31 +1198,33 @@ class CHP(Asset):
         from projects.helpers import DualNumberField
 
         return {
-            "conversion_factor_to_electricity": DualNumberField(
+            "efficiency_heat_chp": DualNumberField(
                 default=1,
                 min=0,
                 max=1,
-                param_name="conversion_factor_to_electricity",
-                label=_("Electrical efficiency with no heat extraction"),
-            ),
-            "conversion_factor_to_heat": DualNumberField(
-                default=1,
-                min=0,
-                max=1,
-                param_name="conversion_factor_to_heat",
+                param_name="efficiency_heat_chp",
                 label=_("Thermal efficiency with maximal heat extraction"),
+            ),
+            "efficiency_electricity_chp": DualNumberField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="efficiency_electricity_chp",
+                label=_("Electrical efficiency with no heat extraction"),
             ),
         }
 
 
 class CHPFixedRatio(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    conversion_factor_to_electricity = models.FloatField(
+    # previously conversion_factor_to_electricity
+    efficiency_electricity_chp = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    conversion_factor_to_heat = models.FloatField(
+    # previously conversion_factor_to_electricity
+    efficiency_heat_chp = models.FloatField(
         null=True,
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
@@ -1228,8 +1234,8 @@ class CHPFixedRatio(Asset):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        self.efficiency = self.conversion_factor_to_electricity
-        self.efficiency_multiple = self.conversion_factor_to_heat
+        self.efficiency = self.efficiency_electricity_chp
+        self.efficiency_multiple = self.efficiency_heat_chp
         super().save(*args, **kwargs)
 
 
@@ -1353,8 +1359,47 @@ class ElectricalStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    initial_storage_level = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    end_storage_level = models.BooleanField(
+        default=True,
+        blank=True,
+        choices=BOOL_CHOICES,
+        verbose_name=_("Balance end storage level"),
     )
 
     def save(self, *args, **kwargs):
@@ -1363,7 +1408,7 @@ class ElectricalStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1378,8 +1423,34 @@ class FuelStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
     def save(self, *args, **kwargs):
@@ -1388,7 +1459,7 @@ class FuelStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1403,8 +1474,34 @@ class HydrogenStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    self_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
 
     def save(self, *args, **kwargs):
@@ -1413,7 +1510,7 @@ class HydrogenStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
+        self.crate_asset = self.c_rate_charge
         super().save(*args, **kwargs)
 
 
@@ -1428,14 +1525,52 @@ class ThermalStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    crate = models.FloatField(
-        null=True, blank=False, default=1, validators=[MinValueValidator(0.0)]
+    # sqrt of efficiency in asset
+    efficiency_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    thermal_loss_rate = models.FloatField(
+    # sqrt of efficiency in asset
+    efficiency_discharge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_charge = models.FloatField(
+        null=True,
+        blank=False,
+        default=1,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    c_rate_discharge = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    # previously thermal_loss_rate
+    thermal_losses_variable = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
-    fixed_thermal_losses_relative = models.TextField(null=True, blank=False)
+    # previously fixed_thermal_losses_relative
+    thermal_losses_fixed = models.TextField(null=True, blank=False)
+    # apparently always = 0, so not implemented
     fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
+
+    initial_storage_level = models.FloatField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    end_storage_level = models.BooleanField(
+        default=True,
+        blank=True,
+        choices=BOOL_CHOICES,
+        verbose_name=_("Balance end storage level"),
+    )
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
@@ -1443,9 +1578,9 @@ class ThermalStorage(Asset):
         # keeps working. Remove once storage drops MVS support for good.
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
-        self.crate_asset = self.crate
-        self.thermal_loss_rate_asset = self.thermal_loss_rate
-        self.fixed_thermal_losses_relativeA = self.fixed_thermal_losses_relative
+        self.crate_asset = self.c_rate_charge
+        self.thermal_loss_rate_asset = self.thermal_losses_variable
+        self.fixed_thermal_losses_relativeA = self.thermal_losses_fixed
         self.fixed_thermal_losses_absoluteA = self.fixed_thermal_losses_absolute
         super().save(*args, **kwargs)
 
@@ -1468,6 +1603,62 @@ class ThermalStorage(Asset):
         }
 
 
+class HeatingNetwork(Bus):
+    absolute_losses = models.TextField(null=True, blank=False)
+
+    unique_id = models.CharField(
+        max_length=120, default=uuid.uuid4, unique=True, editable=False
+    )
+
+    asset_type = models.ForeignKey(
+        AssetType, on_delete=models.CASCADE, null=False, blank=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.asset_type = AssetType.objects.get(asset_type="heating_network")
+        self.type = "Heat"
+
+    def to_datapackage(self):
+        dm = model_to_dict(self, fields=["type", "name", "absolute_losses"])
+        dm["carrier"] = dm["type"]
+        dm["type"] = "CarrierBus"
+        dm["balanced"] = "True"
+        return dm
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import DualNumberField
+
+        return {
+            "absolute_losses": DualNumberField(
+                default=0.0,
+                min=0.0,
+                param_name="absolute_losses",
+            )
+        }
+
+
+class HeatingPipe(Asset):
+    absolute_losses = models.FloatField(
+        null=True,
+        blank=True,
+        # validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+
+    relative_losses = models.FloatField(
+        null=True,
+        default=0.0,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    return_pipe = models.BooleanField(
+        default=True,
+        blank=True,
+        choices=BOOL_CHOICES,
+        # verbose_name=_("Balance end storage level"),
+    )
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
@@ -1483,6 +1674,8 @@ ASSET_MAPPING = {
     "h2ess": HydrogenStorage,
     "gess": FuelStorage,
     "hess": ThermalStorage,
+    "heating_pipe": HeatingPipe,
+    "heating_network": HeatingNetwork,
 }
 
 
@@ -1547,22 +1740,6 @@ class COPCalculator(models.Model):
 
     def export(self):
         dm = model_to_dict(self, exclude=["id", "scenario", "asset"])
-        return dm
-
-
-class Bus(TopologyNode):
-    type = models.CharField(max_length=20, choices=ENERGY_VECTOR)
-    # TODO now these parameters are useless ...
-    input_ports = models.IntegerField(null=False, default=1)
-    output_ports = models.IntegerField(null=False, default=1)
-
-    def to_datapackage(self):
-        dm = model_to_dict(self, fields=["type", "name"])
-        dm["carrier"] = dm["type"]
-        dm["type"] = "CarrierBus"
-        dm["balanced"] = "True"
-        dm["excess"] = "False"
-        dm["excess_costs"] = "0.0"
         return dm
 
 

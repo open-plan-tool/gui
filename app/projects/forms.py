@@ -720,8 +720,8 @@ class ToggleSwitchWidget(forms.CheckboxInput):
 
 
 def get_asset_or_404(asset_type, asset_uuid):
-    asset_type = ASSET_MAPPING.get(asset_type, Asset)
-    return get_object_or_404(asset_type, unique_id=asset_uuid)
+    asset_type_model = ASSET_MAPPING.get(asset_type, Asset)
+    return get_object_or_404(asset_type_model, unique_id=asset_uuid)
 
 
 def asset_form_factory(asset_type=None, **kwargs):
@@ -805,23 +805,18 @@ def asset_form_factory(asset_type=None, **kwargs):
                 widget=forms.HiddenInput(), required=False, label=""
             )
 
-            if self.asset_type_name == "chp":
-                self.fields["beta"].label = _("Power loss index")
-
             if self.asset_type_name == "chp_fixed_ratio":
-                self.fields["conversion_factor_to_electricity"].label = _(
+                self.fields["efficiency_electricity_chp"].label = _(
                     "Efficiency gas to electricity"
                 )
 
                 # TODO
                 self.fields[
-                    "conversion_factor_to_electricity"
+                    "efficiency_electricity_chp"
                 ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon(
-                    "conversion_factor_to_electricity", RTD_link=True
-                )
+                self.add_help_text_icon("efficiency_electricity_chp", RTD_link=True)
 
-                self.fields["conversion_factor_to_heat"].widget = forms.NumberInput(
+                self.fields["efficiency_heat_chp"].widget = forms.NumberInput(
                     attrs={
                         "placeholder": _("eg. 0.1"),
                         "min": 0.0,
@@ -829,9 +824,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                         "step": "0.00001",
                     }
                 )
-                self.fields["conversion_factor_to_heat"].label = _(
-                    "Efficiency gas to heat"
-                )
+                self.fields["efficiency_heat_chp"].label = _("Efficiency gas to heat")
 
             """ DrawFlow specific configuration, add a special attribute to
                 every field in order for the framework to be able to export
@@ -934,10 +927,10 @@ def asset_form_factory(asset_type=None, **kwargs):
 
             if self.asset_type_name in ("chp", "chp_fixed_ratio"):
                 if self.errors.keys().isdisjoint(
-                    {"conversion_factor_to_electricity", "conversion_factor_to_heat"}
+                    {"efficiency_electricity_chp", "efficiency_heat_chp"}
                 ):
-                    cf_el = cleaned_data.get("conversion_factor_to_electricity")
-                    cf_heat = cleaned_data.get("conversion_factor_to_heat")
+                    cf_el = cleaned_data.get("efficiency_electricity_chp")
+                    cf_heat = cleaned_data.get("efficiency_heat_chp")
                     # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1 at any timesteps;
                     error = False
 
@@ -961,7 +954,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                                 )
                     elif isinstance(cf_el, (int, float)):
                         if isinstance(cf_heat, (int, float)):
-                            if cf_el + cf_heat >= 1:
+                            if cf_el + cf_heat > 1:
                                 error = True
                                 msg = _(
                                     "The sum of the conversion factors must be below 1"
@@ -976,8 +969,8 @@ def asset_form_factory(asset_type=None, **kwargs):
                                 )
 
                     if error is True:
-                        self.add_error("conversion_factor_to_electricity", msg)
-                        self.add_error("conversion_factor_to_heat", msg)
+                        self.add_error("efficiency_electricity_chp", msg)
+                        self.add_error("efficiency_heat_chp", msg)
 
             if "dso" in self.asset_type_name:
                 if (
@@ -1091,16 +1084,14 @@ def asset_form_factory(asset_type=None, **kwargs):
                         # "style": "font-weight:400; font-size:13px;",
                     }
                 ),
-                "capex_fix": forms.NumberInput(
-                    attrs={"placeholder": "e.g. 10000", "min": "0.0", "step": ".01"}
-                ),
-                "capex_var": forms.NumberInput(
+                "capex_fix": forms.HiddenInput(),
+                "capex_spec": forms.NumberInput(
                     attrs={"placeholder": "e.g. 4000", "min": "0.0", "step": ".01"}
                 ),
-                "opex_fix": forms.NumberInput(
+                "opex_spec": forms.NumberInput(
                     attrs={"placeholder": "e.g. 0", "min": "0.0", "step": ".01"}
                 ),
-                "opex_var": forms.NumberInput(
+                "variable_costs": forms.NumberInput(
                     attrs={"placeholder": "Currency", "min": "0.0", "step": ".01"}
                 ),
                 "lifetime": forms.NumberInput(

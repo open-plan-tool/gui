@@ -42,11 +42,13 @@ from projects.models import (
     Asset,
     AssetChangeTracker,
     AssetType,
+    ASSET_MAPPING,
     Bus,
     Comment,
     ConnectionLink,
     COPCalculator,
     EconomicData,
+    HeatingNetwork,
     MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
@@ -977,6 +979,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
+            "heating_pipe": _("Heating pipe"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -995,6 +998,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "bus-heat": _("Heat Bus"),
             "bus-gas": _("Fuel Bus"),
             "bus-h2": _("Hydrogen Bus"),
+            "heating_network": _("Heating Network"),
         },
     }
     group_names = {group: _(group) for group in components}
@@ -1738,13 +1742,14 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 proj_id=scenario.project.id,
                 scenario_id=scenario.id,
             )
-            input_timeseries_data = (
-                existing_asset.input_timeseries.values
-                if existing_asset.input_timeseries
-                else ""
-            )
+            if hasattr(existing_asset, "input_timeseries"):
+                input_timeseries_data = existing_asset.input_timeseries.values
+            else:
+                input_timeseries_data = ""
+
         else:
-            n_asset = Asset.objects.filter(
+            AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+            n_asset = AssetModel.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
             ).count()
             default_name = f"{asset_type_name}-{n_asset}"
@@ -2054,6 +2059,37 @@ def test_mvs_data_input(request, scen_id=0):
 @require_http_methods(["GET"])
 def usecase_mvs_data_input(request, scen_id=0):
     return view_mvs_data_input(request, scen_id=scen_id, testing=True)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+@user_has_read_rights
+def view_ezp_data_input(request, scen_id=0, testing=False):
+    if scen_id == 0:
+        return JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(id=scen_id)
+
+    if testing is True:
+        number = 3
+    else:
+        number = None
+
+    json_dp = scenario.to_jsonified_datapackage(number=number)
+
+    return JsonResponse(json_dp, status=200, content_type="application/json")
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def test_ezp_data_input(request, scen_id=0):
+    return view_ezp_data_input(request, scen_id=scen_id, testing=True)
 
 
 # End-point to send MVS simulation request

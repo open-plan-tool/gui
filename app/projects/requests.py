@@ -138,7 +138,7 @@ def get_component_type(es_dp, component):
             df = pd.DataFrame.from_records(r.read(keyed=True))
             search_component = df.loc[df.name == component_label, "type"]
             if search_component.empty is False:
-                return search_component[0]
+                return search_component.to_list()[0]
 
 
 def parse_ezp_results(simulation, response_results):
@@ -201,7 +201,6 @@ def parse_ezp_results(simulation, response_results):
                 print(component.label)
                 comp_type = str(type(component))
                 print(comp_type)
-
                 kwargs = {
                     "bus": bus.label,
                     "energy_vector": bus.carrier if hasattr(bus, "carrier") else "None",
