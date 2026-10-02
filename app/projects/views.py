@@ -48,6 +48,7 @@ from projects.models import (
     ConnectionLink,
     COPCalculator,
     EconomicData,
+    HeatingNetwork,
     MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
@@ -997,6 +998,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "bus-heat": _("Heat Bus"),
             "bus-gas": _("Fuel Bus"),
             "bus-h2": _("Hydrogen Bus"),
+            "heating_network": _("Heating Network"),
         },
     }
     group_names = {group: _(group) for group in components}
