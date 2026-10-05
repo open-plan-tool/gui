@@ -855,6 +855,9 @@ class Bus(TopologyNode):
         dm["carrier"] = dm["type"]
         dm["type"] = "CarrierBus"
         dm["balanced"] = "True"
+        dm["excess_cost"] = None
+        dm["shortage_cost"] = None
+        dm["absolute_losses"] = None
         return dm
 
 
@@ -1100,7 +1103,11 @@ class Asset(TopologyNode):
                 if qs_bus.exists():
                     connection = qs_bus.get()
                     dp[field] = connection.bus.name
-                    bus_resource_rec.append(connection.bus.to_datapackage())
+                    qs_hn = HeatingNetwork.objects.filter(id=connection.bus.id)
+                    if qs_hn.exists():
+                        bus_resource_rec.append(qs_hn.get().to_datapackage())
+                    else:
+                        bus_resource_rec.append(connection.bus.to_datapackage())
                 else:
                     dp[field] = None
                     # TODO here for DSO one might need to make the in and out connexions explicit or arrange things here
@@ -1620,10 +1627,10 @@ class HeatingNetwork(Bus):
         self.type = "Heat"
 
     def to_datapackage(self):
-        dm = model_to_dict(self, fields=["type", "name", "absolute_losses"])
-        dm["carrier"] = dm["type"]
-        dm["type"] = "CarrierBus"
-        dm["balanced"] = "True"
+        dm = super().to_datapackage()
+        dm["carrier"] = self.type
+        dm["type"] = "HeatingNetwork"
+        dm["absolute_losses"] = json.loads(self.absolute_losses)
         return dm
 
     @staticmethod
