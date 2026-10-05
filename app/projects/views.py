@@ -76,8 +76,6 @@ from .requests import (
 )
 from .scenario_topology_helpers import (
     NodeObject,
-    duplicate_scenario_connections,
-    duplicate_scenario_objects,
     handle_asset_form_post,
     handle_bus_form_post,
     load_project_from_dict,
@@ -1349,29 +1347,10 @@ def scenario_update(request, scen_id, step_id):
 def scenario_duplicate(request, scen_id):
     """duplicates the selected scenario and all of its associated components (topology data included)"""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    # We need to iterate over all the objects related to this scenario and duplicate them
-    # and associate them with the new scenario id.
-    # TODO here get the correct asset types
-    asset_list = Asset.objects.filter(scenario=scenario)
-    bus_list = Bus.objects.filter(scenario=scenario)
-    connections_list = ConnectionLink.objects.filter(scenario=scenario)
-    # simulation_list = Simulation.objects.filter(scenario=scenario)
-
-    # first duplicate the scenario
-    scenario.pk = None
-    scenario.save()
-    # from now on we are working with the duplicated scenario, not the original
-    old2new_asset_ids_map = duplicate_scenario_objects(asset_list, scenario)
-    old2new_bus_ids_map = duplicate_scenario_objects(
-        bus_list, scenario, old2new_asset_ids_map
-    )
-    duplicate_scenario_connections(
-        connections_list, scenario, old2new_asset_ids_map, old2new_bus_ids_map
-    )
-    # duplicate_scenario_objects(simulation_list, scenario)
-
-    return HttpResponseRedirect(reverse("project_search", args=[scenario.project.id]))
+    project = scenario.project
+    dm = scenario.export()
+    load_scenario_from_dict(dm, user=request.user, project=project)
+    return HttpResponseRedirect(reverse("project_search", args=[project.id]))
 
 
 @login_required

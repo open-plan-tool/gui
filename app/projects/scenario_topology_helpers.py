@@ -382,60 +382,6 @@ def db_connection_links_to_list(scen_id):
 # endregion db_nodes_to_js
 
 
-# region Scenario Duplicate
-def duplicate_scenario_objects(obj_list, scenario, asset_mapping_dict=None):
-    """
-    Implement the Node Level (Assets and Busses) duplication of the scenario.
-    The functionality is utilized in the scenario search page for each project in the UI of EPA.
-    :param obj_list: list of objects to duplicate, can be either bus objects list of assets list
-    :param scenario: the scenario under which the assets will be created
-    :param asset_mapping_dict: specifically for the case of busses which are part of a storage asset,
-    the parent ESS asset id is required. This value is passed with a mapping dict.
-    :return: a map dictionary between old and new nodes (assets or busses) ids.
-    """
-
-    storage_subasset_list = list()
-    mapping_dict = dict()
-
-    for obj in obj_list:
-        if hasattr(obj, "unique_id"):  # i.e. it's an asset
-            if obj.asset_type.asset_type in ASSET_MAPPING:
-                obj = get_asset_or_404(obj.asset_type.asset_type, obj.unique_id)
-                obj.pk = None
-
-            obj.unique_id = str(uuid.uuid4())
-        old_id = obj.id
-        obj.id = None
-        obj.scenario = scenario
-        obj.save()
-        mapping_dict[old_id] = obj.id
-        if obj.parent_asset:
-            storage_subasset_list.append(obj)
-
-    # now properly update the parent id of all new storage assets
-    for obj in storage_subasset_list:
-        obj.parent_asset_id = (
-            asset_mapping_dict[obj.parent_asset_id]
-            if type(obj) == Bus
-            else mapping_dict[obj.parent_asset_id]
-        )
-        obj.save()
-
-    return mapping_dict
-
-
-def duplicate_scenario_connections(connections_list, scenario, asset_map, bus_map):
-    for connection in connections_list:
-        old_asset_id = connection.asset_id
-        old_bus_id = connection.bus_id
-        connection.id = None
-        connection.asset_id = asset_map[old_asset_id]
-        connection.bus_id = bus_map[old_bus_id]
-        connection.scenario = scenario
-        connection.save()
-
-
-# endregion
 def load_project_from_dict(model_data, user=None):
     """Create a new project for a user
 
