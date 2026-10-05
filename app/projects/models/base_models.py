@@ -720,7 +720,8 @@ class Timeseries(models.Model):
     @property
     def get_values(self):
         if self.ts_type == "scalar":
-            answer = self.values
+            n = self.scenario.get_num_timesteps
+            answer = self.values * n
         else:
             answer = self.values
         return answer
@@ -1069,7 +1070,7 @@ class Asset(TopologyNode):
 
                 elif isinstance(value, Timeseries):
                     col = value.name
-                    profile_resource_rec[col] = value.values
+                    profile_resource_rec[col] = value.get_values
                     value = col
 
                 dp[field] = value
