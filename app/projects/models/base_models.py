@@ -1628,7 +1628,8 @@ class HeatingNetwork(Bus):
 
     def to_datapackage(self):
         dm = super().to_datapackage()
-        dm["carrier"] = self.type
+        dm["carrier"] = None
+        dm["balanced"] = None
         dm["type"] = "HeatingNetwork"
         dm["absolute_losses"] = json.loads(self.absolute_losses)
         return dm
