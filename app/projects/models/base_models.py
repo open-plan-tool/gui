@@ -408,7 +408,12 @@ class Scenario(models.Model):
         busses = []
         for bus_id in bus_ids:
             bus = Bus.objects.get(id=bus_id)
-            bus_data = model_to_dict(bus, exclude=["id", "parent_asset", "scenario"])
+            qs_hn = HeatingNetwork.objects.filter(id=bus.id)
+            if qs_hn.exists():
+                bus = qs_hn.get()
+            bus_data = model_to_dict(
+                bus, exclude=["id", "parent_asset", "scenario", "bus_ptr"]
+            )
             bus_data["inputs"] = []
             bus_data["outputs"] = []
             for connection in bus.connectionlink_set.all():
