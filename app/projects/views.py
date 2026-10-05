@@ -1742,10 +1742,12 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 proj_id=scenario.project.id,
                 scenario_id=scenario.id,
             )
+
+            input_timeseries_data = ""
+
             if hasattr(existing_asset, "input_timeseries"):
-                input_timeseries_data = existing_asset.input_timeseries.values
-            else:
-                input_timeseries_data = ""
+                if existing_asset.input_timeseries is not None:
+                    input_timeseries_data = existing_asset.input_timeseries.values
 
         else:
             AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
