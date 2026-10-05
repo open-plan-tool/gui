@@ -699,7 +699,13 @@ def load_scenario_from_dict(model_data, user, project=None):
     for bus_data in busses:
         bus_inputs = bus_data.pop("inputs")
         bus_outputs = bus_data.pop("outputs")
-        bus = Bus(**bus_data)
+        # Special treatment for HeatingNetwork
+        if "asset_type" in bus_data:
+            asset_type = AssetType.objects.get(id=bus_data.pop("asset_type")).asset_type
+            AssetModel = ASSET_MAPPING.get(asset_type, Bus)
+            bus = AssetModel(**bus_data)
+        else:
+            bus = Bus(**bus_data)
         bus.scenario = scenario
         bus.save()
         for link_data in bus_inputs + bus_outputs:
