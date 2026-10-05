@@ -18,6 +18,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gettext-base gettext git && \
     rm -rf /var/lib/apt/lists/*
 
+RUN echo "trigger below"
+
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
     && pip install gunicorn
