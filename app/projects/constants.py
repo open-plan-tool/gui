@@ -275,6 +275,8 @@ CURRENCY = tuple(
 
 TRUE_FALSE_CHOICES = ((None, _("Choose")), (True, _("Yes")), (False, _("No")))
 
+TRUE_FALSE_STRICT_CHOICES = ((True, _("True")), (False, _("False")))
+
 BOOL_CHOICES = ((True, _("Yes")), (False, _("No")))
 
 FLOW_DIRECTION = (("B2A", "Bus_to_Asset"), ("A2B", "Asset_to_Bus"))
