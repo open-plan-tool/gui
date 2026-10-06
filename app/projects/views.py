@@ -990,6 +990,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
+            "sink": _("Sink"),
         },
         "bus": {
             "bus-electricity": _("Electricity Bus"),

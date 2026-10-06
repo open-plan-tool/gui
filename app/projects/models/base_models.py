@@ -37,6 +37,7 @@ from projects.constants import (
     TIMESERIES_CATEGORIES,
     TIMESERIES_UNITS,
     TRUE_FALSE_CHOICES,
+    TRUE_FALSE_STRICT_CHOICES,
     USER_RATING,
 )
 
@@ -1673,6 +1674,59 @@ class HeatingPipe(Asset):
     )
 
 
+class Sink(Asset):
+    minimum = models.TextField(default=0, blank=False)
+    maximum = models.TextField(default=1, blank=False)
+    fix = models.TextField(null=True, blank=True)
+    positive_gradient_limit = models.FloatField(
+        null=True,
+        blank=True,
+    )
+    negative_gradient_limit = models.FloatField(
+        null=True,
+        blank=True,
+    )
+    full_load_time_max = models.FloatField(
+        null=True,
+        blank=True,
+    )
+    full_load_time_min = models.FloatField(
+        null=True,
+        blank=True,
+    )
+
+    integer = models.BooleanField(
+        default=False,
+        blank=True,
+        choices=TRUE_FALSE_STRICT_CHOICES,
+    )
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import TimeseriesField, DualNumberField
+
+        return {
+            "minimum": DualNumberField(
+                default=0.0,
+                min=0.0,
+                max=1.0,
+                param_name="minimum",
+            ),
+            "maximum": DualNumberField(
+                default=1.0,
+                min=0.0,
+                max=1.0,
+                param_name="maximum",
+            ),
+            "fix": DualNumberField(
+                default=1.0,
+                min=0.0,
+                max=1.0,
+                param_name="fix",
+            ),
+        }
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
@@ -1690,6 +1744,7 @@ ASSET_MAPPING = {
     "hess": ThermalStorage,
     "heating_pipe": HeatingPipe,
     "heating_network": HeatingNetwork,
+    "sink": Sink,
 }
 
 

@@ -34,3 +34,4 @@ chp_fixed_ratio,energy_conversion,Electricity,transformer,"[name,age_installed,i
 commodity,energy_production,Electricity,source,"[name,installed_capacity,capex_spec,commodity_type,full_load_hours_max,full_load_hours_max_asset]",kW,"{'output_1': ['bus_out_electricity','Electricity']}"
 heating_pipe,energy_conversion,Heat,transformer,"[name,absolute_losses,relative_losses,return_pipe]",kW,"{'input_1': ['bus_1_heat','Heat'],'output_1': ['bus_2_heat','Heat']}"
 heating_network,energy_consumption,Heat,bus,"[name,absolute_losses]",kW,"{'input_1': ['bus_1_heat','Heat'],'output_1': ['bus_2_heat','Heat']}"
+sink,energy_consumption,None,sink,"[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,maximum_capacity,minimum,maximum,fix,positive_gradient_limit,negative_gradient_limit,full_load_time_max,full_load_time_min,integer]",kW,"{'input_1': 'bus_in'}"

@@ -3167,6 +3167,16 @@ nav.navbar {
       background-size: contain;
       height: 2rem;
       width: 2rem; }
+    .system-design .drawflow .drawflow-node.sink .img::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
+      background-image: url("/static/assets/gui/sink.svg");
+      background-size: contain;
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node .node__delete {
       position: absolute;
       top: -12px;
