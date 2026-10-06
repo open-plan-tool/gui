@@ -423,6 +423,7 @@ ASSET_TO_TIMESERIES_ASSET_TYPE = {
     "biogas_plant": "biogas_plant",
     "geothermal_conversion": "geothermal_conversion",
     "solar_thermal_plant": "solar_thermal_plant",
+    "sink": "sink",
 }
 
 RENEWABLE_ASSETS = (

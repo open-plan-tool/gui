@@ -742,25 +742,8 @@ def asset_form_factory(asset_type=None, **kwargs):
             # which fields exists in the form are decided upon AssetType saved in the db
             self.asset_type = AssetType.objects.get(asset_type=self.asset_type_name)
 
-            if hasattr(asset_model, "get_custom_form_fields"):
-                for field_name, field in asset_model.get_custom_form_fields().items():
-                    if field_name in self.fields:
-                        # If the custom form field doesn't have a help text or label we use the one
-                        # of the field it replaces
-                        if field.label == "":
-                            field.label = self.fields[field_name].label
-                        if field.help_text == "":
-                            field.help_text = self.fields[field_name].help_text
-                        self.fields[field_name] = field
-
-            # remove the fields not needed for the AssetType
-            for field in list(self.fields):
-                if field not in self.asset_type.visible_fields:
-                    self.fields.pop(field)
-                else:
-                    self.add_help_text_icon(field)
-
             self.timestamps = None
+            self.timeseries_fields = []
             if scenario_id is not None:
                 qs = Scenario.objects.filter(id=scenario_id)
                 if qs.exists():
@@ -783,6 +766,24 @@ def asset_form_factory(asset_type=None, **kwargs):
                     currency = CURRENCY_SYMBOLS[currency]
                     # TODO use mapping to display currency symbol
                     self.user = qs.get().user
+
+            if hasattr(asset_model, "get_custom_form_fields"):
+                for field_name, field in asset_model.get_custom_form_fields().items():
+                    if field_name in self.fields:
+                        # If the custom form field doesn't have a help text or label we use the one
+                        # of the field it replaces
+                        if field.label == "":
+                            field.label = self.fields[field_name].label
+                        if field.help_text == "":
+                            field.help_text = self.fields[field_name].help_text
+                        self.fields[field_name] = field
+
+            # remove the fields not needed for the AssetType
+            for field in list(self.fields):
+                if field not in self.asset_type.visible_fields:
+                    self.fields.pop(field)
+                else:
+                    self.add_help_text_icon(field)
 
             # set the custom timeseries field for timeseries
             # the qs_ts selects timeseries (excluding scalars) that either belong to the user or are open source
@@ -832,6 +833,8 @@ def asset_form_factory(asset_type=None, **kwargs):
                 !! This addition doesn't affect the previous behavior !!
             """
             for field in self.fields:
+                if isinstance(self.fields[field], TimeseriesField):
+                    self.timeseries_fields.append(field)
                 if (
                     field == "renewable_asset"
                     and self.asset_type_name in RENEWABLE_ASSETS
@@ -989,24 +992,29 @@ def asset_form_factory(asset_type=None, **kwargs):
                     self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
                     self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
-            if "input_timeseries" in cleaned_data:
-                # TODO add either a checkbox or a user setting to save ts to model
-                ts_data = json.loads(cleaned_data["input_timeseries"])
-                input_method = ts_data["input_method"]["type"]
-                if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
-                    # replace the dict with a new timeseries instance
-                    timeseries_obj = self.assign_timeseries_from_input(ts_data)
-                    if input_method == TS_UPLOAD_TYPE:
-                        self.timeseries_same_as_timestamps(
-                            timeseries_obj.values, "input_timeseries"
-                        )
-                    cleaned_data["input_timeseries"] = timeseries_obj
-                if input_method == TS_SELECT_TYPE:
-                    # return the timeseries instance
-                    timeseries_id = ts_data["input_method"]["extra_info"]
-                    cleaned_data["input_timeseries"] = Timeseries.objects.get(
-                        id=timeseries_id
-                    )
+            for field in self.timeseries_fields:
+                if field in cleaned_data:
+                    # TODO add either a checkbox or a user setting to save ts to model
+                    ts_data = json.loads(cleaned_data[field])
+                    input_method = ts_data["input_method"]["type"]
+                    print(input_method)
+                    if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
+                        # replace the dict with a new timeseries instance
+                        timeseries_obj = self.assign_timeseries_from_input(ts_data)
+                        if input_method == TS_UPLOAD_TYPE:
+                            self.timeseries_same_as_timestamps(
+                                timeseries_obj.values, field
+                            )
+                        cleaned_data[field] = timeseries_obj.id
+                    if input_method == TS_SELECT_TYPE:
+                        # return the timeseries instance
+                        timeseries_id = ts_data["input_method"]["extra_info"]
+                        cleaned_data[field] = timeseries_id  # Timeseries.objects.get(
+                        #     id=timeseries_id
+                        # )
+
+                    if input_method == "None":
+                        cleaned_data[field] = None
 
             return cleaned_data
 

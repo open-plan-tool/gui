@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.forms.fields import FloatField
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
@@ -1718,11 +1719,16 @@ class Sink(Asset):
                 max=1.0,
                 param_name="maximum",
             ),
-            "fix": DualNumberField(
+            "fix": TimeseriesField(
+                qs_ts=Timeseries.objects.filter(
+                    ~Q(ts_type="scalar") & (Q(asset_type="sink"))
+                    # & (Q(open_source=True) | Q(user=user))
+                ),
                 default=1.0,
                 min=0.0,
                 max=1.0,
                 param_name="fix",
+                required=False,
             ),
         }
 

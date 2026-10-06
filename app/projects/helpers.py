@@ -376,6 +376,10 @@ class TimeseriesInputWidget(forms.MultiWidget):
         thus only the index of the timeseries is to decompress"""
 
         answer = [value, None, None]
+
+        if value is not None:
+            value = int(value)
+
         if not isinstance(value, int):
             logging.error("The value of timeseries index is not an integer")
         ts_qs = Timeseries.objects.filter(id=value)
@@ -491,14 +495,18 @@ class TimeseriesField(forms.MultiValueField):
                 type=TS_MANUAL_TYPE, generation_parameters=generation_parameters
             )
         elif scalar_value == "":
-            self.set_widget_error()
-            raise ValidationError(
-                _(
-                    "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
-                ),
-                code="required",
-                params={"boundaries": self.boundaries},
-            )
+            if self.required is True:
+                self.set_widget_error()
+                raise ValidationError(
+                    _(
+                        "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
+                    ),
+                    code="required",
+                    params={"boundaries": self.boundaries},
+                )
+            else:
+                answer = None
+                input_dict = {"type": "None"}
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
@@ -532,7 +540,8 @@ class TimeseriesField(forms.MultiValueField):
                         code="invalid",
                         params={"boundaries": boundaries},
                     )
-
+        elif value is None:
+            pass
         else:
             if self.min is not None:
                 if value < self.min:
