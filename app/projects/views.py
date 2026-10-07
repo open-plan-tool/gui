@@ -963,6 +963,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
             "commodity": _("Commodity"),
+            "shortage": _("Shortage"),
         },
         "conversion": {
             "transformer_station_in": _("Transformer Station (in)"),
@@ -992,6 +993,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
             "sink": _("Sink"),
+            "excess": _("Excess"),
         },
         "bus": {
             "bus-electricity": _("Electricity Bus"),
