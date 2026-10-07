@@ -75,7 +75,7 @@ function getTimeseriesValues(ts_id, param_name=""){
         if(ts_length == 1){
             ts_values = Array(scen_ts_length).fill(ts_values[0])
             // update scalar field value for scalar data
-            let scalar_id = "id_" + param_name + "_0";
+            let scalar_id = "id_" + param_name + "_2";
             let scalar_input = document.getElementById(scalar_id);
             if (scalar_input)
                 scalar_input.value = ts_values[0];
@@ -149,17 +149,17 @@ function changeTimeseriesSelectValue(ts_idx, param_name=""){
 function changeTimeseriesUploadValue(obj, param_name=""){
     console.log("widget: upload");
     plot_file_trace(obj, plot_id=param_name+'_trace');
-    var selectID = "id_" + param_name + "_1";
+    var selectID = "id_" + param_name + "_0";
     var select_input = document.getElementById(selectID);
     select_input.value = "";
-    var manualID = "id_" + param_name + "_0";
+    var manualID = "id_" + param_name + "_2";
     var manual_input = document.getElementById(manualID);
     manual_input.value = "";
 }
 function initTimeseriesManualValue(param_name="") {
     // trigger plot timeseries, as this retrieves timeseries from DB and sets TS length
     console.log("init widget:manual");
-    var selectID = "id_" + param_name + "_1";
+    var selectID = "id_" + param_name + "_0";
     var select_input = document.getElementById(selectID);
     // this is hacky as select does not get triggered as changed
     select_input.dispatchEvent(new Event('change'));
@@ -169,7 +169,7 @@ function updateTimeseriesManualValue(value, param_name="") {
     let ts_values = (new Array(scen_ts_length)).fill(Number(value));
     plotTimeseriesInputTrace(ts_values, param_name=param_name);
     // deselect uploaded timeseries field
-    var selectID = "id_" + param_name + "_1";
+    var selectID = "id_" + param_name + "_0";
     var select_input = document.getElementById(selectID);
     fetch(findtsGetUrl + "/" + scen_ts_length +"/value/" + value + "/").then(resp => resp.json()).then(data => {
         console.log(data)
@@ -194,7 +194,7 @@ function plotTimeseriesInputTrace(ts_values,param_name=""){
     else{
      graphDOM.style.display = "none";
      // reset file in memory if the user inputs a scalar after uploading a file
-     var fileID = "id_" + param_name + "_2";
+     var fileID = "id_" + param_name + "_1";
      var file_input = document.getElementById(fileID);
      file_input.value = "";
     };
@@ -227,7 +227,7 @@ function plotDualInputTrace(obj, param_name=""){
 
 function updateScalarInput(array,param_name){
     // write the array as json inside the scalar input field and trigger the change event
-    var scalarID = "id_" + param_name + "_0";
+    var scalarID = "id_" + param_name + "_2";
     var scalar_input = document.getElementById(scalarID);
     scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
     scalar_input.dispatchEvent(new Event("change"));
