@@ -167,7 +167,7 @@ function initTimeseriesManualValue(param_name="") {
 function updateTimeseriesManualValue(value, param_name="") {
     console.log("update widget:manual");
     let ts_values = (new Array(scen_ts_length)).fill(Number(value));
-    plotTimeseriesInputTrace(ts_values, param_name=param_name);
+    hideTimeseriesInputTrace(param_name);
     // deselect uploaded timeseries field
     var selectID = "id_" + param_name + "_0";
     var select_input = document.getElementById(selectID);
@@ -198,9 +198,13 @@ function plotTimeseriesInputTrace(ts_values,param_name=""){
      var file_input = document.getElementById(fileID);
      file_input.value = "";
     };
-
 }
-
+function hideTimeseriesInputTrace(param_name=""){
+     // this refers to div id in the html template asset/dual_input.html
+    PLOT_ID = param_name + "_trace";
+    var graphDOM = document.getElementById(PLOT_ID);
+    graphDOM.style.display = "none";
+};
 
 /* Plot update of textinput field of DualInput field */
 function plotDualInputTrace(obj, param_name=""){
