@@ -5,6 +5,7 @@ import logging
 
 from dashboard.helpers import KPIFinder
 from django import forms
+from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.utils.html import html_safe
 from django.utils.translation import gettext_lazy as _
@@ -579,6 +580,13 @@ class TimeseriesField(forms.MultiValueField):
                 css = []
             css.append("is-invalid")
             widget.attrs["class"] = " ".join(css)
+
+    def assign_queryset(self, asset_type, user):
+        self.fields[0].queryset = Timeseries.objects.filter(
+            ~Q(ts_type="scalar")
+            & (Q(asset_type=asset_type))
+            & (Q(open_source=True) | Q(user=user))
+        )
 
 
 def parse_csv_timeseries(file_str):
