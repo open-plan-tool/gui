@@ -901,7 +901,7 @@ function validateNodeConnections(editor) {
             outputCount += node.outputs[outputName].connections.length;
         }
         // Sink
-        if (name.endsWith("demand")) {
+        if (name.endsWith("demand") || name == "excess" || name == "sink") {
             if (inputCount < 1) {
                 alert(`Sink "${node.data.name}" must have at least 1 input.`);
                 return false;
