@@ -769,6 +769,9 @@ def asset_form_factory(asset_type=None, **kwargs):
 
             if hasattr(asset_model, "get_custom_form_fields"):
                 for field_name, field in asset_model.get_custom_form_fields().items():
+                    if isinstance(field, TimeseriesField):
+                        field.assign_queryset(asset_type=self.asset_type_name,user=self.user)
+
                     if field_name in self.fields:
                         # If the custom form field doesn't have a help text or label we use the one
                         # of the field it replaces
