@@ -454,6 +454,7 @@ class TimeseriesField(forms.MultiValueField):
             custom_form_assets=custom_form_assets,
         )
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
+        self.widget.widgets[0] = self.fields[0].widget
         self.label = label
 
     def clean(self, values):
