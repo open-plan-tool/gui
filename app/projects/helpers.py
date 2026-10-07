@@ -349,18 +349,18 @@ class TimeseriesInputWidget(forms.MultiWidget):
             }
         )
         widgets = {
-            "scalar": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
-                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
-                }
-            ),
             "select": select_widget,
             "file": forms.FileInput(
                 attrs={
                     "class": "form-control",
                     "onchange": f"changeTimeseriesUploadValue(obj=this.files, param_name='{self.param_name}')",
+                }
+            ),
+            "scalar": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
+                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
                 }
             ),
         }
@@ -386,27 +386,34 @@ class TimeseriesInputWidget(forms.MultiWidget):
         if ts_qs.exists():
             ts = ts_qs.get()
             scalar_value = ts.values[0] if ts.ts_type == "scalar" else None
-            answer = [scalar_value, value, ""]
+            answer = [value, "", scalar_value]
+            if ts.ts_type == "scalar":
+                answer = [None, None, ts.values[0]]
+
         return answer
 
     def get_context(self, name, value, attrs):
         # Let MultiWidget do the normal setup
         ctx = super().get_context(name, value, attrs)
 
-        # Decompressed value = [scalar, select_id, file]
-        vals = value if isinstance(value, (list, tuple)) else self.decompress(value)
+        subwidgets = ctx["widget"]["subwidgets"]
+
+        vals = [widget.get("value") for widget in subwidgets]
+
+        # Decompressed value = [select_id, file, scalar]
         if vals and vals[0] not in (None, "", 0):
-            active = "manual"
-        elif vals and vals[1] not in (None, ""):
             active = "select"
-        elif vals and vals[2]:
+        elif vals and vals[1] not in (None, ""):
             active = "upload"
+        elif vals and vals[2]:
+            active = "manual"
         else:
             active = "select"  # default
 
         ctx["active_tab"] = active
         ctx["asset_type"] = self.asset_type
         ctx["custom_form_assets"] = self.custom_form_assets
+
         return ctx
 
 
@@ -424,20 +431,20 @@ class TimeseriesField(forms.MultiValueField):
         if qs_ts is None:
             qs_ts = Timeseries.objects.none()
         fields = (
-            forms.DecimalField(required=False),
-            forms.CharField(required=False),
             forms.ModelChoiceField(
                 queryset=qs_ts,
                 required=False,
                 empty_label=_("Select a timeseries below"),
             ),
+            forms.CharField(required=False),
+            forms.DecimalField(required=False),
         )
         kwargs.pop("max_length", None)
         self.param_name = param_name
         self.asset_type = asset_type
         self.min = kwargs.pop("min", None)
         self.max = kwargs.pop("max", None)
-        select_widget = fields[2].widget
+        select_widget = fields[0].widget
         kwargs["widget"] = TimeseriesInputWidget(
             default=default,
             param_name=param_name,
@@ -450,7 +457,7 @@ class TimeseriesField(forms.MultiValueField):
 
     def clean(self, values):
         """If a file is provided it will be considered over the other fields"""
-        scalar_value, timeseries_id, timeseries_file = values
+        timeseries_id, timeseries_file, scalar_value = values
 
         if scalar_value is None:
             scalar_value = ""
