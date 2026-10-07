@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 20.48 20.48"
+   id="icons"
+   version="1.1"
+   sodipodi:docname="nologo.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1877"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="5.9609102"
+     inkscape:cx="44.036899"
+     inkscape:cy="17.950279"
+     inkscape:window-width="1920"
+     inkscape:window-height="1022"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="icons" />
+  <defs
+     id="defs1850">
+    <style
+       id="style1848">.cls-1{stroke-miterlimit:10;}.cls-1,.cls-2{fill:none;stroke:#808285;stroke-width:7px;}.cls-2{stroke-linecap:round;stroke-linejoin:round;}</style>
+  </defs>
+  <g
+     id="g5919"
+     transform="translate(0.88986324,0.04586815)">
+    <g
+       id="g1938-6"
+       transform="matrix(0.06221747,0,0,0.06221747,-6.4789316,-0.06117645)">
+      <path
+         class="cls-1"
+         d="m 253.21,71.66 c -10.81,0 -32.42,2.77 -32.42,12.74 0,3.88 3.05,7.48 7.48,7.48 0.83,0 1.94,-0.27 3.05,-0.55 7.48,-2.77 14.68,-4.16 21.33,-4.16 27.43,0 47.37,20.78 47.37,42.11 0,14.4 -9.14,28.81 -30.75,37.4 -24.93,9.97 -29.64,17.17 -29.64,39.33 0,8.87 0.56,15.8 8.59,15.8 4.15,0 8.59,-3.05 8.59,-9.42 v -0.56 c -0.28,-2.49 -0.28,-4.98 -0.28,-6.92 0,-14.68 4.16,-17.46 20.78,-24.38 29.08,-12.47 41.27,-31.86 41.27,-50.97 0,-29.37 -28.25,-57.9 -65.37,-57.9 z"
+         id="path1872-7" />
+      <circle
+         class="cls-1"
+         cx="249.74001"
+         cy="259.07001"
+         r="11.32"
+         id="circle1874-5" />
+    </g>
+    <circle
+       style="opacity:0.469626;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.48;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path5815"
+       cx="9.3501368"
+       cy="10.194132"
+       r="7.8583841" />
+  </g>
+</svg>

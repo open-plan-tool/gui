@@ -1731,6 +1731,31 @@ class Sink(Asset):
         }
 
 
+class AuxiliaryHeat(Asset):
+    temp_in_heat = models.TextField(null=True, blank=False)
+    temp_out_heat = models.TextField(null=True, blank=False)
+    temp_low_source_component = models.TextField(null=True, blank=False)
+
+    @staticmethod
+    def get_custom_form_fields():
+        from projects.helpers import TimeseriesField
+
+        return {
+            "temp_in_heat": TimeseriesField(
+                param_name="temp_in_heat",
+                required=False,
+            ),
+            "temp_out_heat": TimeseriesField(
+                param_name="temp_out_heat",
+                required=False,
+            ),
+            "temp_low_source_component": TimeseriesField(
+                param_name="temp_low_source_component",
+                required=False,
+            ),
+        }
+
+
 # TODO here add the models mapping (maybe there is a smarter way to do this)
 ASSET_MAPPING = {
     "commodity": Commodity,
@@ -1749,6 +1774,7 @@ ASSET_MAPPING = {
     "heating_pipe": HeatingPipe,
     "heating_network": HeatingNetwork,
     "sink": Sink,
+    "auxiliary_heat": AuxiliaryHeat,
 }
 
 
