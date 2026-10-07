@@ -1720,10 +1720,7 @@ class Sink(Asset):
                 param_name="maximum",
             ),
             "fix": TimeseriesField(
-                qs_ts=Timeseries.objects.filter(
-                    ~Q(ts_type="scalar") & (Q(asset_type="sink"))
-                    # & (Q(open_source=True) | Q(user=user))
-                ),
+                qs_ts=Timeseries.objects.none(),
                 default=1.0,
                 min=0.0,
                 max=1.0,

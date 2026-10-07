@@ -421,6 +421,8 @@ class TimeseriesField(forms.MultiValueField):
         custom_form_assets=None,
         **kwargs,
     ):
+        if qs_ts is None:
+            qs_ts = Timeseries.objects.none()
         fields = (
             forms.DecimalField(required=False),
             forms.CharField(required=False),
@@ -471,7 +473,7 @@ class TimeseriesField(forms.MultiValueField):
         elif timeseries_id != "":
             ts = Timeseries.objects.get(id=timeseries_id)
             answer = ts.get_values
-            input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
+            input_dict = dict(type=TS_SELECT_TYPE, extra_info=ts.id)
 
         elif scalar_value != "":
             # check the input string is a number, a list, or a
