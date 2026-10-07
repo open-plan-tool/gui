@@ -386,10 +386,10 @@ class TimeseriesInputWidget(forms.MultiWidget):
         ts_qs = Timeseries.objects.filter(id=value)
         if ts_qs.exists():
             ts = ts_qs.get()
-            scalar_value = ts.values[0] if ts.ts_type == "scalar" else None
-            answer = [value, "", scalar_value]
             if ts.ts_type == "scalar":
                 answer = [None, None, ts.values[0]]
+            else:
+                answer = [ts.pk, None, None]
 
         return answer
 
@@ -402,7 +402,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
         vals = [widget.get("value") for widget in subwidgets]
 
         # Decompressed value = [select_id, file, scalar]
-        if vals and vals[0] not in (None, "", 0):
+        if vals and vals[0] not in (None, "", 0, [""]):
             active = "select"
         elif vals and vals[1] not in (None, ""):
             active = "upload"
