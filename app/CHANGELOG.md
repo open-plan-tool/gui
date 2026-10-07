@@ -5,6 +5,7 @@
 - Allow user to get information about usecases's scenarios via endpoint [[#524](https://github.com/open-plan-tool/gui/pull/524)]
 ### Fixed
 - Fix broken datapackage export [[#522](https://github.com/open-plan-tool/gui/pull/522)]
+- Fix TimeseriesField display and validation [[#539](https://github.com/open-plan-tool/gui/pull/539)]
 
 ## [v2.2.0] – 2026-09-16
 ### Added
