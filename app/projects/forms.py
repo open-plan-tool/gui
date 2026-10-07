@@ -1009,9 +1009,10 @@ def asset_form_factory(asset_type=None, **kwargs):
                     if input_method == TS_SELECT_TYPE:
                         # return the timeseries instance
                         timeseries_id = ts_data["input_method"]["extra_info"]
-                        cleaned_data[field] = timeseries_id  # Timeseries.objects.get(
-                        #     id=timeseries_id
-                        # )
+                        ts = Timeseries.objects.get(
+                            id=timeseries_id
+                        )
+                        cleaned_data[field] = ts.id
 
                     if input_method == "None":
                         cleaned_data[field] = None
