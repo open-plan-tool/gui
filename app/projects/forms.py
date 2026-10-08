@@ -770,7 +770,9 @@ def asset_form_factory(asset_type=None, **kwargs):
             if hasattr(asset_model, "get_custom_form_fields"):
                 for field_name, field in asset_model.get_custom_form_fields().items():
                     if isinstance(field, TimeseriesField):
-                        field.assign_queryset(asset_type=self.asset_type_name,user=self.user)
+                        field.assign_queryset(
+                            asset_type=self.asset_type_name, user=self.user
+                        )
 
                     if field_name in self.fields:
                         # If the custom form field doesn't have a help text or label we use the one
@@ -1008,14 +1010,12 @@ def asset_form_factory(asset_type=None, **kwargs):
                             self.timeseries_same_as_timestamps(
                                 timeseries_obj.values, field
                             )
-                        cleaned_data[field] = timeseries_obj.id
+                        cleaned_data[field] = timeseries_obj
                     if input_method == TS_SELECT_TYPE:
                         # return the timeseries instance
                         timeseries_id = ts_data["input_method"]["extra_info"]
-                        ts = Timeseries.objects.get(
-                            id=timeseries_id
-                        )
-                        cleaned_data[field] = ts.id
+                        ts = Timeseries.objects.get(id=timeseries_id)
+                        cleaned_data[field] = ts
 
                     if input_method == "None":
                         cleaned_data[field] = None
