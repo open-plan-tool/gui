@@ -1311,6 +1311,7 @@ class Electrolyzer(Asset):
 class DSO(Asset):
     # mirrors the parameters of oemof.eesyplan dso
     energy_price = models.TextField(null=True, blank=False)
+
     feedin_tariff = models.TextField(null=True, blank=False)
 
     feedin_cap = models.FloatField(
@@ -1720,7 +1721,7 @@ class Sink(Asset):
                 max=1.0,
                 param_name="maximum",
             ),
-            "fix": TimeseriesField(
+            "fix": DualNumberField(
                 qs_ts=Timeseries.objects.none(),
                 default=1.0,
                 min=0.0,
@@ -1738,18 +1739,18 @@ class AuxiliaryHeat(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import TimeseriesField
+        from projects.helpers import TimeseriesField, DualNumberField
 
         return {
-            "temp_in_heat": TimeseriesField(
+            "temp_in_heat": DualNumberField(
                 param_name="temp_in_heat",
                 required=False,
             ),
-            "temp_out_heat": TimeseriesField(
+            "temp_out_heat": DualNumberField(
                 param_name="temp_out_heat",
                 required=False,
             ),
-            "temp_low_source_component": TimeseriesField(
+            "temp_low_source_component": DualNumberField(
                 param_name="temp_low_source_component",
                 required=False,
             ),
