@@ -31,6 +31,7 @@ from projects.constants import (
     ENERGY_VECTOR,
     FLOW_DIRECTION,
     MVS_TYPE,
+    NO_INVEST_ASSETS,
     PENDING,
     SIMULATION_SERVERS,
     SIMULATION_STATUS,
@@ -1032,10 +1033,11 @@ class Asset(TopologyNode):
     def to_datapackage(self):
         """Return the asset's attributes in a datapackage form"""
         dp = {"type": self.asset_type.asset_type}
+
         if (
             "demand" not in self.asset_type.asset_type
             and "dso" not in self.asset_type.asset_type
-            and "heating_pipe" not in self.asset_type.asset_type
+            and self.asset_type.asset_type not in NO_INVEST_ASSETS
         ):
             dp["project_data"] = self.scenario.project.name
         # to collect the timeseries used by the asset
