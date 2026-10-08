@@ -389,7 +389,7 @@ class TimeseriesInputWidget(forms.MultiWidget):
             if ts.ts_type == "scalar":
                 answer = [None, None, ts.values[0]]
             else:
-                answer = [ts.pk, None, None]
+                answer = [ts, None, None]
 
         return answer
 
