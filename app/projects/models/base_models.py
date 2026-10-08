@@ -1136,6 +1136,9 @@ class Asset(TopologyNode):
                 dp[field] = c.bus.name
                 bus_resource_rec.append(c.bus.to_datapackage())
 
+        if self.asset_type.asset_type in ("shortage", "excess"):
+            dp["cost"] = dp.pop("variable_costs")
+
         return dp, bus_resource_rec, profile_resource_rec
 
     def export(self, connections=False):
