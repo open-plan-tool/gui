@@ -42,11 +42,13 @@ from projects.models import (
     Asset,
     AssetChangeTracker,
     AssetType,
+    ASSET_MAPPING,
     Bus,
     Comment,
     ConnectionLink,
     COPCalculator,
     EconomicData,
+    HeatingNetwork,
     MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
@@ -74,8 +76,6 @@ from .requests import (
 )
 from .scenario_topology_helpers import (
     NodeObject,
-    duplicate_scenario_connections,
-    duplicate_scenario_objects,
     handle_asset_form_post,
     handle_bus_form_post,
     load_project_from_dict,
@@ -963,6 +963,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
             "commodity": _("Commodity"),
+            "shortage": _("Shortage"),
         },
         "conversion": {
             "transformer_station_in": _("Transformer Station (in)"),
@@ -977,6 +978,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
+            "heating_pipe": _("Heating pipe"),
+            "auxiliary_heat": _("Auxiliary Heat"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -989,12 +992,15 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
+            "sink": _("Sink"),
+            "excess": _("Excess"),
         },
         "bus": {
             "bus-electricity": _("Electricity Bus"),
             "bus-heat": _("Heat Bus"),
             "bus-gas": _("Fuel Bus"),
             "bus-h2": _("Hydrogen Bus"),
+            "heating_network": _("Heating Network"),
         },
     }
     group_names = {group: _(group) for group in components}
@@ -1345,29 +1351,10 @@ def scenario_update(request, scen_id, step_id):
 def scenario_duplicate(request, scen_id):
     """duplicates the selected scenario and all of its associated components (topology data included)"""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    # We need to iterate over all the objects related to this scenario and duplicate them
-    # and associate them with the new scenario id.
-    # TODO here get the correct asset types
-    asset_list = Asset.objects.filter(scenario=scenario)
-    bus_list = Bus.objects.filter(scenario=scenario)
-    connections_list = ConnectionLink.objects.filter(scenario=scenario)
-    # simulation_list = Simulation.objects.filter(scenario=scenario)
-
-    # first duplicate the scenario
-    scenario.pk = None
-    scenario.save()
-    # from now on we are working with the duplicated scenario, not the original
-    old2new_asset_ids_map = duplicate_scenario_objects(asset_list, scenario)
-    old2new_bus_ids_map = duplicate_scenario_objects(
-        bus_list, scenario, old2new_asset_ids_map
-    )
-    duplicate_scenario_connections(
-        connections_list, scenario, old2new_asset_ids_map, old2new_bus_ids_map
-    )
-    # duplicate_scenario_objects(simulation_list, scenario)
-
-    return HttpResponseRedirect(reverse("project_search", args=[scenario.project.id]))
+    project = scenario.project
+    dm = scenario.export()
+    load_scenario_from_dict(dm, user=request.user, project=project)
+    return HttpResponseRedirect(reverse("project_search", args=[project.id]))
 
 
 @login_required
@@ -1738,13 +1725,16 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
                 proj_id=scenario.project.id,
                 scenario_id=scenario.id,
             )
-            input_timeseries_data = (
-                existing_asset.input_timeseries.values
-                if existing_asset.input_timeseries
-                else ""
-            )
+
+            input_timeseries_data = ""
+
+            if hasattr(existing_asset, "input_timeseries"):
+                if existing_asset.input_timeseries is not None:
+                    input_timeseries_data = existing_asset.input_timeseries.values
+
         else:
-            n_asset = Asset.objects.filter(
+            AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+            n_asset = AssetModel.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
             ).count()
             default_name = f"{asset_type_name}-{n_asset}"
@@ -2054,6 +2044,37 @@ def test_mvs_data_input(request, scen_id=0):
 @require_http_methods(["GET"])
 def usecase_mvs_data_input(request, scen_id=0):
     return view_mvs_data_input(request, scen_id=scen_id, testing=True)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+@user_has_read_rights
+def view_ezp_data_input(request, scen_id=0, testing=False):
+    if scen_id == 0:
+        return JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(id=scen_id)
+
+    if testing is True:
+        number = 3
+    else:
+        number = None
+
+    json_dp = scenario.to_jsonified_datapackage(number=number)
+
+    return JsonResponse(json_dp, status=200, content_type="application/json")
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def test_ezp_data_input(request, scen_id=0):
+    return view_ezp_data_input(request, scen_id=scen_id, testing=True)
 
 
 # End-point to send MVS simulation request
