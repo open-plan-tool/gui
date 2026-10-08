@@ -1722,7 +1722,6 @@ class Sink(Asset):
                 param_name="maximum",
             ),
             "fix": DualNumberField(
-                qs_ts=Timeseries.objects.none(),
                 default=1.0,
                 min=0.0,
                 max=1.0,
