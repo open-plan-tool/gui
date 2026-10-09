@@ -138,6 +138,53 @@
         .small {
             font-size: 13px;
         }
+
+        .dropdown-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .caret {
+            display: inline-flex;
+            margin-left: 6px;
+            transition: transform 0.2s ease;
+        }
+
+        .caret svg {
+            display: block;
+        }
+
+        .dropdown-menu-custom {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            min-width: 180px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            flex-direction: column;
+            padding: 4px 0;
+        }
+
+        .dropdown-wrap.open .dropdown-menu-custom {
+            display: flex;
+        }
+
+        .dropdown-menu-custom button {
+            border: none;
+            background: transparent;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            color: inherit;
+            padding: 8px 12px;
+        }
+
+        .dropdown-menu-custom button:hover {
+            background: #f0f6ff;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
 </head>
@@ -151,10 +198,26 @@
             <h1>Time Series</h1>
             <div class="muted">Manage uploaded series and inspect metadata.</div>
         </div>
+        <div class="actions dropdown-wrap" id="addTimeseries">
+            <button type="button" class="btn btn--medium" id="addTimeseriesBtn">
+                <span class="op-btn__inner">
+                    Add time series
+                    <span class="op-btn__caret">
+                        <svg viewBox="0 0 10 10" width="10" height="10" role="presentation" aria-hidden="true" focusable="false">
+                            <path d="M 5 10 L 0.67 2.5 L 9.33 2.5 L 5 10 Z" fill="currentColor" fill-rule="nonzero"></path>
+                        </svg>
+                    </span>
+                </span>
+            </button>
 
-        <div class="actions">
-            <button class="btn btn--medium" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'})">Upload</button>
-            <button class="btn btn--medium" data-bs-toggle="modal" data-bs-target="#createTimeseriesModal">Create manually</button>
+            <div class="dropdown-menu-custom" id="addTimeseriesDropdown">
+                <button type="button" onclick="showModal(event, 'uploadTimeseriesModal', {'action': '{% url 'timeseries_dashboard' %}'})">
+                    Upload
+                </button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#createTimeseriesModal">
+                    Create manually
+                </button>
+            </div>
         </div>
     </div>
 
