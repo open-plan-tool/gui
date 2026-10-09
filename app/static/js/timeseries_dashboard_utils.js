@@ -53,3 +53,26 @@ function getEditTimeseriesForm(event) {
         console.error("Failed to show Modal with form:", error);
     });
 }
+
+// listening for click on "add timeseries", handles dropdown
+document.addEventListener("DOMContentLoaded", function () {
+    const wrapper = document.getElementById("addTimeseries");
+    const btn = document.getElementById("addTimeseriesBtn");
+
+    btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        wrapper.classList.toggle("open");
+    });
+
+    document.addEventListener("click", function (e) {
+        if (!wrapper.contains(e.target)) {
+            wrapper.classList.remove("open");
+        }
+    });
+
+    document.querySelectorAll(".dropdown-menu-custom button").forEach(function (item) {
+        item.addEventListener("click", function () {
+            wrapper.classList.remove("open");
+        });
+    });
+});
