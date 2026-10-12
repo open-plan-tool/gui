@@ -116,7 +116,13 @@ def check_all_asset_forms(project_id, client, verbose=False):
 
 
 class BasicOperationsTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json", "fixtures/test_users.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+        "fixtures/test_extra_users.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
@@ -125,7 +131,7 @@ class BasicOperationsTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
 
     def test_delete_project_redirects(self):
         """Make sure we are redirected to project page once deleting a project"""
@@ -346,7 +352,12 @@ class BasicOperationsTest(TestCase):
 
 
 class ExportLoadTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
@@ -355,7 +366,7 @@ class ExportLoadTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
         self.scenario = self.project.scenario_set.first()
 
     def test_export_and_load_scenario(self):
@@ -437,7 +448,12 @@ class ExportLoadTest(TestCase):
 
 
 class UploadTimeseriesTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
@@ -446,7 +462,7 @@ class UploadTimeseriesTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
 
         # set up scenario for timeseries lengths of 4
         self.scenario = self.project.scenario_set.first()
@@ -651,7 +667,12 @@ class OptimizeCapacityToggleTest(TestCase):
     when turned on, and reset maximum_capacity when turned off (forms.py
     AssetCreateForm.clean)."""
 
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
@@ -659,7 +680,7 @@ class OptimizeCapacityToggleTest(TestCase):
 
     def setUp(self):
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
         self.scenario = self.project.scenario_set.first()
 
         # the fixture predates "maximum_capacity" being added to this asset
@@ -771,7 +792,12 @@ class ImportedUsecaseTest(TestCase):
         2277,
     ]
 
-    fixtures = ["fixtures/fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
@@ -1089,7 +1115,12 @@ class CompareMVSDataInputTest(TestCase):
 class CHPAssetTest(TestCase):
     """Guards the chp component behavior through its migration to an own CHP model"""
 
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+        "fixtures/example_project.json",
+    ]
 
     # values for any field name the chp form may expose, valid before and
     # after the migration to eesyplan field names
