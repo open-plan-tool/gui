@@ -1020,11 +1020,9 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
         # delete objects from database which were deleted by the user
         update_deleted_objects_from_database(scen_id, node_list)
-        # Make sure there are no connections in the Database to prevent inserting the same connections upon updating.
-        ConnectionLink.objects.filter(scenario_id=scen_id).delete()
+
         for node_obj in node_list:
             node_obj.create_connection_links(scen_id)
-            # node_obj.assign_asset_to_proper_group(node_to_db_mapping_dict)
         return JsonResponse({"success": True}, status=200)
     else:
         scenario = get_object_or_404(Scenario, pk=scen_id)
