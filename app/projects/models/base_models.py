@@ -1315,9 +1315,21 @@ class Electrolyzer(Asset):
 
 class DSO(Asset):
     # mirrors the parameters of oemof.eesyplan dso
-    energy_price = models.TextField(null=True, blank=False)
+    energy_price = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="dso_energy_price_set",
+    )
 
-    feedin_tariff = models.TextField(null=True, blank=False)
+    feedin_tariff = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="dso_feedin_tariff_set",
+    )
 
     feedin_cap = models.FloatField(
         default=None, null=True, blank=True, validators=[MinValueValidator(0.0)]
@@ -1356,14 +1368,14 @@ class DSO(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField
+        from projects.helpers import DualNumberField, TimeseriesField
 
         return {
-            "energy_price": DualNumberField(
+            "energy_price": TimeseriesField(
                 default=0.1,
                 param_name="energy_price",
             ),
-            "feedin_tariff": DualNumberField(
+            "feedin_tariff": TimeseriesField(
                 default=0.1,
                 param_name="feedin_tariff",
             ),
