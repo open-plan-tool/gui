@@ -312,6 +312,16 @@ urlpatterns = [
         name="usecase_mvs_data_input",
     ),
     path(
+        "view_ezp_data_input/<int:scen_id>",
+        view_ezp_data_input,
+        name="view_ezp_data_input",
+    ),
+    path(
+        "test_ezp_data_input/<int:scen_id>",
+        test_ezp_data_input,
+        name="test_ezp_data_input",
+    ),
+    path(
         "topology/mvs_simulation/<int:scen_id>",
         request_mvs_simulation,
         name="request_mvs_simulation",

@@ -40,7 +40,11 @@ class Command(BaseCommand):
 
                 asset_ports = json.loads(asset_ports.replace("'", '"'))
                 for key, info in asset_ports.items():
-                    label, energy_vector = info
+                    if isinstance(info, str):
+                        label = info
+                        energy_vector = ""
+                    else:
+                        label, energy_vector = info
                     direction, num = key.split("_")
                     port, created = ConnectionPort.objects.get_or_create(
                         direction=direction,

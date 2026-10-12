@@ -275,6 +275,8 @@ CURRENCY = tuple(
 
 TRUE_FALSE_CHOICES = ((None, _("Choose")), (True, _("Yes")), (False, _("No")))
 
+TRUE_FALSE_STRICT_CHOICES = ((True, _("True")), (False, _("False")))
+
 BOOL_CHOICES = ((True, _("Yes")), (False, _("No")))
 
 FLOW_DIRECTION = (("B2A", "Bus_to_Asset"), ("A2B", "Asset_to_Bus"))
@@ -421,6 +423,7 @@ ASSET_TO_TIMESERIES_ASSET_TYPE = {
     "biogas_plant": "biogas_plant",
     "geothermal_conversion": "geothermal_conversion",
     "solar_thermal_plant": "solar_thermal_plant",
+    "sink": "sink",
 }
 
 RENEWABLE_ASSETS = (
@@ -486,12 +489,14 @@ MAP_EPA_MVS = {
     "specific_replacement_costs_of_optimized_capacity": "specific_replacement_costs_of_optimized_capacity",
     "asset_type": "type_asset",
     "capex_fix": "development_costs",
-    "capex_var": "specific_costs",
-    "opex_fix": "specific_costs_om",
-    "opex_var": "dispatch_price",
+    "capex_spec": "specific_costs",
+    "opex_spec": "specific_costs_om",
+    "variable_costs": "dispatch_price",
     "discount": "discount_factor",
     "duration": "project_duration",
 }
 MAP_MVS_EPA = {value: key for (key, value) in MAP_EPA_MVS.items()}
 
 COMPARE_VIEW = "compare"
+
+NO_INVEST_ASSETS = ["shortage", "excess", "heating_pipe"]

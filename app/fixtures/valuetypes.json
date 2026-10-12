@@ -1,0 +1,338 @@
+[
+{
+    "model": "projects.valuetype",
+    "pk": 1,
+    "fields": {
+        "type": "duration",
+        "unit": "year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 2,
+    "fields": {
+        "type": "annuity_factor",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 3,
+    "fields": {
+        "type": "discount",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 4,
+    "fields": {
+        "type": "tax",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 5,
+    "fields": {
+        "type": "crf",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 6,
+    "fields": {
+        "type": "crate",
+        "unit": "factor of total capacity (kWh)"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 7,
+    "fields": {
+        "type": "age_installed",
+        "unit": "year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 8,
+    "fields": {
+        "type": "soc_max",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 9,
+    "fields": {
+        "type": "soc_min",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 10,
+    "fields": {
+        "type": "capex_fix",
+        "unit": "currency"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 11,
+    "fields": {
+        "type": "opex_var",
+        "unit": "currency/unit/year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 12,
+    "fields": {
+        "type": "efficiency",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 13,
+    "fields": {
+        "type": "installed_capacity",
+        "unit": "unit"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 14,
+    "fields": {
+        "type": "lifetime",
+        "unit": "year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 15,
+    "fields": {
+        "type": "maximum_capacity",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 16,
+    "fields": {
+        "type": "energy_price",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 17,
+    "fields": {
+        "type": "feedin_tariff",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 18,
+    "fields": {
+        "type": "optimize_cap",
+        "unit": "bool"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 19,
+    "fields": {
+        "type": "peak_demand_pricing",
+        "unit": "currency/kW"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 20,
+    "fields": {
+        "type": "peak_demand_pricing_period",
+        "unit": "times per year (1,2,3,4,6,12)"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 21,
+    "fields": {
+        "type": "renewable_share",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 22,
+    "fields": {
+        "type": "capex_var",
+        "unit": "currency/unit"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 23,
+    "fields": {
+        "type": "opex_fix",
+        "unit": "currency/year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 24,
+    "fields": {
+        "type": "specific_costs_om",
+        "unit": "currency/year"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 25,
+    "fields": {
+        "type": "input_timeseries",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 26,
+    "fields": {
+        "type": "evaluated_period",
+        "unit": "days"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 27,
+    "fields": {
+        "type": "renewable_asset",
+        "unit": "bool"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 28,
+    "fields": {
+        "type": "thermal_loss_rate",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 29,
+    "fields": {
+        "type": "efficiency_multiple",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 30,
+    "fields": {
+        "type": "beta",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 31,
+    "fields": {
+        "type": "fixed_thermal_losses_relative",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 32,
+    "fields": {
+        "type": "fixed_thermal_losses_absolute",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 33,
+    "fields": {
+        "type": "energy_price_asset",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 34,
+    "fields": {
+        "type": "feedin_tariff_asset",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 35,
+    "fields": {
+        "type": "peak_demand_pricing_asset",
+        "unit": "currency/kW"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 36,
+    "fields": {
+        "type": "renewable_share_asset",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 37,
+    "fields": {
+        "type": "fixed_thermal_losses_relativeA",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 38,
+    "fields": {
+        "type": "fixed_thermal_losses_absoluteA",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 39,
+    "fields": {
+        "type": "crate_asset",
+        "unit": "factor of total capacity (kWh)"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 40,
+    "fields": {
+        "type": "thermal_loss_rate_asset",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 41,
+    "fields": {
+        "type": "soc_max_asset",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 42,
+    "fields": {
+        "type": "soc_min_asset",
+        "unit": "factor"
+    }
+}
+]

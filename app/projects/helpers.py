@@ -5,6 +5,7 @@ import logging
 
 from dashboard.helpers import KPIFinder
 from django import forms
+from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.utils.html import html_safe
 from django.utils.translation import gettext_lazy as _
@@ -349,18 +350,18 @@ class TimeseriesInputWidget(forms.MultiWidget):
             }
         )
         widgets = {
-            "scalar": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
-                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
-                }
-            ),
             "select": select_widget,
             "file": forms.FileInput(
                 attrs={
                     "class": "form-control",
                     "onchange": f"changeTimeseriesUploadValue(obj=this.files, param_name='{self.param_name}')",
+                }
+            ),
+            "scalar": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "onchange": f"initTimeseriesManualValue(param_name='{self.param_name}')",
+                    "oninput": f"updateTimeseriesManualValue(this.value, param_name='{self.param_name}')",
                 }
             ),
         }
@@ -376,33 +377,44 @@ class TimeseriesInputWidget(forms.MultiWidget):
         thus only the index of the timeseries is to decompress"""
 
         answer = [value, None, None]
+
+        if value is not None:
+            value = int(value)
+
         if not isinstance(value, int):
             logging.error("The value of timeseries index is not an integer")
         ts_qs = Timeseries.objects.filter(id=value)
         if ts_qs.exists():
             ts = ts_qs.get()
-            scalar_value = ts.values[0] if ts.ts_type == "scalar" else None
-            answer = [scalar_value, value, ""]
+            if ts.ts_type == "scalar":
+                answer = [None, None, ts.values[0]]
+            else:
+                answer = [ts.id, None, None]
+
         return answer
 
     def get_context(self, name, value, attrs):
         # Let MultiWidget do the normal setup
         ctx = super().get_context(name, value, attrs)
 
-        # Decompressed value = [scalar, select_id, file]
-        vals = value if isinstance(value, (list, tuple)) else self.decompress(value)
-        if vals and vals[0] not in (None, "", 0):
-            active = "manual"
-        elif vals and vals[1] not in (None, ""):
+        subwidgets = ctx["widget"]["subwidgets"]
+
+        vals = [widget.get("value") for widget in subwidgets]
+
+        # Decompressed value = [select_id, file, scalar]
+        if vals and vals[0] not in (None, "", 0, [""]):
             active = "select"
-        elif vals and vals[2]:
+        elif vals and vals[1] not in (None, ""):
             active = "upload"
+        elif vals and vals[2]:
+            active = "manual"
         else:
             active = "select"  # default
 
         ctx["active_tab"] = active
         ctx["asset_type"] = self.asset_type
         ctx["custom_form_assets"] = self.custom_form_assets
+
         return ctx
 
 
@@ -417,21 +429,23 @@ class TimeseriesField(forms.MultiValueField):
         custom_form_assets=None,
         **kwargs,
     ):
+        if qs_ts is None:
+            qs_ts = Timeseries.objects.none()
         fields = (
-            forms.DecimalField(required=False),
-            forms.CharField(required=False),
             forms.ModelChoiceField(
                 queryset=qs_ts,
                 required=False,
                 empty_label=_("Select a timeseries below"),
             ),
+            forms.CharField(required=False),
+            forms.DecimalField(required=False),
         )
         kwargs.pop("max_length", None)
         self.param_name = param_name
         self.asset_type = asset_type
         self.min = kwargs.pop("min", None)
         self.max = kwargs.pop("max", None)
-        select_widget = fields[2].widget
+        select_widget = fields[0].widget
         kwargs["widget"] = TimeseriesInputWidget(
             default=default,
             param_name=param_name,
@@ -440,11 +454,12 @@ class TimeseriesField(forms.MultiValueField):
             custom_form_assets=custom_form_assets,
         )
         super().__init__(fields=fields, require_all_fields=False, **kwargs)
+        self.widget.widgets[0] = self.fields[0].widget
         self.label = label
 
     def clean(self, values):
         """If a file is provided it will be considered over the other fields"""
-        scalar_value, timeseries_id, timeseries_file = values
+        timeseries_id, timeseries_file, scalar_value = values
 
         if scalar_value is None:
             scalar_value = ""
@@ -467,7 +482,7 @@ class TimeseriesField(forms.MultiValueField):
         elif timeseries_id != "":
             ts = Timeseries.objects.get(id=timeseries_id)
             answer = ts.get_values
-            input_dict = dict(type=TS_SELECT_TYPE, extra_info=timeseries_id)
+            input_dict = dict(type=TS_SELECT_TYPE, extra_info=ts.id)
 
         elif scalar_value != "":
             # check the input string is a number, a list, or a
@@ -491,14 +506,18 @@ class TimeseriesField(forms.MultiValueField):
                 type=TS_MANUAL_TYPE, generation_parameters=generation_parameters
             )
         elif scalar_value == "":
-            self.set_widget_error()
-            raise ValidationError(
-                _(
-                    "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
-                ),
-                code="required",
-                params={"boundaries": self.boundaries},
-            )
+            if self.required is True:
+                self.set_widget_error()
+                raise ValidationError(
+                    _(
+                        "Please provide either a number within %(boundaries) s, select a timeseries or upload a timeseries from a file"
+                    ),
+                    code="required",
+                    params={"boundaries": self.boundaries},
+                )
+            else:
+                answer = None
+                input_dict = {"type": "None"}
 
         self.check_boundaries(answer)
         return json.dumps(dict(values=answer, input_method=input_dict))
@@ -532,7 +551,8 @@ class TimeseriesField(forms.MultiValueField):
                         code="invalid",
                         params={"boundaries": boundaries},
                     )
-
+        elif value is None:
+            pass
         else:
             if self.min is not None:
                 if value < self.min:
@@ -561,6 +581,13 @@ class TimeseriesField(forms.MultiValueField):
                 css = []
             css.append("is-invalid")
             widget.attrs["class"] = " ".join(css)
+
+    def assign_queryset(self, asset_type, user):
+        self.fields[0].queryset = Timeseries.objects.filter(
+            ~Q(ts_type="scalar")
+            & (Q(asset_type=asset_type))
+            & (Q(open_source=True) | Q(user=user))
+        )
 
 
 def parse_csv_timeseries(file_str):
