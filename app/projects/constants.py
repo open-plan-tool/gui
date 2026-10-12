@@ -295,6 +295,10 @@ TIMESERIES_CATEGORIES = (
 TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
 TIMESERIES_ASSET_TYPES = (
     ("demand", _("demand")),
+    ("dso", _("dso")),
+    ("dso_heat", _("dso_heat")),
+    ("dso_h2", _("dso_h2")),
+    ("dso_gas", _("dso_gas")),
     ("gas_demand", _("gas_demand")),
     ("h2_demand", _("h2_demand")),
     ("heat_demand", _("heat_demand")),
