@@ -1,3 +1,15 @@
+from unittest.mock import patch
+from django.core.exceptions import ValidationError
+from django.forms import Select
+
+from projects.helpers import TimeseriesField, TimeseriesInputWidget
+from projects.helpers import (
+    TS_MANUAL_TYPE,
+    TS_SELECT_TYPE,
+    TS_UPLOAD_TYPE,
+)
+
+
 import datetime
 import json
 import tempfile
@@ -1268,3 +1280,338 @@ class CHPAssetTest(TestCase):
         # bus keys expected by the eesyplan ChpVariableRatio signature
         for bus_key in ("bus_in_fuel", "bus_out_electricity", "bus_out_heat"):
             self.assertIn(bus_key, dp)
+
+
+class TimeseriesFieldTest(TestCase):
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/assettypes.json",
+        "fixtures/test_user.json",
+    ]
+
+    def create_timeseries(
+        self,
+        *,
+        values,
+        ts_type="timeseries",
+        **kwargs,
+    ):
+        """
+        Adjust this helper to the required fields of your Timeseries model.
+        """
+        return Timeseries.objects.create(
+            values=values,
+            ts_type=ts_type,
+            **kwargs,
+        )
+
+    def create_widget(self):
+        return TimeseriesInputWidget(
+            select_widget=Select(),
+            param_name="fix",
+        )
+
+    # ------------------------------------------------------------------
+    # clean()
+    # ------------------------------------------------------------------
+
+    def test_clean_manual_scalar(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "5.5"]))
+
+        self.assertEqual(result["values"], [5.5])
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_MANUAL_TYPE,
+        )
+
+    def test_clean_manual_scalar_with_comma(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "5,5"]))
+
+        self.assertEqual(result["values"], [5.5])
+
+    def test_clean_manual_list(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "[1, 2, 3]"]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_MANUAL_TYPE,
+        )
+
+    def test_clean_empty_optional(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, None]))
+
+        self.assertIsNone(result["values"])
+        self.assertEqual(
+            result["input_method"],
+            {"type": "None"},
+        )
+
+    def test_clean_empty_required(self):
+        field = TimeseriesField(required=True)
+
+        with self.assertRaises(ValidationError):
+            field.clean([None, None, None])
+
+    def test_clean_selected_timeseries(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+        )
+
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([ts.pk, None, None]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_SELECT_TYPE,
+        )
+        self.assertEqual(
+            result["input_method"]["extra_info"],
+            ts.pk,
+        )
+
+    @patch("projects.helpers.parse_input_timeseries")
+    def test_clean_uploaded_timeseries(self, mock_parse):
+        mock_parse.return_value = [1, 2, 3]
+
+        upload = SimpleUploadedFile(
+            "test.csv",
+            b"1\n2\n3\n",
+        )
+
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, upload, None]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_UPLOAD_TYPE,
+        )
+        self.assertEqual(
+            result["input_method"]["extra_info"],
+            "test.csv",
+        )
+
+        mock_parse.assert_called_once_with(upload)
+
+    @patch("projects.helpers.parse_input_timeseries")
+    def test_invalid_upload_raises_validation_error(
+        self,
+        mock_parse,
+    ):
+        mock_parse.side_effect = ValueError("Invalid timeseries")
+
+        upload = SimpleUploadedFile(
+            "invalid.csv",
+            b"invalid",
+        )
+
+        field = TimeseriesField(required=False)
+
+        with self.assertRaises(ValidationError):
+            field.clean([None, upload, None])
+
+    # ------------------------------------------------------------------
+    # decompress()
+    # ------------------------------------------------------------------
+
+    def test_decompress_regular_timeseries(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        widget = self.create_widget()
+
+        result = widget.decompress(ts.pk)
+
+        self.assertEqual(
+            result,
+            [ts.pk, None, None],
+        )
+
+    def test_decompress_scalar_timeseries(self):
+        ts = self.create_timeseries(
+            values=[5],
+            ts_type="scalar",
+        )
+
+        widget = self.create_widget()
+
+        result = widget.decompress(ts.pk)
+
+        self.assertEqual(
+            result,
+            [None, None, 5],
+        )
+
+    def test_decompress_none(self):
+        widget = self.create_widget()
+
+        self.assertEqual(
+            widget.decompress(None),
+            [None, None, None],
+        )
+
+    # ------------------------------------------------------------------
+    # get_context()
+    # ------------------------------------------------------------------
+
+    def test_scalar_timeseries_opens_manual_tab(self):
+        ts = self.create_timeseries(
+            values=[5],
+            ts_type="scalar",
+        )
+
+        widget = self.create_widget()
+
+        context = widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        self.assertEqual(
+            context["active_tab"],
+            "manual",
+        )
+
+    def test_regular_timeseries_opens_select_tab(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        widget = self.create_widget()
+
+        context = widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        self.assertEqual(
+            context["active_tab"],
+            "select",
+        )
+
+    # ------------------------------------------------------------------
+    # assign_queryset()
+    # ------------------------------------------------------------------
+
+    # def test_assign_queryset(self):
+    #     user = self.user
+    #     other_user = self.other_user
+    #     asset_type = self.asset_type
+    #     other_asset_type = self.other_asset_type
+    #
+    #     public_ts = self.create_timeseries(
+    #         values=[1, 2, 3],
+    #         asset_type=asset_type,
+    #         open_source=True,
+    #         user=other_user,
+    #     )
+    #
+    #     own_ts = self.create_timeseries(
+    #         values=[4, 5, 6],
+    #         asset_type=asset_type,
+    #         open_source=False,
+    #         user=user,
+    #     )
+    #
+    #     wrong_asset_type = self.create_timeseries(
+    #         values=[7, 8, 9],
+    #         asset_type=other_asset_type,
+    #         open_source=True,
+    #         user=user,
+    #     )
+    #
+    #     private_other_user = self.create_timeseries(
+    #         values=[10, 11, 12],
+    #         asset_type=asset_type,
+    #         open_source=False,
+    #         user=other_user,
+    #     )
+    #
+    #     scalar = self.create_timeseries(
+    #         values=[5],
+    #         ts_type="scalar",
+    #         asset_type=asset_type,
+    #         open_source=True,
+    #         user=user,
+    #     )
+    #
+    #     field = TimeseriesField(
+    #         required=False,
+    #     )
+    #
+    #     field.assign_queryset(
+    #         asset_type,
+    #         user,
+    #     )
+    #
+    #     self.assertQuerySetEqual(
+    #         field.fields[0].queryset,
+    #         [public_ts, own_ts],
+    #         ordered=False,
+    #     )
+
+    def test_regular_timeseries_is_selected_in_widget(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        field = TimeseriesField(
+            required=False,
+            qs_ts=Timeseries.objects.all(),
+        )
+
+        context = field.widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        select_widget = context["widget"]["subwidgets"][0]
+
+        self.assertEqual(
+            select_widget["value"],
+            [str(ts.pk)],
+        )
+
+        selected_options = [
+            option
+            for _, options, _ in select_widget["optgroups"]
+            for option in options
+            if option["selected"]
+        ]
+
+        self.assertEqual(
+            len(selected_options),
+            1,
+        )
+        self.assertEqual(
+            str(selected_options[0]["value"]),
+            str(ts.pk),
+        )
