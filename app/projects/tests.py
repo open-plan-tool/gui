@@ -1128,19 +1128,18 @@ class CHPAssetTest(TestCase):
         "name": "chp-test",
         "age_installed": 0,
         "installed_capacity": 100,
-        "capex_fix": 0,
-        "capex_var": 1000,
-        "opex_var": 0,
-        "opex_fix": 10,
+        # "capex_fix": 0,
+        "capex_spec": 1000,
+        "variable_costs": 0,
+        "opex_spec": 10,
         "lifetime": 20,
-        "optimize_cap": True,
+        "optimize_cap": False,
         "maximum_capacity": 500,
         "efficiency": 0.35,
         "efficiency_multiple": 0.5,
-        "thermal_loss_rate": 0.4,
         "efficiency_electricity_chp": 0.35,
+        "efficiency_electricity_full_condensation": 0.4,
         "efficiency_heat_chp": 0.5,
-        "beta": 0.4,
     }
 
     @classmethod
@@ -1148,7 +1147,7 @@ class CHPAssetTest(TestCase):
         call_command("update_assettype")
 
     def setUp(self):
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
         self.scenario = self.project.scenario_set.first()
         self.asset_type = AssetType.objects.get(asset_type="chp")
 
@@ -1186,7 +1185,7 @@ class CHPAssetTest(TestCase):
         self.assertEqual(saved_asset.installed_capacity, 100)
 
     def test_chp_datapackage_loads_in_eesyplan(self):
-        from oemof.eesyplan.components.converters.ChpVariableRatio import (
+        from oemof.eesyplan.components.converters.chp_variable_ratio import (
             ChpVariableRatio,
         )
         from oemof.eesyplan.datapackage.energy_system import (
@@ -1252,7 +1251,7 @@ class CHPAssetTest(TestCase):
         self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
         self.assertEqual(chp_nodes[0].efficiency_electricity_chp, 0.35)
         self.assertEqual(chp_nodes[0].efficiency_heat_chp, 0.5)
-        self.assertEqual(chp_nodes[0].beta, 0.4)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_full_condensation, 0.4)
 
     def test_chp_to_datapackage_uses_eesyplan_parameters(self):
         asset = self.create_chp_via_form(name="chp-dp")
@@ -1261,7 +1260,7 @@ class CHPAssetTest(TestCase):
         self.assertEqual(dp["type"], "chp")
         self.assertEqual(dp["efficiency_electricity_chp"], 0.35)
         self.assertEqual(dp["efficiency_heat_chp"], 0.5)
-        self.assertEqual(dp["beta"], 0.4)
+        self.assertEqual(dp["efficiency_electricity_full_condensation"], 0.4)
         # MVS parameter names may not leak into the datapackage
         self.assertNotIn("efficiency", dp)
         self.assertNotIn("efficiency_multiple", dp)
