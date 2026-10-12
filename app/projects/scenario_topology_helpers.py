@@ -726,7 +726,7 @@ class NodeObject:
             bus_obj = get_object_or_404(asset_type, pk=self.db_obj_id)
             for asset_connection in self.outputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
-                    ConnectionLink.objects.create(
+                    connection, created = ConnectionLink.objects.get_or_create(
                         bus=bus_obj,
                         asset=get_object_or_404(
                             Asset, unique_id=asset_connection["to"]["id"]
@@ -738,7 +738,7 @@ class NodeObject:
                     )
             for asset_connection in self.inputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
-                    ConnectionLink.objects.create(
+                    connection, created = ConnectionLink.objects.get_or_create(
                         bus=bus_obj,
                         asset=get_object_or_404(
                             Asset, unique_id=asset_connection["to"]["id"]
