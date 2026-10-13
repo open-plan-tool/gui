@@ -980,23 +980,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                         self.add_error("efficiency_electricity_chp", msg)
                         self.add_error("efficiency_heat_chp", msg)
 
-            if "dso" in self.asset_type_name:
-                if (
-                    "feedin_tariff" not in self.errors
-                    and "energy_price" not in self.errors
-                ):
-                    feedin_tariff = np.array([cleaned_data["feedin_tariff"]])
-                    energy_price = np.array([cleaned_data["energy_price"]])
-                    diff = feedin_tariff - energy_price
-                    max_capacity = cleaned_data.get("max_capacity", 0)
-                    if (diff > 0).any() is True and max_capacity == 0:
-                        msg = _(
-                            "Feed-in tariff > energy price for some of simulation's timesteps. This would cause an unbound solution and terminate the optimization. Please reconsider your feed-in tariff and energy price."
-                        )
-                        self.add_error("feedin_tariff", msg)
-                    self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
-                    self.timeseries_same_as_timestamps(energy_price, "energy_price")
-
             for field in self.timeseries_fields:
                 if field in cleaned_data:
                     # TODO add either a checkbox or a user setting to save ts to model
@@ -1019,6 +1002,23 @@ def asset_form_factory(asset_type=None, **kwargs):
 
                     if input_method == "None":
                         cleaned_data[field] = None
+
+            if "dso" in self.asset_type_name:
+                if (
+                    "feedin_tariff" not in self.errors
+                    and "energy_price" not in self.errors
+                ):
+                    feedin_tariff = np.array(cleaned_data["feedin_tariff"].get_values)
+                    energy_price = np.array(cleaned_data["energy_price"].get_values)
+                    diff = feedin_tariff - energy_price
+                    max_capacity = cleaned_data.get("max_capacity", 0)
+                    if (diff > 0).any() and max_capacity == 0:
+                        msg = _(
+                            "Feed-in tariff > energy price for some of simulation's timesteps. This would cause an unbound solution and terminate the optimization. Please reconsider your feed-in tariff and energy price."
+                        )
+                        self.add_error("feedin_tariff", msg)
+                    self.timeseries_same_as_timestamps(feedin_tariff, "feedin_tariff")
+                    self.timeseries_same_as_timestamps(energy_price, "energy_price")
 
             return cleaned_data
 
