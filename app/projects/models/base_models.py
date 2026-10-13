@@ -972,8 +972,6 @@ class Asset(TopologyNode):
         if field_name in (
             "efficiency",
             "efficiency_multiple",
-            "energy_price",
-            "feedin_tariff",
             "input_timeseries_old",
         ):
             if answer:
