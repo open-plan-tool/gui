@@ -1260,7 +1260,12 @@ class CHPFixedRatio(Asset):
 
 class HeatPump(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    cop = models.TextField(null=True, blank=False)
+    cop = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+    )
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
@@ -1271,10 +1276,10 @@ class HeatPump(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "cop": DualNumberField(
+            "cop": TimeseriesField(
                 default=1,
                 min=1,
                 param_name="cop",
@@ -1366,7 +1371,7 @@ class DSO(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField, TimeseriesField
+        from projects.helpers import TimeseriesField
 
         return {
             "energy_price": TimeseriesField(
@@ -1587,9 +1592,21 @@ class ThermalStorage(Asset):
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
     # previously fixed_thermal_losses_relative
-    thermal_losses_fixed = models.TextField(null=True, blank=False)
+    thermal_losses_fixed = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="thermal_losses_fixed_set",
+    )
     # apparently always = 0, so not implemented
-    fixed_thermal_losses_absolute = models.TextField(null=True, blank=False)
+    fixed_thermal_losses_absolute = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="fixed_thermal_losses_absolute_set",
+    )
 
     initial_storage_level = models.FloatField(
         null=True,
@@ -1618,16 +1635,16 @@ class ThermalStorage(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "fixed_thermal_losses_relative": DualNumberField(
+            "fixed_thermal_losses_relative": TimeseriesField(
                 default=0.1,
                 min=0.0,
                 max=1.0,
                 param_name="fixed_thermal_losses_relative",
             ),
-            "fixed_thermal_losses_absolute": DualNumberField(
+            "fixed_thermal_losses_absolute": TimeseriesField(
                 default=0.1,
                 min=0.0,
                 param_name="fixed_thermal_losses_absolute",
@@ -1636,7 +1653,12 @@ class ThermalStorage(Asset):
 
 
 class HeatingNetwork(Bus):
-    absolute_losses = models.TextField(null=True, blank=False)
+    absolute_losses = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+    )
 
     unique_id = models.CharField(
         max_length=120, default=uuid.uuid4, unique=True, editable=False
@@ -1661,10 +1683,10 @@ class HeatingNetwork(Bus):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "absolute_losses": DualNumberField(
+            "absolute_losses": TimeseriesField(
                 default=0.0,
                 min=0.0,
                 param_name="absolute_losses",
@@ -1693,9 +1715,27 @@ class HeatingPipe(Asset):
 
 
 class Sink(Asset):
-    minimum = models.TextField(default=0, blank=False)
-    maximum = models.TextField(default=1, blank=False)
-    fix = models.TextField(null=True, blank=True)
+    minimum = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="minimum_set",
+    )
+    maximum = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="maximum_set",
+    )
+    fix = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="fix_set",
+    )
     positive_gradient_limit = models.FloatField(
         null=True,
         blank=True,
@@ -1721,22 +1761,22 @@ class Sink(Asset):
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import TimeseriesField, DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "minimum": DualNumberField(
+            "minimum": TimeseriesField(
                 default=0.0,
                 min=0.0,
                 max=1.0,
                 param_name="minimum",
             ),
-            "maximum": DualNumberField(
+            "maximum": TimeseriesField(
                 default=1.0,
                 min=0.0,
                 max=1.0,
                 param_name="maximum",
             ),
-            "fix": DualNumberField(
+            "fix": TimeseriesField(
                 default=1.0,
                 min=0.0,
                 max=1.0,
@@ -1747,24 +1787,42 @@ class Sink(Asset):
 
 
 class AuxiliaryHeat(Asset):
-    temp_in_heat = models.TextField(null=True, blank=False)
-    temp_out_heat = models.TextField(null=True, blank=False)
-    temp_low_source_component = models.TextField(null=True, blank=False)
+    temp_in_heat = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="temp_in_heat_set",
+    )
+    temp_out_heat = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="temp_out_heat_set",
+    )
+    temp_low_source_component = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="temp_low_source_component_set",
+    )
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import TimeseriesField, DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "temp_in_heat": DualNumberField(
+            "temp_in_heat": TimeseriesField(
                 param_name="temp_in_heat",
                 required=False,
             ),
-            "temp_out_heat": DualNumberField(
+            "temp_out_heat": TimeseriesField(
                 param_name="temp_out_heat",
                 required=False,
             ),
-            "temp_low_source_component": DualNumberField(
+            "temp_low_source_component": TimeseriesField(
                 param_name="temp_low_source_component",
                 required=False,
             ),
