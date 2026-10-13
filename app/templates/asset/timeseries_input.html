@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<ul class="nav nav-pills nav-justified" id="myTab" role="tablist">
+<ul class="nav nav-pills nav-justified " id="myTab-{{ widget.name }}" role="tablist">
 
 	<li class="nav-item" role="presentation" title="{% translate 'Select a timeseries amongst the one below' %}">
 		<button class="nav-link {% if active_tab == 'select' %}active{% endif %}" id="select-tab-{{ widget.name }}" data-bs-toggle="tab" data-bs-target="#select-{{ widget.name }}" type="button" role="tab" aria-controls="select" aria-selected="{% if active_tab == 'select' %}true{% else %}false{% endif %}">{% translate "Select" %}</button>
@@ -14,7 +14,7 @@
 
 
 </ul>
-<div class="tab-content" id="myTabContent">
+<div class="tab-content {% if has_error %}is-invalid{% endif %}" id="myTabContent-{{ widget.name }}">
 	{% spaceless %}{% for subwidget in widget.subwidgets %}
 	{% if 'scalar' in subwidget.name %}
 
