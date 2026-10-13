@@ -411,6 +411,12 @@ class TimeseriesInputWidget(forms.MultiWidget):
         else:
             active = "select"  # default
 
+        has_error = any(
+            subwidget["attrs"].get("aria-invalid") == "true"
+            for subwidget in ctx["widget"]["subwidgets"]
+        )
+
+        ctx["has_error"] = has_error
         ctx["active_tab"] = active
         ctx["asset_type"] = self.asset_type
         ctx["custom_form_assets"] = self.custom_form_assets
