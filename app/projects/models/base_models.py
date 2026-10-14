@@ -1204,16 +1204,14 @@ class CHP(Asset):
         # keeps working. Remove once chp drops MVS support for good.
         # TODO here one need to make some calculation as those parameters are not one to one mapped
         if self.efficiency_electricity_full_condensation is not None:
-            thermal_loss_rate = json.loads(
-                self.efficiency_electricity_full_condensation
-            )
+            thermal_loss_rate = self.efficiency_electricity_full_condensation
             if isinstance(thermal_loss_rate, list):
                 thermal_loss_rate = thermal_loss_rate[0]
         else:
             thermal_loss_rate = None
         self.efficiency = self.efficiency_electricity_chp
         self.efficiency_multiple = self.efficiency_heat_chp
-        self.thermal_loss_rate_asset = thermal_loss_rate
+        self.thermal_loss_rate_asset = float(thermal_loss_rate)
         super().save(*args, **kwargs)
 
     @staticmethod
