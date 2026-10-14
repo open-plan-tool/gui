@@ -599,7 +599,6 @@ def load_scenario_from_dict(model_data, user, project=None):
             "fixed_thermal_losses_absolute",
         ):
             ts_data = asset_data.get(timeseries_field, None)
-
             if ts_data is not None:
                 if isinstance(ts_data, int):
                     input_ts = Timeseries.objects.filter(id=ts_data)
@@ -618,6 +617,18 @@ def load_scenario_from_dict(model_data, user, project=None):
                                 ts_data[k], "%Y-%m-%d %H:%M:%S"
                             )
                     ts_data["scenario"] = scenario
+                    if len(ts_data["values"]) > 1:
+                        ts_type = "timeseries"
+                        if np.abs(np.diff(np.array(ts_data["values"]))).sum() == 0:
+                            ts_data["values"] = [ts_data["values"][0]]
+                            ts_type = "scalar"
+                    else:
+                        ts_type = "scalar"
+
+                    if ts_data["category"] is None:
+                        ts_data["category"] = ts_data["ts_type"]
+                        ts_data["ts_type"] = ts_type
+
                     input_ts, created = Timeseries.objects.get_or_create(
                         user=user, **ts_data
                     )
@@ -626,16 +637,19 @@ def load_scenario_from_dict(model_data, user, project=None):
                 elif isinstance(ts_data, str):
                     try:
                         values = json.loads(ts_data)
-                        print(timeseries_field, values)
                         if isinstance(values, list):
-                            pass
+                            ts_type = "timeseries"
                         else:
                             values = [values]
+                            ts_type = "scalar"
+
                         input_ts, created = Timeseries.objects.get_or_create(
                             values=values,
                             user=user,
                             scenario=scenario,
-                            ts_type=asset_info["mvs_type"],
+                            ts_type=ts_type,
+                            category=asset_info["mvs_type"],
+                            asset_type=asset_data["asset_type"].asset_type,
                             name=f"{asset_data['name']}_ts",
                         )
                         asset_data[timeseries_field] = input_ts
