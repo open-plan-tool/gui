@@ -1195,11 +1195,7 @@ class Commodity(Asset):
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
     efficiency_electricity_chp = models.TextField(null=True, blank=False)
-    efficiency_electricity_full_condensation = models.FloatField(
-        null=True,
-        blank=False,
-        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
-    )
+    efficiency_electricity_full_condensation = models.TextField(null=True, blank=False)
     efficiency_heat_chp = models.TextField(null=True, blank=False)
 
     def save(self, *args, **kwargs):
@@ -1207,9 +1203,17 @@ class CHP(Asset):
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
         # TODO here one need to make some calculation as those parameters are not one to one mapped
+        if self.efficiency_electricity_full_condensation is not None:
+            thermal_loss_rate = json.loads(
+                self.efficiency_electricity_full_condensation
+            )
+            if isinstance(thermal_loss_rate, list):
+                thermal_loss_rate = thermal_loss_rate[0]
+        else:
+            thermal_loss_rate = None
         self.efficiency = self.efficiency_electricity_chp
         self.efficiency_multiple = self.efficiency_heat_chp
-        self.thermal_loss_rate_asset = self.efficiency_electricity_full_condensation
+        self.thermal_loss_rate_asset = thermal_loss_rate
         super().save(*args, **kwargs)
 
     @staticmethod
