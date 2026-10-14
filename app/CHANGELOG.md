@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.2.1] – 2026-10-14
 ### Added
 - Allow user to get information about usecases's scenarios via endpoint [[#524](https://github.com/open-plan-tool/gui/pull/524)]
 ### Fixed
