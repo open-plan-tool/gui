@@ -655,7 +655,7 @@ class Timeseries(models.Model):
         max_length=50, choices=TIMESERIES_UNITS, blank=True, null=True
     )
     category = models.CharField(
-        max_length=6, choices=TIMESERIES_CATEGORIES, blank=True, null=True
+        max_length=50, choices=TIMESERIES_CATEGORIES, blank=True, null=True
     )
     asset_type = models.CharField(
         max_length=50,
