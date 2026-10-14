@@ -561,57 +561,6 @@ def load_scenario_from_dict(model_data, user, project=None):
 
         COP_parameters = asset_data.pop("COP_parameters", None)
 
-        # TODO, find a better criteria than an explicit list, or generate the list automatically
-        for timeseries_field in (
-            "input_timeseries",
-            "energy_price",
-            "feedin_tariff",
-            "cop",
-            "thermal_losses_fixed",
-        ):
-            ts_data = asset_data.get(timeseries_field, None)
-
-            if ts_data is not None:
-                if isinstance(ts_data, int):
-                    input_ts = Timeseries.objects.filter(id=ts_data)
-                    if input_ts.exists():
-                        asset_data[timeseries_field] = input_ts.get()
-                    else:
-                        logger.error(
-                            f"No timeseries with id {ts_data} has been found for asset {asset_data['name']}, skipping it"
-                        )
-                        asset_data.pop(timeseries_field)
-                elif isinstance(ts_data, dict):
-                    # format the date timestamps as datetime objects
-                    for k in ("start_date", "end_date"):
-                        if k in ts_data and ts_data[k] is not None:
-                            ts_data[k] = datetime.datetime.strptime(
-                                ts_data[k], "%Y-%m-%d %H:%M:%S"
-                            )
-                    ts_data["scenario"] = scenario
-                    input_ts, created = Timeseries.objects.get_or_create(
-                        user=user, **ts_data
-                    )
-                    input_ts.save()
-                    asset_data[timeseries_field] = input_ts
-                elif isinstance(ts_data, str):
-                    try:
-                        input_ts, created = Timeseries.objects.get_or_create(
-                            values=json.loads(ts_data),
-                            user=user,
-                            scenario=scenario,
-                            ts_type=asset_info["mvs_type"],
-                            name=f"{asset_data['name']}_ts",
-                        )
-                        asset_data[timeseries_field] = input_ts
-                    except json.decoder.JSONDecodeError:
-                        pass
-                else:
-                    logger.error(
-                        f"The timeseries for asset {asset_data['name']} is neither an existing Timeseries instance's id nor a dict with Timeserie's attributes"
-                    )
-                    asset_data.pop(timeseries_field)
-
         AssetModel = ASSET_MAPPING.get(asset_type, Asset)
 
         # Allow exported files before the breaking changes to be reimported
@@ -640,9 +589,64 @@ def load_scenario_from_dict(model_data, user, project=None):
                 if hess_param in asset_data:
                     asset_data.pop(hess_param)
 
-        # if asset_type == "gas_dso":
-        #     import pdb;pdb.set_trace()
-        print(asset_data)
+        # TODO, find a better criteria than an explicit list, or generate the list automatically
+        for timeseries_field in (
+            "input_timeseries",
+            "energy_price",
+            "feedin_tariff",
+            "cop",
+            "thermal_losses_fixed",
+            "fixed_thermal_losses_absolute",
+        ):
+            ts_data = asset_data.get(timeseries_field, None)
+
+            if ts_data is not None:
+                if isinstance(ts_data, int):
+                    input_ts = Timeseries.objects.filter(id=ts_data)
+                    if input_ts.exists():
+                        asset_data[timeseries_field] = input_ts.get()
+                    else:
+                        logger.error(
+                            f"No timeseries with id {ts_data} has been found for asset {asset_data['name']}, skipping it"
+                        )
+                        asset_data.pop(timeseries_field)
+                elif isinstance(ts_data, dict):
+                    # format the date timestamps as datetime objects
+                    for k in ("start_date", "end_date"):
+                        if k in ts_data and ts_data[k] is not None:
+                            ts_data[k] = datetime.datetime.strptime(
+                                ts_data[k], "%Y-%m-%d %H:%M:%S"
+                            )
+                    ts_data["scenario"] = scenario
+                    input_ts, created = Timeseries.objects.get_or_create(
+                        user=user, **ts_data
+                    )
+                    input_ts.save()
+                    asset_data[timeseries_field] = input_ts
+                elif isinstance(ts_data, str):
+                    try:
+                        values = json.loads(ts_data)
+                        print(timeseries_field, values)
+                        if isinstance(values, list):
+                            pass
+                        else:
+                            values = [values]
+                        input_ts, created = Timeseries.objects.get_or_create(
+                            values=values,
+                            user=user,
+                            scenario=scenario,
+                            ts_type=asset_info["mvs_type"],
+                            name=f"{asset_data['name']}_ts",
+                        )
+                        asset_data[timeseries_field] = input_ts
+                    except json.decoder.JSONDecodeError:
+                        pass
+                else:
+                    logger.error(
+                        f"The timeseries for asset {asset_data['name']} is neither an existing Timeseries instance's id nor a dict with Timeserie's attributes"
+                    )
+                    asset_data.pop(timeseries_field)
+
         asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
