@@ -307,6 +307,7 @@ TIMESERIES_ASSET_TYPES = (
     ("biogas_plant", _("biogas_plant")),
     ("geothermal_conversion", _("geothermal_conversion")),
     ("solar_thermal_plant", _("solar_thermal_plant")),
+    ("chp", _("chp")),
 )
 
 ENERGY_VECTOR = (
