@@ -1194,44 +1194,71 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    efficiency_electricity_chp = models.TextField(null=True, blank=False)
-    efficiency_electricity_full_condensation = models.TextField(null=True, blank=False)
-    efficiency_heat_chp = models.TextField(null=True, blank=False)
+    efficiency_electricity_chp = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="efficiency_electricity_chp_set",
+    )
+    efficiency_electricity_full_condensation = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="efficiency_electricity_full_condensation_set",
+    )
+    efficiency_heat_chp = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="efficiency_heat_chp_set",
+    )
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        # TODO here one need to make some calculation as those parameters are not one to one mapped
-        if self.efficiency_electricity_full_condensation is not None:
-            thermal_loss_rate = self.efficiency_electricity_full_condensation
-            if isinstance(thermal_loss_rate, list):
-                thermal_loss_rate = thermal_loss_rate[0]
-        else:
-            thermal_loss_rate = None
-        self.efficiency = self.efficiency_electricity_chp
-        self.efficiency_multiple = self.efficiency_heat_chp
-        self.thermal_loss_rate_asset = float(thermal_loss_rate)
+
+        el_efficiency_no_heat = np.array(
+            self.efficiency_electricity_full_condensation.get_values
+        )
+        th_efficiency_max_heat = np.array(self.efficiency_heat_chp.get_values)
+        beta = (
+            el_efficiency_no_heat - np.array(self.efficiency_electricity_chp.get_values)
+        ) / th_efficiency_max_heat
+
+        self.efficiency = self.efficiency_electricity_full_condensation.get_values
+        self.efficiency_multiple = self.efficiency_heat_chp.get_values
+        self.thermal_loss_rate_asset = float(beta[0])
         super().save(*args, **kwargs)
 
     @staticmethod
     def get_custom_form_fields():
-        from projects.helpers import DualNumberField
+        from projects.helpers import TimeseriesField
 
         return {
-            "efficiency_heat_chp": DualNumberField(
+            "efficiency_heat_chp": TimeseriesField(
                 default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_heat_chp",
                 label=_("Thermal efficiency with maximal heat extraction"),
             ),
-            "efficiency_electricity_chp": DualNumberField(
+            "efficiency_electricity_chp": TimeseriesField(
                 default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_electricity_chp",
                 label=_("Electrical efficiency with no heat extraction"),
+            ),
+            "efficiency_electricity_full_condensation": TimeseriesField(
+                default=1,
+                min=0,
+                max=1,
+                param_name="efficiency_electricity_full_condensation",
+                label=_("Efficiency electricity full condensation"),
             ),
         }
 
