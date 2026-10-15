@@ -597,6 +597,9 @@ def load_scenario_from_dict(model_data, user, project=None):
             "cop",
             "thermal_losses_fixed",
             "fixed_thermal_losses_absolute",
+            "efficiency_electricity_chp",
+            "efficiency_heat_chp",
+            "efficiency_electricity_full_condensation",
         ):
             ts_data = asset_data.get(timeseries_field, None)
             if ts_data is not None:
