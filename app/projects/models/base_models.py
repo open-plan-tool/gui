@@ -1725,8 +1725,10 @@ class ThermalStorage(Asset):
         self.soc_max_asset = self.soc_max
         self.crate_asset = self.c_rate_charge
         self.thermal_loss_rate_asset = self.thermal_losses_variable
-        self.fixed_thermal_losses_relativeA = self.thermal_losses_fixed
-        self.fixed_thermal_losses_absoluteA = self.fixed_thermal_losses_absolute
+        self.fixed_thermal_losses_relativeA = self.thermal_losses_fixed.get_values
+        self.fixed_thermal_losses_absoluteA = (
+            self.fixed_thermal_losses_absolute.get_values
+        )
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -1734,11 +1736,11 @@ class ThermalStorage(Asset):
         from projects.helpers import TimeseriesField
 
         return {
-            "fixed_thermal_losses_relative": TimeseriesField(
+            "thermal_losses_fixed": TimeseriesField(
                 default=0.1,
                 min=0.0,
                 max=1.0,
-                param_name="fixed_thermal_losses_relative",
+                param_name="thermal_losses_fixed",
             ),
             "fixed_thermal_losses_absolute": TimeseriesField(
                 default=0.1,
