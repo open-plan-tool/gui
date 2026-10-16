@@ -982,6 +982,7 @@ def graph_capacities(simulations, y_variables):
         multi_scenario = True
 
     if y_variables is None:
+        # TODO might not work if using components inheriting from Asset
         y_variables = (
             Asset.objects.filter(scenario__simulation__in=simulations)
             .exclude(
@@ -1026,6 +1027,7 @@ def graph_capacities(simulations, y_variables):
 
         # read information about the installed capacity
         qs1 = (
+            # TODO might not work if using components inheriting from Asset
             Asset.objects.filter(scenario__simulation=simulation)
             .exclude(
                 Q(asset_type__asset_type__contains="dso")
@@ -1106,6 +1108,7 @@ def get_costs(simulation, y_variables=None):
     simulations_results = []
     if y_variables is None:
         y_variables = (
+            # TODO might not work if using components inheriting from Asset
             Asset.objects.filter(scenario__simulation=simulation)
             .filter(installed_capacity__isnull=False)
             .annotate(label=Case(default="name"))
@@ -1116,6 +1119,7 @@ def get_costs(simulation, y_variables=None):
 
     # read information about the installed capacity
     qs1 = (
+        # TODO might not work if using components inheriting from Asset
         Asset.objects.filter(scenario__simulation=simulation)
         .annotate(label=Case(default="name"))
         .order_by("label")
@@ -1147,12 +1151,11 @@ def get_costs(simulation, y_variables=None):
     qs1 = qs1.filter(label__in=y_variables).values(
         "label",
         "installed_capacity",
-        "capex_fix",
-        "capex_var",
-        "opex_fix",
-        "opex_var",
+        "capex_spec",
+        "opex_spec",
+        "variable_costs",
         "lifetime",
-        "energy_price",
+        "energy_price_asset",
         "parent_asset__name",
     )
 
@@ -1210,7 +1213,7 @@ def get_costs(simulation, y_variables=None):
     # TODO costs for dso not implemented yet
     df["capex_total"] = df.apply(
         lambda x: annualize_capex(
-            ((x.installed_capacity + x.optimized_capacity) * x.capex_var),
+            ((x.installed_capacity + x.optimized_capacity) * x.capex_spec),
             wacc,
             x.lifetime,
         ),
@@ -1218,12 +1221,14 @@ def get_costs(simulation, y_variables=None):
     )
 
     df["opex_fix_total"] = df.apply(
-        lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_fix, axis=1
+        lambda x: (x.installed_capacity + x.optimized_capacity) * x.opex_spec, axis=1
     )
-    df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.opex_var, axis=1)
+    df["opex_var_total"] = df.apply(lambda x: x.total_flow * x.variable_costs, axis=1)
 
     # nur für dso ...
-    df["fuel_costs_total"] = df.apply(lambda x: x.total_flow * x.energy_price, axis=1)
+    df["fuel_costs_total"] = df.apply(
+        lambda x: x.total_flow * x.energy_price_asset, axis=1
+    )
 
     # TODO fuel costs
 

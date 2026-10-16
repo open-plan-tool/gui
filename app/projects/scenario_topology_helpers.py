@@ -10,6 +10,8 @@ from projects.models import (
     Scenario,
     ConnectionLink,
     Asset,
+    HeatingNetwork,
+    ASSET_MAPPING,
     Project,
     EconomicData,
     COPCalculator,
@@ -20,7 +22,7 @@ from projects.models import (
 )
 import json
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from projects.forms import AssetCreateForm, BusForm, StorageForm
+from projects.forms import asset_form_factory, BusForm, get_asset_or_404
 from django.template.loader import get_template
 from django.utils.translation import gettext_lazy as _
 
@@ -29,6 +31,52 @@ from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
+
+COMPATIBILITY_PARAMETER_NAME_MAPPING = {
+    "chp": {
+        "efficiency_electricity_chp": "efficiency",
+        "efficiency_heat_chp": "efficiency_multiple",
+        "efficiency_electricity_full_condensation": "thermal_loss_rate",
+    },
+    "chp_fixed_ratio": {
+        "efficiency_electricity_chp": "efficiency",
+        "efficiency_heat_chp": "efficiency_multiple",
+    },
+    "heat_pump": {
+        "cop": "efficiency",
+    },
+    "electrolyzer": {
+        "efficiency_heat": "efficiency_multiple",
+    },
+    "bess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "hess": {
+        "thermal_losses_variable": "thermal_loss_rate",
+        "thermal_losses_fixed": "fixed_thermal_losses_relative",
+        "efficiency_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "gess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+    "h2ess": {
+        "c_rate_charge": "crate",
+        "c_rate_discharge": "crate",
+        "efficiency_charge": "efficiency",
+    },
+}
+
+ASSET_PARAMETERS_RENAMED = {
+    "capex_spec": "capex_var",
+    "opex_spec": "opex_fix",
+    "variable_costs": "opex_var",
+}
+ASSET_PARAMETERS_DISCONTINUED = ["capex_fix"]
 
 
 def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
@@ -40,6 +88,7 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
 
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
+    # TODO if it stays by busses, then this have to be changed
     # make sure the name is not already used by another bus
     form.full_clean()
     qs = Bus.objects.filter(scenario=scenario, name=form.cleaned_data["name"]).exclude(
@@ -133,173 +182,6 @@ def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
                 )
 
 
-def handle_storage_unit_form_post(
-    request, scen_id=0, asset_type_name="", asset_uuid=None
-):
-    input_output_mapping = {
-        "inputs": request.POST.get("inputs", "").split(","),
-        "outputs": request.POST.get("outputs", "").split(","),
-    }
-
-    form = StorageForm(
-        request.POST,
-        request.FILES,
-        asset_type=asset_type_name,
-        input_output_mapping=input_output_mapping,
-    )
-    scenario = get_object_or_404(Scenario, id=scen_id)
-
-    # make sure the name is not already used by another asset
-    form.full_clean()
-    qs = Asset.objects.filter(
-        scenario=scenario, name=form.cleaned_data["name"]
-    ).exclude(unique_id=asset_uuid)
-    if qs.exists():
-        form.add_error(
-            "name", _("There is already a storage with this name in the scenario")
-        )
-
-    if form.is_valid():
-        try:
-            # First delete all existing associated storage assets from the db
-            if asset_uuid:
-                existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-                # existing_asset.delete()  # deletes also automatically all children using models.CASCADE
-                ess_asset = existing_asset
-                ess_capacity_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="capacity"
-                )
-                ess_charging_power_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="charging_power"
-                )
-                ess_discharging_power_asset = Asset.objects.get(
-                    parent_asset=ess_asset, asset_type__asset_type="discharging_power"
-                )
-                new_name = form.cleaned_data.pop("name", None)
-                if new_name is not None:
-                    ess_asset.name = new_name
-                    ess_capacity_asset.name = f"{ess_asset.name} capacity"
-                    ess_charging_power_asset.name = f"{ess_asset.name} input power"
-                    ess_discharging_power_asset.name = f"{ess_asset.name} output power"
-                    ess_asset.save()
-            else:
-                # Create the ESS Parent Asset
-
-                ess_asset = Asset.objects.create(
-                    name=form.cleaned_data.pop("name"),
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type=f"{asset_type_name}"
-                    ),
-                    pos_x=float(form.data["pos_x"]),
-                    pos_y=float(form.data["pos_y"]),
-                    unique_id=asset_uuid
-                    or str(
-                        uuid.uuid4()
-                    ),  # if exising asset create an asset with the exact same unique_id else generate a new one
-                    scenario=scenario,
-                )
-
-                # Create the ess charging power
-                ess_charging_power_asset = Asset(
-                    name=f"{ess_asset.name} input power",
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type="charging_power"
-                    ),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-                # Create the ess discharging power
-                ess_discharging_power_asset = Asset(
-                    name=f"{ess_asset.name} output power",
-                    asset_type=get_object_or_404(
-                        AssetType, asset_type="discharging_power"
-                    ),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-                # Create the ess capacity
-                ess_capacity_asset = Asset(
-                    name=f"{ess_asset.name} capacity",
-                    asset_type=get_object_or_404(AssetType, asset_type="capacity"),
-                    scenario=scenario,
-                    parent_asset=ess_asset,
-                )
-
-            qs_sim = Simulation.objects.filter(scenario=scenario)
-            # Populate all subassets
-            for param, value in form.cleaned_data.items():
-                if asset_uuid and qs_sim.exists():
-                    track_asset_changes(
-                        scenario, param, form, existing_asset=ess_capacity_asset
-                    )
-                setattr(ess_capacity_asset, param, value)
-
-                # split efficiency between charge and discharge
-                if param == "efficiency":
-                    value = np.sqrt(float(value))
-                # for the charge and discharge set all costs to 0
-                if param in ["capex_fix", "capex_var", "opex_fix"]:
-                    value = 0
-
-                # set dispatch price to 0 only for charging power
-                if param == "opex_var":
-                    if ess_charging_power_asset.has_parameter(param):
-                        setattr(ess_charging_power_asset, param, 0)
-                elif ess_charging_power_asset.has_parameter(param):
-                    if asset_uuid and qs_sim.exists():
-                        track_asset_changes(
-                            scenario,
-                            param,
-                            form,
-                            existing_asset=ess_charging_power_asset,
-                            new_value=value,
-                        )
-                    setattr(ess_charging_power_asset, param, value)
-
-                if ess_discharging_power_asset.has_parameter(param):
-                    if asset_uuid and qs_sim.exists():
-                        track_asset_changes(
-                            scenario,
-                            param,
-                            form,
-                            existing_asset=ess_discharging_power_asset,
-                            new_value=value,
-                        )
-                    setattr(ess_discharging_power_asset, param, value)
-
-            ess_capacity_asset.save()
-            ess_charging_power_asset.save()
-            ess_discharging_power_asset.save()
-            if not asset_uuid and qs_sim.exists():
-                AssetChangeTracker.objects.create(
-                    simulation=scenario.simulation, name=ess_asset.name, action=1
-                )
-            return JsonResponse(
-                {"success": True, "asset_id": ess_asset.unique_id}, status=200
-            )
-        except Exception as ex:
-            logger.warning(
-                f"Failed to create storage asset {ess_asset.name} in scenario: {scen_id}."
-            )
-            return JsonResponse({"success": False, "exception": ex}, status=422)
-
-    logger.warning("The submitted asset has erroneous field values.")
-    form_html = get_template("asset/asset_create_form.html")
-    return JsonResponse(
-        {
-            "success": False,
-            "form_html": form_html.render(
-                {
-                    "form": form,
-                    "show_input_timeseries": False,
-                    "show_cop_calculator": False,
-                }
-            ),
-        },
-        status=422,
-    )
-
-
 def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
@@ -308,19 +190,19 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     }
 
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             instance=existing_asset,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
         )
     else:
-        form = AssetCreateForm(
-            request.POST,
-            request.FILES,
+        form = asset_form_factory(
+            data=request.POST,
+            files=request.FILES,
             asset_type=asset_type_name,
             scenario_id=scen_id,
             input_output_mapping=input_output_mapping,
@@ -331,7 +213,8 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
 
     # make sure the name is not already used by another asset
     form.full_clean()
-    qs = Asset.objects.filter(
+    AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+    qs = AssetModel.objects.filter(
         scenario=scenario, name=form.cleaned_data["name"]
     ).exclude(unique_id=asset_uuid)
     if qs.exists():
@@ -342,7 +225,7 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
     if form.is_valid():
         qs_sim = Simulation.objects.filter(scenario=scenario)
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
 
             if qs_sim.exists():
                 for param in form.cleaned_data:
@@ -369,7 +252,6 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
             existing_cop = get_object_or_404(COPCalculator, id=cop_calculator_id)
             existing_cop.asset = asset
             existing_cop.save()
-
         return JsonResponse({"success": True, "asset_id": asset.unique_id}, status=200)
     logger.warning("The submitted asset has erroneous field values.")
 
@@ -390,19 +272,31 @@ def handle_asset_form_post(request, scen_id=0, asset_type_name="", asset_uuid=No
 
 
 def load_scenario_topology_from_db(scen_id):
-    bus_nodes_list = db_bus_nodes_to_list(scen_id)
+    bus_nodes_list, heating_network_list = db_bus_nodes_to_list(scen_id)
     asset_nodes_list = db_asset_nodes_to_list(scen_id)
     connection_links_list = db_connection_links_to_list(scen_id)
+
+    # replace the bus id by the heating_network unique_id
+    for hn in heating_network_list:
+        for i, connection in enumerate(connection_links_list):
+            if connection["bus_id"] == hn["data"]["databaseId"]:
+                connection_links_list[i]["bus_id"] = hn["data"]["unique_id"]
+
     return {
         "busses": bus_nodes_list,
-        "assets": asset_nodes_list,
+        "assets": asset_nodes_list + heating_network_list,
         "links": connection_links_list,
     }
 
 
 def db_bus_nodes_to_list(scen_id):
-    all_db_busses = Bus.objects.filter(scenario_id=scen_id)
+    all_db_heating_networks = HeatingNetwork.objects.filter(scenario_id=scen_id)
+    heating_networks_ids = all_db_heating_networks.values_list("id", flat=True)
+    all_db_busses = Bus.objects.filter(scenario_id=scen_id).exclude(
+        id__in=heating_networks_ids
+    )
     bus_nodes_list = list()
+    heating_network_list = list()
     for db_bus in all_db_busses:
         db_bus_dict = {
             "name": "bus",
@@ -422,10 +316,28 @@ def db_bus_nodes_to_list(scen_id):
             },
         }
         bus_nodes_list.append(db_bus_dict)
-    return bus_nodes_list
+    for db_asset in all_db_heating_networks:
+        asset_type_obj = get_object_or_404(AssetType, pk=db_asset.asset_type_id)
+        db_asset_dict = {
+            "name": asset_type_obj.asset_type,
+            "pos_x": db_asset.pos_x,
+            "pos_y": db_asset.pos_y,
+            "input_ports": asset_type_obj.n_inputs,
+            "output_ports": asset_type_obj.n_outputs,
+            "data": {
+                "name": db_asset.name,
+                "databaseId": db_asset.bus_ptr_id,
+                "unique_id": db_asset.unique_id,
+                "parent_asset_id": (db_asset.parent_asset_id or ""),
+                "portMapping": asset_type_obj.connection_ports,
+            },
+        }
+        heating_network_list.append(db_asset_dict)
+    return bus_nodes_list, heating_network_list
 
 
 def db_asset_nodes_to_list(scen_id):
+    # TODO change this to get the Children Assets
     all_db_assets = Asset.objects.filter(scenario_id=scen_id)
     # dont return children assets (i.e. for storage assets)
     no_storage_children_assets = all_db_assets.filter(parent_asset_id=None)
@@ -470,57 +382,6 @@ def db_connection_links_to_list(scen_id):
 # endregion db_nodes_to_js
 
 
-# region Scenario Duplicate
-def duplicate_scenario_objects(obj_list, scenario, asset_mapping_dict=None):
-    """
-    Implement the Node Level (Assets and Busses) duplication of the scenario.
-    The functionality is utilized in the scenario search page for each project in the UI of EPA.
-    :param obj_list: list of objects to duplicate, can be either bus objects list of assets list
-    :param scenario: the scenario under which the assets will be created
-    :param asset_mapping_dict: specifically for the case of busses which are part of a storage asset,
-    the parent ESS asset id is required. This value is passed with a mapping dict.
-    :return: a map dictionary between old and new nodes (assets or busses) ids.
-    """
-
-    storage_subasset_list = list()
-    mapping_dict = dict()
-
-    for obj in obj_list:
-        old_id = obj.id
-
-        if hasattr(obj, "unique_id"):  # i.e. it's an asset
-            obj.unique_id = str(uuid.uuid4())
-        obj.id = None
-        obj.scenario = scenario
-        obj.save()
-        mapping_dict[old_id] = obj.id
-        if obj.parent_asset:
-            storage_subasset_list.append(obj)
-
-    # now properly update the parent id of all new storage assets
-    for obj in storage_subasset_list:
-        obj.parent_asset_id = (
-            asset_mapping_dict[obj.parent_asset_id]
-            if type(obj) == Bus
-            else mapping_dict[obj.parent_asset_id]
-        )
-        obj.save()
-
-    return mapping_dict
-
-
-def duplicate_scenario_connections(connections_list, scenario, asset_map, bus_map):
-    for connection in connections_list:
-        old_asset_id = connection.asset_id
-        old_bus_id = connection.bus_id
-        connection.id = None
-        connection.asset_id = asset_map[old_asset_id]
-        connection.bus_id = bus_map[old_bus_id]
-        connection.scenario = scenario
-        connection.save()
-
-
-# endregion
 def load_project_from_dict(model_data, user=None):
     """Create a new project for a user
 
@@ -545,6 +406,116 @@ def load_project_from_dict(model_data, user=None):
             load_scenario_from_dict(scenario_data, user, project)
 
     return project.id
+
+
+def merge_legacy_storage_assets(assets):
+    """
+    Convert storage assets from the legacy representation
+
+        ess
+        ├── capacity
+        ├── charging_power
+        └── discharging_power
+
+    into the new representation where all user-facing storage
+    parameters are stored directly on the storage asset.
+
+    New-format storage assets, which have no children, are left untouched.
+    Generated with GPT-5.6 Sol.
+    """
+
+    storage_types = {
+        "ess",
+        "bess",
+        "hess",
+        "h2ess",
+    }
+
+    legacy_child_types = {
+        "capacity",
+        "charging_power",
+        "discharging_power",
+    }
+
+    # Identify the actual storage parent assets first.
+    storage_parents = {
+        asset["name"]: asset
+        for asset in assets
+        if asset.get("asset_info", {}).get("asset_type") in storage_types
+    }
+
+    # Collect legacy children by parent name and child type.
+    children_by_parent = {}
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+
+        if parent_name not in storage_parents:
+            continue
+
+        child_type = asset.get("asset_info", {}).get("asset_type")
+
+        if child_type not in legacy_child_types:
+            continue
+
+        children_by_parent.setdefault(parent_name, {})[child_type] = asset
+
+    # Merge the capacity child into each legacy storage parent.
+    for parent_name, children in children_by_parent.items():
+        parent = storage_parents[parent_name]
+
+        capacity = children.get("capacity")
+
+        if capacity is None:
+            raise ValueError(
+                f"Legacy storage '{parent_name}' has child assets "
+                f"but no capacity child."
+            )
+
+        # These describe the child object itself and must not be
+        # copied to the parent.
+        excluded_keys = {
+            "name",
+            "pos_x",
+            "pos_y",
+            "asset_info",
+            "parent_asset",
+        }
+
+        for key, value in capacity.items():
+            if key not in excluded_keys:
+                parent[key] = value
+
+        # The old parent only has asset_fields="[name]".
+        # Replace that with the fields that were previously stored
+        # on the capacity child.
+        if (
+            "asset_info" in parent
+            and "asset_info" in capacity
+            and "asset_fields" in capacity["asset_info"]
+        ):
+            parent["asset_info"]["asset_fields"] = capacity["asset_info"][
+                "asset_fields"
+            ]
+
+    # Drop legacy storage children.
+    #
+    # Do NOT simply remove every asset with parent_asset because
+    # other kinds of parent/child relationships may exist.
+    merged_assets = []
+
+    for asset in assets:
+        parent_name = asset.get("parent_asset")
+        asset_type = asset.get("asset_info", {}).get("asset_type")
+
+        is_legacy_storage_child = (
+            parent_name in storage_parents and asset_type in legacy_child_types
+        )
+
+        if not is_legacy_storage_child:
+            merged_assets.append(asset)
+
+    return merged_assets
 
 
 def load_scenario_from_dict(model_data, user, project=None):
@@ -576,65 +547,124 @@ def load_scenario_from_dict(model_data, user, project=None):
     scenario.project = project
     scenario.save()
 
-    # push the children asset at the end of the list to make sure we create the parents first
-    assets.sort(key=lambda asset_data: 1 if "parent_asset" in asset_data else 0)
+    # merge the storage assets into one asset for back compatibility
+    assets = merge_legacy_storage_assets(assets)
 
     for asset_data in assets:
         if "parent_asset" in asset_data:
             asset_data["parent_asset"] = Asset.objects.get(
                 name=asset_data["parent_asset"], scenario=scenario
             )
-        asset_type = asset_data.pop("asset_info")
-        asset_data["asset_type"] = AssetType.objects.get(
-            asset_type=asset_type["asset_type"]
-        )
+        asset_info = asset_data.pop("asset_info")
+        asset_type = asset_info["asset_type"]
+        asset_data["asset_type"] = AssetType.objects.get(asset_type=asset_type)
 
         COP_parameters = asset_data.pop("COP_parameters", None)
 
-        input_timeseries = asset_data.get("input_timeseries", None)
+        AssetModel = ASSET_MAPPING.get(asset_type, Asset)
 
-        if input_timeseries is not None:
-            if isinstance(input_timeseries, int):
-                input_ts = Timeseries.objects.filter(id=input_timeseries)
-                if input_ts.exists():
-                    asset_data["input_timeseries"] = input_ts
+        # Allow exported files before the breaking changes to be reimported
+        compatibility_mapping = COMPATIBILITY_PARAMETER_NAME_MAPPING.get(asset_type, {})
+        compatibility_mapping.update(ASSET_PARAMETERS_RENAMED)
+        if compatibility_mapping:
+            param_to_remove = []
+            for new_param, old_param in compatibility_mapping.items():
+                if old_param in asset_data:
+                    asset_data[new_param] = asset_data[old_param]
+                    if old_param not in param_to_remove:
+                        param_to_remove.append(old_param)
+            for old_param in param_to_remove:
+                asset_data.pop(old_param)
+
+        for old_param in ASSET_PARAMETERS_DISCONTINUED:
+            if old_param in asset_data:
+                asset_data.pop(old_param)
+
+        if asset_type != "hess":
+            for hess_param in [
+                "thermal_loss_rate",
+                "fixed_thermal_losses_relative",
+                "fixed_thermal_losses_absolute",
+            ]:
+                if hess_param in asset_data:
+                    asset_data.pop(hess_param)
+
+        # TODO, find a better criteria than an explicit list, or generate the list automatically
+        for timeseries_field in (
+            "input_timeseries",
+            "energy_price",
+            "feedin_tariff",
+            "cop",
+            "thermal_losses_fixed",
+            "fixed_thermal_losses_absolute",
+            "efficiency_electricity_chp",
+            "efficiency_heat_chp",
+            "efficiency_electricity_full_condensation",
+        ):
+            ts_data = asset_data.get(timeseries_field, None)
+            if ts_data is not None:
+                if isinstance(ts_data, int):
+                    input_ts = Timeseries.objects.filter(id=ts_data)
+                    if input_ts.exists():
+                        asset_data[timeseries_field] = input_ts.get()
+                    else:
+                        logger.error(
+                            f"No timeseries with id {ts_data} has been found for asset {asset_data['name']}, skipping it"
+                        )
+                        asset_data.pop(timeseries_field)
+                elif isinstance(ts_data, dict):
+                    # format the date timestamps as datetime objects
+                    for k in ("start_date", "end_date"):
+                        if k in ts_data and ts_data[k] is not None:
+                            ts_data[k] = datetime.datetime.strptime(
+                                ts_data[k], "%Y-%m-%d %H:%M:%S"
+                            )
+                    ts_data["scenario"] = scenario
+                    if len(ts_data["values"]) > 1:
+                        ts_type = "timeseries"
+                        if np.abs(np.diff(np.array(ts_data["values"]))).sum() == 0:
+                            ts_data["values"] = [ts_data["values"][0]]
+                            ts_type = "scalar"
+                    else:
+                        ts_type = "scalar"
+
+                    if ts_data["category"] is None:
+                        ts_data["category"] = ts_data["ts_type"]
+                        ts_data["ts_type"] = ts_type
+
+                    input_ts, created = Timeseries.objects.get_or_create(
+                        user=user, **ts_data
+                    )
+                    input_ts.save()
+                    asset_data[timeseries_field] = input_ts
+                elif isinstance(ts_data, str):
+                    try:
+                        values = json.loads(ts_data)
+                        if isinstance(values, list):
+                            ts_type = "timeseries"
+                        else:
+                            values = [values]
+                            ts_type = "scalar"
+
+                        input_ts, created = Timeseries.objects.get_or_create(
+                            values=values,
+                            user=user,
+                            scenario=scenario,
+                            ts_type=ts_type,
+                            category=asset_info["mvs_type"],
+                            asset_type=asset_data["asset_type"].asset_type,
+                            name=f"{asset_data['name']}_ts",
+                        )
+                        asset_data[timeseries_field] = input_ts
+                    except json.decoder.JSONDecodeError:
+                        pass
                 else:
                     logger.error(
-                        f"No timeseries with id {input_timeseries} has been found for asset {asset_data['name']}, skipping it"
+                        f"The timeseries for asset {asset_data['name']} is neither an existing Timeseries instance's id nor a dict with Timeserie's attributes"
                     )
-                    asset_data.pop("input_timeseries")
-            elif isinstance(input_timeseries, dict):
-                # format the date timestamps as datetime objects
-                for k in ("start_date", "end_date"):
-                    if k in input_timeseries and input_timeseries[k] is not None:
-                        input_timeseries[k] = datetime.datetime.strptime(
-                            input_timeseries[k], "%Y-%m-%d %H:%M:%S"
-                        )
-                input_timeseries["scenario"] = scenario
-                input_ts, created = Timeseries.objects.get_or_create(
-                    user=user, **input_timeseries
-                )
-                input_ts.save()
-                asset_data["input_timeseries"] = input_ts
-            elif isinstance(input_timeseries, str):
-                try:
-                    input_ts, created = Timeseries.objects.get_or_create(
-                        values=json.loads(input_timeseries),
-                        user=user,
-                        scenario=scenario,
-                        ts_type=asset_type["mvs_type"],
-                        name=f"{asset_data['name']}_ts",
-                    )
-                    asset_data["input_timeseries"] = input_ts
-                except json.decoder.JSONDecodeError:
-                    pass
-            else:
-                logger.error(
-                    f"The timeseries for asset {asset_data['name']} is neither an existing Timeseries instance's id nor a dict with Timeserie's attributes"
-                )
-                asset_data.pop("input_timeseries")
+                    asset_data.pop(timeseries_field)
 
-        asset = Asset(**asset_data)
+        asset = AssetModel(**asset_data)
         asset.scenario = scenario
         asset.save()
 
@@ -647,7 +677,13 @@ def load_scenario_from_dict(model_data, user, project=None):
     for bus_data in busses:
         bus_inputs = bus_data.pop("inputs")
         bus_outputs = bus_data.pop("outputs")
-        bus = Bus(**bus_data)
+        # Special treatment for HeatingNetwork
+        if "asset_type" in bus_data:
+            asset_type = AssetType.objects.get(id=bus_data.pop("asset_type")).asset_type
+            AssetModel = ASSET_MAPPING.get(asset_type, Bus)
+            bus = AssetModel(**bus_data)
+        else:
+            bus = Bus(**bus_data)
         bus.scenario = scenario
         bus.save()
         for link_data in bus_inputs + bus_outputs:
@@ -671,7 +707,9 @@ class NodeObject:
             if "parent_asset_id" in node_data["data"]
             else None
         )
-        self.node_obj_type = "bus" if self.name == "bus" else "asset"
+        self.node_obj_type = (
+            "bus" if self.name in ("bus", "heating_network") else "asset"
+        )
         self.inputs = node_data["inputs"]
         self.outputs = node_data["outputs"]
         self.pos_x = node_data["pos_x"]
@@ -693,7 +731,9 @@ class NodeObject:
             if isinstance(data["db_id"], int):
                 return data["db_id"]
             elif isinstance(data["db_id"], str):
-                asset = Asset.objects.filter(unique_id=data["db_id"]).first()
+                asset_type = data.get("name", "")
+                AssetModel = ASSET_MAPPING.get(asset_type, Asset)
+                asset = AssetModel.objects.filter(unique_id=data["db_id"]).first()
                 return asset.id if asset else None
             else:
                 return None
@@ -711,12 +751,14 @@ class NodeObject:
         -------
 
         """
+
         # TODO here with the exception of load scenario from dict is the only place where ConnectionLink are created
         if self.node_obj_type == "bus":
-            bus_obj = get_object_or_404(Bus, pk=self.db_obj_id)
+            asset_type = ASSET_MAPPING.get(self.name, Bus)
+            bus_obj = get_object_or_404(asset_type, pk=self.db_obj_id)
             for asset_connection in self.outputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
-                    ConnectionLink.objects.create(
+                    connection, created = ConnectionLink.objects.get_or_create(
                         bus=bus_obj,
                         asset=get_object_or_404(
                             Asset, unique_id=asset_connection["to"]["id"]
@@ -728,7 +770,7 @@ class NodeObject:
                     )
             for asset_connection in self.inputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
-                    ConnectionLink.objects.create(
+                    connection, created = ConnectionLink.objects.get_or_create(
                         bus=bus_obj,
                         asset=get_object_or_404(
                             Asset, unique_id=asset_connection["to"]["id"]
@@ -775,6 +817,7 @@ class NodeObject:
 
 def update_deleted_objects_from_database(scenario_id, topo_node_list):
     """Delete Database Scenario Related Objects which are not in the topology before inserting or updating data."""
+    # TODO change this to get the Children Assets
     all_scenario_assets = Asset.objects.filter(scenario_id=scenario_id)
     # dont include storage unit children assets
     scenario_assets_ids_excluding_storage_children = all_scenario_assets.filter(
@@ -791,14 +834,14 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
     asset_node_positions = {}
     bus_node_positions = {}
     for node in topo_node_list:
-        if node.name != "bus" and node.db_obj_id:
-            topology_asset_ids.append(node.db_obj_id)
-            asset_node_positions[node.db_obj_id] = dict(
-                pos_x=node.pos_x, pos_y=node.pos_y
-            )
-        elif node.name == "bus" and node.db_obj_id:
+        if node.name in ("bus", "heating_network") and node.db_obj_id:
             topology_busses_ids.append(node.db_obj_id)
             bus_node_positions[node.db_obj_id] = dict(
+                pos_x=node.pos_x, pos_y=node.pos_y
+            )
+        elif node.name != "bus" and node.db_obj_id:
+            topology_asset_ids.append(node.db_obj_id)
+            asset_node_positions[node.db_obj_id] = dict(
                 pos_x=node.pos_x, pos_y=node.pos_y
             )
 
@@ -807,6 +850,7 @@ def update_deleted_objects_from_database(scenario_id, topo_node_list):
 
     # deletes asset or bus which DB id is not in the topology anymore (was removed by user)
     for asset_id in scenario_assets_ids_excluding_storage_children:
+        # TODO change this to get the Children Assets
         qs = Asset.objects.filter(id=asset_id)
         if asset_id not in topology_asset_ids:
             logger.debug(
