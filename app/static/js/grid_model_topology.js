@@ -288,6 +288,8 @@ function populateForm(nodeDOM, submit=false, show=true) {
 
             updateInputTimeseries();
 
+            updateCapacityFieldsVisibility();
+
             if (submit)
                 submitForm();
             if (show)
@@ -378,7 +380,7 @@ function submitForm() {
             // rename the node on the fly (to avoid the need of refreshing the page)
             nodeName.textContent = nodeNameValue;
             // update node name in node data
-            let oldData = editor.getNodeFromId(drawflowNodeId);
+            let oldData = editor.getNodeFromId(drawflowNodeId).data;
             let newData = Object.assign({}, oldData, {"name": nodeNameValue});
             editor.updateNodeDataFromId(drawflowNodeId, newData);
 
@@ -393,6 +395,7 @@ function submitForm() {
         } else {
             // assign the content of the form to the form tag of the modal
             guiModalDOM.querySelector('form .modal-body').innerHTML = jsonRes.form_html;
+            updateCapacityFieldsVisibility();
             // make certain to show form
             guiModal.show();
         }
@@ -483,7 +486,11 @@ editor.on("keydown", e => {
         selectedNode.inputs = {};
         selectedNode.outputs = {};
         // create new node with same type (name), slightly off original
-        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1, {}).then(node => {
+        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1,
+            selectedNode.name === BUS ?
+                { portMapping: selectedNode.data.portMapping, bustype: selectedNode.data.bustype, energyCarrier: selectedNode.data.energyCarrier }
+                : {}
+        ).then(node => {
             const newNodeId = node.editorNodeId;
             populateForm(selectedElement, submit=false, show=false).then(_ => {
                 // update form info
@@ -663,6 +670,25 @@ editor.on('connectionUnselected', _ => {
     selectedElement = null;
 });
 
+function updateCapacityFieldsVisibility() {
+    const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
+    console.log("optimize_cap element:", optimizeCapInput);
+    if (!optimizeCapInput) return;
+
+    const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
+    const installedCapacityGroup = guiModalDOM.querySelector('input[name="installed_capacity"]')?.closest('.form-group');
+    const ageInstalledGroup = guiModalDOM.querySelector('input[name="age_installed"]')?.closest('.form-group');
+
+    function toggleFields() {
+        const isOptimized = optimizeCapInput.checked;
+        if (maxCapacityGroup) maxCapacityGroup.style.display = isOptimized ? '' : 'none';
+        if (installedCapacityGroup) installedCapacityGroup.style.display = isOptimized ? 'none' : '';
+        if (ageInstalledGroup) ageInstalledGroup.style.display = isOptimized ? 'none' : '';
+    }
+
+    toggleFields();
+    optimizeCapInput.addEventListener('change', toggleFields);
+}
 
 // TODO potentially remove this function
 function updateInputTimeseries(){
@@ -699,7 +725,83 @@ function updateInputTimeseries(){
 
 
 // COP calculation from temperature
-function toggle_cop_modal(event){
+function toggle_sub_modal(){
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    let getUrl = createTimeseriesGetUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        getUrl;
+
+    fetch(getUrl).then(response => response.text()).then(formContent => {
+        // assign the content of the form to the form tag of the modal
+        guiModalDOM.querySelector('form .modal-addendum').innerHTML = formContent;
+        // enable Bootstrap tooltips (help text icons)
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+function computeCustomTimeseries(event){
+
+    // get the parameters which uniquely identify the asset
+    const assetTypeName = guiModalDOM.getAttribute("data-node-type");
+    const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
+
+    const form = event.target.closest('.modal-content').querySelector('#timeseriesForm');
+    const formData = new FormData();
+    // because we can't have nested forms in the html, we construct the form data manually from the fields here instead of relying on the form tag
+    form.querySelectorAll('input, select').forEach(el => {
+        if (el.type === 'file') {
+            if (el.files.length) formData.append(el.name, el.files[0]);
+        } else {
+           formData.append(el.name, el.value);
+        }
+    });
+
+    let postUrl = createTimeseriesPostUrl + assetTypeName;
+    if (nodesToDB.has(topologyNodeId))
+        postUrl += "/" + nodesToDB.get(topologyNodeId).uid;
+
+    const createTsDOM = event.target.closest('#form-createTS');
+    const paramName = createTsDOM.dataset.paramName;
+
+    fetch(postUrl, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken},
+        body: formData,
+    }).then(response => response.json()).then(jsonRes => {
+        if (jsonRes.success) {
+            // show the computed timeseries in the usual field in the modal (same as select/upload do),
+            // and store it (together with the parameters used to generate it) as the manual/scalar
+            // value so it gets saved with the asset
+            const tsValues = jsonRes.timeseries;
+            const generationParameters = jsonRes.generation_parameters;
+            const units = jsonRes.units;
+            const labels = jsonRes.labels;
+            // clear the other subfields first: the scalar field's onchange handler
+            // (initTimeseriesManualValue) re-triggers the select field's own change handler
+            // with whatever it currently holds, which would otherwise re-fetch and clobber
+            // the value we're about to set here with a stale, previously-selected timeseries
+            document.getElementById('id_' + paramName + '_1').value = '';
+            document.getElementById('id_' + paramName + '_2').value = '';
+            const scalarInput = document.getElementById('id_' + paramName + '_0');
+            scalarInput.value = JSON.stringify({values: tsValues, generation_parameters: generationParameters});
+            scalarInput.dispatchEvent(new Event('change'));
+            plotTimeseriesInputTrace(tsValues, paramName);
+            showGenerationParameters(generationParameters, units, labels, paramName);
+        } else {
+            form.innerHTML = jsonRes.form_html;
+        }
+    }).catch(error => {
+        console.error(error);
+        alert(error.message);
+    });
+}
+
+function toggle_cop_modal(){
     // get the parameters which uniquely identify the asset
     const assetTypeName = guiModalDOM.getAttribute("data-node-type");
     const topologyNodeId = guiModalDOM.getAttribute("data-node-topo-id"); // e.g. 'node-2'
@@ -745,8 +847,7 @@ function computeCOP(event){
 
             efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
             if(efficiencyDOM){
-                efficiencyDOM.value = jsonRes.cops;
-                efficiencyDOM.dispatchEvent(new Event('change'));
+                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
             }
             copDOM = guiModalDOM.querySelector('input[name="copId"]');
             if(copDOM){

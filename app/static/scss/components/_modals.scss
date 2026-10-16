@@ -12,9 +12,15 @@
     padding: 3rem;
   }
 
-  .modal-addendum {
-    padding-right: 3rem;
-    padding-left: 3rem;
+  #form-createTS .modal-addendum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+    .form-group {
+      flex: 1 1 220px;
+      margin-bottom: 0;
+    }
   }
 }
 

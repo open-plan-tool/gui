@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.12-slim-trixie
 
 RUN echo POSTGRES
 ENV APP_ROOT /src
@@ -6,6 +6,8 @@ ENV CONFIG_ROOT /config
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ARG BUILD_ENVIRONMENT=production
+# Optional: Cache bust for fresh dependencies (change value to bust cache)
+ARG CACHE_BUST=1
 
 RUN mkdir ${CONFIG_ROOT}
 COPY app/requirements/base.txt ${CONFIG_ROOT}/base.txt
@@ -13,12 +15,13 @@ COPY app/requirements/${BUILD_ENVIRONMENT}.txt ${CONFIG_ROOT}/${BUILD_ENVIRONMEN
 
 # Install gettext utilities for translations
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gettext-base gettext git tk && \
+    apt-get install -y --no-install-recommends gettext-base gettext git && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
-    && pip install gunicorn
+    && pip install gunicorn  \
+    && pip install "git+https://github.com/oemof/oemof-solph@v0.6.4"
 
 WORKDIR ${APP_ROOT}
 

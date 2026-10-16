@@ -1,28 +1,27 @@
-crispy-bootstrap4==2025.6
-Django==5.2.13
+crispy-bootstrap4==2026.2
+Django==5.2.16
 django-bootstrap-modal-forms==3.0.5
 django-compressor==4.6.0
 django-crispy-forms==2.5
-django-environ==0.12.0
+django-environ==0.13.0
 django-extensions==4.1
 django-jsonview==2.0.0
 django-sass-processor==1.4.2
 django-celery-beat==2.9.0
 flower==2.0.1
-redis==7.4.0
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@main
+redis==8.0.1
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op0.0.1
 oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@dev
-oemof-visio
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0
-numpy==2.4.2
+numpy==2.5.1
 oemof-thermal==0.0.9a1
 openpyxl==3.1.5
-plotly==6.5.2
+plotly==6.9.0
 psycopg2-binary==2.9.11
-requests==2.32.5
+requests==2.34.2
 toml==0.10.2
-whitenoise==6.11.0
+whitenoise==6.12.0
 XlsxWriter==3.2.9
 celery==5.6.3

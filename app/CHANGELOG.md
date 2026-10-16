@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [v2.2.1] – 2026-10-14
+### Added
+- Allow user to get information about usecases's scenarios via endpoint [[#524](https://github.com/open-plan-tool/gui/pull/524)]
+### Fixed
+- Fix broken datapackage export [[#522](https://github.com/open-plan-tool/gui/pull/522)]
+- Fix bus saving and duplication bug [[#528](https://github.com/open-plan-tool/gui/pull/528)]
+
+## [v2.2.0] – 2026-09-16
+### Added
+- Allow user to generate custom timeseries from eesyplan functions [[#511](https://github.com/open-plan-tool/gui/pull/511)][[#516](https://github.com/open-plan-tool/gui/pull/516)]
+### Changed
+- Add toggle for fixed capacity vs. optimized instead of allowing both options on a single asset [[#487](https://github.com/open-plan-tool/gui/pull/487)][[#514](https://github.com/open-plan-tool/gui/pull/514)]
+### Fixed
+- Fix issues with read and edit rights on shared projects [[#478](https://github.com/open-plan-tool/gui/pull/478)]
+
 ## [v2.1.4] – 2026-07-01
 ### Fixed
 - Update incorrect or missing translation strings [[#480](https://github.com/open-plan-tool/gui/pull/480)]

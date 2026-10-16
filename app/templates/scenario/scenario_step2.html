@@ -141,6 +141,8 @@
     const assetPortInfoUrl = `{% url 'asset_connection_ports_info' %}`;
     const postAssetFormUrl = `{% url 'asset_create_or_update' scenario.id %}`;
     const scenarioBelongsToUser = {% if scenario.project.user == request.user %}true{% else %}false{% endif %};
+    const createTimeseriesGetUrl = `{% url 'get_timeseries_create_form' scenario.id %}`;
+    const createTimeseriesPostUrl = `{% url 'custom_timeseries_create' scenario.id %}`;
     const copGetUrl = `{% url 'get_asset_cops_form' scenario.id %}`;
     const copPostUrl = `{% url 'asset_cops_create_or_update' scenario.id %}`;
     const tsGetUrl = `{% url 'get_timeseries' %}`;

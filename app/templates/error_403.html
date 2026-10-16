@@ -1,70 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load i18n %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>DSO Toolbox</title>
-    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/css/mdb.min.css">
-
-
-
-    <link rel="stylesheet" href="../static/css/style.min.css/">
-    <link rel="stylesheet" href="../static/css/style_extra.css/">
-    <link rel="stylesheet" href="../static/css/datatables.min.css/">
-    <link rel="stylesheet" href="../static/css/styles.css/">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.css" rel="stylesheet"/>
-
-
-</head>
+{% block start_body_scripts %}
 <style>
-    body{
-    background:#eed296;
-    }
+.error-403.standard-layout > div::before {
+    content: '' !important;
+    background: none !important;
+    height: 0 !important;
+}
 
-    .errorheading{
-    color:#eed296;
-    }
-
-    .errorredirect{
-    background-color: #eed296;
-    }
-
-    .errorredirect:hover{
-    background-color: #eed296;
-    }
+.error-animation {
+    width: 220px;
+    height: 220px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
 </style>
-<body>
-    <br><br><br><br><br>
-    <div class="container">
-    <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-            <div class="box1">
-                <br><br>
-                <h1 class="errorheading"> 403 </h1>
-                <br>
-                <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-                <lottie-player src="https://assets4.lottiefiles.com/packages/lf20_rux40kz2.json"  background="transparent"  speed="1"
-                style="width: 220px; height: 220px; position:relative; top:-200px;" class="anim" loop  autoplay></lottie-player>
-                <p class="errorparag">{% translate "Error! You don't have permission to access the requested resource." %}</p>
-                <br>
-                <a class="errorredirect" href="">
+{% endblock %}
 
-                    {% translate "Go to Home Page" %}</a><br><br>
-
-            </div><br><br>
+{% block content %}
+<div>
+    <section class="header">
+        <div>
+            <div class="header__left"></div>
+            <h1 class="header__title">{% translate "403" %}</h1>
+            <div class="header__back">
+                <a href="javascript:history.back()">{% translate "Back" %}</a>
+            </div>
         </div>
-    <div class="col-md-2"></div>
+    </section>
+    <section class="error-403 standard-layout">
+		<div>
+            <div class="error-animation">
+                <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+                <lottie-player src="https://assets4.lottiefiles.com/packages/lf20_rux40kz2.json"  background="transparent"  speed="1" class="anim" loop autoplay></lottie-player>
+            </div>
+			<div>
+				<h2>{% translate "Error! You don't have permission to access the requested resource." %}</h2>
+			</div>
+            <br>
+			<div class="standard-layout__paragraph">
+				<h2>{{ reason }}</h2>
+			</div>
+		</div>
+	</section>
 </div>
-</div>
-</body>
-</html>
+{% endblock content %}

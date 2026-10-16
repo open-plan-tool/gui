@@ -9,7 +9,7 @@ from pathlib import Path
 from oemof.eesyplan.datapackage.results import import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 import pandas as pd
-from oemof.eesyplan.components.buses.carrier import CarrierBus
+from oemof.eesyplan.facades.buses.carrier import CarrierBus
 from oemof.solph import Bus
 
 # from requests.exceptions import HTTPError
@@ -138,7 +138,7 @@ def get_component_type(es_dp, component):
             df = pd.DataFrame.from_records(r.read(keyed=True))
             search_component = df.loc[df.name == component_label, "type"]
             if search_component.empty is False:
-                return search_component[0]
+                return search_component.tolist()[0]
 
 
 def parse_ezp_results(simulation, response_results):

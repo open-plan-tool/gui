@@ -84,8 +84,34 @@ function getTimeseriesValues(ts_id, param_name=""){
         else {
             plotTimeseriesInputTrace(ts_values, param_name=param_name);
         }
+        showGenerationParameters(data["generation_parameters"], data["units"], data["labels"], param_name);
         console.log("retrieved values", ts_values);
     });
+}
+
+function showGenerationParameters(generationParameters, units, labels, param_name=""){
+    const el = document.getElementById(param_name + "_generation_parameters");
+    if (!el) return;
+    const list = el.querySelector(".ts-generation-params__list");
+    list.innerHTML = "";
+    if (generationParameters && Object.keys(generationParameters).length > 0){
+        Object.entries(generationParameters).forEach(([key, value]) => {
+            const item = document.createElement("div");
+            const dt = document.createElement("dt");
+            const label = labels ? labels[key] : null;
+            dt.textContent = label + ":";
+            const dd = document.createElement("dd");
+            const unit = units ? units[key] : null;
+            dd.textContent = unit ? `${value} ${unit}` : value;
+            dd.title = String(value);
+            item.appendChild(dt);
+            item.appendChild(dd);
+            list.appendChild(item);
+        });
+        el.style.display = "block";
+    } else {
+        el.style.display = "none";
+    }
 }
 
 
@@ -213,7 +239,6 @@ function uploadDualInputTrace(obj, param_name="") {
     if (window.FileReader) {
         var array = [];
         var flist = obj;
-
         var myfile = flist[0];
         if (myfile) {
             if(myfile.name.includes(".csv") || myfile.name.includes(".txt")){
@@ -251,6 +276,14 @@ function plot_file_trace(obj, plot_id="") {
       alert('FileReader are not supported in this browser.');
     }
 }
+function stripHeaderRow(rows) {
+    // drop a header row (e.g. "Temperature"): its first cell won't parse as a number
+    if (rows.length > 0 && !Number.isFinite(Number(rows[0][0]))) {
+        return rows.slice(1);
+    }
+    return rows;
+}
+
 function getAsExcel(fileToRead, plot=true){
     var reader = new FileReader();
 
@@ -258,7 +291,7 @@ function getAsExcel(fileToRead, plot=true){
         // return a Promise of the file parsed as a d3 csv array
         return new Promise((resolve, reject) => {
             reader.onloadend = () => {
-              resolve(parseExcelData(reader.result));
+              resolve(stripHeaderRow(parseExcelData(reader.result)));
             };
             // Read file into memory as UTF-8
             reader.readAsBinaryString(fileToRead);
@@ -266,7 +299,7 @@ function getAsExcel(fileToRead, plot=true){
       }
       else{
         reader.onload = function(e) {
-            processData(parseExcelData(e.target.result));
+            processData(stripHeaderRow(parseExcelData(e.target.result)));
         };
         reader.readAsBinaryString(fileToRead);
       }
@@ -308,7 +341,7 @@ function parseExcelData(data){
         // return a Promise of the file parsed as a d3 csv array
         return new Promise((resolve, reject) => {
             reader.onloadend = () => {
-              resolve(d3.csvParseRows(reader.result));
+              resolve(stripHeaderRow(d3.csvParseRows(reader.result)));
             };
             // Read file into memory as UTF-8
             reader.readAsText(fileToRead);
@@ -331,7 +364,7 @@ function parseExcelData(data){
         } else {
             d3array = d3.csvParseRows(csv);
         }
-        processData(d3array);
+        processData(stripHeaderRow(d3array));
     }
 
 
