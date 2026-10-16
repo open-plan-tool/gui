@@ -1,8 +1,8 @@
 asset_type,asset_category,energy_vector,mvs_type,asset_fields,unit,ports
 dso,energy_provider,Electricity,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['bus_electricity','Electricity']}"
-gas_dso,energy_provider,Gas,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['bus_fuel','Gas']}"
-h2_dso,energy_provider,H2,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['bus_hydrogen','H2']}"
-heat_dso,energy_provider,Heat,source,"[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",,"{'output_1': ['bus_heat','Heat']}"
+gas_dso,energy_provider,Gas,source,"[name,energy_price,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",,"{'output_1': ['bus_fuel','Gas']}"
+h2_dso,energy_provider,H2,source,"[name,energy_price,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",,"{'output_1': ['bus_hydrogen','H2']}"
+heat_dso,energy_provider,Heat,source,"[name,energy_price,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",,"{'output_1': ['bus_heat','Heat']}"
 demand,energy_consumption,Electricity,sink,"[name,input_timeseries]",kWh,"{'input_1':['bus_in_electricity','Electricity']}"
 gas_demand,energy_consumption,Gas,sink,"[name,input_timeseries]",,"{'input_1':['bus_in_fuel','Gas']}"
 h2_demand,energy_consumption,H2,sink,"[name,input_timeseries]",,"{'input_1':['bus_in_hydrogen','H2']}"

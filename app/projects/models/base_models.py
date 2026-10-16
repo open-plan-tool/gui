@@ -1414,6 +1414,73 @@ class DSO(Asset):
         }
 
 
+class DSOH2(Asset):
+    # mirrors the parameters of oemof.eesyplan dso
+    energy_price = models.FloatField(null=True, blank=False)
+
+    renewable_share = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR, default="H2")
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once dso drops MVS support for good.
+        self.energy_price_asset = self.energy_price
+        self.renewable_share_asset = self.renewable_share
+        self.optimize_cap = False
+        super().save(*args, **kwargs)
+
+
+class DSOGas(Asset):
+    # mirrors the parameters of oemof.eesyplan dso
+    energy_price = models.FloatField(null=True, blank=False)
+
+    renewable_share = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    energy_vector = models.CharField(
+        max_length=20, choices=ENERGY_VECTOR, default="Gas"
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once dso drops MVS support for good.
+        self.energy_price_asset = self.energy_price
+        self.renewable_share_asset = self.renewable_share
+        self.optimize_cap = False
+        super().save(*args, **kwargs)
+
+
+class DSOHeat(Asset):
+    # mirrors the parameters of oemof.eesyplan dso
+    energy_price = models.FloatField(null=True, blank=False)
+
+    renewable_share = models.FloatField(
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
+    energy_vector = models.CharField(
+        max_length=20, choices=ENERGY_VECTOR, default="Heat"
+    )
+
+    def save(self, *args, **kwargs):
+        # keep the MVS-era Asset fields in sync so the MVS dto export path
+        # (projects/dtos.py, which reads these directly off the base Asset)
+        # keeps working. Remove once dso drops MVS support for good.
+        self.energy_price_asset = self.energy_price
+        self.renewable_share_asset = self.renewable_share
+        self.optimize_cap = False
+        super().save(*args, **kwargs)
+
+
 class ElectricalStorage(Asset):
     soc_max = models.FloatField(
         null=True,
@@ -1866,9 +1933,9 @@ ASSET_MAPPING = {
     "heat_pump": HeatPump,
     "electrolyzer": Electrolyzer,
     "dso": DSO,
-    "gas_dso": DSO,
-    "heat_dso": DSO,
-    "h2_dso": DSO,
+    "gas_dso": DSOGas,
+    "heat_dso": DSOHeat,
+    "h2_dso": DSOH2,
     "bess": ElectricalStorage,
     "h2ess": HydrogenStorage,
     "gess": FuelStorage,
