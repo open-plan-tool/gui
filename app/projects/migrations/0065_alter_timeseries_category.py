@@ -15,7 +15,7 @@ def backwards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0064_migrate_chp_variable_ratio_paremeters_to_eesyplan"),
+        ("projects", "0064_migrate_chp_variable_ratio_parameters_to_eesyplan"),
     ]
 
     operations = [
@@ -28,6 +28,31 @@ class Migration(migrations.Migration):
                     ("other", "Other"),
                     ("demand", "Demand"),
                     ("supply", "Supply"),
+                ],
+                max_length=50,
+                null=True,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="timeseries",
+            name="asset_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("demand", "demand"),
+                    ("dso", "dso"),
+                    ("dso_heat", "dso_heat"),
+                    ("dso_h2", "dso_h2"),
+                    ("dso_gas", "dso_gas"),
+                    ("gas_demand", "gas_demand"),
+                    ("h2_demand", "h2_demand"),
+                    ("heat_demand", "heat_demand"),
+                    ("pv_plant", "pv_plant"),
+                    ("wind_plant", "wind_plant"),
+                    ("biogas_plant", "biogas_plant"),
+                    ("geothermal_conversion", "geothermal_conversion"),
+                    ("solar_thermal_plant", "solar_thermal_plant"),
+                    ("chp", "chp"),
                 ],
                 max_length=50,
                 null=True,
