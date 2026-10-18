@@ -14,37 +14,50 @@ def forwards(apps, schema_editor):
         th_efficiency_max_heat = getattr(chp, "efficiency_multiple")  # Thermal efficiency with maximal heat extraction
         beta = getattr(chp, "thermal_loss_rate_asset")  # Power loss index
 
-        el_efficiency_no_heat = json.loads(el_efficiency_no_heat)
-        th_efficiency_max_heat = json.loads(th_efficiency_max_heat)
+        try:
+            if el_efficiency_no_heat is None:
+                el_efficiency_no_heat = 0
+            else:
+                el_efficiency_no_heat = json.loads(el_efficiency_no_heat)
 
-        el_eff_list = False
-        if isinstance(el_efficiency_no_heat, list):
-            el_efficiency_no_heat = np.array(el_efficiency_no_heat)
-            el_eff_list = True
+            if th_efficiency_max_heat is None:
+                th_efficiency_max_heat = 0
+            else:
+                th_efficiency_max_heat = json.loads(th_efficiency_max_heat)
 
-        th_eff_list = False
-        if isinstance(th_efficiency_max_heat, list):
-            th_efficiency_max_heat = np.array(th_efficiency_max_heat)
-            th_eff_list = True
+            if beta is None:
+                beta = 1
 
-        efficiency_electricity_full_condensation = el_efficiency_no_heat
-        efficiency_electricity_chp = el_efficiency_no_heat - beta * th_efficiency_max_heat
-        efficiency_heat_chp = th_efficiency_max_heat
+            el_eff_list = False
+            if isinstance(el_efficiency_no_heat, list):
+                el_efficiency_no_heat = np.array(el_efficiency_no_heat)
+                el_eff_list = True
 
-        if el_eff_list:
-            efficiency_electricity_full_condensation = efficiency_electricity_full_condensation.tolist()
-            efficiency_electricity_chp = efficiency_electricity_chp.tolist()
+            th_eff_list = False
+            if isinstance(th_efficiency_max_heat, list):
+                th_efficiency_max_heat = np.array(th_efficiency_max_heat)
+                th_eff_list = True
 
-        if th_eff_list:
-            efficiency_heat_chp = efficiency_heat_chp.tolist()
-            if not el_eff_list:
+            efficiency_electricity_full_condensation = el_efficiency_no_heat
+            efficiency_electricity_chp = el_efficiency_no_heat - beta * th_efficiency_max_heat
+            efficiency_heat_chp = th_efficiency_max_heat
+
+            if el_eff_list:
+                efficiency_electricity_full_condensation = efficiency_electricity_full_condensation.tolist()
                 efficiency_electricity_chp = efficiency_electricity_chp.tolist()
 
-        setattr(chp, "efficiency_electricity_full_condensation", efficiency_electricity_full_condensation)
-        setattr(chp, "efficiency_electricity_chp", efficiency_electricity_chp)
-        setattr(chp, "efficiency_heat_chp", efficiency_heat_chp)
+            if th_eff_list:
+                efficiency_heat_chp = efficiency_heat_chp.tolist()
+                if not el_eff_list:
+                    efficiency_electricity_chp = efficiency_electricity_chp.tolist()
 
-        chp.save()
+            setattr(chp, "efficiency_electricity_full_condensation", efficiency_electricity_full_condensation)
+            setattr(chp, "efficiency_electricity_chp", efficiency_electricity_chp)
+            setattr(chp, "efficiency_heat_chp", efficiency_heat_chp)
+
+            chp.save()
+        except:
+            print(f"{chp.name} from scenario {chp.scenario.name} encountered problem by migration forwards")
 
 
 def backwards(apps, schema_editor):
@@ -55,41 +68,44 @@ def backwards(apps, schema_editor):
         efficiency_electricity_chp = getattr(chp, "efficiency_electricity_chp")  # Thermal efficiency with maximal heat extraction
         efficiency_heat_chp = getattr(chp, "efficiency_heat_chp")  # Power loss index
 
-        efficiency_electricity_full_condensation = json.loads(efficiency_electricity_full_condensation)
-        efficiency_electricity_chp = json.loads(efficiency_electricity_chp)
-        efficiency_heat_chp = json.loads(efficiency_heat_chp)
+        try:
+            efficiency_electricity_full_condensation = json.loads(efficiency_electricity_full_condensation)
+            efficiency_electricity_chp = json.loads(efficiency_electricity_chp)
+            efficiency_heat_chp = json.loads(efficiency_heat_chp)
 
-        if isinstance(efficiency_electricity_full_condensation,list):
-            efficiency_electricity_full_condensation = np.array(efficiency_electricity_full_condensation)
+            if isinstance(efficiency_electricity_full_condensation,list):
+                efficiency_electricity_full_condensation = np.array(efficiency_electricity_full_condensation)
 
-        if isinstance(efficiency_electricity_chp,list):
-            efficiency_electricity_chp = np.array(efficiency_electricity_chp)
+            if isinstance(efficiency_electricity_chp,list):
+                efficiency_electricity_chp = np.array(efficiency_electricity_chp)
 
-        if isinstance(efficiency_heat_chp,list):
-            efficiency_heat_chp = np.array(efficiency_heat_chp)
+            if isinstance(efficiency_heat_chp,list):
+                efficiency_heat_chp = np.array(efficiency_heat_chp)
 
-        el_efficiency_no_heat = efficiency_electricity_full_condensation
-        beta = (efficiency_electricity_full_condensation - efficiency_electricity_chp) / efficiency_heat_chp
-        th_efficiency_max_heat = efficiency_heat_chp
+            el_efficiency_no_heat = efficiency_electricity_full_condensation
+            beta = (efficiency_electricity_full_condensation - efficiency_electricity_chp) / efficiency_heat_chp
+            th_efficiency_max_heat = efficiency_heat_chp
 
-        if isinstance(el_efficiency_no_heat, np.ndarray):
-            el_efficiency_no_heat = el_efficiency_no_heat.tolist()
+            if isinstance(el_efficiency_no_heat, np.ndarray):
+                el_efficiency_no_heat = el_efficiency_no_heat.tolist()
 
-        if isinstance(beta, np.ndarray):
-            beta = beta[0]
+            if isinstance(beta, np.ndarray):
+                beta = beta[0]
 
-        if isinstance(th_efficiency_max_heat, np.ndarray):
-            th_efficiency_max_heat = th_efficiency_max_heat.tolist()
+            if isinstance(th_efficiency_max_heat, np.ndarray):
+                th_efficiency_max_heat = th_efficiency_max_heat.tolist()
 
-        setattr(chp, "efficiency", el_efficiency_no_heat)
-        setattr(chp, "efficiency_multiple", th_efficiency_max_heat)
-        setattr(chp, "thermal_loss_rate_asset", beta)
+            setattr(chp, "efficiency", el_efficiency_no_heat)
+            setattr(chp, "efficiency_multiple", th_efficiency_max_heat)
+            setattr(chp, "thermal_loss_rate_asset", beta)
 
-        setattr(chp, "efficiency_electricity_chp", el_efficiency_no_heat)
-        setattr(chp, "efficiency_heat_chp", th_efficiency_max_heat)
-        setattr(chp, "efficiency_electricity_full_condensation", beta)
+            setattr(chp, "efficiency_electricity_chp", el_efficiency_no_heat)
+            setattr(chp, "efficiency_heat_chp", th_efficiency_max_heat)
+            setattr(chp, "efficiency_electricity_full_condensation", beta)
 
-        chp.save()
+            chp.save()
+        except:
+            print(f"{chp.name} from scenario {chp.scenario.name} encountered problem by migration backwards")
 
 
 class Migration(migrations.Migration):

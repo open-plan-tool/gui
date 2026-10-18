@@ -1221,17 +1221,34 @@ class CHP(Asset):
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
 
-        el_efficiency_no_heat = np.array(
-            self.efficiency_electricity_full_condensation.get_values
-        )
-        th_efficiency_max_heat = np.array(self.efficiency_heat_chp.get_values)
-        beta = (
-            el_efficiency_no_heat - np.array(self.efficiency_electricity_chp.get_values)
-        ) / th_efficiency_max_heat
+        if self.efficiency_electricity_full_condensation is not None:
+            el_efficiency_no_heat = np.squeeze(
+                np.array(self.efficiency_electricity_full_condensation.get_values)
+            )
+        else:
+            el_efficiency_no_heat = np.array([np.nan] * self.scenario.get_num_timesteps)
 
-        self.efficiency = self.efficiency_electricity_full_condensation.get_values
-        self.efficiency_multiple = self.efficiency_heat_chp.get_values
-        self.thermal_loss_rate_asset = float(beta[0])
+        if self.efficiency_heat_chp is not None:
+            th_efficiency_max_heat = np.squeeze(
+                np.array(self.efficiency_heat_chp.get_values)
+            )
+        else:
+            th_efficiency_max_heat = np.array(
+                [np.nan] * self.scenario.get_num_timesteps
+            )
+
+        if self.efficiency_electricity_chp is not None:
+            beta = (
+                el_efficiency_no_heat
+                - np.array(self.efficiency_electricity_chp.get_values)
+            ) / th_efficiency_max_heat
+            beta = beta[0]
+        else:
+            beta = None
+
+        self.efficiency = el_efficiency_no_heat.tolist()
+        self.efficiency_multiple = th_efficiency_max_heat.tolist()
+        self.thermal_loss_rate_asset = float(beta) if beta else None
         super().save(*args, **kwargs)
 
     @staticmethod
