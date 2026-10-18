@@ -1442,6 +1442,20 @@ class DSOH2(Asset):
     )
     energy_vector = models.CharField(max_length=20, choices=ENERGY_VECTOR, default="H2")
 
+    def __init__(self, *args, **kwargs):
+        if "energy_price" in kwargs:
+            energy_price = kwargs["energy_price"]
+            if isinstance(energy_price, Timeseries):
+                if energy_price.ts_type != "scalar":
+                    logging.warning(
+                        "The energy_price recieved a list of value when it only expected a float, taking the first value"
+                    )
+                energy_price = energy_price.values[0]
+            elif isinstance(energy_price, str):
+                energy_price = float(energy_price)
+            self.energy_price = energy_price
+        super().__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
@@ -1465,6 +1479,20 @@ class DSOGas(Asset):
         max_length=20, choices=ENERGY_VECTOR, default="Gas"
     )
 
+    def __init__(self, *args, **kwargs):
+        if "energy_price" in kwargs:
+            energy_price = kwargs["energy_price"]
+            if isinstance(energy_price, Timeseries):
+                if energy_price.ts_type != "scalar":
+                    logging.warning(
+                        "The energy_price recieved a list of value when it only expected a float, taking the first value"
+                    )
+                energy_price = energy_price.values[0]
+            elif isinstance(energy_price, str):
+                energy_price = float(energy_price)
+            self.energy_price = energy_price
+        super().__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
@@ -1487,6 +1515,20 @@ class DSOHeat(Asset):
     energy_vector = models.CharField(
         max_length=20, choices=ENERGY_VECTOR, default="Heat"
     )
+
+    def __init__(self, *args, **kwargs):
+        if "energy_price" in kwargs:
+            energy_price = kwargs["energy_price"]
+            if isinstance(energy_price, Timeseries):
+                if energy_price.ts_type != "scalar":
+                    logging.warning(
+                        "The energy_price recieved a list of value when it only expected a float, taking the first value"
+                    )
+                energy_price = energy_price.values[0]
+            elif isinstance(energy_price, str):
+                energy_price = float(energy_price)
+            self.energy_price = energy_price
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
