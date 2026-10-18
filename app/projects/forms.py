@@ -1003,7 +1003,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                     if input_method == "None":
                         cleaned_data[field] = None
 
-            if "dso" in self.asset_type_name:
+            if self.asset_type_name == "dso":
                 if (
                     "feedin_tariff" not in self.errors
                     and "energy_price" not in self.errors

@@ -76,7 +76,28 @@ ASSET_PARAMETERS_RENAMED = {
     "opex_spec": "opex_fix",
     "variable_costs": "opex_var",
 }
-ASSET_PARAMETERS_DISCONTINUED = ["capex_fix"]
+PARAMETERS_DISCONTINUED = ["capex_fix"]
+
+ASSET_PARAMETERS_DISCONTINUED = {
+    "heat_dso": [
+        "feedin_tariff",
+        "feedin_cap",
+        "peak_demand_pricing",
+        "peak_demand_pricing_period",
+    ],
+    "gas_dso": [
+        "feedin_tariff",
+        "feedin_cap",
+        "peak_demand_pricing",
+        "peak_demand_pricing_period",
+    ],
+    "h2_dso": [
+        "feedin_tariff",
+        "feedin_cap",
+        "peak_demand_pricing",
+        "peak_demand_pricing_period",
+    ],
+}
 
 
 def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None):
@@ -570,13 +591,16 @@ def load_scenario_from_dict(model_data, user, project=None):
             param_to_remove = []
             for new_param, old_param in compatibility_mapping.items():
                 if old_param in asset_data:
-                    asset_data[new_param] = asset_data[old_param]
+                    if new_param:
+                        asset_data[new_param] = asset_data[old_param]
                     if old_param not in param_to_remove:
                         param_to_remove.append(old_param)
             for old_param in param_to_remove:
                 asset_data.pop(old_param)
 
-        for old_param in ASSET_PARAMETERS_DISCONTINUED:
+        for old_param in PARAMETERS_DISCONTINUED + ASSET_PARAMETERS_DISCONTINUED.get(
+            asset_type, []
+        ):
             if old_param in asset_data:
                 asset_data.pop(old_param)
 
@@ -601,6 +625,8 @@ def load_scenario_from_dict(model_data, user, project=None):
             "efficiency_heat_chp",
             "efficiency_electricity_full_condensation",
         ):
+            if asset_type in ("chp_fixed_ratio", "heat_dso", "gas_dso", "h2_dso"):
+                continue
             ts_data = asset_data.get(timeseries_field, None)
             if ts_data is not None:
                 if isinstance(ts_data, int):
