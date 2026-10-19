@@ -13,7 +13,7 @@ def forwards(apps, schema_editor):
             continue
         heat_eff = None
         if (asset.efficiency_multiple is not None) and (asset.efficiency_multiple != 'None'):
-            heat_eff = float(asset.efficiency_multiple)
+            heat_eff = float(asset.efficiency_multiple.replace(",","."))
 
         elzer = Electrolyzer(
             asset_ptr_id=asset.pk,
