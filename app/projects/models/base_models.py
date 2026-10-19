@@ -1406,8 +1406,16 @@ class DSO(Asset):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once dso drops MVS support for good.
-        self.energy_price_asset = self.energy_price.get_values
-        self.feedin_tariff_asset = self.feedin_tariff.get_values
+        if self.energy_price:
+            energy_price = self.energy_price.get_values
+        else:
+            energy_price = None
+        self.energy_price_asset = energy_price
+        if self.feedin_tariff:
+            feedin_tariff = self.feedin_tariff.get_values
+        else:
+            feedin_tariff = None
+        self.feedin_tariff_asset = feedin_tariff
         self.feedin_cap_asset = self.feedin_cap
         self.peak_demand_pricing_asset = self.peak_demand_pricing
         self.peak_demand_pricing_period_asset = self.peak_demand_pricing_period
