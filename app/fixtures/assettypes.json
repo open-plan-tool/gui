@@ -19,7 +19,7 @@
         "asset_category": "energy_provider",
         "energy_vector": "Gas",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "asset_fields": "[name,energy_price,renewable_share]",
         "unit": "nan"
     }
 },
@@ -31,7 +31,7 @@
         "asset_category": "energy_provider",
         "energy_vector": "H2",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "asset_fields": "[name,energy_price,renewable_share]",
         "unit": "nan"
     }
 },
@@ -43,7 +43,7 @@
         "asset_category": "energy_provider",
         "energy_vector": "Heat",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "asset_fields": "[name,energy_price,renewable_share]",
         "unit": "nan"
     }
 },
@@ -355,7 +355,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Heat",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_charge,efficiency_discharge,soc_max,soc_min,thermal_losses_variable,thermal_losses_fixed,initial_storage_level,end_storage_level]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_charge,efficiency_discharge,soc_max,soc_min,thermal_losses_variable,thermal_losses_fixed,fixed_thermal_losses_absolute,initial_storage_level,end_storage_level]",
         "unit": "kW (therm)"
     }
 },
