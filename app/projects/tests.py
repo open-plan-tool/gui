@@ -722,9 +722,9 @@ class OptimizeCapacityToggleTest(TestCase):
             "age_installed": 5,
             "installed_capacity": 50,
             "capex_fix": 1000,
-            "capex_var": 10,
-            "opex_fix": 5,
-            "opex_var": 2,
+            "capex_spec": 10,
+            "opex_spec": 5,
+            "variable_costs": 2,
             "lifetime": 10,
             "efficiency": 0.98,
             "maximum_capacity": 100,
@@ -1174,6 +1174,7 @@ class CHPAssetTest(TestCase):
     dual_number_fields = (
         "efficiency_electricity_chp",
         "efficiency_heat_chp",
+        "efficiency_electricity_full_condensation",
     )
 
     def create_chp_via_form(self, name="chp-test"):
@@ -1267,18 +1268,19 @@ class CHPAssetTest(TestCase):
         chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
         self.assertEqual(len(chp_nodes), 1)
         self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
-        self.assertEqual(chp_nodes[0].efficiency_electricity_chp, 0.35)
-        self.assertEqual(chp_nodes[0].efficiency_heat_chp, 0.5)
-        self.assertEqual(chp_nodes[0].efficiency_electricity_full_condensation, 0.4)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_chp[0], 0.35)
+        self.assertEqual(chp_nodes[0].efficiency_heat_chp[0], 0.5)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_full_condensation[0], 0.4)
 
     def test_chp_to_datapackage_uses_eesyplan_parameters(self):
         asset = self.create_chp_via_form(name="chp-dp")
         dp, bus_records, profile_records = asset.to_datapackage()
-
         self.assertEqual(dp["type"], "chp")
-        self.assertEqual(dp["efficiency_electricity_chp"], 0.35)
-        self.assertEqual(dp["efficiency_heat_chp"], 0.5)
-        self.assertEqual(dp["efficiency_electricity_full_condensation"], 0.4)
+        self.assertEqual(dp["efficiency_electricity_chp"], f"constant value = {0.35}")
+        self.assertEqual(dp["efficiency_heat_chp"], f"constant value = {0.5}")
+        self.assertEqual(
+            dp["efficiency_electricity_full_condensation"], f"constant value = {0.4}"
+        )
         # MVS parameter names may not leak into the datapackage
         self.assertNotIn("efficiency", dp)
         self.assertNotIn("efficiency_multiple", dp)
