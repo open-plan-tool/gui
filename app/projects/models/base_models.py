@@ -1784,10 +1784,21 @@ class ThermalStorage(Asset):
         self.soc_max_asset = self.soc_max
         self.crate_asset = self.c_rate_charge
         self.thermal_loss_rate_asset = self.thermal_losses_variable
-        self.fixed_thermal_losses_relativeA = self.thermal_losses_fixed.get_values
-        self.fixed_thermal_losses_absoluteA = (
-            self.fixed_thermal_losses_absolute.get_values
-        )
+
+        if self.thermal_losses_fixed:
+            thermal_losses_fixed = self.thermal_losses_fixed.get_values
+        else:
+            thermal_losses_fixed = None
+
+        self.fixed_thermal_losses_relativeA = thermal_losses_fixed
+
+        if self.fixed_thermal_losses_absolute:
+            fixed_thermal_losses_absolute = (
+                self.fixed_thermal_losses_absolute.get_values
+            )
+        else:
+            fixed_thermal_losses_absolute = None
+        self.fixed_thermal_losses_absoluteA = fixed_thermal_losses_absolute
         super().save(*args, **kwargs)
 
     @staticmethod

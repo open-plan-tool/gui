@@ -985,7 +985,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                     # TODO add either a checkbox or a user setting to save ts to model
                     ts_data = json.loads(cleaned_data[field])
                     input_method = ts_data["input_method"]["type"]
-                    print(input_method)
                     if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                         # replace the dict with a new timeseries instance
                         timeseries_obj = self.assign_timeseries_from_input(ts_data)
