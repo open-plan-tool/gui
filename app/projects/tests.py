@@ -132,7 +132,7 @@ class BasicOperationsTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
+        "fixtures/minimal_project.json",
         "fixtures/test_extra_users.json",
     ]
 
@@ -368,18 +368,25 @@ class ExportLoadTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
     ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        cls.user = CustomUser.objects.first()
+        with open(
+            Path(__file__).resolve().parent.parent
+            / "test_files"
+            / "back_compatibility_all_assets.json",
+            "r",
+        ) as fp:
+            mydict = json.load(fp)
+            load_project_from_dict(mydict, cls.user)
+        cls.project = Project.objects.first()
+        cls.scenario = cls.project.scenario_set.first()
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.first()
-        self.scenario = self.project.scenario_set.first()
 
     def test_export_and_load_scenario(self):
         user = self.project.user
@@ -464,7 +471,7 @@ class UploadTimeseriesTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
+        "fixtures/minimal_project.json",
     ]
 
     @classmethod
@@ -483,7 +490,7 @@ class UploadTimeseriesTest(TestCase):
         self.scenario.start_date = datetime.datetime(2020, 1, 1)
         self.scenario.save()
 
-        self.post_url = reverse("asset_create_or_update", args=[2, "demand"])
+        self.post_url = reverse("asset_create_or_update", args=[1, "demand"])
 
     def test_load_demand_csv_timestamp_format(self):
         with open("./test_files/test_ts_timestamp_format.csv") as fp:
@@ -683,7 +690,7 @@ class OptimizeCapacityToggleTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
+        "fixtures/minimal_project.json",
     ]
 
     @classmethod
@@ -808,7 +815,6 @@ class ImportedUsecaseTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
     ]
 
     @classmethod
@@ -1131,7 +1137,7 @@ class CHPAssetTest(TestCase):
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
         "fixtures/test_user.json",
-        "fixtures/example_project.json",
+        "fixtures/minimal_project.json",
     ]
 
     # values for any field name the chp form may expose, valid before and
@@ -1156,7 +1162,7 @@ class CHPAssetTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        call_command("update_assettype")
+        pass
 
     def setUp(self):
         self.project = Project.objects.first()

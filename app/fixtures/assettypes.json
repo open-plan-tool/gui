@@ -466,5 +466,731 @@
         "asset_fields": "[name,variable_costs]",
         "unit": "kW"
     }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 1,
+    "fields": {
+        "asset_type": 1,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 2,
+    "fields": {
+        "asset_type": 2,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 3,
+    "fields": {
+        "asset_type": 3,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 4,
+    "fields": {
+        "asset_type": 4,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 5,
+    "fields": {
+        "asset_type": 5,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 6,
+    "fields": {
+        "asset_type": 6,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 7,
+    "fields": {
+        "asset_type": 7,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 8,
+    "fields": {
+        "asset_type": 8,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 9,
+    "fields": {
+        "asset_type": 9,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 10,
+    "fields": {
+        "asset_type": 9,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 11,
+    "fields": {
+        "asset_type": 10,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 12,
+    "fields": {
+        "asset_type": 10,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 13,
+    "fields": {
+        "asset_type": 11,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 14,
+    "fields": {
+        "asset_type": 11,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 15,
+    "fields": {
+        "asset_type": 12,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 16,
+    "fields": {
+        "asset_type": 12,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 17,
+    "fields": {
+        "asset_type": 13,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 18,
+    "fields": {
+        "asset_type": 13,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 19,
+    "fields": {
+        "asset_type": 14,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 20,
+    "fields": {
+        "asset_type": 14,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 21,
+    "fields": {
+        "asset_type": 15,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 22,
+    "fields": {
+        "asset_type": 15,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 23,
+    "fields": {
+        "asset_type": 16,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 24,
+    "fields": {
+        "asset_type": 16,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 25,
+    "fields": {
+        "asset_type": 17,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 26,
+    "fields": {
+        "asset_type": 17,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 27,
+    "fields": {
+        "asset_type": 17,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 28,
+    "fields": {
+        "asset_type": 18,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 29,
+    "fields": {
+        "asset_type": 18,
+        "num": 2,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 30,
+    "fields": {
+        "asset_type": 18,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 31,
+    "fields": {
+        "asset_type": 19,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 32,
+    "fields": {
+        "asset_type": 20,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 33,
+    "fields": {
+        "asset_type": 21,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 34,
+    "fields": {
+        "asset_type": 22,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 35,
+    "fields": {
+        "asset_type": 23,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 36,
+    "fields": {
+        "asset_type": 24,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 37,
+    "fields": {
+        "asset_type": 24,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 38,
+    "fields": {
+        "asset_type": 25,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 39,
+    "fields": {
+        "asset_type": 25,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 40,
+    "fields": {
+        "asset_type": 26,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 41,
+    "fields": {
+        "asset_type": 26,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 42,
+    "fields": {
+        "asset_type": 27,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 43,
+    "fields": {
+        "asset_type": 27,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 44,
+    "fields": {
+        "asset_type": 28,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 45,
+    "fields": {
+        "asset_type": 28,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 46,
+    "fields": {
+        "asset_type": 29,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 47,
+    "fields": {
+        "asset_type": 29,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 48,
+    "fields": {
+        "asset_type": 30,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 49,
+    "fields": {
+        "asset_type": 30,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 50,
+    "fields": {
+        "asset_type": 31,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 51,
+    "fields": {
+        "asset_type": 31,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 52,
+    "fields": {
+        "asset_type": 31,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 53,
+    "fields": {
+        "asset_type": 32,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 54,
+    "fields": {
+        "asset_type": 32,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 55,
+    "fields": {
+        "asset_type": 32,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 56,
+    "fields": {
+        "asset_type": 33,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 57,
+    "fields": {
+        "asset_type": 34,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_1_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 58,
+    "fields": {
+        "asset_type": 34,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_2_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 59,
+    "fields": {
+        "asset_type": 35,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_1_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 60,
+    "fields": {
+        "asset_type": 35,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_2_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 61,
+    "fields": {
+        "asset_type": 36,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in",
+        "energy_vector": ""
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 62,
+    "fields": {
+        "asset_type": 37,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 63,
+    "fields": {
+        "asset_type": 37,
+        "num": 2,
+        "direction": "input",
+        "label": "bus_in_heat_auxiliary",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 64,
+    "fields": {
+        "asset_type": 37,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 65,
+    "fields": {
+        "asset_type": 38,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in",
+        "energy_vector": ""
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 66,
+    "fields": {
+        "asset_type": 39,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out",
+        "energy_vector": ""
+    }
 }
 ]
