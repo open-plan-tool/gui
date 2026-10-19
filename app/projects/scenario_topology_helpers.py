@@ -638,6 +638,16 @@ def load_scenario_from_dict(model_data, user, project=None):
                             f"No timeseries with id {ts_data} has been found for asset {asset_data['name']}, skipping it"
                         )
                         asset_data.pop(timeseries_field)
+                elif isinstance(ts_data, float):
+                    input_ts, created = Timeseries.objects.get_or_create(
+                        user=user,
+                        values=[ts_data],
+                        scenario=scenario,
+                        ts_type="scalar",
+                        asset_type=asset_type,
+                    )
+                    input_ts.save()
+                    asset_data[timeseries_field] = input_ts
                 elif isinstance(ts_data, dict):
                     # format the date timestamps as datetime objects
                     for k in ("start_date", "end_date"):
