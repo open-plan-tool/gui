@@ -1028,6 +1028,16 @@ class Asset(TopologyNode):
             answer = []
         return answer
 
+    @property
+    def timeseries_fields(self):
+        AssetModel = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        return [
+            field.name
+            for field in AssetModel._meta.get_fields()
+            if isinstance(field, models.ForeignKey)
+            and field.related_model is Timeseries
+        ]
+
     def to_datapackage(self):
         """Return the asset's attributes in a datapackage form"""
         dp = {"type": self.asset_type.asset_type}
@@ -1151,8 +1161,8 @@ class Asset(TopologyNode):
         )
         fields += ["name", "pos_x", "pos_y"]
         # TODO use get_asset_or_404 here (move if from projects/forms.py)
-        asset_type = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
-        existing_asset = get_object_or_404(asset_type, unique_id=self.unique_id)
+        AssetModel = ASSET_MAPPING.get(self.asset_type.asset_type, Asset)
+        existing_asset = get_object_or_404(AssetModel, unique_id=self.unique_id)
         dm = model_to_dict(existing_asset, fields=fields)
         dm["asset_info"] = self.asset_type.export()
 
@@ -1164,11 +1174,11 @@ class Asset(TopologyNode):
         if self.parent_asset is not None:
             dm["parent_asset"] = self.parent_asset.name
 
-        if self.input_timeseries is not None:
-            # TODO also consider efficiency, efficiency_multiple, energy_price, feedin_tariff
-            input_ts = Timeseries.objects.filter(id=dm["input_timeseries"])
-            if input_ts.exists():
-                dm["input_timeseries"] = input_ts.get().export()
+        for field in self.timeseries_fields:
+            if getattr(existing_asset, field) is not None:
+                input_ts = Timeseries.objects.filter(id=dm[field])
+                if input_ts.exists():
+                    dm[field] = input_ts.get().export()
 
         # TODO add connections here if True, then one can recreate the asset
 
