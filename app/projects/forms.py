@@ -987,12 +987,12 @@ def asset_form_factory(asset_type=None, **kwargs):
                     input_method = ts_data["input_method"]["type"]
                     if input_method == TS_UPLOAD_TYPE or input_method == TS_MANUAL_TYPE:
                         # replace the dict with a new timeseries instance
-                        timeseries_obj = self.assign_timeseries_from_input(ts_data)
                         if input_method == TS_UPLOAD_TYPE:
-                            self.timeseries_same_as_timestamps(
-                                timeseries_obj.values, field
-                            )
-                        cleaned_data[field] = timeseries_obj
+                            self.timeseries_same_as_timestamps(ts_data["values"], field)
+                        if field not in self.errors:
+                            timeseries_obj = self.assign_timeseries_from_input(ts_data)
+                            cleaned_data[field] = timeseries_obj
+
                     if input_method == TS_SELECT_TYPE:
                         # return the timeseries instance
                         timeseries_id = ts_data["input_method"]["extra_info"]
@@ -1033,7 +1033,9 @@ def asset_form_factory(asset_type=None, **kwargs):
                 "open_source": False,
             }
             asset_type_name = self.asset_type.asset_type
-            ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
+            ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(
+                asset_type_name, asset_type_name
+            )
 
             if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
                 if len(timeseries_values) == 1:
@@ -1061,6 +1063,7 @@ def asset_form_factory(asset_type=None, **kwargs):
             return timeseries
 
         def timeseries_same_as_timestamps(self, ts, param):
+            # TODO trim larger timeseries
             if isinstance(ts, np.ndarray):
                 ts = np.squeeze(ts).tolist()
             if isinstance(ts, float) is False and isinstance(ts, int) is False:
