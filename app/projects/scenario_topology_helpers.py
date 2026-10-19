@@ -2,6 +2,7 @@ import uuid
 import numpy as np
 import datetime
 
+from django.db import models
 from django.forms import MultiValueField
 from django.shortcuts import get_object_or_404
 from projects.models import (
@@ -613,20 +614,12 @@ def load_scenario_from_dict(model_data, user, project=None):
                 if hess_param in asset_data:
                     asset_data.pop(hess_param)
 
-        # TODO, find a better criteria than an explicit list, or generate the list automatically
-        for timeseries_field in (
-            "input_timeseries",
-            "energy_price",
-            "feedin_tariff",
-            "cop",
-            "thermal_losses_fixed",
-            "fixed_thermal_losses_absolute",
-            "efficiency_electricity_chp",
-            "efficiency_heat_chp",
-            "efficiency_electricity_full_condensation",
-        ):
-            if asset_type in ("chp_fixed_ratio", "heat_dso", "gas_dso", "h2_dso"):
-                continue
+        for timeseries_field in [
+            field.name
+            for field in AssetModel._meta.get_fields()
+            if isinstance(field, models.ForeignKey)
+            and field.related_model is Timeseries
+        ]:
             ts_data = asset_data.get(timeseries_field, None)
             if ts_data is not None:
                 if isinstance(ts_data, int):
