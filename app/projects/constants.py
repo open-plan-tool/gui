@@ -417,18 +417,7 @@ ASSET_TYPE = (
     ("hess", "hess"),
 )
 
-ASSET_TO_TIMESERIES_ASSET_TYPE = {
-    "demand": "demand",
-    "gas_demand": "gas_demand",
-    "h2_demand": "h2_demand",
-    "heat_demand": "heat_demand",
-    "pv_plant": "pv_plant",
-    "wind_plant": "wind_plant",
-    "biogas_plant": "biogas_plant",
-    "geothermal_conversion": "geothermal_conversion",
-    "solar_thermal_plant": "solar_thermal_plant",
-    "sink": "sink",
-}
+ASSET_TO_TIMESERIES_ASSET_TYPE = {}
 
 RENEWABLE_ASSETS = (
     "electrolyzer",
