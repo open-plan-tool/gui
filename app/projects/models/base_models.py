@@ -968,6 +968,7 @@ class Asset(TopologyNode):
         return [f.name for f in self._meta.fields + self._meta.many_to_many]
 
     def get_field_value(self, field_name):
+        # TODO adapt this
         answer = getattr(self, field_name)
         if field_name in (
             "efficiency",
