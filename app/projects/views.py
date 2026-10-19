@@ -1678,12 +1678,12 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
 def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     scenario = Scenario.objects.get(id=scen_id)
 
-    # TODO delete once bug is fixed
-    if "dso" in asset_type_name:
-        msg = _(
-            "Due to the ongoing restructuring, the use of variable costs with time series data in the DSO components is not functioning as intended."
-        )
-        messages.warning(request, msg)
+    # Message for asset_type specific form
+    # if ... in asset_type_name:
+    #     msg = _(
+    #         ""
+    #     )
+    #     messages.warning(request, msg)
 
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
