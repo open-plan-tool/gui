@@ -127,6 +127,7 @@ def check_all_asset_forms(project_id, client, verbose=False):
     return failures
 
 
+@tag("unittest")
 class BasicOperationsTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
@@ -363,6 +364,7 @@ class BasicOperationsTest(TestCase):
         self.assertTemplateUsed(response, "index.html")
 
 
+@tag("unittest")
 class ExportLoadTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
@@ -466,6 +468,7 @@ class ExportLoadTest(TestCase):
         self.assertIn("scenario_set_data", response.json())
 
 
+@tag("unittest")
 class UploadTimeseriesTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
@@ -678,9 +681,10 @@ class UploadTimeseriesTest(TestCase):
         response = self.client.post(self.post_url, data, format="multipart")
         asset = Asset.objects.last()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(asset.input_timeseries_values, [1])
+        self.assertEqual(asset.input_timeseries.values, [1])
 
 
+@tag("unittest")
 class OptimizeCapacityToggleTest(TestCase):
     """optimize_cap toggle should zero out installed_capacity/age_installed
     when turned on, and reset maximum_capacity when turned off (forms.py
@@ -1130,6 +1134,7 @@ class CompareMVSDataInputTest(TestCase):
             self.fail("MVS input data differs between servers:\n\n" + message)
 
 
+@tag("unittest")
 class CHPAssetTest(TestCase):
     """Guards the chp component behavior through its migration to an own CHP model"""
 
@@ -1290,6 +1295,7 @@ class CHPAssetTest(TestCase):
             self.assertIn(bus_key, dp)
 
 
+@tag("unittest")
 class TimeseriesFieldTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
