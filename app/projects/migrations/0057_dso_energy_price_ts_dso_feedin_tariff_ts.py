@@ -9,6 +9,8 @@ def forwards(apps, schema_editor):
     DSO = apps.get_model("projects", "DSO")
     Timeseries = apps.get_model("projects", "Timeseries")  # adjust app if needed
 
+    print(f"{DSO.objects.all().count()} DSO components to update")
+
     for dso in DSO.objects.all():
         for old_name, new_name in (
                 ("energy_price", "energy_price_ts"),
