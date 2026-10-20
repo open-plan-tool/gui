@@ -187,6 +187,7 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.20.0/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 {% endblock head_block %}
 
@@ -374,8 +375,11 @@ function toggleTsFields() {
     const postTimeseriesFormUrl = `{% url 'timeseries_dashboard' %}`;
     let editTimeseriesFormUrl = `{% url 'timeseries_edit' selected_timeseries.id %}`;
     const csrfToken = '{{ csrf_token }}';
+    const tsValuesUrl = `{% url 'get_timeseries' %}`;
+    let scen_ts_length_str = 0;
 </script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
+<script src="{% static 'js/traceplot.js' %}"></script>
 <script src="{% static 'js/timeseries_dashboard_utils.js' %}"></script>
 
 </body>

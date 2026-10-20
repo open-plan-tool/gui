@@ -46,11 +46,10 @@
             <div>{{ selected_timeseries.values|length }} points</div>
         </div>
 
-        <div class="placeholder-chart">
-            Preview chart placeholder<br>
-            <span class="small">
-                Later this could show a sparkline or mini line chart for the selected series.
-            </span>
+        <div class="detail-plot"
+            id="ts_detail_plot"
+            data-ts-id="{{ selected_timeseries.pk }}"
+            data-ts-start="{{ selected_timeseries.start_date|date:'c' }}">
         </div>
 
         <div class="placeholder-chart">

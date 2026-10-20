@@ -76,3 +76,38 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+// handling the plot inside detail-panel
+function plotSelectedTimeseries() {
+    const plotDiv = document.getElementById("ts_detail_plot");
+    if (!plotDiv) return;
+    const tsId = plotDiv.dataset.tsId;
+    if (!tsId) return;
+
+    fetch(`${tsValuesUrl}/${tsId}`)
+        .then(resp => resp.json())
+        .then(data => {
+            const values = data["values"];
+            if (!Array.isArray(values) || values.length === 0) {
+                plotDiv.textContent = "No values available.";
+                return;
+            }
+            const start = plotDiv.dataset.tsStart ? new Date(plotDiv.dataset.tsStart) : null;
+            const x = start && !isNaN(start)
+                ? values.map((_, i) => new Date(start.getTime() + i * 3600_000).toISOString())
+                : values.map((_, i) => i);
+            makePlotly(x, values, "ts_detail_plot");
+        })
+        .catch(err => {
+            plotDiv.textContent = "Could not load timeseries values.";
+            console.error(err);
+        });
+}
+// initial load (full page render)
+plotSelectedTimeseries();
+// after every htmx swap into the details panel
+document.body.addEventListener("htmx:afterSwap", (e) => {
+    if (e.detail.target.id === "timeseries_details_panel") {
+        plotSelectedTimeseries();
+    }
+});
