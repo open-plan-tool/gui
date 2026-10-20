@@ -111,15 +111,13 @@ def has_invalid_dp_results(scenario_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def timeseries_dashboard(request):
+def timeseries_dashboard(request, ts_id=None):
     timeseries_qs = timeseries_sort_and_filter(request)
-
-    selected_id = request.GET.get("selected")
     selected_timeseries = None
 
-    if selected_id:
+    if ts_id is not None:
         try:
-            selected_timeseries = timeseries_qs.get(pk=selected_id, user=request.user)
+            selected_timeseries = timeseries_qs.get(pk=ts_id, user=request.user)
         except Timeseries.DoesNotExist:
             selected_timeseries = None
     else:
