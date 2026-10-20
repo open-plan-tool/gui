@@ -1,0 +1,1196 @@
+[
+{
+    "model": "projects.assettype",
+    "pk": 1,
+    "fields": {
+        "asset_type": "dso",
+        "asset_category": "energy_provider",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 2,
+    "fields": {
+        "asset_type": "gas_dso",
+        "asset_category": "energy_provider",
+        "energy_vector": "Gas",
+        "mvs_type": "source",
+        "asset_fields": "[name,energy_price,renewable_share]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 3,
+    "fields": {
+        "asset_type": "h2_dso",
+        "asset_category": "energy_provider",
+        "energy_vector": "H2",
+        "mvs_type": "source",
+        "asset_fields": "[name,energy_price,renewable_share]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 4,
+    "fields": {
+        "asset_type": "heat_dso",
+        "asset_category": "energy_provider",
+        "energy_vector": "Heat",
+        "mvs_type": "source",
+        "asset_fields": "[name,energy_price,renewable_share]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 5,
+    "fields": {
+        "asset_type": "demand",
+        "asset_category": "energy_consumption",
+        "energy_vector": "Electricity",
+        "mvs_type": "sink",
+        "asset_fields": "[name,input_timeseries]",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 6,
+    "fields": {
+        "asset_type": "gas_demand",
+        "asset_category": "energy_consumption",
+        "energy_vector": "Gas",
+        "mvs_type": "sink",
+        "asset_fields": "[name,input_timeseries]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 7,
+    "fields": {
+        "asset_type": "h2_demand",
+        "asset_category": "energy_consumption",
+        "energy_vector": "H2",
+        "mvs_type": "sink",
+        "asset_fields": "[name,input_timeseries]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 8,
+    "fields": {
+        "asset_type": "heat_demand",
+        "asset_category": "energy_consumption",
+        "energy_vector": "Heat",
+        "mvs_type": "sink",
+        "asset_fields": "[name,input_timeseries]",
+        "unit": "nan"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 9,
+    "fields": {
+        "asset_type": "transformer_station_in",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 10,
+    "fields": {
+        "asset_type": "transformer_station_out",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 11,
+    "fields": {
+        "asset_type": "storage_charge_controller_in",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 12,
+    "fields": {
+        "asset_type": "storage_charge_controller_out",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 13,
+    "fields": {
+        "asset_type": "solar_inverter",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 14,
+    "fields": {
+        "asset_type": "diesel_generator",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 15,
+    "fields": {
+        "asset_type": "fuel_cell",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,efficiency]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 16,
+    "fields": {
+        "asset_type": "gas_boiler",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Gas",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 17,
+    "fields": {
+        "asset_type": "electrolyzer",
+        "asset_category": "energy_conversion",
+        "energy_vector": "H2",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency,efficiency_heat]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 18,
+    "fields": {
+        "asset_type": "heat_pump",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Heat",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,cop]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 19,
+    "fields": {
+        "asset_type": "pv_plant",
+        "asset_category": "energy_production",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kWp"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 20,
+    "fields": {
+        "asset_type": "wind_plant",
+        "asset_category": "energy_production",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 21,
+    "fields": {
+        "asset_type": "biogas_plant",
+        "asset_category": "energy_production",
+        "energy_vector": "Gas",
+        "mvs_type": "source",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 22,
+    "fields": {
+        "asset_type": "geothermal_conversion",
+        "asset_category": "energy_production",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 23,
+    "fields": {
+        "asset_type": "solar_thermal_plant",
+        "asset_category": "energy_production",
+        "energy_vector": "Heat",
+        "mvs_type": "source",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "m²"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 24,
+    "fields": {
+        "asset_type": "charging_power",
+        "asset_category": "energy_storage",
+        "energy_vector": "Electricity",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,crate,efficiency,dispatchable]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 25,
+    "fields": {
+        "asset_type": "discharging_power",
+        "asset_category": "energy_storage",
+        "energy_vector": "Electricity",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,crate,efficiency,dispatchable]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 26,
+    "fields": {
+        "asset_type": "capacity",
+        "asset_category": "energy_storage",
+        "energy_vector": "Electricity",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 27,
+    "fields": {
+        "asset_type": "bess",
+        "asset_category": "energy_storage",
+        "energy_vector": "Electricity",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge,initial_storage_level,end_storage_level]",
+        "unit": "kW (el)"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 28,
+    "fields": {
+        "asset_type": "gess",
+        "asset_category": "energy_storage",
+        "energy_vector": "Gas",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
+        "unit": "l"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 29,
+    "fields": {
+        "asset_type": "h2ess",
+        "asset_category": "energy_storage",
+        "energy_vector": "H2",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
+        "unit": "kgH2"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 30,
+    "fields": {
+        "asset_type": "hess",
+        "asset_category": "energy_storage",
+        "energy_vector": "Heat",
+        "mvs_type": "storage",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_charge,efficiency_discharge,soc_max,soc_min,thermal_losses_variable,thermal_losses_fixed,fixed_thermal_losses_absolute,initial_storage_level,end_storage_level]",
+        "unit": "kW (therm)"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 31,
+    "fields": {
+        "asset_type": "chp",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "extractionTurbineCHP",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_electricity_chp,efficiency_heat_chp,efficiency_electricity_full_condensation]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 32,
+    "fields": {
+        "asset_type": "chp_fixed_ratio",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,lifetime,optimize_cap,maximum_capacity,efficiency_electricity_chp,efficiency_heat_chp]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 33,
+    "fields": {
+        "asset_type": "commodity",
+        "asset_category": "energy_production",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,installed_capacity,capex_spec,commodity_type,full_load_hours_max,full_load_hours_max_asset]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 34,
+    "fields": {
+        "asset_type": "heating_pipe",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Heat",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,absolute_losses,relative_losses,return_pipe]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 35,
+    "fields": {
+        "asset_type": "heating_network",
+        "asset_category": "energy_consumption",
+        "energy_vector": "Heat",
+        "mvs_type": "bus",
+        "asset_fields": "[name,absolute_losses]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 36,
+    "fields": {
+        "asset_type": "sink",
+        "asset_category": "energy_consumption",
+        "energy_vector": "nan",
+        "mvs_type": "sink",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,maximum_capacity,minimum,maximum,fix,positive_gradient_limit,negative_gradient_limit,full_load_time_max,full_load_time_min,integer]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 37,
+    "fields": {
+        "asset_type": "auxiliary_heat",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Heat",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,maximum_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,temp_in_heat,temp_out_heat,temp_low_source_component]",
+        "unit": "kVA"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 38,
+    "fields": {
+        "asset_type": "excess",
+        "asset_category": "energy_consumption",
+        "energy_vector": "nan",
+        "mvs_type": "sink",
+        "asset_fields": "[name,variable_costs]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 39,
+    "fields": {
+        "asset_type": "shortage",
+        "asset_category": "energy_production",
+        "energy_vector": "nan",
+        "mvs_type": "source",
+        "asset_fields": "[name,variable_costs]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 1,
+    "fields": {
+        "asset_type": 1,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 2,
+    "fields": {
+        "asset_type": 2,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 3,
+    "fields": {
+        "asset_type": 3,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 4,
+    "fields": {
+        "asset_type": 4,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 5,
+    "fields": {
+        "asset_type": 5,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 6,
+    "fields": {
+        "asset_type": 6,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 7,
+    "fields": {
+        "asset_type": 7,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 8,
+    "fields": {
+        "asset_type": 8,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 9,
+    "fields": {
+        "asset_type": 9,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 10,
+    "fields": {
+        "asset_type": 9,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 11,
+    "fields": {
+        "asset_type": 10,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 12,
+    "fields": {
+        "asset_type": 10,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 13,
+    "fields": {
+        "asset_type": 11,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 14,
+    "fields": {
+        "asset_type": 11,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 15,
+    "fields": {
+        "asset_type": 12,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 16,
+    "fields": {
+        "asset_type": 12,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 17,
+    "fields": {
+        "asset_type": 13,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 18,
+    "fields": {
+        "asset_type": 13,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 19,
+    "fields": {
+        "asset_type": 14,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 20,
+    "fields": {
+        "asset_type": 14,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 21,
+    "fields": {
+        "asset_type": 15,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 22,
+    "fields": {
+        "asset_type": 15,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 23,
+    "fields": {
+        "asset_type": 16,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 24,
+    "fields": {
+        "asset_type": 16,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 25,
+    "fields": {
+        "asset_type": 17,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 26,
+    "fields": {
+        "asset_type": 17,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 27,
+    "fields": {
+        "asset_type": 17,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 28,
+    "fields": {
+        "asset_type": 18,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 29,
+    "fields": {
+        "asset_type": 18,
+        "num": 2,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 30,
+    "fields": {
+        "asset_type": 18,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 31,
+    "fields": {
+        "asset_type": 19,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 32,
+    "fields": {
+        "asset_type": 20,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 33,
+    "fields": {
+        "asset_type": 21,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 34,
+    "fields": {
+        "asset_type": 22,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 35,
+    "fields": {
+        "asset_type": 23,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 36,
+    "fields": {
+        "asset_type": 24,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 37,
+    "fields": {
+        "asset_type": 24,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 38,
+    "fields": {
+        "asset_type": 25,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 39,
+    "fields": {
+        "asset_type": 25,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 40,
+    "fields": {
+        "asset_type": 26,
+        "num": 1,
+        "direction": "input",
+        "label": "charge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 41,
+    "fields": {
+        "asset_type": 26,
+        "num": 1,
+        "direction": "output",
+        "label": "discharge",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 42,
+    "fields": {
+        "asset_type": 27,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 43,
+    "fields": {
+        "asset_type": 27,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 44,
+    "fields": {
+        "asset_type": 28,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 45,
+    "fields": {
+        "asset_type": 28,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 46,
+    "fields": {
+        "asset_type": 29,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 47,
+    "fields": {
+        "asset_type": 29,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_hydrogen",
+        "energy_vector": "H2"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 48,
+    "fields": {
+        "asset_type": 30,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 49,
+    "fields": {
+        "asset_type": 30,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 50,
+    "fields": {
+        "asset_type": 31,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 51,
+    "fields": {
+        "asset_type": 31,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 52,
+    "fields": {
+        "asset_type": 31,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 53,
+    "fields": {
+        "asset_type": 32,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_fuel",
+        "energy_vector": "Gas"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 54,
+    "fields": {
+        "asset_type": 32,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 55,
+    "fields": {
+        "asset_type": 32,
+        "num": 2,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 56,
+    "fields": {
+        "asset_type": 33,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_electricity",
+        "energy_vector": "Electricity"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 57,
+    "fields": {
+        "asset_type": 34,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_1_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 58,
+    "fields": {
+        "asset_type": 34,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_2_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 59,
+    "fields": {
+        "asset_type": 35,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_1_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 60,
+    "fields": {
+        "asset_type": 35,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_2_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 61,
+    "fields": {
+        "asset_type": 36,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in",
+        "energy_vector": ""
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 62,
+    "fields": {
+        "asset_type": 37,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 63,
+    "fields": {
+        "asset_type": 37,
+        "num": 2,
+        "direction": "input",
+        "label": "bus_in_heat_auxiliary",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 64,
+    "fields": {
+        "asset_type": 37,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out_heat",
+        "energy_vector": "Heat"
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 65,
+    "fields": {
+        "asset_type": 38,
+        "num": 1,
+        "direction": "input",
+        "label": "bus_in",
+        "energy_vector": ""
+    }
+},
+{
+    "model": "projects.connectionport",
+    "pk": 66,
+    "fields": {
+        "asset_type": 39,
+        "num": 1,
+        "direction": "output",
+        "label": "bus_out",
+        "energy_vector": ""
+    }
+}
+]

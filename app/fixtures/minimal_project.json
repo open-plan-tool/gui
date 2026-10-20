@@ -1,0 +1,44 @@
+[
+{
+    "model": "projects.project",
+    "pk": 1,
+    "fields": {
+        "date_created": "2026-10-08T14:09:44.731",
+        "date_updated": "2026-10-08T14:09:44.731",
+        "name": "Test project",
+        "description": "Test project",
+        "country": "GERMANY",
+        "latitude": 1,
+        "longitude": 1,
+        "economic_data": 1,
+        "user": 1,
+        "viewers": []
+    }
+},
+{
+    "model": "projects.economicdata",
+    "pk": 1,
+    "fields": {
+        "duration": 20,
+        "currency": "EUR",
+        "discount": 0.05,
+        "tax": 0.0
+    }
+},
+{
+    "model": "projects.scenario",
+    "pk": 1,
+    "fields": {
+        "name": "TestScenario",
+        "start_date": "2019-01-01T00:00:00",
+        "time_step": 60,
+        "capex_fix": 0.0,
+        "capex_var": 0.0,
+        "opex_fix": 0.0,
+        "opex_var": 0.0,
+        "evaluated_period": 2,
+        "project": 1,
+        "description": ""
+    }
+}
+]
