@@ -21,7 +21,8 @@ RUN apt-get update && \
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
     && pip install gunicorn  \
-    && pip install "git+https://github.com/oemof/oemof-solph@v0.6.4"
+    && pip install "git+https://github.com/oemof/oemof-solph@v0.6.4" \
+    && pip install demandlib
 
 WORKDIR ${APP_ROOT}
 
