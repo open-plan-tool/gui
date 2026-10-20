@@ -571,8 +571,22 @@ class Scenario(models.Model):
                     "foreignKeys": [],
                 },
             }
+
+            timeseries_foreign_keys = False
+            for bus_resource_rec in bus_resource_records:
+                absolute_losses = bus_resource_rec.get("absolute_losses", None)
+                if isinstance(absolute_losses, Timeseries):
+                    col = absolute_losses.name
+                    bus_resource_rec["absolute_losses"] = col
+                    profile_resource_records.update({col: absolute_losses.get_values})
+                    timeseries_foreign_keys = True
+
             schema = infer_metadata(bus_resource_records[0])
             resource_metadata["schema"].update(schema)
+            if timeseries_foreign_keys:
+                resource_metadata["schema"]["foreignKeys"].append(
+                    {"fields": "absolute_losses", "reference": {"resource": "profiles"}}
+                )
             datapackage_metadata_dict["resources"].append(resource_metadata)
 
             out_path = elements_folder / "bus.csv"
@@ -1847,7 +1861,7 @@ class HeatingNetwork(Bus):
         if self.absolute_losses.ts_type == "scalar":
             absolute_losses = self.absolute_losses.values[0]
         else:
-            absolute_losses = self.absolute_losses.get_values
+            absolute_losses = self.absolute_losses
 
         dm["absolute_losses"] = absolute_losses
         return dm
