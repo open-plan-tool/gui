@@ -148,7 +148,7 @@ def handle_bus_form_post(request, scen_id=0, asset_type_name="", asset_uuid=None
 
 
 def track_asset_changes(scenario, param, form, existing_asset, new_value=None):
-    if hasattr(existing_asset, param):
+    if hasattr(existing_asset, param) and isinstance(existing_asset, Asset):
         old_value = existing_asset.get_field_value(param)
         if new_value is None:
             new_value = form.cleaned_data.get(param)
