@@ -1844,7 +1844,12 @@ class HeatingNetwork(Bus):
         dm["carrier"] = None
         dm["balanced"] = None
         dm["type"] = "HeatingNetwork"
-        dm["absolute_losses"] = json.loads(self.absolute_losses)
+        if self.absolute_losses.ts_type == "scalar":
+            absolute_losses = self.absolute_losses.values[0]
+        else:
+            absolute_losses = self.absolute_losses.get_values
+
+        dm["absolute_losses"] = absolute_losses
         return dm
 
     @staticmethod
