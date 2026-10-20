@@ -10,9 +10,12 @@ def forwards(apps, schema_editor):
 
     for chp in CHP.objects.all():
 
-        el_efficiency_no_heat = getattr(chp, "efficiency")  # Electrical efficiency with no heat extraction
-        th_efficiency_max_heat = getattr(chp, "efficiency_multiple")  # Thermal efficiency with maximal heat extraction
-        beta = getattr(chp, "thermal_loss_rate_asset")  # Power loss index
+        el_efficiency_no_heat = getattr(chp, "efficiency_electricity_chp")  # Electrical efficiency with no heat extraction
+        th_efficiency_max_heat = getattr(chp, "efficiency_heat_chp")  # Thermal efficiency with maximal heat extraction
+        beta = getattr(chp, "efficiency_electricity_full_condensation")  # Power loss index
+
+        if isinstance(beta, str):
+            beta = float(beta.replace(",","."))
 
         try:
             if el_efficiency_no_heat is None:
@@ -57,6 +60,11 @@ def forwards(apps, schema_editor):
 
             chp.save()
         except:
+            print("----- CHP ------ NEW asset")
+            print(f"el_efficiency_no_heat: {el_efficiency_no_heat}")
+            print(f"th_efficiency_max_heat: {th_efficiency_max_heat}")
+            print(f"beta: {beta}")
+            print(traceback.format_exc())
             print(f"{chp.name} from scenario {chp.scenario.name} encountered problem by migration forwards")
 
 
@@ -102,6 +110,7 @@ def backwards(apps, schema_editor):
             setattr(chp, "efficiency_electricity_chp", el_efficiency_no_heat)
             setattr(chp, "efficiency_heat_chp", th_efficiency_max_heat)
             setattr(chp, "efficiency_electricity_full_condensation", beta)
+
 
             chp.save()
         except:
