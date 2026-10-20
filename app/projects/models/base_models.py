@@ -1773,14 +1773,6 @@ class ThermalStorage(Asset):
         blank=False,
         related_name="thermal_losses_fixed_set",
     )
-    # apparently always = 0, so not implemented
-    fixed_thermal_losses_absolute = models.ForeignKey(
-        Timeseries,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=False,
-        related_name="fixed_thermal_losses_absolute_set",
-    )
 
     initial_storage_level = models.FloatField(
         null=True,
@@ -1810,14 +1802,6 @@ class ThermalStorage(Asset):
             thermal_losses_fixed = None
 
         self.fixed_thermal_losses_relativeA = thermal_losses_fixed
-
-        if self.fixed_thermal_losses_absolute:
-            fixed_thermal_losses_absolute = (
-                self.fixed_thermal_losses_absolute.get_values
-            )
-        else:
-            fixed_thermal_losses_absolute = None
-        self.fixed_thermal_losses_absoluteA = fixed_thermal_losses_absolute
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -1830,11 +1814,6 @@ class ThermalStorage(Asset):
                 min=0.0,
                 max=1.0,
                 param_name="thermal_losses_fixed",
-            ),
-            "fixed_thermal_losses_absolute": TimeseriesField(
-                default=0.1,
-                min=0.0,
-                param_name="fixed_thermal_losses_absolute",
             ),
         }
 
