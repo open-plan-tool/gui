@@ -769,9 +769,9 @@ class NodeObject:
         else:
             return None
 
-    def create_connection_links(self, scen_id):
+    def update_connection_links(self, scen_id):
         """Create connections between a bus and the assets connected as inputs and outputs
-
+           Also delete the connection which were deleted by the user
         Parameters
         ----------
         scen_id
@@ -785,6 +785,7 @@ class NodeObject:
         if self.node_obj_type == "bus":
             asset_type = ASSET_MAPPING.get(self.name, Bus)
             bus_obj = get_object_or_404(asset_type, pk=self.db_obj_id)
+            bus_connections = []
             for asset_connection in self.outputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
                     connection, created = ConnectionLink.objects.get_or_create(
@@ -797,6 +798,7 @@ class NodeObject:
                         asset_connection_port=asset_connection["to"]["port"],
                         scenario=get_object_or_404(Scenario, pk=scen_id),
                     )
+                    bus_connections.append(connection)
             for asset_connection in self.inputs:
                 if isinstance(asset_connection["to"]["id"], str):  # i.e. unique_id
                     connection, created = ConnectionLink.objects.get_or_create(
@@ -809,10 +811,17 @@ class NodeObject:
                         asset_connection_port=asset_connection["to"]["port"],
                         scenario=get_object_or_404(Scenario, pk=scen_id),
                     )
+                    bus_connections.append(connection)
+
+            # Delete connections which exists in the DB but not in the UI anymore
+            for connection in ConnectionLink.objects.filter(bus=bus_obj):
+                if connection not in bus_connections:
+                    connection.delete()
         else:
             logger.debug(
                 f"The node with asset type {self.name} is not a bus, therefore no connection will be created"
             )
+
         logger.debug(
             f"Nodes interconnection links for {self.name} '{self.data['name']}' were created successfully in scenario: {scen_id}."
         )
