@@ -482,14 +482,13 @@ editor.on("keydown", e => {
             return;
         const selectedId = selectedElement.id.substring(5);  // form "node-id"
         const selectedNode = editor.getNodeFromId(selectedId);
-        // ignore inputs/outputs
-        selectedNode.inputs = {};
-        selectedNode.outputs = {};
+        const connectionInputs = Object.keys(selectedNode.inputs).length
+        const connectionOutputs = Object.keys(selectedNode.outputs).length
         // create new node with same type (name), slightly off original
-        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1,
+        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, connectionInputs, connectionOutputs,
             selectedNode.name === BUS ?
                 { portMapping: selectedNode.data.portMapping, bustype: selectedNode.data.bustype, energyCarrier: selectedNode.data.energyCarrier }
-                : {}
+                : { portMapping: selectedNode.data.portMapping }
         ).then(node => {
             const newNodeId = node.editorNodeId;
             populateForm(selectedElement, submit=false, show=false).then(_ => {
