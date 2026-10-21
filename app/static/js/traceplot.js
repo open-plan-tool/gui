@@ -85,7 +85,6 @@ function getTimeseriesValues(ts_id, param_name=""){
             plotTimeseriesInputTrace(ts_values, param_name=param_name);
         }
         showGenerationParameters(data["generation_parameters"], data["units"], data["labels"], param_name);
-        console.log("retrieved values", ts_values);
     });
 }
 
