@@ -166,6 +166,9 @@ def timeseries_dashboard(request, ts_id=None):
 
 def timeseries_build_context(request, selected_timeseries=None):
     timeseries_qs = timeseries_sort_and_filter(request)
+    all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
+        ts_type="scalar"
+    )
 
     if selected_timeseries is not None:
         try:
@@ -177,15 +180,15 @@ def timeseries_build_context(request, selected_timeseries=None):
     else:
         selected_timeseries = timeseries_qs.first()
 
-    existing_lengths = sorted(set(len(ts.values) for ts in timeseries_qs))
+    existing_lengths = sorted(set(len(ts.values) for ts in all_timeseries_qs))
     existing_asset_types = (
-        timeseries_qs.exclude(asset_type__isnull=True)
+        all_timeseries_qs.exclude(asset_type__isnull=True)
         .values_list("asset_type", flat=True)
         .order_by()
         .distinct()
     )
     existing_scenarios = (
-        timeseries_qs.exclude(scenario__isnull=True)
+        all_timeseries_qs.exclude(scenario__isnull=True)
         .values_list("scenario_id", "scenario__name")
         .order_by()
         .distinct()
