@@ -5227,3 +5227,15 @@ msgstr "Max. Neigungswinkel"
 
 msgid "Add"
 msgstr "Hinzufügen"
+
+msgid "Commodity"
+msgstr "Energieträger"
+
+msgid "Heating Network"
+msgstr "Wärmenetz"
+
+msgid "Heating pipe"
+msgstr "Fernwärmeleitung"
+
+msgid "Auxiliary Heat"
+msgstr "Temperaturanhebung"
