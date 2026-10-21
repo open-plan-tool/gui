@@ -36,7 +36,8 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    schema_editor.execute("DELETE FROM projects_electrolyzer")
+    apps.get_model("projects", "Electrolyser").objects.all().delete()
+
 
 
 class Migration(migrations.Migration):

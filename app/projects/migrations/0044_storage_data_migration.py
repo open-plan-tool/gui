@@ -61,10 +61,14 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    schema_editor.execute("DELETE FROM projects_electricalstorage")
-    schema_editor.execute("DELETE FROM projects_fuelstorage")
-    schema_editor.execute("DELETE FROM projects_thermalstorage")
-    schema_editor.execute("DELETE FROM projects_hydrogenstorage")
+    for model_name in (
+        "ElectricalStorage",
+        "FuelStorage",
+        "ThermalStorage",
+        "HydrogenStorage",
+    ):
+        Model = apps.get_model("projects", model_name)
+        Model.objects.all().delete()
 
 
 class Migration(migrations.Migration):
