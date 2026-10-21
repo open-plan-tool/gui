@@ -56,6 +56,7 @@ for (let element of document.getElementsByClassName('section__component')) {
 editor.on('nodeCreated', function(id) {
     const node = document.getElementById(`node-${id}`);
     const deleteBtn = node.querySelector('.node__delete');
+    const duplicateBtn = node.querySelector('.node__duplicate');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -180,6 +181,11 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
 
     const source_html = `<div class="box" ${ASSET_TYPE_NAME}="${nodeName}">
     </div>
+    <button class="node__duplicate" type="button" aria-label="Duplicate node">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
     <button class="node__delete" type="button" aria-label="Delete node">
       <svg viewBox="0 0 20 20" width="12" height="12" aria-hidden="true">
         <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
