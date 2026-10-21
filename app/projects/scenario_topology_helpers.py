@@ -98,6 +98,9 @@ ASSET_PARAMETERS_DISCONTINUED = {
         "peak_demand_pricing",
         "peak_demand_pricing_period",
     ],
+    "hess": [
+        "fixed_thermal_losses_absolute",
+    ],
 }
 
 
