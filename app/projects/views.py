@@ -1022,7 +1022,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         update_deleted_objects_from_database(scen_id, node_list)
 
         for node_obj in node_list:
-            node_obj.create_connection_links(scen_id)
+            node_obj.update_connection_links(scen_id)
         return JsonResponse({"success": True}, status=200)
     else:
         scenario = get_object_or_404(Scenario, pk=scen_id)
