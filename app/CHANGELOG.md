@@ -25,6 +25,8 @@
 ## [v1.2.2] – 2026-10-29
 ### Changed
 - Constraint step (previously step 3) has been hidden until functionality is implemented in new backend [[#564](https://github.com/open-plan-tool/gui/pull/564)]
+### Added
+- Add button to duplicate nodes in scenario [[#562](https://github.com/open-plan-tool/gui/pull/562)]
 
 ## [v1.2.1] – 2026-10-14
 ### Added
