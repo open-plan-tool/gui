@@ -3137,10 +3137,10 @@ nav.navbar {
       background-size: contain;
       height: 2rem;
       width: 2rem; }
-    .system-design .drawflow .drawflow-node .node__delete {
+    .system-design .drawflow .drawflow-node .node__delete,
+    .system-design .drawflow .drawflow-node .node__duplicate {
       position: absolute;
       top: -12px;
-      right: 12px;
       width: 24px;
       height: 24px;
       display: grid;
@@ -3148,25 +3148,30 @@ nav.navbar {
       border: 0;
       border-radius: 100%;
       background: #fff;
-      color: #ef4444;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
       opacity: 0;
       transform: translateY(-6px);
       pointer-events: none;
       transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.2s ease; }
-    .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node:focus-within .node__delete {
+    .system-design .drawflow .drawflow-node .node__delete {
+      right: 12px;
+      color: #ef4444; }
+    .system-design .drawflow .drawflow-node .node__duplicate {
+      right: 44px;
+      color: #1F567D; }
+    .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node:focus-within .node__delete, .system-design .drawflow .drawflow-node:hover .node__duplicate, .system-design .drawflow .drawflow-node:focus-within .node__duplicate {
       opacity: 1;
       transform: translateY(0) scale(1);
       pointer-events: auto; }
-    .system-design .drawflow .drawflow-node .node__delete:hover {
+    .system-design .drawflow .drawflow-node .node__delete:hover, .system-design .drawflow .drawflow-node .node__duplicate:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18); }
-    .system-design .drawflow .drawflow-node .node__delete:active {
+    .system-design .drawflow .drawflow-node .node__delete:active, .system-design .drawflow .drawflow-node .node__duplicate:active {
       transform: translateY(0) scale(0.96); }
     @media (prefers-reduced-motion: reduce) {
-      .system-design .drawflow .drawflow-node .node__delete {
+      .system-design .drawflow .drawflow-node .node__delete, .system-design .drawflow .drawflow-node .node__duplicate {
         transition: opacity .01s linear;
         transform: none; }
-      .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node .node:focus-within .node__delete {
+      .system-design .drawflow .drawflow-node:hover .node__delete, .system-design .drawflow .drawflow-node .node:focus-within .node__delete, .system-design .drawflow .drawflow-node:hover .node__duplicate, .system-design .drawflow .drawflow-node .node:focus-within .node__duplicate {
         transform: none; } }
   .system-design .port--empty {
     background-image: url("/static/assets/gui/port-empty.svg");
