@@ -272,7 +272,7 @@
         </div>
         <div class="summary-card">
             <div class="small muted">Total</div>
-            <div><strong>{{ timeseries_list|length }}</strong></div>
+            <div><strong id="summary_total">{{ timeseries_list|length }}</strong></div>
         </div>
         <div class="summary-card">
             <div class="small muted">Open source</div>
@@ -285,7 +285,7 @@
         </div>
         <div class="summary-card">
             <div class="small muted">Selected</div>
-            <div><strong>
+            <div><strong id="summary_selected">
                 {% if selected_timeseries %}{{ selected_timeseries.name|default:"Unnamed" }}{% else %}-{% endif %}
             </strong></div>
         </div>

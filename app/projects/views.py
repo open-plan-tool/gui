@@ -160,7 +160,10 @@ def timeseries_dashboard(request, ts_id=None):
         details_html = render_to_string(
             "asset/timeseries_detail_panel.html", context, request
         )
-        return HttpResponse(table_html + details_html)
+        summary_html = render_to_string(
+            "asset/timeseries_summary.html", context, request
+        )
+        return HttpResponse(table_html + details_html + summary_html)
     return render(request, "asset/timeseries_dashboard.html", context)
 
 
