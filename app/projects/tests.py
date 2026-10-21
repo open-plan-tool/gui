@@ -2,6 +2,8 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.forms import Select
 
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+
 from projects.helpers import TimeseriesField, TimeseriesInputWidget
 from projects.helpers import (
     TS_MANUAL_TYPE,
@@ -460,6 +462,12 @@ class ExportLoadMixin:
         response = self.client.get(reverse("project_export", args=[self.project.id]))
         self.assertEqual(response.status_code, 200)
         self.assertIn("scenario_set_data", response.json())
+
+    def test_export_as_datapackage(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            dp_path = self.scenario.to_datapackage(temp_dir)
+            es = create_energy_system_from_dp(dp_path)
 
 
 @tag("unittest")
