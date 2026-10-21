@@ -417,6 +417,12 @@ class Scenario(models.Model):
             bus_data = model_to_dict(
                 bus, exclude=["id", "parent_asset", "scenario", "bus_ptr"]
             )
+            if qs_hn.exists():
+                field = "absolute_losses"
+                input_ts = Timeseries.objects.filter(id=bus_data[field])
+                if input_ts.exists():
+                    bus_data[field] = input_ts.get().export()
+
             bus_data["inputs"] = []
             bus_data["outputs"] = []
             for connection in bus.connectionlink_set.all():
