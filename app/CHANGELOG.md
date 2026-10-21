@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Add button to duplicate nodes in scenario [[#562](https://github.com/open-plan-tool/gui/pull/562)]
 
 ## [v1.2.1] – 2026-10-14
 ### Added
