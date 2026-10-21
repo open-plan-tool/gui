@@ -6,27 +6,38 @@ from django.db import migrations, models
 
 
 def forwards(apps, schema_editor):
-    Asset = apps.get_model("projects", "Asset")
-    old_dso = apps.get_model("projects", "DSO")
+    DSO = apps.get_model("projects", "DSO")
     dso_types = {"DSOGas":"gas_dso", "DSOH2":"h2_dso", "DSOHeat":"heat_dso"}
     for dso_model, dso_type in dso_types.items():
-        DSO = apps.get_model("projects", dso_model)
-        for asset in old_dso.objects.filter(asset_type__asset_type=dso_type):
-            if DSO.objects.filter(asset_ptr_id=asset.pk).exists():
+        newDSO = apps.get_model("projects", dso_model)
+        for old_dso in DSO.objects.filter(asset_type__asset_type=dso_type):
+            if newDSO.objects.filter(asset_ptr_id=old_dso.pk).exists():
                 continue
-            dso = DSO(
-                asset_ptr_id=asset.pk,
-                energy_price=asset.energy_price.values[0],
-                renewable_share=asset.renewable_share,
+            dso = newDSO(
+                asset_ptr_id=old_dso.pk,
+                energy_price=old_dso.energy_price.values[0],
+                renewable_share=old_dso.renewable_share,
             )
             # raw save writes only the child table row of the existing parent asset
             dso.save_base(raw=True)
+            old_dso.delete(keep_parents=True)
 
 
 def backwards(apps, schema_editor):
-    schema_editor.execute("DELETE FROM projects_dsogas")
-    schema_editor.execute("DELETE FROM projects_dsoh2")
-    schema_editor.execute("DELETE FROM projects_dsoheat")
+    DSO = apps.get_model("projects", "DSO")
+    for model_name in ("DSOGas", "DSOH2", "DSOHeat"):
+        Model = apps.get_model("projects", model_name)
+        for new_dso in Model.objects.all():
+            if DSO.objects.filter(asset_ptr_id=new_dso.pk).exists():
+                continue
+            dso = DSO(
+                asset_ptr_id=new_dso.pk,
+                energy_price=new_dso.energy_price,
+                renewable_share=new_dso.renewable_share,
+            )
+            # raw save writes only the child table row of the existing parent asset
+            dso.save_base(raw=True)
+            new_dso.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
 
