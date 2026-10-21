@@ -414,23 +414,7 @@ class Scenario(models.Model):
             qs_hn = HeatingNetwork.objects.filter(id=bus.id)
             if qs_hn.exists():
                 bus = qs_hn.get()
-            bus_data = model_to_dict(
-                bus, exclude=["id", "parent_asset", "scenario", "bus_ptr"]
-            )
-            if qs_hn.exists():
-                field = "absolute_losses"
-                input_ts = Timeseries.objects.filter(id=bus_data[field])
-                if input_ts.exists():
-                    bus_data[field] = input_ts.get().export()
-
-            bus_data["inputs"] = []
-            bus_data["outputs"] = []
-            for connection in bus.connectionlink_set.all():
-                if connection.flow_direction == "A2B":
-                    bus_data["inputs"].append(connection.export())
-                elif connection.flow_direction == "B2A":
-                    bus_data["outputs"].append(connection.export())
-            busses.append(bus_data)
+            busses.append(bus.export())
         dm["busses"] = busses
         return dm
 
@@ -888,6 +872,19 @@ class Bus(TopologyNode):
         dm["shortage_cost"] = None
         dm["absolute_losses"] = None
         return dm
+
+    def export(self):
+        bus_data = model_to_dict(
+            self, exclude=["id", "parent_asset", "scenario", "bus_ptr"]
+        )
+        bus_data["inputs"] = []
+        bus_data["outputs"] = []
+        for connection in self.connectionlink_set.all():
+            if connection.flow_direction == "A2B":
+                bus_data["inputs"].append(connection.export())
+            elif connection.flow_direction == "B2A":
+                bus_data["outputs"].append(connection.export())
+        return bus_data
 
 
 class Asset(TopologyNode):
@@ -1870,6 +1867,20 @@ class HeatingNetwork(Bus):
             absolute_losses = self.absolute_losses
 
         dm["absolute_losses"] = absolute_losses
+        return dm
+
+    def export(self):
+        """
+        Returns
+        -------
+        A dict with the parameters describing an asset type model
+        """
+        dm = super().export()
+        field = "absolute_losses"
+        input_ts = Timeseries.objects.filter(id=dm[field])
+        if input_ts.exists():
+            dm[field] = input_ts.get().export()
+
         return dm
 
     @staticmethod
