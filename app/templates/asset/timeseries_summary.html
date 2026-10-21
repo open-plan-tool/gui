@@ -1,0 +1,4 @@
+<strong id="summary_total" hx-swap-oob="true">{{ timeseries_list|length }}</strong>
+<strong id="summary_selected" hx-swap-oob="true">
+    {% if selected_timeseries %}{{ selected_timeseries.name|default:"Unnamed" }}{% else %}-{% endif %}
+</strong>
