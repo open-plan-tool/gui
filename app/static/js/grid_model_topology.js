@@ -671,7 +671,6 @@ editor.on('connectionUnselected', _ => {
 
 function updateCapacityFieldsVisibility() {
     const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
-    console.log("optimize_cap element:", optimizeCapInput);
     if (!optimizeCapInput) return;
 
     const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
