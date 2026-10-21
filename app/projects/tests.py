@@ -364,8 +364,7 @@ class BasicOperationsTest(TestCase):
         self.assertTemplateUsed(response, "index.html")
 
 
-@tag("unittest")
-class ExportLoadTest(TestCase):
+class ExportLoadMixin:
     fixtures = [
         "fixtures/valuetypes.json",
         "fixtures/assettypes.json",
@@ -375,12 +374,7 @@ class ExportLoadTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = CustomUser.objects.first()
-        with open(
-            Path(__file__).resolve().parent.parent
-            / "test_files"
-            / "back_compatibility_all_assets.json",
-            "r",
-        ) as fp:
+        with open(cls.data_file, "r") as fp:
             mydict = json.load(fp)
             load_project_from_dict(mydict, cls.user)
         cls.project = Project.objects.first()
@@ -466,6 +460,25 @@ class ExportLoadTest(TestCase):
         response = self.client.get(reverse("project_export", args=[self.project.id]))
         self.assertEqual(response.status_code, 200)
         self.assertIn("scenario_set_data", response.json())
+
+
+@tag("unittest")
+class ExportLoadTestCompatiblity(ExportLoadMixin, TestCase):
+    data_file = (
+        Path(__file__).resolve().parent.parent
+        / "test_files"
+        / "back_compatibility_all_assets.json"
+    )
+
+
+@tag("unittest")
+class ExportLoadTest(ExportLoadMixin, TestCase):
+    data_file = (
+        Path(__file__).resolve().parent.parent / "test_files" / "all_assets.json"
+    )
+
+    def test_delete_project(self):
+        self.project.delete()
 
 
 @tag("unittest")
