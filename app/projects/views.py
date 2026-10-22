@@ -39,6 +39,7 @@ from projects.decorators import (
 )
 from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
+    ASSET_MAPPING,
     Asset,
     AssetChangeTracker,
     AssetType,
@@ -804,7 +805,7 @@ def scenario_select_project(request, step_id=0, max_step=1):
             form = ScenarioSelectProjectForm(project_queryset=user_projects)
             answer = render(
                 request,
-                f"scenario/scenario_step{step_id}.html",
+                f"scenario/{SCENARIOS_STEPS[step_id]}.html",
                 {
                     "form": form,
                     "step_id": step_id,
@@ -867,7 +868,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
             existing_simulation = False
         answer = render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "form": form,
                 "proj_id": proj_id,
@@ -1042,7 +1043,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         topology_data_list = load_scenario_topology_from_db(scen_id)
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
@@ -1119,7 +1120,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
