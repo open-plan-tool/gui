@@ -493,4 +493,4 @@ MAP_MVS_EPA = {value: key for (key, value) in MAP_EPA_MVS.items()}
 
 COMPARE_VIEW = "compare"
 
-NO_INVEST_ASSETS = ["shortage", "excess", "heating_pipe"]
+NO_INVEST_ASSETS = ["shortage", "excess", "heating_pipe", "commodity"]

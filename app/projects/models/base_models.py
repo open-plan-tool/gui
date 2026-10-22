@@ -520,8 +520,12 @@ class Scenario(models.Model):
                 },
             }
 
+            AssetModel = ASSET_MAPPING.get(facade_name, Asset)
+
             for i, asset in enumerate(
-                qs_assets.filter(asset_type__asset_type=facade_name)
+                AssetModel.objects.filter(
+                    asset_type__asset_type=facade_name, scenario=self
+                )
             ):
                 resource_rec, bus_resource_rec, profile_resource_rec = (
                     asset.to_datapackage()
@@ -1219,6 +1223,14 @@ class Commodity(Asset):
     )
     commodity_type = models.CharField(max_length=30, null=True, blank=True)
 
+    def to_datapackage(self):
+        dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
+        dm["capacity"] = dm.pop("installed_capacity")
+        dm["variable_cost"] = dm.pop("capex_spec")
+        dm["commodity"] = dm.pop("commodity_type")
+        dm["bus_out"] = dm.pop("bus_out_electricity")
+        return dm, bus_resource_rec, profile_resource_rec
+
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
@@ -1880,7 +1892,6 @@ class HeatingNetwork(Bus):
         input_ts = Timeseries.objects.filter(id=dm[field])
         if input_ts.exists():
             dm[field] = input_ts.get().export()
-
         return dm
 
     @staticmethod
