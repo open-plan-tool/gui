@@ -181,7 +181,7 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
 
     const source_html = `<div class="box" ${ASSET_TYPE_NAME}="${nodeName}">
     </div>
-    <button class="node__duplicate" type="button" aria-label="Duplicate node">
+    <button class="node__duplicate" type="button" aria-label="Duplicate node" title="Duplicate, you can also select the node and press the 'D' stroke of your keyboard">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
