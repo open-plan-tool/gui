@@ -379,7 +379,8 @@ def timeseries_delete(request, ts_id):
     details_html = render_to_string(
         "asset/timeseries_detail_panel.html", context, request
     )
-    return HttpResponse(table_html + details_html)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
 
 
 @require_http_methods(["GET"])
