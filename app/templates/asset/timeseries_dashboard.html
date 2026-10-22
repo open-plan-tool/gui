@@ -241,6 +241,8 @@
                       hx-target="#timeseries_details_panel"
                       hx-swap="outerHTML"
                       hx-push-url="true">
+                        <input type="hidden" name="sort" id="sortInput" value="{{ request.GET.sort }}">
+                        <input type="hidden" name="dir" id="dirInput" value="{{ request.GET.dir }}">
                         <div style="display: flex; gap: 16px; align-items: flex-start;">
                             <div>
                                 <label for="assetTypeSelect" style="display: block;">Asset type</label>
@@ -306,17 +308,19 @@
         <div class="layout">
             <div class="panel">
                 <h2>My time series</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Asset type</th>
-                            <th>Scenario</th>
-                            <th>Points</th>
-                        </tr>
-                    </thead>
-                    {% include "asset/timeseries_table.html" %}
-                </table>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><a href="#" onclick="sortBy('name'); return false;">Name</a></th>
+                                <th><a href="#" onclick="sortBy('asset_type'); return false;">Asset type</a></th>
+                                <th><a href="#" onclick="sortBy('scenario'); return false;">Scenario</a></th>
+                                <th><a href="#" onclick="sortBy('points'); return false;">Points</a></th>
+                            </tr>
+                        </thead>
+                        {% include "asset/timeseries_table.html" %}
+                    </table>
+                </div>
             </div>
             {% include "asset/timeseries_detail_panel.html" %}
         </div>
@@ -391,6 +395,13 @@
 function toggleTsFields() {
     const val = document.getElementById('ts-type-select').value;
     document.getElementById('pv-fields').style.display = val === 'pv' ? '' : 'none';
+}
+function sortBy(column) {
+    const sort = document.getElementById('sortInput');
+    const dir = document.getElementById('dirInput');
+    dir.value = (sort.value === column && dir.value === 'asc') ? 'desc' : 'asc';
+    sort.value = column;
+    htmx.trigger('#filterForm', 'submit');
 }
 </script>
 <script>
