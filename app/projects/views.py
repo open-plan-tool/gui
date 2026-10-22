@@ -11,7 +11,7 @@ from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import F, Func, IntegerField, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
 
@@ -240,6 +240,26 @@ def timeseries_sort_and_filter(request):
         timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
     if selected_scenario:
         timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
+
+    sort = params.get("sort")
+    direction = params.get("dir")
+
+    sort_fields = {
+        "name": "name",
+        "asset_type": "asset_type",
+        "scenario": "scenario_id",
+        "points": "points_count",
+    }
+
+    if sort in sort_fields:
+        if sort == "points":
+            timeseries_qs = timeseries_qs.annotate(
+                points_count=Func(
+                    F("values"), 1, function="array_length", output_field=IntegerField()
+                )
+            )
+        prefix = "-" if direction == "desc" else ""
+        timeseries_qs = timeseries_qs.order_by(prefix + sort_fields[sort], "id")
 
     return timeseries_qs
 
