@@ -302,10 +302,10 @@
       }
     }
 
-    .node__delete{
+    .node__delete,
+    .node__duplicate{
       position: absolute;
       top: -12px;
-      right: 12px;
       width: 24px;
       height: 24px;
       display: grid;
@@ -313,7 +313,6 @@
       border: 0;
       border-radius: 100%;
       background: $white;
-      color: #ef4444;
       box-shadow: 0 1px 4px rgba(0,0,0,.15);
       opacity: 0;
       transform: translateY(-6px);
@@ -321,21 +320,34 @@
       transition: opacity .16s ease, transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s ease;
     }
 
+    .node__delete{
+      right: 12px;
+      color: #ef4444;
+    }
+
+    .node__duplicate{
+      right: 44px;
+      color: $primary-color-1;
+    }
+
     &:hover .node__delete,
-    &:focus-within .node__delete{
+    &:focus-within .node__delete,
+    &:hover .node__duplicate,
+    &:focus-within .node__duplicate{
       opacity: 1;
       transform: translateY(0) scale(1);
       pointer-events: auto;
     }
 
 
-    .node__delete:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.18); }
-    .node__delete:active{ transform: translateY(0) scale(.96); }
+    .node__delete:hover, .node__duplicate:hover{ box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+    .node__delete:active, .node__duplicate:active{ transform: translateY(0) scale(.96); }
 
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce){
-      .node__delete{ transition: opacity .01s linear; transform: none; }
-      &:hover .node__delete, .node:focus-within .node__delete{ transform: none; }
+      .node__delete, .node__duplicate{ transition: opacity .01s linear; transform: none; }
+      &:hover .node__delete, .node:focus-within .node__delete,
+      &:hover .node__duplicate, .node:focus-within .node__duplicate{ transform: none; }
     }
   }
 
