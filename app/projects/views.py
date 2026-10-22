@@ -39,16 +39,15 @@ from projects.decorators import (
 )
 from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
+    ASSET_MAPPING,
     Asset,
     AssetChangeTracker,
     AssetType,
-    ASSET_MAPPING,
     Bus,
     Comment,
     ConnectionLink,
     COPCalculator,
     EconomicData,
-    HeatingNetwork,
     MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
@@ -978,7 +977,6 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
-            "heating_pipe": _("Heating pipe"),
             "auxiliary_heat": _("Auxiliary Heat"),
         },
         "storage": {
@@ -995,12 +993,15 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "sink": _("Sink"),
             "excess": _("Excess"),
         },
+        "transport": {
+            "heating_network": _("Heating Network"),
+            "heating_pipe": _("Heating pipe"),
+        },
         "bus": {
             "bus-electricity": _("Electricity Bus"),
             "bus-heat": _("Heat Bus"),
             "bus-gas": _("Fuel Bus"),
             "bus-h2": _("Hydrogen Bus"),
-            "heating_network": _("Heating Network"),
         },
     }
     group_names = {group: _(group) for group in components}
@@ -1294,9 +1295,9 @@ def back_to_scenario_review(request, proj_id):
 SCENARIOS_STEPS = {
     1: "scenario_create_parameters",
     2: "scenario_create_topology",
-    3: "scenario_create_constraints",
-    4: "scenario_review",
-    5: "scenario_visualize_results",
+    # 3: "scenario_create_constraints",
+    3: "scenario_review",
+    4: "scenario_visualize_results",
 }
 
 
