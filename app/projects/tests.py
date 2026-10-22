@@ -463,11 +463,8 @@ class ExportLoadMixin:
         self.assertEqual(response.status_code, 200)
         self.assertIn("scenario_set_data", response.json())
 
-    def test_export_as_datapackage(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
-            dp_path = self.scenario.to_datapackage(temp_dir)
-            es = create_energy_system_from_dp(dp_path)
+    def test_delete_project(self):
+        self.project.delete()
 
 
 @tag("unittest")
@@ -485,8 +482,11 @@ class ExportLoadTest(ExportLoadMixin, TestCase):
         Path(__file__).resolve().parent.parent / "test_files" / "all_assets.json"
     )
 
-    def test_delete_project(self):
-        self.project.delete()
+    def test_export_as_datapackage(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            dp_path = self.scenario.to_datapackage(temp_dir)
+            es = create_energy_system_from_dp(dp_path)
 
 
 @tag("unittest")
