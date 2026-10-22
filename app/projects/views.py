@@ -261,11 +261,15 @@ def timeseries_sort_and_filter(request):
         if sort == "points":
             timeseries_qs = timeseries_qs.annotate(
                 points_count=Func(
-                    F("values"), 1, function="array_length", output_field=IntegerField()
+                    F("values"), function="cardinality", output_field=IntegerField()
                 )
             )
-        prefix = "-" if direction == "desc" else ""
-        timeseries_qs = timeseries_qs.order_by(prefix + sort_fields[sort], "id")
+        field = F(sort_fields[sort])
+        if direction == "desc":
+            ordering = field.desc(nulls_last=True)
+        else:
+            ordering = field.asc(nulls_first=True)
+        timeseries_qs = timeseries_qs.order_by(ordering, "id")
 
     return timeseries_qs
 
