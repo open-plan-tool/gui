@@ -1170,7 +1170,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_has_read_rights
-def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
+def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if request.method == "GET":
@@ -1290,9 +1290,9 @@ def back_to_scenario_review(request, proj_id):
 SCENARIOS_STEPS = {
     1: "scenario_create_parameters",
     2: "scenario_create_topology",
-    3: "scenario_create_constraints",
-    4: "scenario_review",
-    5: "scenario_visualize_results",
+    # 3: "scenario_create_constraints",
+    3: "scenario_review",
+    4: "scenario_visualize_results",
 }
 
 
@@ -1505,7 +1505,7 @@ def reset_scenario_changes(request, scen_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_is_owner
-def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
+def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=4):
     excuses_design_under_development(request)
     scenario = get_object_or_404(Scenario, id=scen_id)
 
