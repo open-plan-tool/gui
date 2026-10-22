@@ -39,6 +39,7 @@ from projects.decorators import (
 )
 from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
+    ASSET_MAPPING,
     Asset,
     AssetChangeTracker,
     AssetType,
@@ -804,7 +805,7 @@ def scenario_select_project(request, step_id=0, max_step=1):
             form = ScenarioSelectProjectForm(project_queryset=user_projects)
             answer = render(
                 request,
-                f"scenario/scenario_step{step_id}.html",
+                f"scenario/{SCENARIOS_STEPS[step_id]}.html",
                 {
                     "form": form,
                     "step_id": step_id,
@@ -867,7 +868,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
             existing_simulation = False
         answer = render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "form": form,
                 "proj_id": proj_id,
@@ -1042,7 +1043,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         topology_data_list = load_scenario_topology_from_db(scen_id)
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
@@ -1119,7 +1120,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
@@ -1170,7 +1171,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_has_read_rights
-def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
+def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if request.method == "GET":
@@ -1290,9 +1291,9 @@ def back_to_scenario_review(request, proj_id):
 SCENARIOS_STEPS = {
     1: "scenario_create_parameters",
     2: "scenario_create_topology",
-    3: "scenario_create_constraints",
-    4: "scenario_review",
-    5: "scenario_visualize_results",
+    # 3: "scenario_create_constraints",
+    3: "scenario_review",
+    4: "scenario_visualize_results",
 }
 
 
@@ -1505,7 +1506,7 @@ def reset_scenario_changes(request, scen_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_is_owner
-def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
+def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=4):
     excuses_design_under_development(request)
     scenario = get_object_or_404(Scenario, id=scen_id)
 
