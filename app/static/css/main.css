@@ -1189,6 +1189,37 @@ form .form-check-input:focus {
 form .form-check-input:checked {
   background-color: #1F567D; }
 
+form .toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px; }
+  form .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0; }
+  form .toggle-switch .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #E3EAEE;
+    border-radius: 24px;
+    transition: 0.3s; }
+    form .toggle-switch .toggle-slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      border-radius: 50%;
+      transition: 0.3s; }
+  form .toggle-switch input:checked + .toggle-slider {
+    background-color: #1F567D; }
+    form .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(24px); }
+
 form .form-group {
   margin-bottom: 1rem;
   color: #343434; }
@@ -1292,6 +1323,42 @@ form .btn {
     margin-bottom: 0; }
   .choices[data-type*=select-multiple] .choices__inner .choices__button, .choices[data-type*=text] .choices__inner.choices__button {
     background-image: url("/static/assets/icons/i_close.svg"); }
+
+.ts-generation-params {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #F4F7F9;
+  border-radius: 8px;
+  font-size: 0.75rem; }
+  .ts-generation-params__title {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #495965;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.01rem; }
+  .ts-generation-params__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.4rem 1rem;
+    margin: 0; }
+    .ts-generation-params__list > div {
+      display: flex;
+      gap: 0.25rem;
+      min-width: 0; }
+    .ts-generation-params__list dt {
+      margin: 0;
+      color: #495965;
+      white-space: nowrap;
+      flex-shrink: 0; }
+    .ts-generation-params__list dd {
+      margin: 0;
+      min-width: 0;
+      overflow: hidden;
+      color: #343434;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
 
 /* ----------------------------- open_plan 2 ----------------------------- */
 /* ----------------------------- open_plan 2 ----------------------------- */
@@ -1397,9 +1464,13 @@ form .btn {
 .modal .modal-body {
   padding: 3rem; }
 
-.modal .modal-addendum {
-  padding-right: 3rem;
-  padding-left: 3rem; }
+.modal #form-createTS .modal-addendum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; }
+  .modal #form-createTS .modal-addendum .form-group {
+    flex: 1 1 220px;
+    margin-bottom: 0; }
 
 .system-design-error .modal-body {
   display: flex;
@@ -4567,5 +4638,3 @@ nav.navbar {
       height: 100%;
       background-color: #E3EAEE;
       z-index: 1; }
-
-/*# sourceMappingURL=main.css.map */

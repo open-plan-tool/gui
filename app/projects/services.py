@@ -1,29 +1,21 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor
-
-from django.contrib import messages
-from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
-
 import smtplib
 import warnings
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from django.contrib import messages
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from epa.settings import (
-    EXCHANGE_ACCOUNT,
-    EXCHANGE_SERVER,
-    EXCHANGE_EMAIL,
-    RECIPIENTS,
-    EXCHANGE_PW,
     EMAIL_SUBJECT_PREFIX,
-    TIME_ZONE,
+    EXCHANGE_EMAIL,
+    EXCHANGE_PW,
+    EXCHANGE_SERVER,
+    RECIPIENTS,
     USE_EXCHANGE_EMAIL_BACKEND,
 )
-from projects.constants import PENDING
-from projects.models import Simulation
-from projects.requests import fetch_mvs_simulation_results
 
 logger = logging.getLogger(__name__)
 

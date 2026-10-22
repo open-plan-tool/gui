@@ -57,9 +57,7 @@ def has_viewer_read_rights(proj_id, user):
         if project.user == user:
             answer = True
         else:
-            qs = project.viewers.filter(
-                Q(user__email=user.email) & Q(share_rights="read")
-            )
+            qs = project.viewers.filter(Q(user__email=user.email))
             if qs.exists():
                 answer = True
     return answer
@@ -78,6 +76,16 @@ def get_field(form, key):
 @register.filter
 def has_field(form, key):
     return key in form.fields
+
+
+@register.filter
+def has_toggle_parameters(form):
+    answer = False
+    for field in form.fields:
+        if is_toggle_parameter(field):
+            answer = True
+            break
+    return answer
 
 
 @register.filter
@@ -101,6 +109,11 @@ def has_technical_parameters(form):
 
 
 @register.filter
+def is_toggle_parameter(param):
+    return param in ["optimize_cap", "dispatchable", "renewable_asset"]
+
+
+@register.filter
 def is_economical_parameter(param):
     return param in [
         "capex_fix",
@@ -116,8 +129,9 @@ def is_economical_parameter(param):
 def is_technical_parameter(param):
     if param == "name":
         return False
-    else:
-        return not is_economical_parameter(param)
+    if is_toggle_parameter(param):
+        return False
+    return not is_economical_parameter(param)
 
 
 @register.filter

@@ -1,47 +1,36 @@
-import logging
-import pickle
-import os
 import json
-import io
-import csv
+import logging
+import os
+import pickle
+
+import numpy as np
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from dashboard.helpers import KPI_PARAMETERS_ASSETS
+from django import forms
+from django.conf import settings as django_settings
+from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.forms import ModelForm
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from openpyxl import load_workbook
-import numpy as np
-
-from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Row,
-    Column,
-    Field,
-    Fieldset,
-    ButtonHolder,
-)
-from django import forms
-from django.forms import ModelForm
-from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings as django_settings
-from projects.models import *
-from projects.constants import MAP_EPA_MVS, RENEWABLE_ASSETS, CURRENCY_SYMBOLS
 
-from dashboard.helpers import KPI_PARAMETERS_ASSETS, KPIFinder
+from projects.constants import (
+    ASSET_TO_TIMESERIES_ASSET_TYPE,
+    CURRENCY_SYMBOLS,
+    RENEWABLE_ASSETS,
+)
 from projects.helpers import (
-    parameters_helper,
     PARAMETERS,
-    DualNumberField,
-    parse_input_timeseries,
-    TimeseriesField,
+    TS_MANUAL_TYPE,
     TS_SELECT_TYPE,
     TS_UPLOAD_TYPE,
-    TS_MANUAL_TYPE,
+    DualNumberField,
+    TimeseriesField,
+    parameters_helper,
 )
-from projects.constants import ASSET_TO_TIMESERIES_ASSET_TYPE
+from projects.models import *
 
 
 def gettext_variables(some_string, lang="de"):
@@ -69,7 +58,7 @@ def gettext_variables(some_string, lang="de"):
             pickle.dump(trans_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def add_help_text_icon(field, param_name, RTD_link=True):
+def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
     if field.help_text is not None:
         help_text = field.help_text + ". "
         field.help_text = None
@@ -77,8 +66,8 @@ def add_help_text_icon(field, param_name, RTD_link=True):
         help_text = ""
     if field.label is not None:
         RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
-        if param_name in PARAMETERS:
-            param_ref = PARAMETERS[param_name]["label"].replace("_", "-")
+        if param_name in parameters:
+            param_ref = parameters[param_name]["label"].replace("_", "-")
         else:
             param_ref = ""
         if param_name != "name":
@@ -93,67 +82,103 @@ def add_help_text_icon(field, param_name, RTD_link=True):
         field.label = mark_safe(field.label + question_icon)
 
 
+def resolve_parameter(parameters, param_name):
+    """Look up param_name in a PARAMETERS-shaped dict (verbose/:Definition_Short:/:Unit:/:Default:).
+    Returns None if param_name isn't in parameters.
+    """
+    row = parameters.get(param_name)
+    if row is None:
+        return None
+
+    def clean(value, unit=False):
+        if value in (None, "None", "") or (unit and value == "Factor"):
+            return None
+        return value
+
+    return {
+        "verbose": clean(row["verbose"]),
+        "help_text": row[":Definition_Short:"],
+        "unit": clean(row[":Unit:"], unit=True),
+        "default": clean(row[":Default:"]),
+    }
+
+
 def set_parameter_info(param_name, field, parameters=PARAMETERS):
     # For the storage unit
     if param_name.split("_")[0] in ("cp", "dchp", "chp"):
         param_name = "_".join(param_name.split("_")[1:])
-
-    help_text = None
-    unit = None
-    verbose = None
-    default_value = None
     if param_name == "optimize_cap":
         param_name = "optimize_capacity"
-    if param_name in PARAMETERS:
-        help_text = PARAMETERS[param_name][":Definition_Short:"]
-        unit = PARAMETERS[param_name][":Unit:"]
-        verbose = PARAMETERS[param_name]["verbose"]
-        default_value = PARAMETERS[param_name][":Default:"]
-        if unit == "None" or unit == "":
-            unit = None
-        elif unit == "Factor":
-            unit = None
-        if verbose == "None":
-            verbose = None
-        if default_value == "None":
-            default_value = None
-    else:
-        logging.debug(f"{param_name} not in the parameters file")
 
-    if verbose is not None:
-        field.label = verbose
-    if unit is not None:
-        field.label = _(str(field.label)) + " (" + _(unit) + ")"
+    resolved = resolve_parameter(parameters, param_name)
+    if resolved is None:
+        logging.debug(f"{param_name} not in the parameters file")
+        resolved = {"verbose": None, "help_text": None, "unit": None, "default": None}
+
+    if resolved["verbose"] is not None:
+        field.label = resolved["verbose"]
+    if resolved["unit"] is not None:
+        field.label = _(str(field.label)) + " (" + _(resolved["unit"]) + ")"
     else:
         field.label = _(str(field.label))
 
-    if help_text is not None:
-        field.help_text = _(help_text)
+    if resolved["help_text"] is not None:
+        field.help_text = _(resolved["help_text"])
 
-    if default_value is not None:
-        field.initial = default_value
+    if resolved["default"] is not None:
+        field.initial = resolved["default"]
+
+
+def get_field_units(parameters, param_names):
+    """
+    Return {param_name: unit} for the given params. Matches the unit set on the form label.
+    """
+    units = {}
+    for param_name in param_names:
+        resolved = resolve_parameter(parameters, param_name)
+        if resolved and resolved["unit"]:
+            units[param_name] = resolved["unit"]
+    return units
+
+
+def get_field_labels(parameters, param_names):
+    """
+    Return {param_name: verbose label} for the given params. Matches the verbose
+    set on the form label.
+    """
+    labels = {}
+    for param_name in param_names:
+        resolved = resolve_parameter(parameters, param_name)
+        if resolved and resolved["verbose"]:
+            labels[param_name] = str(_(resolved["verbose"]))
+    return labels
 
 
 class OpenPlanModelForm(ModelForm):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
     def __init__(self, *args, **kwargs):
-        super(OpenPlanModelForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
-            add_help_text_icon(self.fields[param_name], param_name, RTD_link)
+            add_help_text_icon(self.fields[param_name], param_name, RTD_link=True)
 
 
 class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
+    parameters = PARAMETERS
+
     def __init__(self, *args, **kwargs):
-        super(OpenPlanForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field)
+            set_parameter_info(fieldname, field, parameters=self.parameters)
+            add_help_text_icon(
+                field, fieldname, parameters=self.parameters, RTD_link=False
+            )
 
 
 class FeedbackForm(ModelForm):
@@ -168,7 +193,7 @@ class ProjectDetailForm(ModelForm):
         exclude = ["date_created", "date_updated", "economic_data", "user", "viewers"]
 
     def __init__(self, *args, **kwargs):
-        super(ProjectDetailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.disabled = True
 
@@ -179,7 +204,7 @@ class EconomicDataDetailForm(OpenPlanModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        super(EconomicDataDetailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.disabled = True
 
@@ -216,114 +241,92 @@ class EconomicDataUpdateForm(OpenPlanModelForm):
 class ProjectCreateForm(OpenPlanForm):
     name = forms.CharField(
         label=_("Project Name"),
+        help_text=_("A self explanatory name for the project."),
         widget=forms.TextInput(
             attrs={
                 "placeholder": _("Name..."),
-                "data-bs-toggle": "tooltip",
-                "title": _("A self explanatory name for the project."),
             }
         ),
     )
     description = forms.CharField(
         label=_("Project Description"),
+        help_text=_("A description of what this project objectives or test cases."),
         widget=forms.Textarea(
             attrs={
                 "placeholder": _("More detailed description here..."),
                 "data-bs-toggle": "tooltip",
-                "title": _(
-                    "A description of what this project objectives or test cases."
-                ),
             }
         ),
     )
     country = forms.ChoiceField(
         label=_("Country"),
+        help_text=_("Name of the country where the project is being deployed"),
         choices=COUNTRY,
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _("Name of the country where the project is being deployed"),
-            }
-        ),
+        widget=forms.Select(),
     )
     longitude = forms.FloatField(
         label=_("Location, longitude"),
+        help_text=_("Longitude coordinate of the project's geographical location."),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("click on the map"),
                 "readonly": "",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Longitude coordinate of the project's geographical location."
-                ),
             }
         ),
     )
     latitude = forms.FloatField(
         label=_("Location, latitude"),
+        help_text=_("Latitude coordinate of the project's geographical location."),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("click on the map"),
                 "readonly": "",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Latitude coordinate of the project's geographical location."
-                ),
             }
         ),
     )
     duration = forms.IntegerField(
         label=_("Project Duration"),
+        help_text=_(
+            "The number of years the project is intended to be operational. The project duration also sets the installation time of the assets used in the simulation. After the project ends these assets are 'sold' and the refund is charged against the initial investment costs."
+        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("eg. 1"),
                 "min": "0",
                 "max": "100",
                 "step": "1",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "The number of years the project is intended to be operational. The project duration also sets the installation time of the assets used in the simulation. After the project ends these assets are 'sold' and the refund is charged against the initial investment costs."
-                ),
             }
         ),
     )
     currency = forms.ChoiceField(
         label=_("Currency"),
         choices=CURRENCY,
-        widget=forms.Select(
-            attrs={
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "The currency of the country where the project is implemented."
-                ),
-            }
-        ),
+        help_text=_("The currency of the country where the project is implemented."),
+        widget=forms.Select(),
     )
     discount = forms.FloatField(
         label=_("Discount Factor"),
+        help_text=_(
+            "Discount factor is the factor which accounts for the depreciation in the value of money in the future, compared to the current value of the same money. The common method is to calculate the weighted average cost of capital (WACC) and use it as the discount rate."
+        ),
         widget=forms.NumberInput(
             attrs={
                 "placeholder": _("eg. 0.1"),
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-bs-toggle": "tooltip",
-                "title": _(
-                    "Discount factor is the factor which accounts for the depreciation in the value of money in the future, compared to the current value of the same money. The common method is to calculate the weighted average cost of capital (WACC) and use it as the discount rate."
-                ),
             }
         ),
     )
     tax = forms.FloatField(
         label=_("Tax"),
+        help_text=_("Tax factor"),
         widget=forms.HiddenInput(
             attrs={
                 "placeholder": _("eg. 0.3"),
                 "min": "0.0",
                 "max": "1.0",
                 "step": "0.0001",
-                "data-bs-toggle": "tooltip",
-                "title": _("Tax factor"),
                 "value": 0,
             }
         ),
@@ -331,7 +334,7 @@ class ProjectCreateForm(OpenPlanForm):
 
     # Render form
     def __init__(self, *args, **kwargs):
-        super(ProjectCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = "project_form_id"
         # self.helper.form_class = 'blueForm'
@@ -694,13 +697,25 @@ class BusForm(OpenPlanModelForm):
         labels = {"name": _("Name"), "type": _("Energy carrier")}
 
 
+class ToggleSwitchWidget(forms.CheckboxInput):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox_html = super().render(name, value, attrs, renderer)
+        return format_html(
+            '<label class="toggle-switch">{}<span class="toggle-slider"></span></label>',
+            checkbox_html,
+        )
+
+
 class AssetCreateForm(OpenPlanModelForm):
     def __init__(self, *args, **kwargs):
         self.asset_type_name = kwargs.pop("asset_type", None)
         proj_id = kwargs.pop("proj_id", None)
         scenario_id = kwargs.pop("scenario_id", None)
         view_only = kwargs.pop("view_only", False)
-        self.existing_asset = kwargs.get("instance", None)
+        self.existing_asset = kwargs.get("instance")
         # get the connections with busses
         self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
@@ -750,6 +765,7 @@ class AssetCreateForm(OpenPlanModelForm):
                 param_name="input_timeseries",
                 label=self.fields["input_timeseries"].label,
                 asset_type=self.asset_type_name,
+                custom_form_assets=list(CUSTOM_TIMESERIES_FORMS.keys()),
             )
             # TODO here one can play with min, max, max_length as kwargs
 
@@ -879,12 +895,9 @@ class AssetCreateForm(OpenPlanModelForm):
             if timeseries_file is not None:
                 input_timeseries_values = parse_input_timeseries(timeseries_file)
                 # TODO here list the possible options
-            else:
-                # set the previous timeseries from the asset if any
-                if self.is_input_timeseries_empty() is False:
-                    input_timeseries_values = (
-                        self.existing_asset.input_timeseries_values
-                    )
+            # set the previous timeseries from the asset if any
+            elif self.is_input_timeseries_empty() is False:
+                input_timeseries_values = self.existing_asset.input_timeseries_values
             return input_timeseries_values
         except json.decoder.JSONDecodeError as ex:
             raise ValidationError(
@@ -928,6 +941,15 @@ class AssetCreateForm(OpenPlanModelForm):
                         "If you have no installed capacity, age installed should also be 0"
                     ),
                 )
+
+        # If optimize capacity is selected, set the installed capacity and age to zero (as they are explicitly hidden in the form but might contain old values)
+        # otherwise reset maximum capacity instead
+        if "optimize_cap" in cleaned_data:
+            if cleaned_data["optimize_cap"]:
+                cleaned_data["age_installed"] = 0
+                cleaned_data["installed_capacity"] = 0.0
+            else:
+                cleaned_data["maximum_capacity"] = None
 
         if self.asset_type_name == "heat_pump":
             if "efficiency" not in self.errors:
@@ -994,9 +1016,16 @@ class AssetCreateForm(OpenPlanModelForm):
         ts_asset_type = ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name)
 
         if input_timeseries["input_method"]["type"] == TS_MANUAL_TYPE:
-            timeseries_name = f"constant value = {timeseries_values[0]}"
-            timeseries_values = timeseries_values
-            ts_default_settings["ts_type"] = "scalar"
+            if len(timeseries_values) == 1:
+                timeseries_name = f"constant value = {timeseries_values[0]}"
+                ts_default_settings["ts_type"] = "scalar"
+            else:
+                timeseries_name = f"Created timeseries ({self.asset_type_name})"
+                generation_parameters = input_timeseries["input_method"].get(
+                    "generation_parameters"
+                )
+                if generation_parameters:
+                    ts_default_settings["generation_parameters"] = generation_parameters
 
         timeseries, created = Timeseries.objects.get_or_create(
             values=timeseries_values,
@@ -1033,9 +1062,9 @@ class AssetCreateForm(OpenPlanModelForm):
         model = Asset
         exclude = ["scenario"]
         widgets = {
-            "optimize_cap": forms.Select(choices=BOOL_CHOICES),
-            "dispatchable": forms.Select(choices=TRUE_FALSE_CHOICES),
-            "renewable_asset": forms.Select(choices=BOOL_CHOICES),
+            "optimize_cap": ToggleSwitchWidget(),
+            "dispatchable": ToggleSwitchWidget(),
+            "renewable_asset": ToggleSwitchWidget(),
             "name": forms.TextInput(
                 attrs={
                     "placeholder": _("Asset Name"),
@@ -1138,7 +1167,7 @@ class AssetCreateForm(OpenPlanModelForm):
 class StorageForm(AssetCreateForm):
     def __init__(self, *args, **kwargs):
         asset_type_name = kwargs.pop("asset_type", None)
-        super(StorageForm, self).__init__(*args, asset_type="capacity", **kwargs)
+        super().__init__(*args, asset_type="capacity", **kwargs)
         self.fields["dispatchable"].widget = forms.HiddenInput()
         self.initial["dispatchable"] = True
 
@@ -1205,3 +1234,256 @@ class UploadTimeseriesForm(OpenPlanModelForm):
                 },
             )
         }
+
+
+PV_TIMESERIES_PARAMETERS = {
+    "weather_file": {
+        "verbose": "Weather data file",
+        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "weather_file",
+    },
+    "azimuth": {
+        "verbose": "Azimuth",
+        ":Definition_Short:": "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "azimuth",
+    },
+    "tilt": {
+        "verbose": "Tilt",
+        ":Definition_Short:": "Tilt angle in degrees (0° is horizontal, 90° is vertical)",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "tilt",
+    },
+    "system_eff": {
+        "verbose": "System Efficiency",
+        ":Definition_Short:": "Performance ratio of the total PV-System (usually around 0.8)",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "system_eff",
+    },
+    "gcr": {
+        "verbose": "Ground Coverage Ratio",
+        ":Definition_Short:": "Ratio of the module area to the ground area of the module field, only needed for tracker",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "gcr",
+    },
+    "mounting_type": {
+        "verbose": "Mounting Type",
+        ":Definition_Short:": "Static systems, east-west like system or 1-axis tracking system",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "mounting_type",
+    },
+    "albedo": {
+        "verbose": "Albedo",
+        ":Definition_Short:": "Reflection fraction of sunlight in the surrounding area",
+        ":Unit:": "Factor",
+        ":Default:": "None",
+        "label": "albedo",
+    },
+    "max_angle": {
+        "verbose": "Max. tilt angle",
+        ":Definition_Short:": "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems",
+        ":Unit:": "°",
+        ":Default:": "None",
+        "label": "max_angle",
+    },
+}
+
+
+class CreatePVProductionTimeseriesForm(OpenPlanForm):
+    parameters = PV_TIMESERIES_PARAMETERS
+
+    mounting_type_choices = (
+        ("fix tilt", _("Fix Tilt")),
+        (
+            "fix tilt two directions back to back",
+            _("Fix Tilt Two Directions Back To Back"),
+        ),
+        ("tracker", _("Tracker")),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    weather_file = forms.FileField()
+
+    azimuth = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 180"),
+            }
+        ),
+    )
+
+    tilt = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 15"),
+            }
+        ),
+    )
+
+    system_eff = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 0.8"),
+            }
+        ),
+        initial=0.85,
+    )
+
+    gcr = forms.FloatField(
+        widget=forms.NumberInput(),
+        required=False,
+        initial=100,
+    )
+
+    mounting_type = forms.ChoiceField(
+        choices=mounting_type_choices,
+        widget=forms.Select(),
+        initial="fix_tilt",
+    )
+    albedo = forms.FloatField(
+        widget=forms.HiddenInput(),
+        initial=0.25,
+    )
+
+    max_angle = forms.FloatField(
+        widget=forms.HiddenInput(),
+        required=False,
+        initial=60,
+    )
+
+    def clean_weather_file(self):
+        from oemof.eesyplan.weather.weather_data import WeatherData
+
+        file = self.cleaned_data["weather_file"]
+        wd = WeatherData.from_try_file(file)
+        # only return the weather data fields relevant for generating the custom pv timeseries
+        return {
+            "file_name": file.name,
+            "direct_irradiation_horizontal": wd.direct_solar_wm2,
+            "diffuse_irradiation_horizontal": wd.diffuse_solar_wm2,
+        }
+
+
+HEAT_DEMAND_PARAMETERS = {
+    "outdoor_temperature": {
+        "verbose": "Outdoor Temperature",
+        ":Definition_Short:": "Constant Temperature or Timeseries",
+        ":Unit:": "°C",
+        ":Default:": "None",
+        "label": "outdoor_temperature",
+    },
+    "profile_type": {
+        "verbose": "Profile Type",
+        ":Definition_Short:": "Select from one of the available BDEW heat profiles",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "profile_type",
+    },
+    "annual_heat_demand": {
+        "verbose": "Annual Heat Demand",
+        ":Definition_Short:": "Total heat demand in the chosen timeperiod",
+        ":Unit:": "kWh",
+        ":Default:": "None",
+        "label": "annual_heat_demand",
+    },
+    "building_year": {
+        "verbose": "Building Year",
+        ":Definition_Short:": "Only for residential buildings, used for estimating insulation",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "building_year",
+    },
+    "wind_class": {
+        "verbose": "Wind class",
+        ":Definition_Short:": "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities",
+        ":Unit:": "None",
+        ":Default:": "None",
+        "label": "wind_class",
+    },
+}
+
+
+class CreateHeatDemandForm(OpenPlanForm):
+    parameters = HEAT_DEMAND_PARAMETERS
+
+    profile_type_choices = (
+        ("EFH", _("Single-family house")),
+        ("MFH", _("Apartment building")),
+        ("GHD", _("Commerce/services general")),
+        ("GMF", _("Household-like business enterprises")),
+        ("GGA", _("Restaurants")),
+        ("GBH", _("Retail and wholesale")),
+        ("GMK", _("Metal and automotive")),
+        ("GBH", _("Accommodation")),
+        ("GKO", _("Local authorities, credit institutions and insurance companies")),
+        ("GBD", _("Other operational services")),
+        ("GWA", _("Laundries, dry cleaning")),
+        ("GGB", _("Horticulture")),
+        ("GBA", _("Bakery")),
+        ("GPD", _("Paper and printing")),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    outdoor_temperature = DualNumberField(
+        param_name="outdoor_temperature",
+    )
+
+    profile_type = forms.ChoiceField(
+        choices=profile_type_choices,
+        widget=forms.Select(),
+    )
+
+    annual_heat_demand = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 1000"),
+            }
+        ),
+    )
+
+    building_year = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": _("e.g. 1970"),
+            }
+        ),
+        required=False,
+    )
+
+    wind_class = forms.ChoiceField(
+        choices=(("Windy", _("Windy")), ("Not windy", _("Not Windy"))),
+        widget=forms.Select(),
+    )
+
+    def clean_building_year(self):
+        building_year = self.cleaned_data["building_year"]
+        profile_type = self.cleaned_data["profile_type"]
+        if (
+            profile_type
+            in [
+                "EFH",
+                "MFH",
+            ]
+            and not building_year
+        ):
+            raise ValidationError(
+                _("Building year is required for residential buildings")
+            )
+        return building_year
+
+
+CUSTOM_TIMESERIES_FORMS = {
+    "pv_plant": CreatePVProductionTimeseriesForm,
+    "heat_demand": CreateHeatDemandForm,
+}

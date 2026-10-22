@@ -25,8 +25,8 @@
         "asset_category": "energy_provider",
         "energy_vector": "Electricity",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",
-        "unit": null
+        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "unit": "nan"
     }
 },
 {
@@ -37,8 +37,8 @@
         "asset_category": "energy_provider",
         "energy_vector": "Gas",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",
-        "unit": null
+        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "unit": "nan"
     }
 },
 {
@@ -49,8 +49,8 @@
         "asset_category": "energy_provider",
         "energy_vector": "H2",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",
-        "unit": null
+        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "unit": "nan"
     }
 },
 {
@@ -61,8 +61,8 @@
         "asset_category": "energy_provider",
         "energy_vector": "Heat",
         "mvs_type": "source",
-        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share]",
-        "unit": null
+        "asset_fields": "[name,energy_price,feedin_tariff,peak_demand_pricing,peak_demand_pricing_period,renewable_share,feedin_cap]",
+        "unit": "nan"
     }
 },
 {
@@ -86,7 +86,7 @@
         "energy_vector": "Gas",
         "mvs_type": "sink",
         "asset_fields": "[name,input_timeseries]",
-        "unit": null
+        "unit": "nan"
     }
 },
 {
@@ -98,7 +98,7 @@
         "energy_vector": "H2",
         "mvs_type": "sink",
         "asset_fields": "[name,input_timeseries]",
-        "unit": null
+        "unit": "nan"
     }
 },
 {
@@ -110,7 +110,7 @@
         "energy_vector": "Heat",
         "mvs_type": "sink",
         "asset_fields": "[name,input_timeseries]",
-        "unit": null
+        "unit": "nan"
     }
 },
 {
@@ -121,7 +121,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Electricity",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",
         "unit": "kVA"
     }
 },
@@ -133,7 +133,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Electricity",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",
         "unit": "kVA"
     }
 },
@@ -181,7 +181,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Electricity",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",
         "unit": "kVA"
     }
 },
@@ -205,8 +205,8 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Gas",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
-        "unit": "kVA"
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency]",
+        "unit": "kW"
     }
 },
 {
@@ -217,7 +217,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "H2",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,efficiency_multiple]",
         "unit": "kVA"
     }
 },
@@ -229,7 +229,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Heat",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency]",
         "unit": "kVA"
     }
 },
@@ -241,8 +241,8 @@
         "asset_category": "energy_production",
         "energy_vector": "Electricity",
         "mvs_type": "source",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,renewable_asset,input_timeseries]",
-        "unit": "kWh"
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kWp"
     }
 },
 {
@@ -253,8 +253,8 @@
         "asset_category": "energy_production",
         "energy_vector": "Electricity",
         "mvs_type": "source",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,renewable_asset,input_timeseries]",
-        "unit": "kWh"
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
     }
 },
 {
@@ -265,8 +265,8 @@
         "asset_category": "energy_production",
         "energy_vector": "Gas",
         "mvs_type": "source",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,renewable_asset,input_timeseries]",
-        "unit": null
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
     }
 },
 {
@@ -277,8 +277,8 @@
         "asset_category": "energy_production",
         "energy_vector": "Electricity",
         "mvs_type": "source",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,renewable_asset,input_timeseries]",
-        "unit": "kWh"
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "kW"
     }
 },
 {
@@ -289,8 +289,8 @@
         "asset_category": "energy_production",
         "energy_vector": "Heat",
         "mvs_type": "source",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,renewable_asset,input_timeseries]",
-        "unit": null
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,renewable_asset,input_timeseries]",
+        "unit": "m²"
     }
 },
 {
@@ -301,7 +301,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Electricity",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",
         "unit": "kW"
     }
 },
@@ -313,7 +313,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Electricity",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,crate,efficiency,dispatchable]",
         "unit": "kW"
     }
 },
@@ -325,7 +325,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Electricity",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,efficiency,soc_max,soc_min]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_fix,opex_var,lifetime,optimize_cap,maximum_capacity,efficiency,soc_max,soc_min,crate,dispatchable,thermal_loss_rate,fixed_thermal_losses_relative,fixed_thermal_losses_absolute]",
         "unit": "kWh"
     }
 },
@@ -378,6 +378,42 @@
     }
 },
 {
+    "model": "projects.assettype",
+    "pk": 31,
+    "fields": {
+        "asset_type": "chp",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "extractionTurbineCHP",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_fix,capex_var,opex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency,thermal_loss_rate]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 32,
+    "fields": {
+        "asset_type": "chp_fixed_ratio",
+        "asset_category": "energy_conversion",
+        "energy_vector": "Electricity",
+        "mvs_type": "transformer",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_var,opex_fix,lifetime,optimize_cap,maximum_capacity,efficiency_multiple,efficiency]",
+        "unit": "kW"
+    }
+},
+{
+    "model": "projects.assettype",
+    "pk": 33,
+    "fields": {
+        "asset_type": "commodity",
+        "asset_category": "energy_production",
+        "energy_vector": "Electricity",
+        "mvs_type": "source",
+        "asset_fields": "[name,installed_capacity,capex_var,commodity_type,full_load_hours_max,full_load_hours_max_asset]",
+        "unit": "kW"
+    }
+},
+{
     "model": "projects.valuetype",
     "pk": 1,
     "fields": {
@@ -390,7 +426,7 @@
     "pk": 2,
     "fields": {
         "type": "annuity_factor",
-        "unit": ""
+        "unit": "factor"
     }
 },
 {
@@ -414,7 +450,7 @@
     "pk": 5,
     "fields": {
         "type": "crf",
-        "unit": ""
+        "unit": "factor"
     }
 },
 {
@@ -591,6 +627,78 @@
     "fields": {
         "type": "renewable_asset",
         "unit": "bool"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 28,
+    "fields": {
+        "type": "thermal_loss_rate",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 29,
+    "fields": {
+        "type": "efficiency_multiple",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 30,
+    "fields": {
+        "type": "beta",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 31,
+    "fields": {
+        "type": "fixed_thermal_losses_relative",
+        "unit": "factor"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 32,
+    "fields": {
+        "type": "fixed_thermal_losses_absolute",
+        "unit": "kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 33,
+    "fields": {
+        "type": "energy_price_asset",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 34,
+    "fields": {
+        "type": "feedin_tariff_asset",
+        "unit": "currency/kWh"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 35,
+    "fields": {
+        "type": "peak_demand_pricing_asset",
+        "unit": "currency/kW"
+    }
+},
+{
+    "model": "projects.valuetype",
+    "pk": 36,
+    "fields": {
+        "type": "renewable_share_asset",
+        "unit": "factor"
     }
 }
 ]
