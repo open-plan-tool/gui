@@ -1995,26 +1995,11 @@ class Sink(Asset):
 
 
 class AuxiliaryHeat(Asset):
-    temp_in_heat = models.ForeignKey(
+    auxiliary_heat_fraction = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
-        related_name="temp_in_heat_set",
-    )
-    temp_out_heat = models.ForeignKey(
-        Timeseries,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=False,
-        related_name="temp_out_heat_set",
-    )
-    temp_low_source_component = models.ForeignKey(
-        Timeseries,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=False,
-        related_name="temp_low_source_component_set",
     )
 
     @staticmethod
@@ -2022,18 +2007,9 @@ class AuxiliaryHeat(Asset):
         from projects.helpers import TimeseriesField
 
         return {
-            "temp_in_heat": TimeseriesField(
-                param_name="temp_in_heat",
-                required=False,
-            ),
-            "temp_out_heat": TimeseriesField(
-                param_name="temp_out_heat",
-                required=False,
-            ),
-            "temp_low_source_component": TimeseriesField(
-                param_name="temp_low_source_component",
-                required=False,
-            ),
+            "auxiliary_heat_fraction": TimeseriesField(
+                param_name="auxiliary_heat_fraction",
+            )
         }
 
 
