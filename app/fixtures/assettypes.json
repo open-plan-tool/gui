@@ -439,7 +439,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Heat",
         "mvs_type": "transformer",
-        "asset_fields": "[name,age_installed,installed_capacity,maximum_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,temp_in_heat,temp_out_heat,temp_low_source_component]",
+        "asset_fields": "[name,age_installed,installed_capacity,maximum_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,auxiliary_heat_fraction]",
         "unit": "kVA"
     }
 },
