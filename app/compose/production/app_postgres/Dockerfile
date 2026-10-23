@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ARG BUILD_ENVIRONMENT=production
 # Optional: Cache bust for fresh dependencies (change value to bust cache)
-ARG CACHE_BUST=2
+ARG CACHE_BUST=1
 
 RUN mkdir ${CONFIG_ROOT}
 COPY app/requirements/base.txt ${CONFIG_ROOT}/base.txt
@@ -20,8 +20,8 @@ RUN apt-get update && \
 
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
-    && pip install gunicorn  \
-    && pip install "git+https://github.com/oemof/oemof-solph@a4611edb8a225ee6faa360f86afc49d2986c1105"
+    && pip install gunicorn
+    #&& pip install "git+https://github.com/oemof/oemof-solph@a4611edb8a225ee6faa360f86afc49d2986c1105"
 
 WORKDIR ${APP_ROOT}
 
