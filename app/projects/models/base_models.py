@@ -1873,12 +1873,7 @@ class HeatingNetwork(Bus):
         dm["carrier"] = None
         dm["balanced"] = None
         dm["type"] = "HeatingNetwork"
-        if self.absolute_losses.ts_type == "scalar":
-            absolute_losses = self.absolute_losses.values[0]
-        else:
-            absolute_losses = self.absolute_losses
-
-        dm["absolute_losses"] = absolute_losses
+        dm["absolute_losses"] = self.absolute_losses
         return dm
 
     def export(self):
