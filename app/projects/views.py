@@ -1011,7 +1011,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         user_has_right_to_save = False
 
     if request.method == "POST":
-        # called by function save_topology() in templates/scenario/scenario_step2.html
+        # called by function save_topology() in templates/scenario/scenario_create_topology.html
 
         if user_has_right_to_save is False:
             return JsonResponse({"success": True}, status=403)

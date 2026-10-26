@@ -202,7 +202,7 @@ class BasicOperationsTest(TestCase):
             reverse("scenario_steps", args=[self.project.id]), follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "scenario/scenario_step1.html")
+        self.assertTemplateUsed(response, "scenario/scenario_create_parameters.html")
 
     def test_duplicate_scenario_as_edit_viewer(self):
         self.scenario = self.project.scenario_set.first()
