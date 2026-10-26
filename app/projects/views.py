@@ -177,17 +177,15 @@ def timeseries_dashboard(request, ts_id=None):
     return render(request, "asset/timeseries_dashboard.html", context)
 
 
-def timeseries_build_context(request, selected_timeseries=None):
+def timeseries_build_context(request, ts_id=None):
     timeseries_qs = timeseries_sort_and_filter(request)
     all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
         ts_type="scalar"
     )
 
-    if selected_timeseries is not None:
+    if ts_id is not None:
         try:
-            selected_timeseries = timeseries_qs.get(
-                pk=selected_timeseries, user=request.user
-            )
+            selected_timeseries = timeseries_qs.get(pk=ts_id, user=request.user)
         except Timeseries.DoesNotExist:
             selected_timeseries = None
     else:
