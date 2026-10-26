@@ -17,15 +17,17 @@ function handleTimeseriesForm(send_to_url, modal_id) {
             const table_body = document.getElementById("timeseries_table_body");
             if (table_body && data.table_html) {
                 table_body.outerHTML = data.table_html;
+                htmx.process(document.getElementById("timeseries_table_body"));
             }
             const details_panel = document.getElementById("timeseries_details_panel");
             if (details_panel && data.details_html) {
                 details_panel.outerHTML = data.details_html;
+                htmx.process(document.getElementById("timeseries_details_panel"));
             }
         },
         // On Error
         function(data) {
-            const modalBody = document.querySelector('#${modal_id} .modal-body');
+            const modalBody = document.querySelector(`#${modal_id} .modal-body`);
             if (data.form_html) {
                 modalBody.innerHTML = data.form_html;
             } else {

@@ -132,6 +132,14 @@ def timeseries_dashboard(request, ts_id=None):
                 new_timeseries.values = parse_input_timeseries(uploaded_file)
 
             new_timeseries.save()
+
+            context = timeseries_build_context(request, ts_id=new_timeseries.id)
+            table_html = render_to_string(
+                "asset/timeseries_table.html", context, request
+            )
+            details_html = render_to_string(
+                "asset/timeseries_detail_panel.html", context, request
+            )
             return JsonResponse(
                 {
                     "success": True,
@@ -140,6 +148,8 @@ def timeseries_dashboard(request, ts_id=None):
                         {"form": timeseries_upload_form},
                         request=request,
                     ),
+                    "table_html": table_html,
+                    "details_html": details_html,
                 }
             )
         else:
