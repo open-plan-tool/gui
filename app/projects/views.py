@@ -39,7 +39,6 @@ from projects.decorators import (
 )
 from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
-    ASSET_MAPPING,
     Asset,
     AssetChangeTracker,
     AssetType,
