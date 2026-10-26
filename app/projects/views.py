@@ -103,23 +103,9 @@ logger = logging.getLogger(__name__)
 @login_required
 @require_http_methods(["GET", "POST"])
 def timeseries_dashboard(request, ts_id=None):
-    context = timeseries_build_context(request)
-
-    if ts_id is not None:
-        try:
-            selected_timeseries = context["timeseries_list"].get(
-                pk=ts_id, user=request.user
-            )
-            context["selected_timeseries"] = selected_timeseries
-            context["timeseries_edit_form"] = TimeseriesModelForm(
-                instance=selected_timeseries
-            )
-        except Timeseries.DoesNotExist:
-            pass
-
     timeseries_upload_form = TimeseriesModelForm()
-    context["timeseries_upload_form"] = timeseries_upload_form
 
+    # POST request (upload new timeseries)
     if request.POST:
         form = TimeseriesModelForm(request.POST, request.FILES)
         if form.is_valid():
@@ -134,6 +120,7 @@ def timeseries_dashboard(request, ts_id=None):
             new_timeseries.save()
 
             context = timeseries_build_context(request, ts_id=new_timeseries.id)
+            context["timeseries_upload_form"] = timeseries_upload_form
             table_html = render_to_string(
                 "asset/timeseries_table.html", context, request
             )
@@ -164,6 +151,22 @@ def timeseries_dashboard(request, ts_id=None):
                     ),
                 }
             )
+
+    # GET request (page first render & reload, table refreshs when filtering, detail panel refresh when selecting)
+    context = timeseries_build_context(request)
+    context["timeseries_upload_form"] = timeseries_upload_form
+
+    if ts_id is not None:
+        try:
+            selected_timeseries = context["timeseries_list"].get(
+                pk=ts_id, user=request.user
+            )
+            context["selected_timeseries"] = selected_timeseries
+            context["timeseries_edit_form"] = TimeseriesModelForm(
+                instance=selected_timeseries
+            )
+        except Timeseries.DoesNotExist:
+            pass
 
     if request.headers.get("HX-Request") == "true":
         table_html = render_to_string("asset/timeseries_table.html", context, request)
