@@ -112,11 +112,11 @@ def has_invalid_dp_results(scenario_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 def timeseries_dashboard(request, ts_id=None):
-    timeseries_upload_form = TimeseriesModelForm()
+    timeseries_upload_form = TimeseriesModelForm(require_file=True)
 
     # POST request (upload new timeseries)
     if request.POST:
-        form = TimeseriesModelForm(request.POST, request.FILES)
+        form = TimeseriesModelForm(request.POST, request.FILES, require_file=True)
         if form.is_valid():
             new_timeseries = form.save(commit=False)
             new_timeseries.user = request.user
