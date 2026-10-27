@@ -240,6 +240,7 @@ def timeseries_sort_and_filter(request):
     """
     Looks for all the timeseries owned by user and with timeseries type = scalar. Then sorts those
     for name and id. If the request contains filter parameters, uses these to filter the timeseries.
+    Filter parameters can only be accessed from request.GET since POST requests contain confusing form data.
 
     Function accessable for all the timeseries views so that sorting and filtering always applies in the same way.
 
@@ -254,7 +255,7 @@ def timeseries_sort_and_filter(request):
     ).order_by("name", "id")
 
     # apply filters if excisting
-    params = request.GET or request.POST
+    params = request.GET
 
     selected_length = params.get("length")
     selected_asset_type = params.get("asset_type")
@@ -317,7 +318,7 @@ def timeseries_edit(request, ts_id):
 
             updated_timeseries.save()
 
-            context = timeseries_build_context(request, selected_timeseries=ts_id)
+            context = timeseries_build_context(request, ts_id=ts_id)
             context["form"] = TimeseriesModelForm(instance=updated_timeseries)
             table_html = render_to_string(
                 "asset/timeseries_table.html", context, request

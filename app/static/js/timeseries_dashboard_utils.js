@@ -5,8 +5,10 @@ function handleTimeseriesForm(send_to_url, modal_id) {
     const form = modal.querySelector('form');
     const formData = new FormData(form);
 
+    const filters = window.location.search;
+    const url_with_filters = send_to_url + filters;
     submitForm(
-        send_to_url,
+        url_with_filters,
         formData,
         // On Success
         function(data) {
