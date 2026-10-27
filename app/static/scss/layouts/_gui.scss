@@ -68,6 +68,15 @@
         &--bus-h2 {
           border-left: 4px solid #2C92B5;
         }
+
+        // add the red border to heating pipe and heating network (as they are quasi-buses)
+        &--heating_pipe {
+          border-left: 4px solid #E28785;
+        }
+
+        &--heating_network {
+          border-left: 4px solid #E28785;
+        }
       }
 
       .img {
@@ -234,6 +243,8 @@
       @include bus(#F8F5E8, #FBC02D, #976E07, rgba(251, 192, 45, 0.3));
     }
 
+    &.heating_network,
+    &.heating_pipe,
     &.bus_heat {
       @include bus(#F9F4F4, #E28785, #BC5452, rgba(226, 135, 133, 0.3));
     }
