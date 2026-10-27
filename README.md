@@ -5,6 +5,9 @@
 
 Learn more about the OpenPlan project on our [website](https://open-plan-tool.org/).
 
+> [!NOTE]
+> Refer to the [Changelog](https://github.com/open-plan-tool/gui/blob/main/app/CHANGELOG.md) to follow along with the changes being implemented in this repository.
+
 ## Credits
 This code builds on a user interface for the [multi-vector-simulator](https://github.com/rl-institut/multi-vector-simulator) (MVS), developed in the [Horizon2020](https://elandh2020.eu/) ELAND project. Within OpenPlan, it was redesigned and extended based on feedback from stakeholder workshops.
 
