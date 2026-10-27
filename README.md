@@ -1,7 +1,9 @@
-# Welcome to the open_plan gui repository
-![open_plan_logo (10X1)](https://user-images.githubusercontent.com/70587431/144256918-974fcefd-29f5-4b2f-b68b-6468327ef50b.png)
+# Welcome to the OpenPlan GUI repository
+<p align="center">
+<img src="app/static/assets/logos/open_plan_logo_project.png" alt="OpenPlan logo" width=150>
+</p>
 
-Learn more about the open_plan project on our [website](https://open-plan-tool.org/).
+Learn more about the OpenPlan project on our [website](https://open-plan-tool.org/).
 
 ## Credits
 This code is based from previous open-source work done building a user interface to the [multi-vector-simulator](https://github.com/rl-institut/multi-vector-simulator) tool in the [Horizon2020](https://elandh2020.eu/) ELAND project. In open_plan project's scope a new design and more features are added, based on feedback collected in workshops held with stakeholders.
