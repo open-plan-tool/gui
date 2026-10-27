@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load custom_template_tags %}
 
-{% if "bus-" in data_node %}
+{% if "bus-" in data_node or data_node|inlist:"heating_pipe,heating_network"  %}
 	{% setvar "section__component--"|add:data_node as bus_class %}
 {% else %}
   {% setvar "" as bus_class %}
