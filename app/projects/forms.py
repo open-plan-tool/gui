@@ -1202,6 +1202,7 @@ def asset_form_factory(asset_type=None, **kwargs):
 
 
 class UploadTimeseriesForm(OpenPlanModelForm):
+    # used in timeseries upload inside step 2 of system modeling
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["values"] = DualNumberField(default=0, param_name="values")
@@ -1485,9 +1486,10 @@ ASSET_TYPE_TO_CATEGORY = {
 
 
 class TimeseriesModelForm(OpenPlanModelForm):
-    def __init__(self, *args, **kwargs):
+    # used in Timeseries Dashboard
+    def __init__(self, *args, require_file=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["timeseries_file"] = forms.FileField(required=False)
+        self.fields["timeseries_file"] = forms.FileField(required=require_file)
         self.fields["open_source"].required = False
 
         for field in self.fields:
