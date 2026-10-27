@@ -2569,6 +2569,10 @@ nav.navbar {
           border-left: 4px solid #E28785; }
         .system-design .components__content .section__component--bus-h2 {
           border-left: 4px solid #2C92B5; }
+        .system-design .components__content .section__component--heating_pipe {
+          border-left: 4px solid #E28785; }
+        .system-design .components__content .section__component--heating_network {
+          border-left: 4px solid #E28785; }
       .system-design .components__content .section .img {
         height: 2rem;
         width: 2rem; }
@@ -2699,24 +2703,42 @@ nav.navbar {
           background-color: rgba(251, 192, 45, 0.3);
           filter: none;
           border: none; }
-    .system-design .drawflow .drawflow-node.bus_heat {
+    .system-design .drawflow .drawflow-node.heating_network, .system-design .drawflow .drawflow-node.heating_pipe, .system-design .drawflow .drawflow-node.bus_heat {
       background-color: #F9F4F4;
       border: 1px solid #E28785; }
-      .system-design .drawflow .drawflow-node.bus_heat .drawflow-node__name {
+      .system-design .drawflow .drawflow-node.heating_network .drawflow-node__name, .system-design .drawflow .drawflow-node.heating_pipe .drawflow-node__name, .system-design .drawflow .drawflow-node.bus_heat .drawflow-node__name {
         color: #BC5452;
         font-weight: 700; }
-      .system-design .drawflow .drawflow-node.bus_heat .inputs .input,
+      .system-design .drawflow .drawflow-node.heating_network .inputs .input,
+      .system-design .drawflow .drawflow-node.heating_network .inputs .output,
+      .system-design .drawflow .drawflow-node.heating_network .outputs .input,
+      .system-design .drawflow .drawflow-node.heating_network .outputs .output, .system-design .drawflow .drawflow-node.heating_pipe .inputs .input,
+      .system-design .drawflow .drawflow-node.heating_pipe .inputs .output,
+      .system-design .drawflow .drawflow-node.heating_pipe .outputs .input,
+      .system-design .drawflow .drawflow-node.heating_pipe .outputs .output, .system-design .drawflow .drawflow-node.bus_heat .inputs .input,
       .system-design .drawflow .drawflow-node.bus_heat .inputs .output,
       .system-design .drawflow .drawflow-node.bus_heat .outputs .input,
       .system-design .drawflow .drawflow-node.bus_heat .outputs .output {
         background-color: #E28785;
         border-color: #E28785; }
-        .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.heating_network .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.heating_network .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.heating_network .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.heating_network .outputs .output.port--empty, .system-design .drawflow .drawflow-node.heating_pipe .inputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.heating_pipe .inputs .output.port--empty,
+        .system-design .drawflow .drawflow-node.heating_pipe .outputs .input.port--empty,
+        .system-design .drawflow .drawflow-node.heating_pipe .outputs .output.port--empty, .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--empty,
         .system-design .drawflow .drawflow-node.bus_heat .inputs .output.port--empty,
         .system-design .drawflow .drawflow-node.bus_heat .outputs .input.port--empty,
         .system-design .drawflow .drawflow-node.bus_heat .outputs .output.port--empty {
           background-color: #fff; }
-        .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_network .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_network .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_network .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_network .outputs .output.port--not-compatible, .system-design .drawflow .drawflow-node.heating_pipe .inputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_pipe .inputs .output.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_pipe .outputs .input.port--not-compatible,
+        .system-design .drawflow .drawflow-node.heating_pipe .outputs .output.port--not-compatible, .system-design .drawflow .drawflow-node.bus_heat .inputs .input.port--not-compatible,
         .system-design .drawflow .drawflow-node.bus_heat .inputs .output.port--not-compatible,
         .system-design .drawflow .drawflow-node.bus_heat .outputs .input.port--not-compatible,
         .system-design .drawflow .drawflow-node.bus_heat .outputs .output.port--not-compatible {
@@ -4708,5 +4730,3 @@ nav.navbar {
       height: 100%;
       background-color: #E3EAEE;
       z-index: 1; }
-
-/*# sourceMappingURL=main.css.map */
