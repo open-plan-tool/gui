@@ -6,14 +6,13 @@
 Learn more about the OpenPlan project on our [website](https://open-plan-tool.org/).
 
 ## Credits
-This code is based from previous open-source work done building a user interface to the [multi-vector-simulator](https://github.com/rl-institut/multi-vector-simulator) tool in the [Horizon2020](https://elandh2020.eu/) ELAND project. In open_plan project's scope a new design and more features are added, based on feedback collected in workshops held with stakeholders.
+This code builds on a user interface for the [multi-vector-simulator](https://github.com/rl-institut/multi-vector-simulator) (MVS), developed in the [Horizon2020](https://elandh2020.eu/) ELAND project. Within OpenPlan, it was redesigned and extended based on feedback from stakeholder workshops.
 
 ## Basic structure
+This repository contains the OpenPlan GUI. Simulations run on a separate [simulation server](https://github.com/open-plan-tool/simulation-server), which builds the energy system models with [oemof-eesyplan](https://github.com/oemof/oemof-eesyplan). Every drag-and-drop component in the GUI has a matching class in oemof-eesyplan, which details how the component is modelled and behaves within the simulation.
+![open_plan architecture](app/static/assets/open-plan-readme-architecture.png)
 
-This repository contains the code for the user interface. The simulations are performed by [multi-vector-simulator](https://github.com/rl-institut/multi-vector-simulator) on a dedicated server (see the [open-plan-tool/simulation-server](https://github.com/open-plan-tool/simulation-server) repository). Once a simulation is over the results are sent back to the user interface were one can analyse them.
-
-![open-plan structure](https://github.com/open-plan-tool/gui/assets/4399407/89e1ff2a-1dd0-40e6-91a3-465c77426867)
-
+Earlier versions used the MVS as simulation backend; it is now considered legacy.
 
 
 
