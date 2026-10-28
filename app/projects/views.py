@@ -103,23 +103,23 @@ def not_implemented(request):
 
 
 @require_http_methods(["GET"])
-def home(request, version=1):
-    return render(request, "index.html", {"version": version})
+def home(request):
+    return render(request, "index.html")
 
 
 @require_http_methods(["GET"])
-def landing_commune(request, version=1):
-    return render(request, "landing/commune.html", {"version": version})
+def landing_commune(request):
+    return render(request, "landing/commune.html")
 
 
 @require_http_methods(["GET"])
-def landing_cellular(request, version=1):
-    return render(request, "landing/cellular.html", {"version": version})
+def landing_cellular(request):
+    return render(request, "landing/cellular.html")
 
 
 @require_http_methods(["GET"])
-def landing_default(request, version=1):
-    return render(request, "landing/default.html", {"version": version})
+def landing_default(request):
+    return render(request, "landing/default.html")
 
 
 @login_required
@@ -524,15 +524,8 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
-    if request.user.id == 1:
-        messages.info(
-            request,
-            mark_safe(
-                _(
-                    "<p>Hello dear OpenPlan Tool  user!</br></br> We would just like to let you know we are looking for your inputs in terms of features ideas or feature sponsor. Please check out the new navigation bar link 'Sponsor new features' for more information</br></br>Thank you for using OpenPlan Tool </p>"
-                )
-            ),
-        )
+    msg = "<center>Dear OpenPlan user,<br> We are preparing for a <b>major update</b> that will replace the current simulation backend.<br><b> The update is scheduled for 02.11.</b><br>We expect the migration to go smoothly, however exporting the projects you are currently working on with the export button might save you some stress in case of unforseen bugs.</center>"
+    messages.warning(request, mark_safe(msg))
 
     return render(
         request,

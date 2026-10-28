@@ -1980,12 +1980,9 @@ msgstr "Kontakt"
 
 #: templates/legal/contact.html:30
 msgid ""
-"You can contact us by email at openplan at dgs-berlin.de. Note that this "
-"information is only visible if you are logged in."
+"You can contact us by email at openplan[at]dgs-berlin.de."
 msgstr ""
-"Sie können uns per E-Mail unter openplan at dgs-berlin.de kontaktieren. "
-"Beachten Sie, dass diese Information nur sichtbar ist, wenn Sie angemeldet "
-"sind."
+"Sie können uns per E-Mail unter openplan[at]dgs-berlin.de kontaktieren. "
 
 #: templates/legal/contact.html:37
 #, python-format
