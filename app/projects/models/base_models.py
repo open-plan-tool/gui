@@ -7,7 +7,6 @@ from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
-import oemof.thermal.compression_heatpumps_and_chillers as cmpr_hp_chiller
 import pandas as pd
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -19,6 +18,7 @@ from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from oemof.datapackage.datapackage import export_dp_to_json
+from oemof.eesyplan.importer.cop import calculate_cop_simple
 from users.models import CustomUser
 
 from projects.constants import (
@@ -2133,13 +2133,10 @@ class COPCalculator(models.Model):
         return answer
 
     def calc_cops(self):
-        cops = cmpr_hp_chiller.calc_cops(
-            temp_high=self.temp_high,
-            temp_low=self.temp_low,
-            mode=self.mode,
-            quality_grade=self.quality_grade,
-            factor_icing=self.factor_icing,
-            temp_threshold_icing=self.temp_threshold_icing,
+        cops = calculate_cop_simple(
+            temperature_source=self.temp_low,
+            temperature_supply=self.temp_high,
+            quality_factor=self.quality_grade,
         )
         if len(cops) == 1:
             cops = cops[0]

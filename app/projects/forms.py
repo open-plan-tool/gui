@@ -672,7 +672,14 @@ class COPCalculatorForm(OpenPlanModelForm):
 
     class Meta:
         model = COPCalculator
-        exclude = ["id", "scenario", "asset", "mode"]
+        exclude = [
+            "id",
+            "scenario",
+            "asset",
+            "temp_threshold_icing",
+            "factor_icing",
+            "mode",
+        ]
 
 
 class BusForm(OpenPlanModelForm):
