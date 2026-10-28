@@ -234,8 +234,10 @@ function updateScalarInput(array,param_name){
     // write the array as json inside the scalar input field and trigger the change event
     var scalarID = "id_" + param_name + "_2";
     var scalar_input = document.getElementById(scalarID);
-    scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
-    scalar_input.dispatchEvent(new Event("change"));
+    if scalar_input {
+        scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
+        scalar_input.dispatchEvent(new Event("change"));
+    }
 }
 
 function uploadDualInputTrace(obj, param_name="") {
