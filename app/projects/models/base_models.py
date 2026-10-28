@@ -1371,7 +1371,7 @@ class HeatPump(Asset):
         # keep the MVS-era Asset fields in sync so the MVS dto export path
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
-        self.efficiency = self.cop
+        self.efficiency = self.cop.values
         super().save(*args, **kwargs)
 
     @staticmethod

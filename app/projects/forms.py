@@ -928,11 +928,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                 else:
                     cleaned_data["maximum_capacity"] = None
 
-            if self.asset_type_name == "heat_pump":
-                if "cop" not in self.errors:
-                    cop = cleaned_data["cop"]
-                    self.timeseries_same_as_timestamps(cop, "cop")
-
             if self.asset_type_name in ("chp", "chp_fixed_ratio"):
                 el_field = (
                     "efficiency_electricity_state_b"
