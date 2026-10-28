@@ -200,7 +200,7 @@
     }
 
     function move_step(){
-        window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+        window.location.href = "{% url 'scenario_review' proj_id scen_id %}";
     };
 
     /*
@@ -274,7 +274,7 @@
                 }, 3000);
 
                  if (move_step){
-                    window.location.href = "{% url 'scenario_create_constraints' proj_id scen_id %}";
+                    window.location.href = "{% url 'scenario_review' proj_id scen_id %}";
                 }
                 // save button should still be disabled until next change
             }).catch(error => {

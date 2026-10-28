@@ -103,23 +103,23 @@ def not_implemented(request):
 
 
 @require_http_methods(["GET"])
-def home(request, version=1):
-    return render(request, "index.html", {"version": version})
+def home(request):
+    return render(request, "index.html")
 
 
 @require_http_methods(["GET"])
-def landing_commune(request, version=1):
-    return render(request, "landing/commune.html", {"version": version})
+def landing_commune(request):
+    return render(request, "landing/commune.html")
 
 
 @require_http_methods(["GET"])
-def landing_cellular(request, version=1):
-    return render(request, "landing/cellular.html", {"version": version})
+def landing_cellular(request):
+    return render(request, "landing/cellular.html")
 
 
 @require_http_methods(["GET"])
-def landing_default(request, version=1):
-    return render(request, "landing/default.html", {"version": version})
+def landing_default(request):
+    return render(request, "landing/default.html")
 
 
 @login_required
@@ -524,15 +524,8 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
-    if request.user.id == 1:
-        messages.info(
-            request,
-            mark_safe(
-                _(
-                    "<p>Hello dear OpenPlan Tool  user!</br></br> We would just like to let you know we are looking for your inputs in terms of features ideas or feature sponsor. Please check out the new navigation bar link 'Sponsor new features' for more information</br></br>Thank you for using OpenPlan Tool </p>"
-                )
-            ),
-        )
+    msg = "<center>Dear OpenPlan user,<br> We are preparing for a <b>major update</b> that will replace the current simulation backend.<br><b> The update is scheduled for 02.11.</b><br>We expect the migration to go smoothly, however exporting the projects you are currently working on with the export button might save you some stress in case of unforseen bugs.</center>"
+    messages.warning(request, mark_safe(msg))
 
     return render(
         request,
@@ -804,7 +797,7 @@ def scenario_select_project(request, step_id=0, max_step=1):
             form = ScenarioSelectProjectForm(project_queryset=user_projects)
             answer = render(
                 request,
-                f"scenario/scenario_step{step_id}.html",
+                f"scenario/{SCENARIOS_STEPS[step_id]}.html",
                 {
                     "form": form,
                     "step_id": step_id,
@@ -867,7 +860,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
             existing_simulation = False
         answer = render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "form": form,
                 "proj_id": proj_id,
@@ -1011,7 +1004,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         user_has_right_to_save = False
 
     if request.method == "POST":
-        # called by function save_topology() in templates/scenario/scenario_step2.html
+        # called by function save_topology() in templates/scenario/scenario_create_topology.html
 
         if user_has_right_to_save is False:
             return JsonResponse({"success": True}, status=403)
@@ -1042,7 +1035,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
         topology_data_list = load_scenario_topology_from_db(scen_id)
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
@@ -1119,7 +1112,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 
         return render(
             request,
-            f"scenario/scenario_step{step_id}.html",
+            f"scenario/{SCENARIOS_STEPS[step_id]}.html",
             {
                 "scenario": scenario,
                 "existing_simulation": existing_simulation,
@@ -1170,7 +1163,7 @@ def scenario_create_constraints(request, proj_id, scen_id, step_id=3, max_step=4
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_has_read_rights
-def scenario_review(request, proj_id, scen_id, step_id=4, max_step=MAX_STEP):
+def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
     scenario = get_object_or_404(Scenario, pk=scen_id)
 
     if request.method == "GET":
@@ -1290,9 +1283,9 @@ def back_to_scenario_review(request, proj_id):
 SCENARIOS_STEPS = {
     1: "scenario_create_parameters",
     2: "scenario_create_topology",
-    3: "scenario_create_constraints",
-    4: "scenario_review",
-    5: "scenario_visualize_results",
+    # 3: "scenario_create_constraints",
+    3: "scenario_review",
+    4: "scenario_visualize_results",
 }
 
 
@@ -1505,7 +1498,7 @@ def reset_scenario_changes(request, scen_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 @user_is_owner
-def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=5):
+def sensitivity_analysis_create(request, scen_id, sa_id=None, step_id=4):
     excuses_design_under_development(request)
     scenario = get_object_or_404(Scenario, id=scen_id)
 

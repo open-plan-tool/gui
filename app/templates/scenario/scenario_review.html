@@ -13,7 +13,7 @@
 <main>
 
     <section class="scenario-create">
-        <form method="POST" action="{% url 'scenario_create_constraints' proj_id scen_id %}">
+        <form method="POST" action="{% url 'scenario_review' proj_id scen_id %}">
             {% csrf_token %}
             <div id="FormGroup" class="form-group">
                 {% for constraint_id, form in forms.items %}

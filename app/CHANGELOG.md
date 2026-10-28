@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v1.2.2] – 2026-10-28
+### Changed
+- Constraint step (previously step 3) has been hidden until functionality is implemented in new backend [[#564](https://github.com/open-plan-tool/gui/pull/564)]
+
 ## [v1.2.1] – 2026-10-14
 ### Added
 - Allow user to get information about usecases's scenarios via endpoint [[#524](https://github.com/open-plan-tool/gui/pull/524)]
