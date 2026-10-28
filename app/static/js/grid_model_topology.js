@@ -872,7 +872,13 @@ function computeCOP(event){
 
             efficiencyDOM = guiModalDOM.querySelector('input[name="cop_scalar"]');
             if(efficiencyDOM){
+                // clear the select/file subfields
+                document.getElementById('id_cop_0').value = '';
+                document.getElementById('id_cop_1').value = '';
                 efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
+                // switch to the scalar field and hide the plot
+                guiModalDOM.querySelector("button[id='manual-tab-cop']").click();
+                guiModalDOM.querySelector("div[id='cop_trace']").style.display = "none";
             }
             copDOM = guiModalDOM.querySelector('input[name="copId"]');
             if(copDOM){
