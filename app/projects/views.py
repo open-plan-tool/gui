@@ -103,23 +103,23 @@ def not_implemented(request):
 
 
 @require_http_methods(["GET"])
-def home(request, version=1):
-    return render(request, "index.html", {"version": version})
+def home(request):
+    return render(request, "index.html")
 
 
 @require_http_methods(["GET"])
-def landing_commune(request, version=1):
-    return render(request, "landing/commune.html", {"version": version})
+def landing_commune(request):
+    return render(request, "landing/commune.html")
 
 
 @require_http_methods(["GET"])
-def landing_cellular(request, version=1):
-    return render(request, "landing/cellular.html", {"version": version})
+def landing_cellular(request):
+    return render(request, "landing/cellular.html")
 
 
 @require_http_methods(["GET"])
-def landing_default(request, version=1):
-    return render(request, "landing/default.html", {"version": version})
+def landing_default(request):
+    return render(request, "landing/default.html")
 
 
 @login_required
