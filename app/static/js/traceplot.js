@@ -188,8 +188,9 @@ function plotTimeseriesInputTrace(ts_values,param_name=""){
     if(Array.isArray(ts_values)){
         myarray = []
         ts_values.forEach(el => myarray.push([el]))
-        processData(myarray);
         graphDOM.style.display = "block";
+        processData(myarray);
+        Plotly.Plots.resize(graphDOM)
     }
     else{
      graphDOM.style.display = "none";
