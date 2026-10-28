@@ -24,12 +24,10 @@
 	</section>
 	<section class="standard-layout">
 		<div>
-			{% if user.is_authenticated %}
 			<div class="standard-layout__paragraph">
 				<h2>{% translate "Contact us" %}</h2>
-				<p>{% translate "You can contact us by email at openplan at dgs-berlin.de. Note that this information is only visible if you are logged in." %}</p>
+				<p>{% translate "You can contact us by email at openplan[at]dgs-berlin.de." %}</p>
 			</div>
-			{% endif %}
 			<div class="standard-layout__paragraph standard-layout__paragraph--foreground">
 				<h2>{% translate "Feedback or question?" %}</h2>
 				{% url 'user_feedback' as url_feedback %}
