@@ -2140,6 +2140,8 @@ class COPCalculator(models.Model):
         )
         if len(cops) == 1:
             cops = cops[0]
+        else:
+            cops = cops.tolist()
         return cops
 
     def export(self):
