@@ -133,7 +133,6 @@ def check_all_asset_forms(project_id, client, verbose=False):
 class BasicOperationsTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
         "fixtures/minimal_project.json",
         "fixtures/test_extra_users.json",
@@ -141,7 +140,7 @@ class BasicOperationsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -369,12 +368,12 @@ class BasicOperationsTest(TestCase):
 class ExportLoadMixin:
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
     ]
 
     @classmethod
     def setUpTestData(cls):
+        call_command("update_assettype", update=True)
         cls.user = CustomUser.objects.first()
         with open(cls.data_file, "r") as fp:
             mydict = json.load(fp)
@@ -467,7 +466,7 @@ class ExportLoadMixin:
         self.project.delete()
 
 
-@tag("unittest")
+@tag("unittest", "export")
 class ExportLoadTestCompatiblity(ExportLoadMixin, TestCase):
     data_file = (
         Path(__file__).resolve().parent.parent
@@ -476,7 +475,7 @@ class ExportLoadTestCompatiblity(ExportLoadMixin, TestCase):
     )
 
 
-@tag("unittest")
+@tag("unittest", "export")
 class ExportLoadTest(ExportLoadMixin, TestCase):
     data_file = (
         Path(__file__).resolve().parent.parent / "test_files" / "all_assets.json"
@@ -493,14 +492,13 @@ class ExportLoadTest(ExportLoadMixin, TestCase):
 class UploadTimeseriesTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
         "fixtures/minimal_project.json",
     ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -713,14 +711,13 @@ class OptimizeCapacityToggleTest(TestCase):
 
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
         "fixtures/minimal_project.json",
     ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.client.login(username="testUser", password="ASas12,.")
@@ -838,12 +835,13 @@ class ImportedUsecaseTest(TestCase):
 
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
     ]
 
     @classmethod
     def setUpTestData(cls):
+        call_command("update_assettype", update=True)
+
         cls.check_source_is_online()
 
         User = get_user_model()
@@ -1161,7 +1159,6 @@ class CHPAssetTest(TestCase):
 
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
         "fixtures/minimal_project.json",
     ]
@@ -1188,7 +1185,7 @@ class CHPAssetTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.project = Project.objects.first()
@@ -1322,9 +1319,12 @@ class CHPAssetTest(TestCase):
 class TimeseriesFieldTest(TestCase):
     fixtures = [
         "fixtures/valuetypes.json",
-        "fixtures/assettypes.json",
         "fixtures/test_user.json",
     ]
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("update_assettype", update=True)
 
     def create_timeseries(
         self,

@@ -21,7 +21,6 @@ class Command(BaseCommand):
         assets = df.to_dict(orient="records")
 
         for asset_params in assets:
-            print(asset_params["asset_type"])
             qs = AssetType.objects.filter(asset_type=asset_params["asset_type"])
             asset_ports = asset_params.pop("ports", None)
 
