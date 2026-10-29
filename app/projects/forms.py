@@ -934,11 +934,19 @@ def asset_form_factory(asset_type=None, **kwargs):
                     self.timeseries_same_as_timestamps(cop, "cop")
 
             if self.asset_type_name in ("chp", "chp_fixed_ratio"):
-                if self.errors.keys().isdisjoint(
-                    {"efficiency_electricity_chp", "efficiency_heat_chp"}
-                ):
-                    cf_el = cleaned_data.get("efficiency_electricity_chp")
-                    cf_heat = cleaned_data.get("efficiency_heat_chp")
+                el_field = (
+                    "efficiency_electricity_state_b"
+                    if self.asset_type_name == "chp"
+                    else "efficiency_electricity_chp"
+                )
+                heat_field = (
+                    "efficiency_heat_state_b"
+                    if self.asset_type_name == "chp"
+                    else "efficiency_heat_chp"
+                )
+                if self.errors.keys().isdisjoint({el_field, heat_field}):
+                    cf_el = cleaned_data.get(el_field)
+                    cf_heat = cleaned_data.get(heat_field)
                     # eesyplan rejects a ChpVariableRatio whose total efficiency reaches 1 at any timesteps;
                     error = False
 
@@ -977,8 +985,8 @@ def asset_form_factory(asset_type=None, **kwargs):
                                 )
 
                     if error is True:
-                        self.add_error("efficiency_electricity_chp", msg)
-                        self.add_error("efficiency_heat_chp", msg)
+                        self.add_error(el_field, msg)
+                        self.add_error(heat_field, msg)
 
             for field in self.timeseries_fields:
                 if field in cleaned_data:
