@@ -1234,21 +1234,21 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    efficiency_electricity_chp = models.ForeignKey(
+    efficiency_electricity_state_b = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
         related_name="efficiency_electricity_chp_set",
     )
-    efficiency_electricity_full_condensation = models.ForeignKey(
+    efficiency_electricity_state_a = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
         related_name="efficiency_electricity_full_condensation_set",
     )
-    efficiency_heat_chp = models.ForeignKey(
+    efficiency_heat_state_b = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
@@ -1261,26 +1261,26 @@ class CHP(Asset):
         # (projects/dtos.py, which reads these directly off the base Asset)
         # keeps working. Remove once chp drops MVS support for good.
 
-        if self.efficiency_electricity_full_condensation is not None:
+        if self.efficiency_electricity_state_a is not None:
             el_efficiency_no_heat = np.squeeze(
-                np.array(self.efficiency_electricity_full_condensation.get_values)
+                np.array(self.efficiency_electricity_state_a.get_values)
             )
         else:
             el_efficiency_no_heat = np.array([np.nan] * self.scenario.get_num_timesteps)
 
-        if self.efficiency_heat_chp is not None:
+        if self.efficiency_heat_state_b is not None:
             th_efficiency_max_heat = np.squeeze(
-                np.array(self.efficiency_heat_chp.get_values)
+                np.array(self.efficiency_heat_state_b.get_values)
             )
         else:
             th_efficiency_max_heat = np.array(
                 [np.nan] * self.scenario.get_num_timesteps
             )
 
-        if self.efficiency_electricity_chp is not None:
+        if self.efficiency_electricity_state_b is not None:
             beta = (
                 el_efficiency_no_heat
-                - np.array(self.efficiency_electricity_chp.get_values)
+                - np.array(self.efficiency_electricity_state_b.get_values)
             ) / th_efficiency_max_heat
             beta = beta[0]
         else:
@@ -1296,25 +1296,25 @@ class CHP(Asset):
         from projects.helpers import TimeseriesField
 
         return {
-            "efficiency_heat_chp": TimeseriesField(
+            "efficiency_heat_state_b": TimeseriesField(
                 default=1,
                 min=0,
                 max=1,
-                param_name="efficiency_heat_chp",
+                param_name="efficiency_heat_state_b",
                 label=_("Thermal efficiency with maximal heat extraction"),
             ),
-            "efficiency_electricity_chp": TimeseriesField(
+            "efficiency_electricity_state_b": TimeseriesField(
                 default=1,
                 min=0,
                 max=1,
-                param_name="efficiency_electricity_chp",
+                param_name="efficiency_electricity_state_b",
                 label=_("Electrical efficiency with no heat extraction"),
             ),
-            "efficiency_electricity_full_condensation": TimeseriesField(
+            "efficiency_electricity_state_a": TimeseriesField(
                 default=1,
                 min=0,
                 max=1,
-                param_name="efficiency_electricity_full_condensation",
+                param_name="efficiency_electricity_state_a",
                 label=_("Efficiency electricity full condensation"),
             ),
         }

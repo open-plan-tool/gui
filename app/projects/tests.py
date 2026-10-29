@@ -1181,9 +1181,9 @@ class CHPAssetTest(TestCase):
         "maximum_capacity": 500,
         "efficiency": 0.35,
         "efficiency_multiple": 0.5,
-        "efficiency_electricity_chp": 0.35,
-        "efficiency_electricity_full_condensation": 0.4,
-        "efficiency_heat_chp": 0.5,
+        "efficiency_electricity_state_b": 0.35,
+        "efficiency_electricity_state_a": 0.4,
+        "efficiency_heat_state_b": 0.5,
     }
 
     @classmethod
@@ -1198,9 +1198,9 @@ class CHPAssetTest(TestCase):
     # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
     # data keys are suffixed with the subwidget name
     dual_number_fields = (
-        "efficiency_electricity_chp",
-        "efficiency_heat_chp",
-        "efficiency_electricity_full_condensation",
+        "efficiency_electricity_state_b",
+        "efficiency_heat_state_b",
+        "efficiency_electricity_state_a",
     )
 
     def create_chp_via_form(self, name="chp-test"):
@@ -1294,18 +1294,20 @@ class CHPAssetTest(TestCase):
         chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
         self.assertEqual(len(chp_nodes), 1)
         self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
-        self.assertEqual(chp_nodes[0].efficiency_electricity_chp[0], 0.35)
-        self.assertEqual(chp_nodes[0].efficiency_heat_chp[0], 0.5)
-        self.assertEqual(chp_nodes[0].efficiency_electricity_full_condensation[0], 0.4)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_state_b[0], 0.35)
+        self.assertEqual(chp_nodes[0].efficiency_heat_state_b[0], 0.5)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_state_a[0], 0.4)
 
     def test_chp_to_datapackage_uses_eesyplan_parameters(self):
         asset = self.create_chp_via_form(name="chp-dp")
         dp, bus_records, profile_records = asset.to_datapackage()
         self.assertEqual(dp["type"], "chp")
-        self.assertEqual(dp["efficiency_electricity_chp"], f"constant value = {0.35}")
-        self.assertEqual(dp["efficiency_heat_chp"], f"constant value = {0.5}")
         self.assertEqual(
-            dp["efficiency_electricity_full_condensation"], f"constant value = {0.4}"
+            dp["efficiency_electricity_state_b"], f"constant value = {0.35}"
+        )
+        self.assertEqual(dp["efficiency_heat_state_b"], f"constant value = {0.5}")
+        self.assertEqual(
+            dp["efficiency_electricity_state_a"], f"constant value = {0.4}"
         )
         # MVS parameter names may not leak into the datapackage
         self.assertNotIn("efficiency", dp)
