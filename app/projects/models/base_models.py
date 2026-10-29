@@ -1234,26 +1234,33 @@ class Commodity(Asset):
 
 class CHP(Asset):
     # mirrors the parameters of oemof.eesyplan ChpVariableRatio
-    efficiency_electricity_state_b = models.ForeignKey(
-        Timeseries,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=False,
-        related_name="efficiency_electricity_chp_set",
-    )
     efficiency_electricity_state_a = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
-        related_name="efficiency_electricity_full_condensation_set",
+        related_name="efficiency_electricity_state_a_set",
+    )
+    efficiency_electricity_state_b = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="efficiency_electricity_state_b_set",
+    )
+    efficiency_heat_state_a = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="efficiency_heat_state_a_set",
     )
     efficiency_heat_state_b = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
-        related_name="efficiency_heat_chp_set",
+        related_name="efficiency_heat_state_b_set",
     )
 
     def save(self, *args, **kwargs):
@@ -1296,6 +1303,13 @@ class CHP(Asset):
         from projects.helpers import TimeseriesField
 
         return {
+            "efficiency_heat_state_a": TimeseriesField(
+                default=0,
+                min=0,
+                max=1,
+                param_name="efficiency_heat_state_a",
+                label=_("Thermal efficiency with no heat extraction"),
+            ),
             "efficiency_heat_state_b": TimeseriesField(
                 default=1,
                 min=0,
