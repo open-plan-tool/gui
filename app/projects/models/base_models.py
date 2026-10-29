@@ -1218,7 +1218,7 @@ class Asset(TopologyNode):
 
 
 class Commodity(Asset):
-    full_load_hours_max = models.FloatField(
+    full_load_time_max = models.FloatField(
         null=True, blank=True, validators=[MinValueValidator(0.0)]
     )
     commodity_type = models.CharField(max_length=30, null=True, blank=True)
@@ -1226,7 +1226,7 @@ class Commodity(Asset):
     def to_datapackage(self):
         dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
         dm["capacity"] = dm.pop("installed_capacity")
-        dm["variable_cost"] = dm.pop("capex_spec")
+        dm["variable_costs"] = dm.pop("capex_spec")
         dm["commodity"] = dm.pop("commodity_type")
         dm["bus_out"] = dm.pop("bus_out_electricity")
         return dm, bus_resource_rec, profile_resource_rec

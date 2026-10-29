@@ -367,7 +367,7 @@
         "asset_category": "energy_conversion",
         "energy_vector": "Electricity",
         "mvs_type": "extractionTurbineCHP",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_electricity_chp,efficiency_heat_chp,efficiency_electricity_full_condensation]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency_electricity_state_b,efficiency_heat_state_b,efficiency_electricity_state_a,efficiency_heat_state_a]",
         "unit": "kW"
     }
 },
