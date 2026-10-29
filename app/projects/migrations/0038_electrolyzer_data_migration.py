@@ -36,7 +36,7 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "Electrolyser").objects.all().delete()
+    apps.get_model("projects", "Electrolyzer").objects.all().delete()
 
 
 
