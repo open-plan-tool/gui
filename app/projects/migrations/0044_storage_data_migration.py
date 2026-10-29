@@ -52,7 +52,7 @@ def forwards(apps, schema_editor):
             storage.opex_var = capacity.opex_var
             storage.lifetime = capacity.lifetime
             storage.efficiency = capacity.efficiency
-            storage.capacity_cap = capacity.optimize_cap
+            storage.optimize_cap = capacity.optimize_cap
             storage.maximum_capacity = capacity.maximum_capacity
             fields_to_update = ["name", "age_installed", "installed_capacity", "capex_fix", "capex_var", "opex_fix", "opex_var","lifetime", "efficiency", "optimize_cap", "maximum_capacity"]
             storage.save(update_fields=fields_to_update)
