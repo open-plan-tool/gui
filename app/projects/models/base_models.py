@@ -1599,7 +1599,7 @@ class ElectricalStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    self_discharge = models.FloatField(
+    loss_rate = models.FloatField(
         null=True,
         blank=False,
         default=0,
@@ -1663,7 +1663,7 @@ class FuelStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    self_discharge = models.FloatField(
+    loss_rate = models.FloatField(
         null=True,
         blank=False,
         default=0,
@@ -1714,7 +1714,7 @@ class HydrogenStorage(Asset):
         blank=False,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
-    self_discharge = models.FloatField(
+    loss_rate = models.FloatField(
         null=True,
         blank=False,
         default=0,

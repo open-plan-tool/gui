@@ -319,7 +319,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Electricity",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge,initial_storage_level,end_storage_level]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,loss_rate,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge,initial_storage_level,end_storage_level]",
         "unit": "kW (el)"
     }
 },
@@ -331,7 +331,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "Gas",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,loss_rate,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
         "unit": "l"
     }
 },
@@ -343,7 +343,7 @@
         "asset_category": "energy_storage",
         "energy_vector": "H2",
         "mvs_type": "storage",
-        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,self_discharge,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
+        "asset_fields": "[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,loss_rate,efficiency_charge,efficiency_discharge,soc_max,soc_min,c_rate_charge,c_rate_discharge]",
         "unit": "kgH2"
     }
 },
