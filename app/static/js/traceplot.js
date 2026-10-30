@@ -132,6 +132,53 @@ function getConstantTimeseriesId(value){
 
 }
 
+function manualTabTimeseriesSelected(widgetName){
+    hideTimeseriesInputTrace(widgetName);
+}
+
+function uploadTabTimeseriesSelected(widgetName){
+    const uploadPane = document.getElementById(
+        `upload-${widgetName}`
+    );
+
+    const fileInput = uploadPane?.querySelector(
+        'input[type="file"]'
+    );
+
+    if (!fileInput) {
+        return;
+    }
+
+    if (fileInput.files.length > 0) {
+        //showTimeseriesInputTrace(widgetName);
+        plot_file_trace(fileInput.files, plot_id=widgetName+'_trace');
+    } else {
+        hideTimeseriesInputTrace(widgetName);
+    }
+
+}
+
+function selectTabTimeseriesSelected(widgetName){
+    const selectPane = document.getElementById(
+        `select-${widgetName}`
+    );
+
+    const selectInput = selectPane?.querySelector("select");
+
+    if (!selectInput) {
+        return;
+    }
+
+    if (selectInput.value) {
+        //showTimeseriesInputTrace(widgetName);
+        changeTimeseriesSelectValue(selectInput.value, widgetName)
+    }
+    else {
+        hideTimeseriesInputTrace(widgetName);
+    }
+
+}
+
 
 var PLOT_ID = "";
 
@@ -142,7 +189,6 @@ function changeTimeseriesSelectValue(ts_idx, param_name=""){
     }
     else{
         ts_idx = JSON.parse(ts_idx);
-        console.log(ts_idx);
         getTimeseriesValues(ts_idx,param_name=param_name);
     }
 }
@@ -163,6 +209,7 @@ function initTimeseriesManualValue(param_name="") {
     var select_input = document.getElementById(selectID);
     // this is hacky as select does not get triggered as changed
     select_input.dispatchEvent(new Event('change'));
+    hideTimeseriesInputTrace(param_name);
 }
 function updateTimeseriesManualValue(value, param_name="") {
     console.log("update widget:manual");
@@ -172,7 +219,6 @@ function updateTimeseriesManualValue(value, param_name="") {
     var selectID = "id_" + param_name + "_0";
     var select_input = document.getElementById(selectID);
     fetch(findtsGetUrl + "/" + scen_ts_length +"/value/" + value + "/").then(resp => resp.json()).then(data => {
-        console.log(data)
         let ts_id = data["id"];
         if(ts_id){select_input.value = ts_id;}
         else{select_input.value = "";}
@@ -207,6 +253,13 @@ function hideTimeseriesInputTrace(param_name=""){
     graphDOM.style.display = "none";
 };
 
+function showTimeseriesInputTrace(param_name=""){
+     // this refers to div id in the html template asset/dual_input.html
+    PLOT_ID = param_name + "_trace";
+    var graphDOM = document.getElementById(PLOT_ID);
+    graphDOM.style.display = "block";
+};
+
 /* Plot update of textinput field of DualInput field */
 function plotDualInputTrace(obj, param_name=""){
 
@@ -234,7 +287,7 @@ function updateScalarInput(array,param_name){
     // write the array as json inside the scalar input field and trigger the change event
     var scalarID = "id_" + param_name + "_2";
     var scalar_input = document.getElementById(scalarID);
-    if scalar_input {
+    if (scalar_input) {
         scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
         scalar_input.dispatchEvent(new Event("change"));
     }
@@ -278,6 +331,7 @@ function plot_file_trace(obj, plot_id="") {
         else if (myfile.name.includes(".txt")){getAsText(myfile);}
         else if (myfile.name.includes(".xls")){getAsExcel(myfile);}
         }
+        trace_plots.style.display = "";
 
     } else {
       alert('FileReader are not supported in this browser.');
