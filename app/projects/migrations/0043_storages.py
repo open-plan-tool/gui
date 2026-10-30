@@ -199,7 +199,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "thermal_loss_rate",
+                    "loss_rate",
                     models.FloatField(
                         null=True,
                         validators=[django.core.validators.MinValueValidator(0.0)],

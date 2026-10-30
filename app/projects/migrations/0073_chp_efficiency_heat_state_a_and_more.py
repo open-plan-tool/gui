@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0073_rename_efficiency_electricity_full_condensation_chp_efficiency_electricity_state_a_and_more'),
+        ('projects', '0072_rename_efficiency_electricity_full_condensation_chp_efficiency_electricity_state_a_and_more'),
     ]
 
     operations = [

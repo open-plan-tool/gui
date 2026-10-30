@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         (
             "projects",
-            "0047_rename_fixed_thermal_losses_relative_thermalstorage_thermal_losses_fixed_and_more",
+            "0047_add_c_rate_charge_and_discharge_to_storage_components",
         ),
     ]
 

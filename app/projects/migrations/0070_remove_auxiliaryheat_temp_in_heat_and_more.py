@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0070_remove_thermalstorage_fixed_thermal_losses_absolute"),
+        ("projects", "0069_dsogas_dsoh2_dsoheat"),
     ]
 
     operations = [

@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0071_remove_auxiliaryheat_temp_in_heat_and_more"),
+        ("projects", "0070_remove_auxiliaryheat_temp_in_heat_and_more"),
     ]
 
     operations = [

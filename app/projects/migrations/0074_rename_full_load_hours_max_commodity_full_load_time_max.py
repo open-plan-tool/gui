@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0074_chp_efficiency_heat_state_a_and_more"),
+        ("projects", "0073_chp_efficiency_heat_state_a_and_more"),
     ]
 
     operations = [

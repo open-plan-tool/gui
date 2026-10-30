@@ -48,6 +48,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name="thermalstorage",
-            name="thermal_losses_fixed",
+            name="fixed_thermal_losses_relative",
         ),
     ]

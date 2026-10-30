@@ -52,12 +52,12 @@ class Migration(migrations.Migration):
         ),
         migrations.RenameField(
             model_name="thermalstorage",
-            old_name="fixed_thermal_losses_absolute_ts",
-            new_name="fixed_thermal_losses_absolute",
+            old_name="fixed_losses_absolute_ts",
+            new_name="fixed_losses_absolute",
         ),
         migrations.RenameField(
             model_name="thermalstorage",
-            old_name="thermal_losses_fixed_ts",
-            new_name="thermal_losses_fixed",
+            old_name="fixed_losses_relative_ts",
+            new_name="fixed_losses_relative", # thermal_losses_fixed to replace with fixed_losses_absolute
         ),
     ]

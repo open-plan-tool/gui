@@ -25,7 +25,7 @@ def forwards(apps, schema_editor):
                 capacity = asset
 
             if storage_type == "hess":
-                opt = {"thermal_loss_rate": capacity.thermal_loss_rate_asset,
+                opt = {"loss_rate": capacity.thermal_loss_rate_asset,
                        "fixed_thermal_losses_relative": capacity.fixed_thermal_losses_relativeA,
                        "fixed_thermal_losses_absolute": capacity.fixed_thermal_losses_absoluteA,
                        }

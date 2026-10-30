@@ -11,16 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name="thermalstorage",
-            old_name="fixed_thermal_losses_relative",
-            new_name="thermal_losses_fixed",
-        ),
-        migrations.RenameField(
-            model_name="thermalstorage",
-            old_name="thermal_loss_rate",
-            new_name="thermal_losses_variable",
-        ),
         migrations.AddField(
             model_name="electricalstorage",
             name="c_rate_discharge",

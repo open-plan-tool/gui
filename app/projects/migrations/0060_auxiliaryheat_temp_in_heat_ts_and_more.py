@@ -22,8 +22,8 @@ MODEL_FIELDS = {
         ("minimum", "minimum_ts"),
     ),
     "ThermalStorage": (
-        ("fixed_thermal_losses_absolute", "fixed_thermal_losses_absolute_ts"),
-        ("thermal_losses_fixed", "thermal_losses_fixed_ts"),
+        ("fixed_thermal_losses_absolute", "fixed_losses_absolute_ts"),
+        ("fixed_thermal_losses_relative", "fixed_losses_relative_ts"),
     ),
 }
 
@@ -217,21 +217,21 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="thermalstorage",
-            name="fixed_thermal_losses_absolute_ts",
+            name="fixed_losses_absolute_ts",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="fixed_thermal_losses_absolute_set",
+                related_name="fixed_losses_absolute_set",
                 to="projects.timeseries",
             ),
         ),
         migrations.AddField(
             model_name="thermalstorage",
-            name="thermal_losses_fixed_ts",
+            name="fixed_losses_relative_ts",
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="thermal_losses_fixed_set",
+                related_name="fixed_losses_relative_set",
                 to="projects.timeseries",
             ),
         ),

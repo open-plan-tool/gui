@@ -1805,16 +1805,24 @@ class ThermalStorage(Asset):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     # previously thermal_loss_rate
-    thermal_losses_variable = models.FloatField(
+    loss_rate = models.FloatField(
         null=True, blank=False, validators=[MinValueValidator(0.0)]
     )
     # previously fixed_thermal_losses_relative
-    thermal_losses_fixed = models.ForeignKey(
+    fixed_losses_relative = models.ForeignKey(
         Timeseries,
         on_delete=models.CASCADE,
         null=True,
         blank=False,
-        related_name="thermal_losses_fixed_set",
+        related_name="fixed_losses_relative_set",
+    )
+    # previously fixed_thermal_losses_absolute
+    fixed_losses_absolute = models.ForeignKey(
+        Timeseries,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name="fixed_losses_absolute_set",
     )
 
     initial_storage_level = models.FloatField(
@@ -1837,14 +1845,14 @@ class ThermalStorage(Asset):
         self.soc_min_asset = self.soc_min
         self.soc_max_asset = self.soc_max
         self.crate_asset = self.c_rate_charge
-        self.thermal_loss_rate_asset = self.thermal_losses_variable
+        self.thermal_loss_rate_asset = self.loss_rate
 
-        if self.thermal_losses_fixed:
-            thermal_losses_fixed = self.thermal_losses_fixed.get_values
+        if self.fixed_losses_relative:
+            fixed_losses_relative = self.fixed_losses_relative.get_values
         else:
-            thermal_losses_fixed = None
+            fixed_losses_relative = None
 
-        self.fixed_thermal_losses_relativeA = thermal_losses_fixed
+        self.fixed_thermal_losses_relativeA = fixed_losses_relative
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -1852,11 +1860,16 @@ class ThermalStorage(Asset):
         from projects.helpers import TimeseriesField
 
         return {
-            "thermal_losses_fixed": TimeseriesField(
+            "fixed_losses_absolute": TimeseriesField(
+                default=0.1,
+                min=0.0,
+                param_name="fixed_losses_absolute",
+            ),
+            "fixed_losses_relative": TimeseriesField(
                 default=0.1,
                 min=0.0,
                 max=1.0,
-                param_name="thermal_losses_fixed",
+                param_name="fixed_losses_relative",
             ),
         }
 

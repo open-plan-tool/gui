@@ -55,8 +55,9 @@ COMPATIBILITY_PARAMETER_NAME_MAPPING = {
         "efficiency_charge": "efficiency",
     },
     "hess": {
-        "thermal_losses_variable": "thermal_loss_rate",
-        "thermal_losses_fixed": "fixed_thermal_losses_relative",
+        "loss_rate": "thermal_loss_rate",
+        "fixed_losses_relative": "fixed_thermal_losses_relative",
+        "fixed_losses_absolute": "fixed_thermal_losses_absolute",
         "efficiency_discharge": "crate",
         "efficiency_charge": "efficiency",
     },
