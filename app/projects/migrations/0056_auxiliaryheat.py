@@ -4,6 +4,9 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
+def backwards(apps, schema_editor):
+    apps.get_model("projects", "AuxiliaryHeat").objects.all().delete()
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -34,4 +37,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.asset",),
         ),
+        migrations.RunPython(migrations.RunPython.noop, backwards),
     ]

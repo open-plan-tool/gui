@@ -3,6 +3,8 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
+def backwards(apps, schema_editor):
+    apps.get_model("projects", "Sink").objects.all().delete()
 
 class Migration(migrations.Migration):
 
@@ -46,4 +48,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.asset",),
         ),
+        migrations.RunPython(migrations.RunPython.noop, backwards),
     ]
