@@ -11,6 +11,6 @@ python /src/manage.py update_assettype --update
 python /src/manage.py update_valuetype --update
 echo UPDATETRANSLATIONS
 python /src/manage.py compilemessages
-#python /src/manage.py loaddata 'src/fixtures/multivector_fixture.json'
+# python manage.py loaddata "src/fixtures/valuetypes.json" "src/fixtures/assettypes.json" "src/fixtures/test_user.json" "src/fixtures/example_project.json"
 echo $(ls -L 1 --dirsfirst)
 gunicorn epa.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120

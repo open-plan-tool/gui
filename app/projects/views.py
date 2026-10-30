@@ -42,11 +42,13 @@ from projects.models import (
     Asset,
     AssetChangeTracker,
     AssetType,
+    ASSET_MAPPING,
     Bus,
     Comment,
     ConnectionLink,
     COPCalculator,
     EconomicData,
+    HeatingNetwork,
     MaxEmissionConstraint,
     MinDOAConstraint,
     MinRenewableConstraint,
@@ -74,11 +76,8 @@ from .requests import (
 )
 from .scenario_topology_helpers import (
     NodeObject,
-    duplicate_scenario_connections,
-    duplicate_scenario_objects,
     handle_asset_form_post,
     handle_bus_form_post,
-    handle_storage_unit_form_post,
     load_project_from_dict,
     load_scenario_from_dict,
     load_scenario_topology_from_db,
@@ -956,6 +955,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "biogas_plant": _("Biogas Plant"),
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
+            "commodity": _("Commodity"),
+            "shortage": _("Shortage"),
         },
         "conversion": {
             "transformer_station_in": _("Transformer Station (in)"),
@@ -970,6 +971,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
+            "heating_pipe": _("Heating pipe"),
+            "auxiliary_heat": _("Auxiliary Heat"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -982,12 +985,15 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
+            "sink": _("Sink"),
+            "excess": _("Excess"),
         },
         "bus": {
             "bus-electricity": _("Electricity Bus"),
             "bus-heat": _("Heat Bus"),
             "bus-gas": _("Fuel Bus"),
             "bus-h2": _("Hydrogen Bus"),
+            "heating_network": _("Heating Network"),
         },
     }
     group_names = {group: _(group) for group in components}
@@ -1014,11 +1020,9 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
 
         # delete objects from database which were deleted by the user
         update_deleted_objects_from_database(scen_id, node_list)
-        # Make sure there are no connections in the Database to prevent inserting the same connections upon updating.
-        ConnectionLink.objects.filter(scenario_id=scen_id).delete()
+
         for node_obj in node_list:
-            node_obj.create_connection_links(scen_id)
-            # node_obj.assign_asset_to_proper_group(node_to_db_mapping_dict)
+            node_obj.update_connection_links(scen_id)
         return JsonResponse({"success": True}, status=200)
     else:
         scenario = get_object_or_404(Scenario, pk=scen_id)
@@ -1338,28 +1342,10 @@ def scenario_update(request, scen_id, step_id):
 def scenario_duplicate(request, scen_id):
     """duplicates the selected scenario and all of its associated components (topology data included)"""
     scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    # We need to iterate over all the objects related to this scenario and duplicate them
-    # and associate them with the new scenario id.
-    asset_list = Asset.objects.filter(scenario=scenario)
-    bus_list = Bus.objects.filter(scenario=scenario)
-    connections_list = ConnectionLink.objects.filter(scenario=scenario)
-    # simulation_list = Simulation.objects.filter(scenario=scenario)
-
-    # first duplicate the scenario
-    scenario.pk = None
-    scenario.save()
-    # from now on we are working with the duplicated scenario, not the original
-    old2new_asset_ids_map = duplicate_scenario_objects(asset_list, scenario)
-    old2new_bus_ids_map = duplicate_scenario_objects(
-        bus_list, scenario, old2new_asset_ids_map
-    )
-    duplicate_scenario_connections(
-        connections_list, scenario, old2new_asset_ids_map, old2new_bus_ids_map
-    )
-    # duplicate_scenario_objects(simulation_list, scenario)
-
-    return HttpResponseRedirect(reverse("project_search", args=[scenario.project.id]))
+    project = scenario.project
+    dm = scenario.export()
+    load_scenario_from_dict(dm, user=request.user, project=project)
+    return HttpResponseRedirect(reverse("project_search", args=[project.id]))
 
 
 @login_required
@@ -1692,12 +1678,12 @@ def get_constant_timeseries_id(request, ts_length=None, value=None):
 def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     scenario = Scenario.objects.get(id=scen_id)
 
-    # TODO delete once bug is fixed
-    if "dso" in asset_type_name:
-        msg = _(
-            "Due to the ongoing restructuring, the use of variable costs with time series data in the DSO components is not functioning as intended."
-        )
-        messages.warning(request, msg)
+    # Message for asset_type specific form
+    # if ... in asset_type_name:
+    #     msg = _(
+    #         ""
+    #     )
+    #     messages.warning(request, msg)
 
     # collect the information about the connected nodes in the GUI
     input_output_mapping = {
@@ -1720,88 +1706,30 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
             )
         return render(request, "asset/bus_create_form.html", {"form": form})
 
-    elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
-        if asset_uuid:
-            existing_ess_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            ess_asset_children = Asset.objects.filter(
-                parent_asset=existing_ess_asset.id
-            )
-            ess_capacity_asset = ess_asset_children.get(
-                asset_type__asset_type="capacity"
-            )
-            ess_charging_power_asset = ess_asset_children.get(
-                asset_type__asset_type="charging_power"
-            )
-            ess_discharging_power_asset = ess_asset_children.get(
-                asset_type__asset_type="discharging_power"
-            )
-            # also get all child assets
-            form = StorageForm(
-                asset_type=asset_type_name,
-                initial={
-                    "name": existing_ess_asset.name,
-                    "installed_capacity": ess_capacity_asset.installed_capacity,
-                    "age_installed": ess_capacity_asset.age_installed,
-                    "capex_fix": ess_capacity_asset.capex_fix,
-                    "capex_var": ess_capacity_asset.capex_var,
-                    "opex_fix": ess_capacity_asset.opex_fix,
-                    "opex_var": ess_capacity_asset.opex_var,
-                    "lifetime": ess_capacity_asset.lifetime,
-                    "crate": ess_capacity_asset.crate,
-                    "efficiency": ess_capacity_asset.efficiency,
-                    "dispatchable": ess_capacity_asset.dispatchable,
-                    "optimize_cap": ess_capacity_asset.optimize_cap,
-                    "maximum_capacity": ess_capacity_asset.maximum_capacity,
-                    "soc_max": ess_capacity_asset.soc_max,
-                    "soc_min": ess_capacity_asset.soc_min,
-                    "thermal_loss_rate": ess_capacity_asset.thermal_loss_rate,
-                    "fixed_thermal_losses_relative": ess_capacity_asset.fixed_thermal_losses_relative,
-                    "fixed_thermal_losses_absolute": ess_capacity_asset.fixed_thermal_losses_absolute,
-                },
-                input_output_mapping=input_output_mapping,
-            )
-        else:
-            asset_list = Asset.objects.filter(
-                asset_type__asset_type=asset_type_name, scenario=scenario
-            )
-            n_asset = len(asset_list)
-            default_name = f"{asset_type_name}-{n_asset}"
-            form = StorageForm(
-                asset_type=asset_type_name,
-                input_output_mapping=input_output_mapping,
-                initial={"name": default_name},
-            )
-        return render(
-            request,
-            "asset/asset_create_form.html",
-            {
-                "form": form,
-                "show_input_timeseries": False,
-                "show_cop_calculator": False,
-            },
-        )
     else:  # all other assets
         if asset_uuid:
-            existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
-            form = AssetCreateForm(
+            existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
+            form = asset_form_factory(
                 asset_type=asset_type_name,
                 instance=existing_asset,
                 input_output_mapping=input_output_mapping,
                 proj_id=scenario.project.id,
                 scenario_id=scenario.id,
             )
-            input_timeseries_data = (
-                existing_asset.input_timeseries.values
-                if existing_asset.input_timeseries
-                else ""
-            )
+
+            input_timeseries_data = ""
+
+            if hasattr(existing_asset, "input_timeseries"):
+                if existing_asset.input_timeseries is not None:
+                    input_timeseries_data = existing_asset.input_timeseries.values
+
         else:
-            asset_list = Asset.objects.filter(
+            AssetModel = ASSET_MAPPING.get(asset_type_name, Asset)
+            n_asset = AssetModel.objects.filter(
                 asset_type__asset_type=asset_type_name, scenario=scenario
-            )
-            n_asset = len(asset_list)
+            ).count()
             default_name = f"{asset_type_name}-{n_asset}"
-            form = AssetCreateForm(
+            form = asset_form_factory(
                 asset_type=asset_type_name,
                 initial={"name": default_name},
                 input_output_mapping=input_output_mapping,
@@ -1832,10 +1760,6 @@ def get_asset_create_form(request, scen_id=0, asset_type_name="", asset_uuid=Non
 def asset_create_or_update(request, scen_id=0, asset_type_name="", asset_uuid=None):
     if asset_type_name == "bus":
         answer = handle_bus_form_post(request, scen_id, asset_type_name, asset_uuid)
-    elif asset_type_name in ["bess", "h2ess", "gess", "hess"]:
-        answer = handle_storage_unit_form_post(
-            request, scen_id, asset_type_name, asset_uuid
-        )
     else:  # all assets
         answer = handle_asset_form_post(request, scen_id, asset_type_name, asset_uuid)
     return answer
@@ -2015,7 +1939,7 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
 def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     opts = {}
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
         existing_cop = COPCalculator.objects.filter(asset=existing_asset)
         if existing_cop.exists():
             opts["instance"] = existing_cop.get()
@@ -2033,7 +1957,7 @@ def asset_cops_create_or_update(
 
     opts = {}
     if asset_uuid:
-        existing_asset = get_object_or_404(Asset, unique_id=asset_uuid)
+        existing_asset = get_asset_or_404(asset_type_name, asset_uuid)
         existing_cop = COPCalculator.objects.filter(asset=existing_asset)
         if existing_cop.exists():
             opts["instance"] = existing_cop.get()
@@ -2046,12 +1970,31 @@ def asset_cops_create_or_update(
         cop.mode = asset_type_name
         if asset_uuid:
             cop.asset = existing_asset
+            cop_ts = existing_asset.cop
+        else:
+            cop_ts = Timeseries(asset_type="heat_pump", scenario=scenario)
         cop.save()
 
         try:
             cops = cop.calc_cops()
+
+            if isinstance(cops, list):
+                cop_ts.name = "cop_calculated"
+                cop_ts.ts_type = "timeseries"
+                cop_ts.values = cops
+                cop_ts.save()
+                ts_type = "timeseries"
+            else:
+                ts_type = "scalar"
             return JsonResponse(
-                {"success": True, "cop_id": cop.id, "cops": json.dumps(cops)},
+                {
+                    "success": True,
+                    "cop_id": cop.id,
+                    "cops": json.dumps(cops),
+                    "ts_id": cop_ts.id,
+                    "name": cop_ts.name,
+                    "ts_type": ts_type,
+                },
                 status=200,
             )
         except:
@@ -2111,6 +2054,37 @@ def test_mvs_data_input(request, scen_id=0):
 @require_http_methods(["GET"])
 def usecase_mvs_data_input(request, scen_id=0):
     return view_mvs_data_input(request, scen_id=scen_id, testing=True)
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+@user_has_read_rights
+def view_ezp_data_input(request, scen_id=0, testing=False):
+    if scen_id == 0:
+        return JsonResponse(
+            {"status": "error", "error": "No scenario id provided"},
+            status=500,
+            content_type="application/json",
+        )
+    # Load scenario
+    scenario = Scenario.objects.get(id=scen_id)
+
+    if testing is True:
+        number = 3
+    else:
+        number = None
+
+    json_dp = scenario.to_jsonified_datapackage(number=number)
+
+    return JsonResponse(json_dp, status=200, content_type="application/json")
+
+
+@json_view
+@login_required
+@require_http_methods(["GET"])
+def test_ezp_data_input(request, scen_id=0):
+    return view_ezp_data_input(request, scen_id=scen_id, testing=True)
 
 
 # End-point to send MVS simulation request

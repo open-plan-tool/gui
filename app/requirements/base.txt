@@ -10,13 +10,12 @@ django-sass-processor==1.4.2
 django-celery-beat==2.9.0
 flower==2.0.1
 redis==8.0.1
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op0.0.1
-oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@dev
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op0.0.3
+#oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op0.0.2
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0
 numpy==2.5.1
-oemof-thermal==0.0.9a1
 openpyxl==3.1.5
 plotly==6.9.0
 psycopg2-binary==2.9.11
