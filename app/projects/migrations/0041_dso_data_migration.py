@@ -26,7 +26,8 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "DSO").objects.all().delete()
+    for dso in apps.get_model("projects", "DSO").objects.all():
+        dso.delete(keep_parents=True)
 
 
 class Migration(migrations.Migration):

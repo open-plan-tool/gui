@@ -1434,7 +1434,7 @@ class DSO(Asset):
         related_name="dso_feedin_tariff_set",
     )
 
-    feedin_cap = models.FloatField(
+    maximum_feedin_capacity = models.FloatField(
         default=None, null=True, blank=True, validators=[MinValueValidator(0.0)]
     )
 
@@ -1470,7 +1470,7 @@ class DSO(Asset):
         else:
             feedin_tariff = None
         self.feedin_tariff_asset = feedin_tariff
-        self.feedin_cap_asset = self.feedin_cap
+        self.feedin_cap_asset = self.maximum_feedin_capacity
         self.peak_demand_pricing_asset = self.peak_demand_pricing
         self.peak_demand_pricing_period_asset = self.peak_demand_pricing_period
         self.renewable_share_asset = self.renewable_share
@@ -1492,10 +1492,15 @@ class DSO(Asset):
             ),
         }
 
+    def to_datapackage(self):
+        dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
+        dm.pop("renewable_share")
+        return dm, bus_resource_rec, profile_resource_rec
 
 class DSOH2(Asset):
     # mirrors the parameters of oemof.eesyplan dso
     energy_price = models.FloatField(null=True, blank=False)
+    feedin_tariff = models.FloatField(null=True, blank=False)
 
     renewable_share = models.FloatField(
         null=True,
@@ -1528,9 +1533,15 @@ class DSOH2(Asset):
         super().save(*args, **kwargs)
 
 
+    def to_datapackage(self):
+        dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
+        dm.pop("renewable_share")
+        return dm, bus_resource_rec, profile_resource_rec
+
 class DSOGas(Asset):
     # mirrors the parameters of oemof.eesyplan dso
     energy_price = models.FloatField(null=True, blank=False)
+    feedin_tariff = models.FloatField(null=True, blank=False)
 
     renewable_share = models.FloatField(
         null=True,
@@ -1565,9 +1576,15 @@ class DSOGas(Asset):
         super().save(*args, **kwargs)
 
 
+    def to_datapackage(self):
+        dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
+        dm.pop("renewable_share")
+        return dm, bus_resource_rec, profile_resource_rec
+
 class DSOHeat(Asset):
     # mirrors the parameters of oemof.eesyplan dso
     energy_price = models.FloatField(null=True, blank=False)
+    feedin_tariff = models.FloatField(null=True, blank=False)
 
     renewable_share = models.FloatField(
         null=True,
@@ -1601,6 +1618,10 @@ class DSOHeat(Asset):
         self.optimize_cap = False
         super().save(*args, **kwargs)
 
+    def to_datapackage(self):
+        dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
+        dm.pop("renewable_share")
+        return dm, bus_resource_rec, profile_resource_rec
 
 class ElectricalStorage(Asset):
     soc_max = models.FloatField(

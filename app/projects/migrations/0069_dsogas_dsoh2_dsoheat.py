@@ -11,15 +11,23 @@ def forwards(apps, schema_editor):
     for dso_model, dso_type in dso_types.items():
         newDSO = apps.get_model("projects", dso_model)
         for old_dso in DSO.objects.filter(asset_type__asset_type=dso_type):
-            if newDSO.objects.filter(asset_ptr_id=old_dso.pk).exists():
-                continue
-            dso = newDSO(
-                asset_ptr_id=old_dso.pk,
-                energy_price=old_dso.energy_price.values[0],
-                renewable_share=old_dso.renewable_share,
-            )
-            # raw save writes only the child table row of the existing parent asset
-            dso.save_base(raw=True)
+            if not newDSO.objects.filter(asset_ptr_id=old_dso.pk).exists():
+                if old_dso.energy_price is not None:
+                    energy_price = old_dso.energy_price.values[0]
+                else:
+                    energy_price = None
+                if old_dso.feedin_tariff is not None:
+                    feedin_tariff = old_dso.feedin_tariff.values[0]
+                else:
+                    feedin_tariff = None
+                dso = newDSO(
+                    asset_ptr_id=old_dso.pk,
+                    energy_price=energy_price,
+                    feedin_tariff=feedin_tariff,
+                    renewable_share=old_dso.renewable_share,
+                )
+                # raw save writes only the child table row of the existing parent asset
+                dso.save_base(raw=True)
             old_dso.delete(keep_parents=True)
 
 
@@ -28,15 +36,15 @@ def backwards(apps, schema_editor):
     for model_name in ("DSOGas", "DSOH2", "DSOHeat"):
         Model = apps.get_model("projects", model_name)
         for new_dso in Model.objects.all():
-            if DSO.objects.filter(asset_ptr_id=new_dso.pk).exists():
-                continue
-            dso = DSO(
-                asset_ptr_id=new_dso.pk,
-                energy_price=new_dso.energy_price,
-                renewable_share=new_dso.renewable_share,
-            )
-            # raw save writes only the child table row of the existing parent asset
-            dso.save_base(raw=True)
+            if not DSO.objects.filter(asset_ptr_id=new_dso.pk).exists():
+                dso = DSO(
+                    asset_ptr_id=new_dso.pk,
+                    energy_price=new_dso.energy_price,
+                    feedin_tariff=new_dso.feedin_tariff,
+                    renewable_share=new_dso.renewable_share,
+                )
+                # raw save writes only the child table row of the existing parent asset
+                dso.save_base(raw=True)
             new_dso.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
@@ -65,6 +73,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("energy_price", models.FloatField(null=True)),
+                ("feedin_tariff", models.FloatField(null=True)),
                 (
                     "renewable_share",
                     models.FloatField(
@@ -110,6 +119,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("energy_price", models.FloatField(null=True)),
+                ("feedin_tariff", models.FloatField(null=True)),
+
                 (
                     "renewable_share",
                     models.FloatField(
@@ -155,6 +166,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("energy_price", models.FloatField(null=True)),
+                ("feedin_tariff", models.FloatField(null=True)),
+
                 (
                     "renewable_share",
                     models.FloatField(

@@ -9,8 +9,6 @@ def forwards(apps, schema_editor):
     DSO = apps.get_model("projects", "DSO")
     Timeseries = apps.get_model("projects", "Timeseries")  # adjust app if needed
 
-    print(f"{DSO.objects.all().count()} DSO components to update")
-
     for dso in DSO.objects.all():
         for old_name, new_name in (
                 ("energy_price", "energy_price_ts"),
@@ -18,27 +16,29 @@ def forwards(apps, schema_editor):
         ):
             user = dso.scenario.project.user
             raw = getattr(dso, old_name)
+            if raw is not None:
+                try:
+                    payload = json.loads(raw)
+                    values = payload.get("values") if isinstance(payload, dict) else payload
 
-            try:
-                payload = json.loads(raw)
-                values = payload.get("values") if isinstance(payload, dict) else payload
+                    if not isinstance(values, list):
+                        values = [values]
+                    ts, created = Timeseries.objects.get_or_create(
+                        name="migration_dso_" + dso.name + "_" + old_name,
+                        values=values,
+                        ts_type="scalar" if len(values) == 1 else "timeseries",
+                        category="supply",
+                        # units=...
+                        asset_type=dso.asset_type.asset_type,
+                        user=user,
+                        scenario=dso.scenario
+                    )
+                except Exception as e:
+                    print(e)
+                    print(traceback.format_exc())
+                    print(f"problem for {dso.name} of scenario {dso.scenario}")
 
-                if not isinstance(values, list):
-                    values = [values]
-                ts, created = Timeseries.objects.get_or_create(
-                    name="migration_dso_" + dso.name + "_" + old_name,
-                    values=values,
-                    ts_type="scalar" if len(values) == 1 else "timeseries",
-                    category="supply",
-                    # units=...
-                    asset_type=dso.asset_type.asset_type,
-                    user=user,
-                    scenario=dso.scenario
-                )
-            except Exception as e:
-                print(f"problem for {dso.name} of scenario {dso.scenario}")
-
-            setattr(dso, new_name, ts)
+                setattr(dso, new_name, ts)
 
         dso.save()
 

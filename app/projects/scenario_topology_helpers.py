@@ -71,6 +71,9 @@ COMPATIBILITY_PARAMETER_NAME_MAPPING = {
         "c_rate_discharge": "crate",
         "efficiency_charge": "efficiency",
     },
+    "dso":{
+        "maximum_feedin_capacity": "feedin_cap",
+    }
 }
 
 ASSET_PARAMETERS_RENAMED = {
@@ -82,25 +85,22 @@ PARAMETERS_DISCONTINUED = ["capex_fix"]
 
 ASSET_PARAMETERS_DISCONTINUED = {
     "heat_dso": [
-        "feedin_tariff",
         "feedin_cap",
         "peak_demand_pricing",
         "peak_demand_pricing_period",
     ],
     "gas_dso": [
-        "feedin_tariff",
         "feedin_cap",
         "peak_demand_pricing",
         "peak_demand_pricing_period",
     ],
     "h2_dso": [
-        "feedin_tariff",
         "feedin_cap",
         "peak_demand_pricing",
         "peak_demand_pricing_period",
     ],
-    "hess": [
-        "fixed_thermal_losses_absolute",
+    "dso": [
+        "peak_demand_pricing_period",
     ],
 }
 
