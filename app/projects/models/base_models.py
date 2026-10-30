@@ -870,7 +870,7 @@ class Bus(TopologyNode):
     def to_datapackage(self):
         dm = model_to_dict(self, fields=["type", "name"])
         dm["carrier"] = dm["type"]
-        dm["type"] = "CarrierBus"
+        dm["type"] = "Bus"
         dm["balanced"] = "True"
         dm["excess_cost"] = 0
         dm["shortage_cost"] = None
@@ -1497,6 +1497,7 @@ class DSO(Asset):
         dm.pop("renewable_share")
         return dm, bus_resource_rec, profile_resource_rec
 
+
 class DSOH2(Asset):
     # mirrors the parameters of oemof.eesyplan dso
     energy_price = models.FloatField(null=True, blank=False)
@@ -1532,11 +1533,11 @@ class DSOH2(Asset):
         self.optimize_cap = False
         super().save(*args, **kwargs)
 
-
     def to_datapackage(self):
         dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
         dm.pop("renewable_share")
         return dm, bus_resource_rec, profile_resource_rec
+
 
 class DSOGas(Asset):
     # mirrors the parameters of oemof.eesyplan dso
@@ -1575,11 +1576,11 @@ class DSOGas(Asset):
         self.optimize_cap = False
         super().save(*args, **kwargs)
 
-
     def to_datapackage(self):
         dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
         dm.pop("renewable_share")
         return dm, bus_resource_rec, profile_resource_rec
+
 
 class DSOHeat(Asset):
     # mirrors the parameters of oemof.eesyplan dso
@@ -1622,6 +1623,7 @@ class DSOHeat(Asset):
         dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
         dm.pop("renewable_share")
         return dm, bus_resource_rec, profile_resource_rec
+
 
 class ElectricalStorage(Asset):
     soc_max = models.FloatField(
@@ -1935,6 +1937,7 @@ class HeatingNetwork(Bus):
         input_ts = Timeseries.objects.filter(id=dm[field])
         if input_ts.exists():
             dm[field] = input_ts.get().export()
+        dm["asset_type"] = self.asset_type.asset_type
         return dm
 
     @staticmethod

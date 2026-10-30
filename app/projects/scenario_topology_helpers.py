@@ -71,9 +71,9 @@ COMPATIBILITY_PARAMETER_NAME_MAPPING = {
         "c_rate_discharge": "crate",
         "efficiency_charge": "efficiency",
     },
-    "dso":{
+    "dso": {
         "maximum_feedin_capacity": "feedin_cap",
-    }
+    },
 }
 
 ASSET_PARAMETERS_RENAMED = {
@@ -732,7 +732,7 @@ def load_scenario_from_dict(model_data, user, project=None):
         bus_outputs = bus_data.pop("outputs")
         # Special treatment for HeatingNetwork
         if "asset_type" in bus_data:
-            asset_type = AssetType.objects.get(id=bus_data["asset_type"]).asset_type
+            asset_type = bus_data["asset_type"]
             AssetModel = ASSET_MAPPING.get(asset_type, Bus)
             bus_data = create_timeseries_from_exported_file(
                 bus_data, "absolute_losses", scenario
