@@ -4,6 +4,22 @@ import django.db.models.deletion
 import uuid
 from django.db import migrations, models
 
+def forwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
+    HNetwork = apps.get_model("projects", "HeatingNetwork")
+
+    for asset in Asset.objects.filter(asset_type__asset_type="heating_network"):
+        if HNetwork.objects.filter(asset_ptr_id=asset.pk).exists():
+            continue
+        hn = HNetwork(
+            asset_ptr_id=asset.pk,
+        )
+        # raw save writes only the child table row of the existing parent asset
+        hn.save_base(raw=True)
+
+def backwards(apps, schema_editor):
+    for hn in apps.get_model("projects", "HeatingNetwork").objects.all():
+        hn.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
 
@@ -47,4 +63,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.bus",),
         ),
+        migrations.RunPython(forwards, backwards),
     ]

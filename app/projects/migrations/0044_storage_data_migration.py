@@ -68,7 +68,8 @@ def backwards(apps, schema_editor):
         "HydrogenStorage",
     ):
         Model = apps.get_model("projects", model_name)
-        Model.objects.all().delete()
+        for storage in Model.objects.all():
+            storage.delete(keep_parents=True)
 
 
 class Migration(migrations.Migration):

@@ -3,8 +3,22 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
+def forwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
+    Sink = apps.get_model("projects", "Sink")
+
+    for asset in Asset.objects.filter(asset_type__asset_type="sink"):
+        if Sink.objects.filter(asset_ptr_id=asset.pk).exists():
+            continue
+        sink = Sink(
+            asset_ptr_id=asset.pk,
+        )
+        # raw save writes only the child table row of the existing parent asset
+        sink.save_base(raw=True)
+
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "Sink").objects.all().delete()
+    for sink in apps.get_model("projects", "Sink").objects.all():
+        sink.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
 
@@ -48,5 +62,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.asset",),
         ),
-        migrations.RunPython(migrations.RunPython.noop, backwards),
+        migrations.RunPython(forwards, backwards),
     ]

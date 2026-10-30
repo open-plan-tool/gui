@@ -5,6 +5,23 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
+def forwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
+    Commodity = apps.get_model("projects", "Commodity")
+
+    for asset in Asset.objects.filter(asset_type__asset_type="commodity"):
+        if Commodity.objects.filter(asset_ptr_id=asset.pk).exists():
+            continue
+        com = Commodity(
+            asset_ptr_id=asset.pk,
+        )
+        # raw save writes only the child table row of the existing parent asset
+        com.save_base(raw=True)
+
+def backwards(apps, schema_editor):
+    for com in apps.get_model("projects", "Commodity").objects.all():
+        com.delete(keep_parents=True)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -53,4 +70,5 @@ class Migration(migrations.Migration):
                 validators=[django.core.validators.MinValueValidator(0.0)],
             ),
         ),
+        migrations.RunPython(forwards, backwards),
     ]

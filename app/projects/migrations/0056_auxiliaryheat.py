@@ -3,9 +3,22 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
+def forwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
+    AHeat = apps.get_model("projects", "AuxiliaryHeat")
+
+    for asset in Asset.objects.filter(asset_type__asset_type="auxiliary_heat"):
+        if AHeat.objects.filter(asset_ptr_id=asset.pk).exists():
+            continue
+        ah = AHeat(
+            asset_ptr_id=asset.pk,
+        )
+        # raw save writes only the child table row of the existing parent asset
+        ah.save_base(raw=True)
 
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "AuxiliaryHeat").objects.all().delete()
+    for ah in apps.get_model("projects", "AuxiliaryHeat").objects.all():
+        ah.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
 
@@ -37,5 +50,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.asset",),
         ),
-        migrations.RunPython(migrations.RunPython.noop, backwards),
+        migrations.RunPython(forwards, backwards),
     ]

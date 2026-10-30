@@ -4,8 +4,22 @@ import django.core.validators
 import django.db.models.deletion
 from django.db import migrations, models
 
+def forwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
+    Pipes = apps.get_model("projects", "HeatingPipe")
+
+    for asset in Asset.objects.filter(asset_type__asset_type="heating_pipe"):
+        if Pipes.objects.filter(asset_ptr_id=asset.pk).exists():
+            continue
+        hp = Pipes(
+            asset_ptr_id=asset.pk,
+        )
+        # raw save writes only the child table row of the existing parent asset
+        hp.save_base(raw=True)
+
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "HeatingPipe").objects.all().delete()
+    for hpipe in apps.get_model("projects", "HeatingPipe").objects.all():
+        hpipe.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
 
@@ -52,5 +66,5 @@ class Migration(migrations.Migration):
             },
             bases=("projects.asset",),
         ),
-        migrations.RunPython(migrations.RunPython.noop, backwards),
+        migrations.RunPython(forwards, backwards),
     ]

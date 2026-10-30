@@ -31,7 +31,8 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "HeatPump").objects.all().delete()
+    for hp in apps.get_model("projects", "HeatPump").objects.all():
+        hp.delete(keep_parents=True)
 
 
 class Migration(migrations.Migration):
