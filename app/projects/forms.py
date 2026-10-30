@@ -672,7 +672,14 @@ class COPCalculatorForm(OpenPlanModelForm):
 
     class Meta:
         model = COPCalculator
-        exclude = ["id", "scenario", "asset", "mode"]
+        exclude = [
+            "id",
+            "scenario",
+            "asset",
+            "temp_threshold_icing",
+            "factor_icing",
+            "mode",
+        ]
 
 
 class BusForm(OpenPlanModelForm):
@@ -927,11 +934,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                     cleaned_data["installed_capacity"] = 0.0
                 else:
                     cleaned_data["maximum_capacity"] = None
-
-            if self.asset_type_name == "heat_pump":
-                if "cop" not in self.errors:
-                    cop = cleaned_data["cop"]
-                    self.timeseries_same_as_timestamps(cop, "cop")
 
             if self.asset_type_name in ("chp", "chp_fixed_ratio"):
                 el_field = (

@@ -1970,12 +1970,31 @@ def asset_cops_create_or_update(
         cop.mode = asset_type_name
         if asset_uuid:
             cop.asset = existing_asset
+            cop_ts = existing_asset.cop
+        else:
+            cop_ts = Timeseries(asset_type="heat_pump", scenario=scenario)
         cop.save()
 
         try:
             cops = cop.calc_cops()
+
+            if isinstance(cops, list):
+                cop_ts.name = "cop_calculated"
+                cop_ts.ts_type = "timeseries"
+                cop_ts.values = cops
+                cop_ts.save()
+                ts_type = "timeseries"
+            else:
+                ts_type = "scalar"
             return JsonResponse(
-                {"success": True, "cop_id": cop.id, "cops": json.dumps(cops)},
+                {
+                    "success": True,
+                    "cop_id": cop.id,
+                    "cops": json.dumps(cops),
+                    "ts_id": cop_ts.id,
+                    "name": cop_ts.name,
+                    "ts_type": ts_type,
+                },
                 status=200,
             )
         except:
