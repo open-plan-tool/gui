@@ -1181,6 +1181,7 @@ class CHPAssetTest(TestCase):
         "efficiency_electricity_state_b": 0.35,
         "efficiency_electricity_state_a": 0.4,
         "efficiency_heat_state_b": 0.5,
+        "efficiency_heat_state_a": 0.0,
     }
 
     @classmethod
@@ -1198,6 +1199,7 @@ class CHPAssetTest(TestCase):
         "efficiency_electricity_state_b",
         "efficiency_heat_state_b",
         "efficiency_electricity_state_a",
+        "efficiency_heat_state_a",
     )
 
     def create_chp_via_form(self, name="chp-test"):
