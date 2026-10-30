@@ -732,12 +732,14 @@ def load_scenario_from_dict(model_data, user, project=None):
         bus_outputs = bus_data.pop("outputs")
         # Special treatment for HeatingNetwork
         if "asset_type" in bus_data:
-            asset_type = bus_data["asset_type"]
+            asset_type = bus_data.pop("asset_type")
+            # Back compatibility for previously exported scenarios
+            if isinstance(asset_type, int):
+                asset_type = AssetType.objects.get(id=asset_type).asset_type
             AssetModel = ASSET_MAPPING.get(asset_type, Bus)
             bus_data = create_timeseries_from_exported_file(
                 bus_data, "absolute_losses", scenario
             )
-            bus_data.pop("asset_type")
             bus = AssetModel(**bus_data)
         else:
             bus = Bus(**bus_data)
