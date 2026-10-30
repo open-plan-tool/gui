@@ -31,7 +31,11 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
+    Asset = apps.get_model("projects", "Asset")
     for hp in apps.get_model("projects", "HeatPump").objects.all():
+        asset = Asset.objects.get(id=hp.asset_ptr_id)
+        asset.efficiency = hp.cop
+        asset.save()
         hp.delete(keep_parents=True)
 
 

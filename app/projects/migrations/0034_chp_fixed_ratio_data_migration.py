@@ -34,7 +34,8 @@ def forwards(apps, schema_editor):
 
 
 def backwards(apps, schema_editor):
-    apps.get_model("projects", "CHPFixedRatio").objects.all().delete()
+    for chp in apps.get_model("projects", "CHPFixedRatio").objects.all():
+        chp.delete(keep_parents=True)
 
 class Migration(migrations.Migration):
     dependencies = [
