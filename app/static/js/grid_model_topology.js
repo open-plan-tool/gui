@@ -56,6 +56,7 @@ for (let element of document.getElementsByClassName('section__component')) {
 editor.on('nodeCreated', function(id) {
     const node = document.getElementById(`node-${id}`);
     const deleteBtn = node.querySelector('.node__delete');
+    const duplicateBtn = node.querySelector('.node__duplicate');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -180,6 +181,11 @@ async function createNodeObject(nodeName, pos_x, pos_y, connectionInputs = 1, co
 
     const source_html = `<div class="box" ${ASSET_TYPE_NAME}="${nodeName}">
     </div>
+    <button class="node__duplicate" type="button" aria-label="Duplicate node" title="Duplicate, you can also select the node and press the 'D' stroke of your keyboard">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
     <button class="node__delete" type="button" aria-label="Delete node">
       <svg viewBox="0 0 20 20" width="12" height="12" aria-hidden="true">
         <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -482,14 +488,13 @@ editor.on("keydown", e => {
             return;
         const selectedId = selectedElement.id.substring(5);  // form "node-id"
         const selectedNode = editor.getNodeFromId(selectedId);
-        // ignore inputs/outputs
-        selectedNode.inputs = {};
-        selectedNode.outputs = {};
+        const connectionInputs = Object.keys(selectedNode.inputs).length
+        const connectionOutputs = Object.keys(selectedNode.outputs).length
         // create new node with same type (name), slightly off original
-        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, 1, 1,
+        createNodeObject(selectedNode.name, selectedNode.pos_x + 30, selectedNode.pos_y + 30, connectionInputs, connectionOutputs,
             selectedNode.name === BUS ?
                 { portMapping: selectedNode.data.portMapping, bustype: selectedNode.data.bustype, energyCarrier: selectedNode.data.energyCarrier }
-                : {}
+                : { portMapping: selectedNode.data.portMapping }
         ).then(node => {
             const newNodeId = node.editorNodeId;
             populateForm(selectedElement, submit=false, show=false).then(_ => {
@@ -672,7 +677,6 @@ editor.on('connectionUnselected', _ => {
 
 function updateCapacityFieldsVisibility() {
     const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
-    console.log("optimize_cap element:", optimizeCapInput);
     if (!optimizeCapInput) return;
 
     const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
