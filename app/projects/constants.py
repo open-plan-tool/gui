@@ -274,6 +274,8 @@ CURRENCY = tuple(
 
 TRUE_FALSE_CHOICES = ((None, _("Choose")), (True, _("Yes")), (False, _("No")))
 
+TRUE_FALSE_STRICT_CHOICES = ((True, _("True")), (False, _("False")))
+
 BOOL_CHOICES = ((True, _("Yes")), (False, _("No")))
 
 FLOW_DIRECTION = (("B2A", "Bus_to_Asset"), ("A2B", "Asset_to_Bus"))
@@ -293,6 +295,10 @@ TIMESERIES_CATEGORIES = (
 TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
 TIMESERIES_ASSET_TYPES = (
     ("demand", _("demand")),
+    ("dso", _("dso")),
+    ("dso_heat", _("dso_heat")),
+    ("dso_h2", _("dso_h2")),
+    ("dso_gas", _("dso_gas")),
     ("gas_demand", _("gas_demand")),
     ("h2_demand", _("h2_demand")),
     ("heat_demand", _("heat_demand")),
@@ -301,6 +307,7 @@ TIMESERIES_ASSET_TYPES = (
     ("biogas_plant", _("biogas_plant")),
     ("geothermal_conversion", _("geothermal_conversion")),
     ("solar_thermal_plant", _("solar_thermal_plant")),
+    ("chp", _("chp")),
 )
 
 ENERGY_VECTOR = (
@@ -410,17 +417,7 @@ ASSET_TYPE = (
     ("hess", "hess"),
 )
 
-ASSET_TO_TIMESERIES_ASSET_TYPE = {
-    "demand": "demand",
-    "gas_demand": "gas_demand",
-    "h2_demand": "h2_demand",
-    "heat_demand": "heat_demand",
-    "pv_plant": "pv_plant",
-    "wind_plant": "wind_plant",
-    "biogas_plant": "biogas_plant",
-    "geothermal_conversion": "geothermal_conversion",
-    "solar_thermal_plant": "solar_thermal_plant",
-}
+ASSET_TO_TIMESERIES_ASSET_TYPE = {}
 
 RENEWABLE_ASSETS = (
     "electrolyzer",
@@ -485,12 +482,14 @@ MAP_EPA_MVS = {
     "specific_replacement_costs_of_optimized_capacity": "specific_replacement_costs_of_optimized_capacity",
     "asset_type": "type_asset",
     "capex_fix": "development_costs",
-    "capex_var": "specific_costs",
-    "opex_fix": "specific_costs_om",
-    "opex_var": "dispatch_price",
+    "capex_spec": "specific_costs",
+    "opex_spec": "specific_costs_om",
+    "variable_costs": "dispatch_price",
     "discount": "discount_factor",
     "duration": "project_duration",
 }
 MAP_MVS_EPA = {value: key for (key, value) in MAP_EPA_MVS.items()}
 
 COMPARE_VIEW = "compare"
+
+NO_INVEST_ASSETS = ["shortage", "excess", "heating_pipe", "commodity"]

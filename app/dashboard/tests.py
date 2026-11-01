@@ -9,7 +9,7 @@ from dashboard.helpers import dict_keyword_mapper, nested_dict_crawler, KPIFinde
 from projects.models import Asset
 
 # class SimulationServiceTest(TestCase):
-#    fixtures = ['fixtures/benchmarks_fixture.json',]
+#    fixtures = []
 #
 #     @classmethod
 #     def setUpTestData(cls):
