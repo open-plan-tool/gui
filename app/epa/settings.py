@@ -19,7 +19,7 @@ from pathlib import Path
 import sys
 
 # Version number -> gets updated by bump-my-version, do not touch manually
-APP_VERSION_NUMBER = "1.2.2"
+APP_VERSION_NUMBER = "1.3.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
