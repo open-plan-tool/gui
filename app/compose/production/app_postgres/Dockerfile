@@ -21,7 +21,7 @@ RUN apt-get update && \
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
     && pip install gunicorn
-
+RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op1.3.0"
 WORKDIR ${APP_ROOT}
 
 
@@ -31,6 +31,9 @@ ADD app/ ${APP_ROOT}
 COPY ./app/compose/production/app_postgres/start /start
 #RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
+
+COPY ./app/compose/production/app_postgres/manual_migrations /manual_migrations
+RUN chmod +x /manual_migrations
 
 COPY ./app/compose/production/app_postgres/celery/worker/start /start-celeryworker
 RUN sed -i 's/\r$//g' /start-celeryworker
