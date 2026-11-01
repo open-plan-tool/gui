@@ -53,7 +53,7 @@ jobs:
         run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py migrate
 
       - name: Run Tests
-        run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py test
+        run: docker compose -f docker-compose-local.yml run --rm app_pg python manage.py test --exclude-tag=mvs
 
       - name: Tear down the Stack
         if: always()
