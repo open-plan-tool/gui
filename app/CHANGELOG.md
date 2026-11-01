@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+- Component HeatingNetwork [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component HeatingPipe [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component Commodity [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component AuxiliaryHeat [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component Sink [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component Shortage [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Component Excess [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+
+### Changed
+- CHP component has new fields [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- Storages Component have new fields [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- DSO component's fields were modified, feedin_tariff and energy price are only allowed as scalar for all DSOs except for electricity [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+- [[#492](https://github.com/open-plan-tool/gui/pull/492)]
+
 ## [v1.2.2] – 2026-10-29
 ### Changed
 - Constraint step (previously step 3) has been hidden until functionality is implemented in new backend [[#564](https://github.com/open-plan-tool/gui/pull/564)]
