@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie
+FROM python:3.15-slim-trixie
 
 RUN echo POSTGRES
 ENV APP_ROOT /src
