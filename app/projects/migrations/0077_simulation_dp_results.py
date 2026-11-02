@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0029_scenario_datapackage"),
+        ("projects", "0076_alter_sensitivityanalysis_server_and_more"),
     ]
 
     operations = [
