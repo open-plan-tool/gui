@@ -98,6 +98,16 @@
         background: white;
     }
 
+    .sort-arrow {
+    color: #bbb;
+    font-size: 11px;
+    margin-left: 4px;
+    }
+
+    .sort-arrow.active {
+        color: #0d6efd;
+    }
+
         tr.selected {
             background: #f0f6ff;
         }
@@ -322,10 +332,10 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th><a href="#" onclick="sortBy('name'); return false;">Name</a></th>
-                                <th><a href="#" onclick="sortBy('asset_type'); return false;">Asset type</a></th>
-                                <th><a href="#" onclick="sortBy('scenario'); return false;">Scenario</a></th>
-                                <th><a href="#" onclick="sortBy('points'); return false;">Points</a></th>
+                                <th><a href="#" onclick="sortBy('name'); return false;">Name<span class="sort-arrow" data-col="name"></span></a></th>
+                                <th><a href="#" onclick="sortBy('asset_type'); return false;">Asset type<span class="sort-arrow" data-col="asset_type"></span></a></th>
+                                <th><a href="#" onclick="sortBy('scenario'); return false;">Scenario<span class="sort-arrow" data-col="scenario"></span></a></th>
+                                <th><a href="#" onclick="sortBy('points'); return false;">Points<span class="sort-arrow" data-col="points"></span></a></th>
                             </tr>
                         </thead>
                         {% include "asset/timeseries_table.html" %}
@@ -411,7 +421,17 @@ function sortBy(column) {
     const dir = document.getElementById('dirInput');
     dir.value = (sort.value === column && dir.value === 'asc') ? 'desc' : 'asc';
     sort.value = column;
+    updateSortArrows();
     htmx.trigger('#filterForm', 'submit');
+}
+function updateSortArrows() {
+    const col = document.getElementById('sortInput').value;
+    const dir = document.getElementById('dirInput').value;
+    document.querySelectorAll('.sort-arrow').forEach(el => {
+        const active = el.dataset.col === col;
+        el.classList.toggle('active', active);
+        el.textContent = active ? (dir === 'desc' ? '▼' : '▲') : '⇅';
+    });
 }
 function updateBulkDeleteButton() {
     const anyChecked = document.querySelectorAll('.row-check:checked').length > 0;
@@ -423,6 +443,7 @@ document.body.addEventListener('change', (e) => {
     }
 });
 document.body.addEventListener('htmx:afterSettle', updateBulkDeleteButton);
+updateSortArrows();
 </script>
 <script>
     const postTimeseriesFormUrl = `{% url 'timeseries_dashboard' %}`;
