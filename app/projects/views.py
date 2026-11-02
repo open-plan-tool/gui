@@ -522,7 +522,7 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
-    msg = "<center>Dear OpenPlan user,<br> We are preparing for a <b>major update</b> that will replace the current simulation backend.<br><b> The update is scheduled for 02.11.</b><br>We expect the migration to go smoothly, however exporting the projects you are currently working on with the export button might save you some stress in case of unforseen bugs.</center>"
+    msg = "<center>Dear OpenPlan user,<br> On the 2nd of November, we updated the database to replace the current simulation backend.<br>The operation went successful and we now need to adapt the frontend in the coming days<br>The changes and news are described in this pull request: <a href='https://github.com/open-plan-tool/gui/pull/575'>https://github.com/open-plan-tool/gui/pull/575</a></center>"
     messages.warning(request, mark_safe(msg))
 
     return render(
