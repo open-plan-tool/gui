@@ -2,6 +2,7 @@
 <tbody id="timeseries_table_body" hx-swap-oob="true">
     {% for ts in timeseries_list %}
         <tr class="{% if selected_timeseries and ts.pk == selected_timeseries.pk %}selected{% endif %}">
+            <td><input type="checkbox" class="row-check" name="ids" value="{{ ts.pk }}" form="bulkDeleteForm"></td>
             <td>
                 <a
                     class="row-link"

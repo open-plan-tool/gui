@@ -388,6 +388,28 @@ def timeseries_delete(request, ts_id):
     return HttpResponse(table_html + details_html + summary_html)
 
 
+@login_required
+@require_http_methods(["POST"])
+def timeseries_bulk_delete(request):
+    selected = Timeseries.objects.filter(
+        user=request.user, pk__in=request.POST.getlist("ids")
+    )
+    count = selected.count()
+    selected.delete()
+    if count:
+        messages.success(request, f"{count} timeseries successfully deleted!")
+
+    timeseries_list = timeseries_sort_and_filter(request)
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    return HttpResponse(table_html + summary_html + details_html)
+
+
 @require_http_methods(["GET"])
 def not_implemented(request):
     """Function returns a message"""
