@@ -2287,7 +2287,7 @@ class AbstractSimulation(models.Model):
     mvs_token = models.CharField(max_length=200, null=True)
     mvs_version = models.CharField(max_length=15, null=True)
     server = models.CharField(
-        max_length=3, choices=SIMULATION_SERVERS, null=False, default="MVS"
+        max_length=3, choices=SIMULATION_SERVERS, null=False, default="EZP"
     )
     status = models.CharField(
         max_length=20, choices=SIMULATION_STATUS, null=False, default=PENDING
