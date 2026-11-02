@@ -4,6 +4,9 @@
 
 ## [v1.3.0] – 2026-11-02
 
+### Changed
+- [eesyplan ](https://github.com/oemof/oemof-eesyplan) is now the default backend simulation server [[#576](https://github.com/open-plan-tool/gui/pull/576)]
+
 ### Added
 - Component HeatingNetwork [[#492](https://github.com/open-plan-tool/gui/pull/492)]
 - Component HeatingPipe [[#492](https://github.com/open-plan-tool/gui/pull/492)]
