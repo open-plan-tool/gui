@@ -27,7 +27,7 @@ from epa.settings import (
     MVS_GET_URL,
     MVS_LP_FILE_URL,
     MVS_SA_GET_URL,
-    SHOW_EZP,
+    SHOW_MVS,
 )
 from jsonview.decorators import json_view
 from oemof.datapackage.datapackage import export_dp_to_json
@@ -1186,8 +1186,8 @@ def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
             "MVS_LP_FILE_URL": MVS_LP_FILE_URL,
         }
 
-        if SHOW_EZP is True:
-            context.update({"show_ezp_button": True})
+        if SHOW_MVS is True:
+            context.update({"show_mvs_button": True})
 
         qs = Simulation.objects.filter(scenario_id=scen_id)
 
