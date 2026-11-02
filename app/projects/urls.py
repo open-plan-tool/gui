@@ -409,4 +409,7 @@ urlpatterns = [
         timeseries_duplicate,
         name="timeseries_duplicate",
     ),
+    path(
+        "timeseries/bulk-delete/", timeseries_bulk_delete, name="timeseries_bulk_delete"
+    ),
 ]
