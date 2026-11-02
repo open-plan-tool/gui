@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v1.3.1] – 2026-11-02
+
+### Added
+- Add button to duplicate nodes in scenario [[#562](https://github.com/open-plan-tool/gui/pull/562)]
+
+### Changed
+- [eesyplan ](https://github.com/oemof/oemof-eesyplan) is now the default backend simulation server [[#576](https://github.com/open-plan-tool/gui/pull/576)]
+
 ## [v1.3.0] – 2026-11-02
 
 ### Added
