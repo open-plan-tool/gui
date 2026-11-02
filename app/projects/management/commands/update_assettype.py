@@ -21,7 +21,6 @@ class Command(BaseCommand):
         assets = df.to_dict(orient="records")
 
         for asset_params in assets:
-            print(asset_params["asset_type"])
             qs = AssetType.objects.filter(asset_type=asset_params["asset_type"])
             asset_ports = asset_params.pop("ports", None)
 
@@ -40,7 +39,11 @@ class Command(BaseCommand):
 
                 asset_ports = json.loads(asset_ports.replace("'", '"'))
                 for key, info in asset_ports.items():
-                    label, energy_vector = info
+                    if isinstance(info, str):
+                        label = info
+                        energy_vector = ""
+                    else:
+                        label, energy_vector = info
                     direction, num = key.split("_")
                     port, created = ConnectionPort.objects.get_or_create(
                         direction=direction,

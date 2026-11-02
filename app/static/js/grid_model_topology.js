@@ -632,7 +632,30 @@ editor.on('connectionCreated', function (connection) {
     let nodeOut = editor.getNodeFromId(connection.output_id);
     let busIn = nodeIn.name === BUS? nodeIn : null;
     let busOut = nodeOut.name === BUS? nodeOut : null;
-    if (Boolean(busIn) ^ Boolean(busOut)) {
+
+    let heatingIn = nodeIn.name === 'heating_network';
+    let heatingOut = nodeOut.name === 'heating_network';
+
+    if ((heatingIn && busOut) || (heatingOut && busIn)) {
+        // heating_network must not connect to a bus
+        editor.removeSingleConnection(
+            connection.output_id,
+            connection.input_id,
+            connection.output_class,
+            connection.input_class
+        );
+
+        Swal.fire(
+            'Unexpected Connection',
+            'A heating network cannot be connected to a bus.',
+            'error'
+        );
+    } else if (heatingIn || heatingOut) {
+        // valid connection involving heating_network as input or output
+        let busType = "heat";
+        let busHtml = document.getElementsByClassName('node_in_node-' + nodeIn.id + ' node_out_node-' + nodeOut.id);
+        updateBusConnections(busHtml, busType);
+    } else if (Boolean(busIn) ^ Boolean(busOut)) {
         // success
         let bus = busIn || busOut;
         let busType = getBusType(bus);
@@ -672,7 +695,6 @@ editor.on('connectionUnselected', _ => {
 
 function updateCapacityFieldsVisibility() {
     const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
-    console.log("optimize_cap element:", optimizeCapInput);
     if (!optimizeCapInput) return;
 
     const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
@@ -820,7 +842,78 @@ function toggle_cop_modal(){
     });
 }
 
+
+
+function loadTimeseriesIntoWidget(
+    widgetName,
+    timeseriesId,
+    timeseriesName
+) {
+    const selectPane = document.getElementById(
+        `select-${widgetName}`
+    );
+    const selectInput = selectPane?.querySelector("select");
+
+    if (!selectInput) {
+        return;
+    }
+
+    let option = Array.from(selectInput.options).find(
+        option => option.value === String(timeseriesId)
+    );
+
+    if (!option) {
+        option = new Option(
+            `${timeseriesName} (${timeseriesId})`,
+            timeseriesId,
+        );
+        selectInput.add(option);
+    }
+
+    selectInput.value = String(timeseriesId);
+
+    new bootstrap.Tab(
+        document.getElementById(
+            `select-tab-${widgetName}`
+        )
+    ).show();
+
+    selectInput.dispatchEvent(
+        new Event("change", { bubbles: true })
+    );
+}
+
+function loadNumberIntoManualWidget(widgetName,cop) {
+
+    const manualPane = document.getElementById(
+        `manual-${widgetName}`
+    );
+    const scalarInput = manualPane?.querySelector("input");
+
+    if (!scalarInput) {
+        console.error("COP manual input not found");
+        return;
+    }
+
+    scalarInput.value = cop;
+
+    // Activate manual tab
+    new bootstrap.Tab(
+        document.getElementById(
+            `manual-tab-${widgetName}`
+        )
+    ).show();
+
+    // Trigger existing onchange logic
+    scalarInput.dispatchEvent(
+        new Event("change", { bubbles: true })
+    );
+}
+
+
+
 // function to compute the COP of a heat pump linked with the button of id="btn-computeCOP" in templates/scenario//scenario_step2.html
+// trigger "asset_cops_create_or_update"
 function computeCOP(event){
 
     // get the parameters which uniquely identify the asset
@@ -844,10 +937,12 @@ function computeCOP(event){
         if (jsonRes.success) {
             // close the cop area
             copCollapse.hide();
-
-            efficiencyDOM = guiModalDOM.querySelector('input[name="efficiency_scalar"]');
-            if(efficiencyDOM){
-                efficiencyDOM.value = jsonRes.cops; efficiencyDOM.dispatchEvent(new Event('change'));
+            const widgetName = "cop";
+            if(jsonRes.ts_type == "timeseries"){
+                loadTimeseriesIntoWidget(widgetName, jsonRes.ts_id, jsonRes.name)
+            }
+            else if(jsonRes.ts_type == "scalar"){
+                loadNumberIntoManualWidget(widgetName, JSON.parse(jsonRes.cops))
             }
             copDOM = guiModalDOM.querySelector('input[name="copId"]');
             if(copDOM){
@@ -880,7 +975,7 @@ function validateNodeConnections(editor) {
             outputCount += node.outputs[outputName].connections.length;
         }
         // Sink
-        if (name.endsWith("demand")) {
+        if (name.endsWith("demand") || name == "excess" || name == "sink") {
             if (inputCount < 1) {
                 alert(`Sink "${node.data.name}" must have at least 1 input.`);
                 return false;

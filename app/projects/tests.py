@@ -1,8 +1,26 @@
+from unittest.mock import patch
+from django.core.exceptions import ValidationError
+from django.forms import Select
+
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+
+from projects.helpers import TimeseriesField, TimeseriesInputWidget
+from projects.helpers import (
+    TS_MANUAL_TYPE,
+    TS_SELECT_TYPE,
+    TS_UPLOAD_TYPE,
+)
+
+
 import datetime
 import json
+import tempfile
+import traceback
+from pathlib import Path
 
 import pytest
 import requests
+import difflib
 
 
 from django.contrib.auth import get_user_model
@@ -10,7 +28,17 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client, tag
 from django.test.client import RequestFactory
 from django.urls import reverse
-from projects.models import Project, Scenario, Asset, AssetType
+from django.core.management import call_command
+from projects.forms import asset_form_factory, get_asset_or_404
+from projects.models import (
+    Project,
+    Scenario,
+    Asset,
+    AssetType,
+    Bus,
+    ConnectionLink,
+    Timeseries,
+)
 from projects.scenario_topology_helpers import (
     load_scenario_from_dict,
     load_project_from_dict,
@@ -18,17 +46,106 @@ from projects.scenario_topology_helpers import (
 from users.models import CustomUser
 
 
+def check_all_asset_forms(project_id, client, verbose=False):
+    response = client.get(
+        reverse(
+            "project_asset_info",
+            kwargs={"proj_id": project_id},
+        )
+    )
+    project_data = response.json()
+
+    if verbose is True:
+        print(f"Checking project {project_data['project_name']} (ID {project_id})")
+
+        print(f"Assets: {len(project_data['assets'])}")
+
+    failures = []
+
+    for asset in project_data["assets"]:
+        try:
+            form_url = reverse(
+                "get_asset_create_form",
+                kwargs={
+                    "scen_id": asset["scenario_id"],
+                    "asset_type_name": asset["asset_type"],
+                    "asset_uuid": asset["uuid"],
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "get_asset_create_form cannot be reversed",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        try:
+            response = client.get(
+                form_url,
+                {
+                    "inputs": json.dumps([]),
+                    "outputs": json.dumps([]),
+                },
+            )
+        except Exception as e:
+            failures.append(
+                {
+                    **asset,
+                    "status_code": "the form url cannot be get",
+                    "response": traceback.format_exc(),
+                }
+            )
+
+        if response.status_code == 200:
+            if verbose is True:
+                print(f"✓ {asset['name']} [{asset['asset_type']}]")
+
+        else:
+            if verbose is True:
+                print(
+                    f"✗ {asset['name']} "
+                    f"[{asset['asset_type']}] "
+                    f"-> HTTP {response.status_code}"
+                )
+
+            failures.append(
+                {
+                    **asset,
+                    "status_code": response.status_code,
+                    "response": response.content.decode(),
+                }
+            )
+
+    if verbose is True:
+        if failures:
+            print(
+                f"{len(failures)} / {len(project_data['assets'])} asset forms failed."
+            )
+        else:
+            print(f"All {len(project_data['assets'])} asset forms are callable.")
+
+    return failures
+
+
+@tag("unittest")
 class BasicOperationsTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json", "fixtures/test_users.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+        "fixtures/minimal_project.json",
+        "fixtures/test_extra_users.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
 
     def test_delete_project_redirects(self):
         """Make sure we are redirected to project page once deleting a project"""
@@ -248,18 +365,25 @@ class BasicOperationsTest(TestCase):
         self.assertTemplateUsed(response, "index.html")
 
 
-class ExportLoadTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+class ExportLoadMixin:
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
+        cls.user = CustomUser.objects.first()
+        with open(cls.data_file, "r") as fp:
+            mydict = json.load(fp)
+            load_project_from_dict(mydict, cls.user)
+        cls.project = Project.objects.first()
+        cls.scenario = cls.project.scenario_set.first()
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
-        self.scenario = self.project.scenario_set.first()
 
     def test_export_and_load_scenario(self):
         user = self.project.user
@@ -338,18 +462,48 @@ class ExportLoadTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("scenario_set_data", response.json())
 
+    def test_delete_project(self):
+        self.project.delete()
 
+
+@tag("unittest", "export")
+class ExportLoadTestCompatiblity(ExportLoadMixin, TestCase):
+    data_file = (
+        Path(__file__).resolve().parent.parent
+        / "test_files"
+        / "back_compatibility_all_assets.json"
+    )
+
+
+@tag("unittest", "export")
+class ExportLoadTest(ExportLoadMixin, TestCase):
+    data_file = (
+        Path(__file__).resolve().parent.parent / "test_files" / "all_assets.json"
+    )
+
+    def test_export_as_datapackage(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            dp_path = self.scenario.to_datapackage(temp_dir)
+            es = create_energy_system_from_dp(dp_path)
+
+
+@tag("unittest")
 class UploadTimeseriesTest(TestCase):
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+        "fixtures/minimal_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
 
         # set up scenario for timeseries lengths of 4
         self.scenario = self.project.scenario_set.first()
@@ -358,7 +512,7 @@ class UploadTimeseriesTest(TestCase):
         self.scenario.start_date = datetime.datetime(2020, 1, 1)
         self.scenario.save()
 
-        self.post_url = reverse("asset_create_or_update", args=[2, "demand"])
+        self.post_url = reverse("asset_create_or_update", args=[1, "demand"])
 
     def test_load_demand_csv_timestamp_format(self):
         with open("./test_files/test_ts_timestamp_format.csv") as fp:
@@ -546,23 +700,28 @@ class UploadTimeseriesTest(TestCase):
         response = self.client.post(self.post_url, data, format="multipart")
         asset = Asset.objects.last()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(asset.input_timeseries_values, [1])
+        self.assertEqual(asset.input_timeseries.values, [1])
 
 
+@tag("unittest")
 class OptimizeCapacityToggleTest(TestCase):
     """optimize_cap toggle should zero out installed_capacity/age_installed
     when turned on, and reset maximum_capacity when turned off (forms.py
     AssetCreateForm.clean)."""
 
-    fixtures = ["fixtures/benchmarks_fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+        "fixtures/minimal_project.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
-        pass
+        call_command("update_assettype", update=True)
 
     def setUp(self):
         self.client.login(username="testUser", password="ASas12,.")
-        self.project = Project.objects.get(id=1)
+        self.project = Project.objects.first()
         self.scenario = self.project.scenario_set.first()
 
         # the fixture predates "maximum_capacity" being added to this asset
@@ -585,9 +744,9 @@ class OptimizeCapacityToggleTest(TestCase):
             "age_installed": 5,
             "installed_capacity": 50,
             "capex_fix": 1000,
-            "capex_var": 10,
-            "opex_fix": 5,
-            "opex_var": 2,
+            "capex_spec": 10,
+            "opex_spec": 5,
+            "variable_costs": 2,
             "lifetime": 10,
             "efficiency": 0.98,
             "maximum_capacity": 100,
@@ -660,9 +819,6 @@ class OptimizeCapacityToggleTest(TestCase):
         self.assertEqual(asset.age_installed, 3.0)
 
 
-from .integration_tests import check_all_asset_forms
-
-
 @tag("integration_test")
 class ImportedUsecaseTest(TestCase):
     SOURCE_HOST = "https://open-plan-tool.org"
@@ -677,10 +833,15 @@ class ImportedUsecaseTest(TestCase):
         2277,
     ]
 
-    fixtures = ["fixtures/fixture.json"]
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+    ]
 
     @classmethod
     def setUpTestData(cls):
+        call_command("update_assettype", update=True)
+
         cls.check_source_is_online()
 
         User = get_user_model()
@@ -775,3 +936,721 @@ class ImportedUsecaseTest(TestCase):
                     ensure_ascii=False,
                 )
             )
+
+
+@tag("mvs")
+class CompareMVSDataInputTest(TestCase):
+    SERVER_A = "https://staging.open-plan-tool.org"
+    SERVER_B = "http://127.0.0.1:8000"
+
+    SCENARIO_PAIRS = {}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session_a = requests.Session()
+        cls.session_b = requests.Session()
+
+        scenarios_a = cls.get_scenario_info(
+            cls.session_a,
+            cls.SERVER_A,
+        )
+
+        scenarios_b = cls.get_scenario_info(
+            cls.session_b,
+            cls.SERVER_B,
+        )
+
+        cls.SCENARIO_PAIRS.update(
+            cls.create_scenario_pairs(
+                scenarios_a,
+                scenarios_b,
+            )
+        )
+        print(cls.SCENARIO_PAIRS)
+
+        # Login here if required
+        cls.login(cls.session_a, cls.SERVER_A)
+        cls.login(cls.session_b, cls.SERVER_B)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.session_a.close()
+        cls.session_b.close()
+
+    @classmethod
+    def login(cls, session, host, username="testUser", password="ASas12,."):
+        login_url = f"{host}/en/users/login/"
+
+        response = session.get(login_url, timeout=30)
+        response.raise_for_status()
+
+        csrf_token = session.cookies["csrftoken"]
+
+        response = session.post(
+            login_url,
+            data={
+                "username": username,
+                "password": password,
+                "csrfmiddlewaretoken": csrf_token,
+            },
+            headers={
+                "Referer": login_url,
+            },
+            allow_redirects=True,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        if "/users/login" in response.url:
+            raise RuntimeError(f"Login failed for {host}")
+
+    @classmethod
+    def get_scenario_info(cls, session, host):
+        url = f"{host}/en/usecases/scenarios/info"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    @classmethod
+    def create_scenario_pairs(cls, scenarios_a, scenarios_b):
+        pairs = {}
+
+        for scenario_name, data_a in scenarios_a.items():
+            if scenario_name not in scenarios_b:
+                continue
+
+            data_b = scenarios_b[scenario_name]
+
+            pairs[data_a["scenario_id"]] = data_b["scenario_id"]
+
+        return pairs
+
+    def get_mvs_data_input(self, session, host, scen_id):
+        url = f"{host}/en/usecase_mvs_data_input/{scen_id}"
+
+        response = session.get(
+            url,
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            msg = (
+                f"GET failed for scenario {scen_id}\n"
+                f"URL: {url}\n"
+                f"HTTP {response.status_code}\n"
+                f"{response.text}"
+            )
+            print(msg)
+            return {}
+        else:
+            return response.json()
+
+    def test_mvs_data_input_is_identical(self):
+        all_failures = []
+        for scen_id_a, scen_id_b in self.SCENARIO_PAIRS.items():
+            data_a = self.get_mvs_data_input(
+                self.session_a,
+                self.SERVER_A,
+                scen_id_a,
+            )
+
+            data_b = self.get_mvs_data_input(
+                self.session_b,
+                self.SERVER_B,
+                scen_id_b,
+            )
+
+            IGNORED_KEYS = {
+                "unique_id",
+                "start_date",
+                "scenario_id",
+                "project_id",
+                "evaluated_period",
+            }
+
+            def normalize(data):
+                if isinstance(data, dict):
+                    return {
+                        key: normalize(value)
+                        for key, value in data.items()
+                        if key not in IGNORED_KEYS
+                    }
+
+                if isinstance(data, list):
+                    normalized_items = [normalize(value) for value in data]
+                    return sorted(
+                        normalized_items,
+                        key=lambda item: json.dumps(
+                            item,
+                            sort_keys=True,
+                            ensure_ascii=False,
+                        ),
+                    )
+
+                return data
+
+            data_a = normalize(data_a)
+            data_b = normalize(data_b)
+
+            if not data_a or not data_b:
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": "One of scenario could not get MVS",
+                    }
+                )
+            elif data_a != data_b:
+                json_a = json.dumps(
+                    data_a,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                json_b = json.dumps(
+                    data_b,
+                    indent=2,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ).splitlines()
+
+                diff = "\n".join(
+                    difflib.unified_diff(
+                        json_a,
+                        json_b,
+                        fromfile=f"{self.SERVER_A} / scenario {scen_id_a}",
+                        tofile=f"{self.SERVER_B} / scenario {scen_id_b}",
+                        lineterm="",
+                    )
+                )
+
+                all_failures.append(
+                    {
+                        "scenario_a": scen_id_a,
+                        "scenario_b": scen_id_b,
+                        "diff": diff,
+                    }
+                )
+
+        if all_failures:
+            message = "\n\n".join(
+                (
+                    f"Scenario {failure['scenario_a']} "
+                    f"!= {failure['scenario_b']}\n"
+                    f"{failure['diff']}"
+                )
+                for failure in all_failures
+            )
+
+            self.fail("MVS input data differs between servers:\n\n" + message)
+
+
+@tag("unittest")
+class CHPAssetTest(TestCase):
+    """Guards the chp component behavior through its migration to an own CHP model"""
+
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+        "fixtures/minimal_project.json",
+    ]
+
+    # values for any field name the chp form may expose, valid before and
+    # after the migration to eesyplan field names
+    chp_field_values = {
+        "name": "chp-test",
+        "age_installed": 0,
+        "installed_capacity": 100,
+        # "capex_fix": 0,
+        "capex_spec": 1000,
+        "variable_costs": 0,
+        "opex_spec": 10,
+        "lifetime": 20,
+        "optimize_cap": False,
+        "maximum_capacity": 500,
+        "efficiency": 0.35,
+        "efficiency_multiple": 0.5,
+        "efficiency_electricity_state_b": 0.35,
+        "efficiency_electricity_state_a": 0.4,
+        "efficiency_heat_state_b": 0.5,
+        "efficiency_heat_state_a": 0.0,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("update_assettype", update=True)
+
+    def setUp(self):
+        self.project = Project.objects.first()
+        self.scenario = self.project.scenario_set.first()
+        self.asset_type = AssetType.objects.get(asset_type="chp")
+
+    # fields rendered as DualNumberField (scalar/file multiwidget), whose POST
+    # data keys are suffixed with the subwidget name
+    dual_number_fields = (
+        "efficiency_electricity_state_b",
+        "efficiency_heat_state_b",
+        "efficiency_electricity_state_a",
+        "efficiency_heat_state_a",
+    )
+
+    def create_chp_via_form(self, name="chp-test"):
+        data = {}
+        for field in self.asset_type.visible_fields:
+            if field in self.chp_field_values:
+                if field in self.dual_number_fields:
+                    data[f"{field}_scalar"] = str(self.chp_field_values[field])
+                else:
+                    data[field] = self.chp_field_values[field]
+        data["name"] = name
+        form = asset_form_factory(
+            asset_type="chp", data=data, scenario_id=self.scenario.id
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        asset = form.save(commit=False)
+        asset.scenario = self.scenario
+        asset.asset_type = self.asset_type
+        asset.save()
+        return asset
+
+    def test_chp_form_create_and_save(self):
+        asset = self.create_chp_via_form()
+        qs = Asset.objects.filter(scenario=self.scenario, name="chp-test")
+        self.assertTrue(qs.exists())
+        saved_asset = get_asset_or_404("chp", asset.unique_id)
+        self.assertEqual(saved_asset.installed_capacity, 100)
+
+    def test_chp_datapackage_loads_in_eesyplan(self):
+        from oemof.eesyplan.components.converters.chp_variable_ratio import (
+            ChpVariableRatio,
+        )
+        from oemof.eesyplan.datapackage.energy_system import (
+            create_energy_system_from_dp,
+        )
+
+        # fresh scenario without the fixture assets, keeping the scenario settings
+        self.scenario.pk = None
+        self.scenario.name = "chp_ezp_scenario"
+        self.scenario.save()
+        asset = self.create_chp_via_form(name="chp-ezp")
+
+        gas_bus = Bus.objects.create(name="gas_bus", type="Gas", scenario=self.scenario)
+        heat_bus = Bus.objects.create(
+            name="heat_bus", type="Heat", scenario=self.scenario
+        )
+        el_bus = Bus.objects.create(
+            name="el_bus", type="Electricity", scenario=self.scenario
+        )
+        for bus, port, direction in (
+            (gas_bus, "input_1", "B2A"),
+            (heat_bus, "output_1", "A2B"),
+            (el_bus, "output_2", "A2B"),
+        ):
+            ConnectionLink.objects.create(
+                bus=bus,
+                bus_connection_port="port_1",
+                asset=asset,
+                asset_connection_port=port,
+                flow_direction=direction,
+                scenario=self.scenario,
+            )
+
+        # a demand with a profile, without which the datapackage has no sequences
+        # resource and oemof.datapackage falls back to a deprecated pandas freq
+        timeseries = Timeseries.objects.create(
+            values=[1.0] * len(self.scenario.get_timestamps()),
+            user=self.project.user,
+            name="demand_ts",
+            scenario=self.scenario,
+        )
+        demand = Asset.objects.create(
+            name="demand-ezp",
+            scenario=self.scenario,
+            asset_type=AssetType.objects.get(asset_type="demand"),
+            input_timeseries=timeseries,
+        )
+        ConnectionLink.objects.create(
+            bus=el_bus,
+            bus_connection_port="port_1",
+            asset=demand,
+            asset_connection_port="input_1",
+            flow_direction="B2A",
+            scenario=self.scenario,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dp_path = self.scenario.to_datapackage(Path(tmp_dir))
+            es = create_energy_system_from_dp(dp_path)
+
+        chp_nodes = [n for n in es.nodes if isinstance(n, ChpVariableRatio)]
+        self.assertEqual(len(chp_nodes), 1)
+        self.assertEqual(str(chp_nodes[0].label), "chp-ezp")
+        self.assertEqual(chp_nodes[0].efficiency_electricity_state_b[0], 0.35)
+        self.assertEqual(chp_nodes[0].efficiency_heat_state_b[0], 0.5)
+        self.assertEqual(chp_nodes[0].efficiency_electricity_state_a[0], 0.4)
+
+    def test_chp_to_datapackage_uses_eesyplan_parameters(self):
+        asset = self.create_chp_via_form(name="chp-dp")
+        dp, bus_records, profile_records = asset.to_datapackage()
+        self.assertEqual(dp["type"], "chp")
+        self.assertEqual(
+            dp["efficiency_electricity_state_b"], f"constant value = {0.35}"
+        )
+        self.assertEqual(dp["efficiency_heat_state_b"], f"constant value = {0.5}")
+        self.assertEqual(
+            dp["efficiency_electricity_state_a"], f"constant value = {0.4}"
+        )
+        # MVS parameter names may not leak into the datapackage
+        self.assertNotIn("efficiency", dp)
+        self.assertNotIn("efficiency_multiple", dp)
+        self.assertNotIn("thermal_loss_rate", dp)
+        # bus keys expected by the eesyplan ChpVariableRatio signature
+        for bus_key in ("bus_in_fuel", "bus_out_electricity", "bus_out_heat"):
+            self.assertIn(bus_key, dp)
+
+
+@tag("unittest")
+class TimeseriesFieldTest(TestCase):
+    fixtures = [
+        "fixtures/valuetypes.json",
+        "fixtures/test_user.json",
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("update_assettype", update=True)
+
+    def create_timeseries(
+        self,
+        *,
+        values,
+        ts_type="timeseries",
+        **kwargs,
+    ):
+        """
+        Adjust this helper to the required fields of your Timeseries model.
+        """
+        return Timeseries.objects.create(
+            values=values,
+            ts_type=ts_type,
+            **kwargs,
+        )
+
+    def create_widget(self):
+        return TimeseriesInputWidget(
+            select_widget=Select(),
+            param_name="fix",
+        )
+
+    # ------------------------------------------------------------------
+    # clean()
+    # ------------------------------------------------------------------
+
+    def test_clean_manual_scalar(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "5.5"]))
+
+        self.assertEqual(result["values"], [5.5])
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_MANUAL_TYPE,
+        )
+
+    def test_clean_manual_scalar_with_comma(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "5,5"]))
+
+        self.assertEqual(result["values"], [5.5])
+
+    def test_clean_manual_list(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, "[1, 2, 3]"]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_MANUAL_TYPE,
+        )
+
+    def test_clean_empty_optional(self):
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, None, None]))
+
+        self.assertIsNone(result["values"])
+        self.assertEqual(
+            result["input_method"],
+            {"type": "None"},
+        )
+
+    def test_clean_empty_required(self):
+        field = TimeseriesField(required=True)
+
+        with self.assertRaises(ValidationError):
+            field.clean([None, None, None])
+
+    def test_clean_selected_timeseries(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+        )
+
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([ts.pk, None, None]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_SELECT_TYPE,
+        )
+        self.assertEqual(
+            result["input_method"]["extra_info"],
+            ts.pk,
+        )
+
+    @patch("projects.helpers.parse_input_timeseries")
+    def test_clean_uploaded_timeseries(self, mock_parse):
+        mock_parse.return_value = [1, 2, 3]
+
+        upload = SimpleUploadedFile(
+            "test.csv",
+            b"1\n2\n3\n",
+        )
+
+        field = TimeseriesField(required=False)
+
+        result = json.loads(field.clean([None, upload, None]))
+
+        self.assertEqual(
+            result["values"],
+            [1, 2, 3],
+        )
+        self.assertEqual(
+            result["input_method"]["type"],
+            TS_UPLOAD_TYPE,
+        )
+        self.assertEqual(
+            result["input_method"]["extra_info"],
+            "test.csv",
+        )
+
+        mock_parse.assert_called_once_with(upload)
+
+    @patch("projects.helpers.parse_input_timeseries")
+    def test_invalid_upload_raises_validation_error(
+        self,
+        mock_parse,
+    ):
+        mock_parse.side_effect = ValueError("Invalid timeseries")
+
+        upload = SimpleUploadedFile(
+            "invalid.csv",
+            b"invalid",
+        )
+
+        field = TimeseriesField(required=False)
+
+        with self.assertRaises(ValidationError):
+            field.clean([None, upload, None])
+
+    # ------------------------------------------------------------------
+    # decompress()
+    # ------------------------------------------------------------------
+
+    def test_decompress_regular_timeseries(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        widget = self.create_widget()
+
+        result = widget.decompress(ts.pk)
+
+        self.assertEqual(
+            result,
+            [ts.pk, None, None],
+        )
+
+    def test_decompress_scalar_timeseries(self):
+        ts = self.create_timeseries(
+            values=[5],
+            ts_type="scalar",
+        )
+
+        widget = self.create_widget()
+
+        result = widget.decompress(ts.pk)
+
+        self.assertEqual(
+            result,
+            [None, None, 5],
+        )
+
+    def test_decompress_none(self):
+        widget = self.create_widget()
+
+        self.assertEqual(
+            widget.decompress(None),
+            [None, None, None],
+        )
+
+    # ------------------------------------------------------------------
+    # get_context()
+    # ------------------------------------------------------------------
+
+    def test_scalar_timeseries_opens_manual_tab(self):
+        ts = self.create_timeseries(
+            values=[5],
+            ts_type="scalar",
+        )
+
+        widget = self.create_widget()
+
+        context = widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        self.assertEqual(
+            context["active_tab"],
+            "manual",
+        )
+
+    def test_regular_timeseries_opens_select_tab(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        widget = self.create_widget()
+
+        context = widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        self.assertEqual(
+            context["active_tab"],
+            "select",
+        )
+
+    # ------------------------------------------------------------------
+    # assign_queryset()
+    # ------------------------------------------------------------------
+
+    # def test_assign_queryset(self):
+    #     user = self.user
+    #     other_user = self.other_user
+    #     asset_type = self.asset_type
+    #     other_asset_type = self.other_asset_type
+    #
+    #     public_ts = self.create_timeseries(
+    #         values=[1, 2, 3],
+    #         asset_type=asset_type,
+    #         open_source=True,
+    #         user=other_user,
+    #     )
+    #
+    #     own_ts = self.create_timeseries(
+    #         values=[4, 5, 6],
+    #         asset_type=asset_type,
+    #         open_source=False,
+    #         user=user,
+    #     )
+    #
+    #     wrong_asset_type = self.create_timeseries(
+    #         values=[7, 8, 9],
+    #         asset_type=other_asset_type,
+    #         open_source=True,
+    #         user=user,
+    #     )
+    #
+    #     private_other_user = self.create_timeseries(
+    #         values=[10, 11, 12],
+    #         asset_type=asset_type,
+    #         open_source=False,
+    #         user=other_user,
+    #     )
+    #
+    #     scalar = self.create_timeseries(
+    #         values=[5],
+    #         ts_type="scalar",
+    #         asset_type=asset_type,
+    #         open_source=True,
+    #         user=user,
+    #     )
+    #
+    #     field = TimeseriesField(
+    #         required=False,
+    #     )
+    #
+    #     field.assign_queryset(
+    #         asset_type,
+    #         user,
+    #     )
+    #
+    #     self.assertQuerySetEqual(
+    #         field.fields[0].queryset,
+    #         [public_ts, own_ts],
+    #         ordered=False,
+    #     )
+
+    def test_regular_timeseries_is_selected_in_widget(self):
+        ts = self.create_timeseries(
+            values=[1, 2, 3],
+            ts_type="timeseries",
+        )
+
+        field = TimeseriesField(
+            required=False,
+            qs_ts=Timeseries.objects.all(),
+        )
+
+        context = field.widget.get_context(
+            name="fix",
+            value=ts.pk,
+            attrs={"id": "id_fix"},
+        )
+
+        select_widget = context["widget"]["subwidgets"][0]
+
+        self.assertEqual(
+            select_widget["value"],
+            [str(ts.pk)],
+        )
+
+        selected_options = [
+            option
+            for _, options, _ in select_widget["optgroups"]
+            for option in options
+            if option["selected"]
+        ]
+
+        self.assertEqual(
+            len(selected_options),
+            1,
+        )
+        self.assertEqual(
+            str(selected_options[0]["value"]),
+            str(ts.pk),
+        )

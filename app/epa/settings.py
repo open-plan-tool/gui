@@ -19,7 +19,7 @@ from pathlib import Path
 import sys
 
 # Version number -> gets updated by bump-my-version, do not touch manually
-APP_VERSION_NUMBER = "1.2.1"
+APP_VERSION_NUMBER = "1.3.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -223,7 +223,8 @@ MVS_SA_GET_URL = f"{MVS_API_HOST}/check-sensitivity-analysis/"
 
 SHOW_EZP = env("SHOW_EZP", default=False)
 EZP_API_HOST = env("EZP_API_HOST", default="")
-EZP_POST_URL = f"{EZP_API_HOST}/sendjson/"
+EZP_API_QUEUE = env("EZP_API_QUEUE", default="dev")
+EZP_POST_URL = f"{EZP_API_HOST}/sendjson/{EZP_API_QUEUE}"
 EZP_GET_URL = f"{EZP_API_HOST}/check/"
 
 # Allow iframes to show in page
