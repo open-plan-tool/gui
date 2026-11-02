@@ -4,10 +4,13 @@
 
 ## [v1.3.1] – 2026-11-02
 
-## [v1.3.0] – 2026-11-02
+### Added
+- Add button to duplicate nodes in scenario [[#562](https://github.com/open-plan-tool/gui/pull/562)]
 
 ### Changed
 - [eesyplan ](https://github.com/oemof/oemof-eesyplan) is now the default backend simulation server [[#576](https://github.com/open-plan-tool/gui/pull/576)]
+
+## [v1.3.0] – 2026-11-02
 
 ### Added
 - Component HeatingNetwork [[#492](https://github.com/open-plan-tool/gui/pull/492)]
@@ -27,8 +30,6 @@
 ## [v1.2.2] – 2026-10-29
 ### Changed
 - Constraint step (previously step 3) has been hidden until functionality is implemented in new backend [[#564](https://github.com/open-plan-tool/gui/pull/564)]
-### Added
-- Add button to duplicate nodes in scenario [[#562](https://github.com/open-plan-tool/gui/pull/562)]
 
 ## [v1.2.1] – 2026-10-14
 ### Added
