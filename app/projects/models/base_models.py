@@ -655,9 +655,7 @@ class Scenario(models.Model):
 
         if store_database_record:
             ts_fks = dict(
-                Timeseries.objects.filter(asset__scenario=self).values_list(
-                    "name", "id"
-                )
+                Timeseries.objects.filter(scenario=self).values_list("name", "id")
             )
             # Create a copy to store in the simulation field
             db_dp = copy.deepcopy(simulation_dp)
