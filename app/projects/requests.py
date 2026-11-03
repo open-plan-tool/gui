@@ -92,7 +92,10 @@ def fetch_ezp_simulation_results(simulation):
 
             # simulation.mvs_version = response["mvs_version"]
             logger.info(f"The simulation {simulation.id} is finished")
-        except:
+        except Exception as err:
+            logger.error(
+                f"Could not parse EZP results for simulation {simulation.id}: {err}"
+            )
             simulation.status = ERROR
             simulation.results = None
 
@@ -345,7 +348,10 @@ def fetch_mvs_simulation_results(simulation):
             )
             simulation.mvs_version = response["mvs_version"]
             logger.info(f"The simulation {simulation.id} is finished")
-        except:
+        except Exception as err:
+            logger.error(
+                f"Could not parse MVS results for simulation {simulation.id}: {err}"
+            )
             simulation.status = ERROR
             simulation.results = None
 
