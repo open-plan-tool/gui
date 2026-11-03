@@ -12,9 +12,13 @@ function handleTimeseriesForm(send_to_url, modal_id) {
         formData,
         // On Success
         function(data) {
-            form.reset();
-            const modal = bootstrap.Modal.getInstance(document.getElementById(modal_id));
-            if (modal) modal.hide();
+            if (data.form_html) {
+                const modal_body = modal.querySelector(".modal-body");
+                modal_body.innerHTML = data.form_html;
+            }
+
+            const modal_instance = bootstrap.Modal.getInstance(modal);
+            if (modal_instance) modal_instance.hide();
 
             const table_body = document.getElementById("timeseries_table_body");
             if (table_body && data.table_html) {
