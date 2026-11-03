@@ -49,6 +49,14 @@ class Simulation(AbstractSimulation):
     dp_results = models.JSONField(
         null=True, blank=True, validators=[validate_dp_results]
     )
+    graphs = models.JSONField(
+        null=True,
+        blank=True,  # TODO write a validator
+    )
+    tables = models.JSONField(
+        null=True,
+        blank=True,  # TODO write a validator
+    )
 
     def clean_dp_results(self):
         field = self._meta.get_field("dp_results")
@@ -70,6 +78,12 @@ class Simulation(AbstractSimulation):
                     )
                     results = eesyplan.import_results(res_path, es)
         return results
+
+    def get_figure(self, fig_label):
+        figs_dict = json.loads(self.graphs)
+        fig_dict = figs_dict.get(fig_label, {"data": [], "layout": []})
+        fig_dict["id"] = fig_label
+        return fig_dict
 
 
 class ParameterChangeTracker(models.Model):
