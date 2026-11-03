@@ -121,6 +121,9 @@ def timeseries_dashboard(request, ts_id=None):
             details_html = render_to_string(
                 "asset/timeseries_detail_panel.html", context, request
             )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
             return JsonResponse(
                 {
                     "success": True,
@@ -131,6 +134,7 @@ def timeseries_dashboard(request, ts_id=None):
                     ),
                     "table_html": table_html,
                     "details_html": details_html,
+                    "summary_html": summary_html,
                 }
             )
         else:
@@ -314,12 +318,16 @@ def timeseries_edit(request, ts_id):
             form_html = render_to_string(
                 "asset/timeseries_edit_form.html", context, request
             )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
             return JsonResponse(
                 {
                     "success": True,
                     "form_html": form_html,
                     "table_html": table_html,
                     "details_html": details_html,
+                    "summary_html": summary_html,
                 }
             )
         else:
