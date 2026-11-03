@@ -18,7 +18,7 @@ services:
         BUILD_ENVIRONMENT: local
       dockerfile: ./app/compose/production/app_postgres/Dockerfile
     container_name: django-open_plan_pg
-    command: "gunicorn --workers=2 --bind=0.0.0.0:8000 epa.wsgi:application"
+    command: /start
     env_file:
       - .envs/epa.postgres
     ports:
