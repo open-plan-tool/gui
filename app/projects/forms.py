@@ -39,6 +39,7 @@ from projects.helpers import (
     DualNumberField,
     TimeseriesField,
     parameters_helper,
+    parse_input_timeseries,
 )
 from projects.models import *
 
@@ -1472,6 +1473,8 @@ class CreateHeatDemandForm(OpenPlanForm):
 CUSTOM_TIMESERIES_FORMS = {
     "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
+}
+
 ASSET_TYPE_TO_CATEGORY = {
     "demand": "demand",
     "gas_demand": "demand",
