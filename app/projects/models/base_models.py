@@ -689,9 +689,9 @@ class Scenario(models.Model):
 
         db_dp = self.datapackage
         ts_fks = db_dp["data"]["profiles"].values()
-        ts_profiles = dict(
-            Timeseries.objects.filter(id__in=ts_fks).values_list("name", "values")
-        )
+        ts_profiles = {
+            ts.name: ts.get_values for ts in Timeseries.objects.filter(id__in=ts_fks)
+        }
 
         # Replace fks with timeseries data
         ts_df = pd.DataFrame(ts_profiles)
