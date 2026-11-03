@@ -26,6 +26,17 @@ function handleTimeseriesForm(send_to_url, modal_id) {
                 details_panel.outerHTML = data.details_html;
                 htmx.process(document.getElementById("timeseries_details_panel"));
             }
+            if (data.summary_html) {
+                const parsed = new DOMParser().parseFromString(data.summary_html, "text/html");
+                ["summary_total", "summary_selected"].forEach(id => {
+                    const fresh = parsed.getElementById(id);
+                    const current_dom_element = document.getElementById(id);
+                    if (fresh && current_dom_element) {
+                        current_dom_element.outerHTML = fresh.outerHTML;
+                        htmx.process(document.getElementById(id));
+                    }
+                });
+            }
         },
         // On Error
         function(data) {
