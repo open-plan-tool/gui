@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix automatic simulation status fetching [[#580](https://github.com/open-plan-tool/gui/pull/580)]
 
 ## [v1.3.1] – 2026-11-02
 
