@@ -353,16 +353,14 @@ def timeseries_duplicate(request, ts_id):
 
     messages.success(request, "Timeseries successfully duplicated!")
     # load updated timeseries list
-    timeseries_list = timeseries_sort_and_filter(request)
-    html = render_to_string(
-        "asset/timeseries_table.html",
-        {
-            "timeseries_list": timeseries_list,
-            "selected_timeseries": selected_timeseries,
-        },
-        request=request,
+
+    context = timeseries_build_context(ts_id=selected_timeseries.id)
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
     )
-    return HttpResponse(html)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
 
 
 @login_required
