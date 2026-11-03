@@ -4,5 +4,4 @@
 <form id="timeseries_upload_form" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form|crispy }}
-    <button type="submit" class="btn btn-primary">{% translate "Upload" %}</button>
 </form>
