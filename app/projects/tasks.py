@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from celery import shared_task
 from projects.constants import PENDING
 from projects.models import Simulation
-from projects.requests import fetch_mvs_simulation_results
+from projects.requests import fetch_ezp_simulation_results
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,6 @@ def check_simulation_objects():
         return
 
     with ThreadPoolExecutor() as pool:
-        pool.map(fetch_mvs_simulation_results, pending_simulations)
+        pool.map(fetch_ezp_simulation_results, pending_simulations)
 
     logger.debug("Finished round for checking Simulation objects status.")
