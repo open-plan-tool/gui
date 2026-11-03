@@ -206,6 +206,7 @@ def scenario_visualize_results(
                     # TODO here allow more than one scenario to be selected
                     scen_id = selected_scenarios[0]
 
+            # TODO adapt for EZP
             # collect the report items of the project
             report_items_data = [
                 ri.render_json for ri in get_project_reportitems(project)
@@ -1025,37 +1026,6 @@ def scenario_economic_results(request, scen_id=None):
         )
 
 
-# TODO: Improve automatic unit recognition and selection
-# TODO: If providers are used in model, delete duplicate time-series "DSO_consumption_period"
-#  (naive string matching solution in get_asset_and_ts() done)
-@login_required
-@json_view
-@require_http_methods(["GET"])
-@user_has_read_rights
-def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
-    if scen_id is None:
-        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
-    else:
-        selected_scenario = [scen_id]
-
-    simulations = []
-
-    for scen_id in selected_scenario:
-        scenario = get_object_or_404(Scenario, pk=scen_id)
-        simulations.append(scenario.simulation)
-
-    results_json = report_item_render_to_json(
-        report_item_id="all_timeseries",
-        data=REPORT_GRAPHS[GRAPH_TIMESERIES](simulations=simulations),
-        title="",
-        report_item_type=GRAPH_TIMESERIES,
-    )
-
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
-
-
 @login_required
 @user_has_read_rights
 def scenario_visualize_stacked_timeseries(request, scen_id):
@@ -1081,9 +1051,16 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
     )
 
 
-# TODO exclude sink components
+@login_required
+@json_view
+@require_http_methods(["GET"])
 @user_has_read_rights
-def scenario_visualize_capacities(request, proj_id, scen_id=None):
+def scenario_visualize_variable(
+    request,
+    proj_id,
+    scen_id=None,
+    variable="",
+):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
@@ -1095,46 +1072,12 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     for scenario in qs:
         simulations.append(scenario.simulation)
 
-    results_json = report_item_render_to_json(
-        report_item_id="capacities",
-        data=REPORT_GRAPHS[GRAPH_CAPACITIES](simulations=simulations, y_variables=None),
-        title="",
-        report_item_type=GRAPH_CAPACITIES,
-    )
+    # TODO allow comparison as well
+    simulation = scenario.simulation
+    figure_json = simulation.get_figure(variable)
 
     return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
-
-
-@user_has_read_rights
-def scenario_visualize_costs(request, proj_id, scen_id=None):
-    if scen_id is None:
-        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
-    else:
-        selected_scenario = [scen_id]
-
-    simulations = []
-
-    qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
-    for scenario in qs:
-        simulations.append(scenario.simulation)
-
-    results_json = []
-    for arrangement in [COSTS_PER_ASSETS]:
-        results_json.append(
-            report_item_render_to_json(
-                report_item_id=arrangement,
-                data=REPORT_GRAPHS[GRAPH_COSTS](
-                    simulations=simulations, y_variables=None, arrangement=arrangement
-                ),
-                title=arrangement,
-                report_item_type=GRAPH_COSTS,
-            )
-        )
-
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
+        figure_json, status=200, content_type="application/json", safe=True
     )
 
 
@@ -1170,12 +1113,10 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
         # TODO this sankey implementation does not allow for single timesteps
         # if ts is not None:
         #     ts = int(ts)
-        results = scenario.simulation.eesyplan_results()
-
-        fig, links_df = eesyplan_graphs.sankey(results["flow"], title="Test Sankey")
+        figure_json = scenario.simulation.get_figure("sankey")  # GRAPH_SANKEY
 
         return JsonResponse(
-            fig.to_dict(), status=200, content_type="application/json", safe=False
+            figure_json, status=200, content_type="application/json", safe=False
         )
 
 

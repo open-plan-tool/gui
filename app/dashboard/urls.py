@@ -84,14 +84,19 @@ urlpatterns = [
         name="update_selected_multi_scenarios",
     ),
     re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request_timeseries/(?P<scen_id>\d+)?$",
-        scenario_visualize_timeseries,
-        name="scenario_visualize_timeseries",
-    ),
-    re_path(
         r"^scenario/results/request_stacked_timeseries/(?P<scen_id>\d+)?$",
         scenario_visualize_stacked_timeseries,
         name="scenario_visualize_stacked_timeseries",
+    ),
+    path(
+        "project/<int:proj_id>/scenario/results/request/",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
+    ),
+    path(
+        "project/<int:proj_id>/scenario/results/request/<int:scen_id>/<str:variable>",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
     ),
     re_path(
         r"^scenario/results/request_sankey/(?P<scen_id>\d+)?$",
@@ -102,16 +107,6 @@ urlpatterns = [
         r"^scenario/results/request_sankey/(?P<scen_id>\d+)?(/(?P<ts>\d+))?$",
         scenario_visualize_sankey,
         name="scenario_visualize_sankey",
-    ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request-capacities/(?P<scen_id>\d+)?$",
-        scenario_visualize_capacities,
-        name="scenario_visualize_capacities",
-    ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request-costs/(?P<scen_id>\d+)?$",
-        scenario_visualize_costs,
-        name="scenario_visualize_costs",
     ),
     path(
         "scenario/results/download_scalars/<int:scen_id>",
