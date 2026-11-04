@@ -188,16 +188,41 @@ function fetchSelectedScenarios(){
     return selectedScenarios;
 }
 
-
+function insertPlotlyGraph(graphId, data, layout){
+    Plotly.newPlot(
+        "graph-" + graphId,
+        data,
+        layout
+    );
+}
 
 function scenario_visualize_timeseries(scen_id=""){
- $.ajax({
-            url: urlVisualizeTimeseries + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            }
-        });
+    scenario_visualize_given_graph(scen_id, variable="timeseries")
+}
+
+async function scenario_visualize_given_graph(scen_id = "", variable = "") {
+    const url =
+        `${urlVisualizeAnyGraph}` +
+        `${encodeURIComponent(scen_id)}/` +
+        `${encodeURIComponent(variable)}`;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const figure = await response.json();
+
+        await insertPlotlyGraph(
+            figure.id,
+            figure.data,
+            figure.layout
+        );
+    } catch (error) {
+        console.error("Could not load graph:", error);
+    }
 }
 
 function scenario_visualize_stacked_timeseries(scen_id){
@@ -224,41 +249,19 @@ function scenario_visualize_sankey(scen_id, ts=null){
 	else{
 		urlParams = scen_id + "/" + ts;
 	}
- $.ajax({
-            url: urlVisualizeSankey + urlParams,
-            type: "GET",
-            success: async (eesyplan_fig) => {
-                await Plotly.newPlot("sankey", eesyplan_fig.data, eesyplan_fig.layout);
-            },
-        });
+    $.ajax({
+        url: urlVisualizeSankey + urlParams,
+        type: "GET",
+        success: async (figure) => {
+            await insertPlotlyGraph(figure.id, figure.data,figure.layout);
+        },
+    });
 }
 
 function scenario_visualize_capacities(scen_id=""){
- $.ajax({
-            url: urlVisualizeCapacities + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            },
-        });
+    scenario_visualize_given_graph(scen_id, variable="capacities")
 }
 
 function scenario_visualize_costs(scen_id=""){
- $.ajax({
-            url: urlVisualizeCosts + scen_id,
-            type: "GET",
-            success: async (graphs) => {
-								const parentDiv = document.getElementById("costs");
-                await graphs.map(parameters => {
-                    const newGraph = document.createElement('div');
-                    newGraph.id = "costs" + parameters.id;
-                    parentDiv.appendChild(newGraph);
-                    if(parameters.title === "var1" || parameters.title === "var2")
-            				{ graph_type= parameters.type;
-            					parameters.title = "";}
-            				else{ graph_type = parameters.type + "Scenarios";}
-                    graph_type_mapping[graph_type](newGraph.id, parameters);
-                });
-            },
-        });
+    scenario_visualize_given_graph(scen_id, variable="costs")
 }

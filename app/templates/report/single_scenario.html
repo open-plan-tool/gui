@@ -147,7 +147,10 @@ parameters specific to this graph type only, other parameters are available in t
 				</select>
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 				{% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
-				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
+				{% include "report/graph_template.html" with id="timeseries" title="Timeseries" %}
+				{% include "report/graph_template.html" with id="renewables" title="Renewable vs non-renewable" %}
+				{% include "report/graph_template.html" with id="energy_mix" title="Accumulated energy supply of the system" %}
+				{% include "report/graph_template.html" with id="sankey2" title="Easyplan Sankey diagramm" %}
 			</div>
 		</div>
 		<div class="header-results" id="financial">
@@ -197,12 +200,14 @@ $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
     // update the kpi table
-    update_kpi_table_style(current_scen_id, "summary");
+    // update_kpi_table_style(current_scen_id, "summary");
     // update_kpi_table_style(current_scen_id, "technical");
-    update_kpi_table_style(current_scen_id, "economic");
-    update_kpi_table_style(current_scen_id, "environmental");
-    request_system_costs_table(current_scen_id);
+    //update_kpi_table_style(current_scen_id, "economic");
+    //update_kpi_table_style(current_scen_id, "environmental");
+    //request_system_costs_table(current_scen_id);
     scenario_visualize_timeseries(current_scen_id);
+    scenario_visualize_given_graph(current_scen_id, "renewables");
+    scenario_visualize_given_graph(current_scen_id, "energy_mix");
     scenario_visualize_stacked_timeseries(current_scen_id);
     scenario_visualize_sankey(current_scen_id);
     scenario_visualize_capacities(current_scen_id);
