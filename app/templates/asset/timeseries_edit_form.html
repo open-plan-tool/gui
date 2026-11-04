@@ -1,0 +1,7 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<form id="timeseries_edit_form" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+</form>

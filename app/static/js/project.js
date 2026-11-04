@@ -49,3 +49,19 @@ saveDesignBtn.addEventListener('click', function() {
   saveDesignBtn.classList.add('hidden');
   designSavedFeedback.classList.add('display');
 });*/
+
+if (typeof htmx !== "undefined") {
+  htmx.on("messages", (event) => {
+    const messages = event.detail.value;
+    const dialog = document.querySelector("#messagesModal .modal-dialog");
+    dialog.innerHTML = messages.map(msg =>
+        `<div class="alert ${msg.tags} alert-dismissible" role="alert">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            ${msg.message}
+        </div>`
+    ).join("");
+    $("#messagesModal").modal("show");
+  });
+} else {console.warn("there is no htmx loaded in this context")}
