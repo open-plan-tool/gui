@@ -200,7 +200,7 @@ $(document).ready(function () {
     // add search field to the kpi info modal
     $('#kpiTable').DataTable();
     // update the kpi table
-    // update_kpi_table_style(current_scen_id, "summary");
+    update_kpi_table_style(current_scen_id, "summary");
     // update_kpi_table_style(current_scen_id, "technical");
     //update_kpi_table_style(current_scen_id, "economic");
     //update_kpi_table_style(current_scen_id, "environmental");
@@ -208,7 +208,7 @@ $(document).ready(function () {
     scenario_visualize_timeseries(current_scen_id);
     scenario_visualize_given_graph(current_scen_id, "renewables");
     scenario_visualize_given_graph(current_scen_id, "energy_mix");
-    scenario_visualize_stacked_timeseries(current_scen_id);
+    // scenario_visualize_stacked_timeseries(current_scen_id);
     scenario_visualize_sankey(current_scen_id);
     scenario_visualize_capacities(current_scen_id);
     scenario_visualize_costs(current_scen_id);
@@ -241,7 +241,7 @@ function update_selected_single_scenario(target){
 			request_system_costs_table(scen_id);
 
             scenario_visualize_timeseries(scen_id);
-            scenario_visualize_stacked_timeseries(scen_id);
+            // scenario_visualize_stacked_timeseries(scen_id);
             scenario_visualize_sankey(scen_id);
             scenario_visualize_capacities(scen_id);
             scenario_visualize_costs(scen_id);
