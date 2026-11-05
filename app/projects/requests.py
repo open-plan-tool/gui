@@ -181,8 +181,6 @@ def parse_ezp_results(simulation, response_results):
 
                 # TODO: problem in variable costs see eesyplan
                 KPIs.calculate_all_kpis(imported_results, es)
-                KPIs.project_cost_table(imported_results, es)
-                KPIs.yearly_project_costs(imported_results, es)
 
                 # --- 2. the existing checks ----------------------------------------------
                 fig1, _ = graphs.sankey_2(imported_results, es)
