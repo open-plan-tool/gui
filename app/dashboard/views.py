@@ -1,71 +1,63 @@
+import datetime
+import json
+import logging
+import traceback
+from io import BytesIO
+
 import numpy as np
+import xlsxwriter
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.template.loader import get_template
-from django.db.models import Count, Value, F, Q, Case, When
-from django.db.models.functions import Concat, Replace
+from django.db.models import Case, Count, F, Q, Value, When
+from django.db.models.functions import Concat
+from django.http import JsonResponse
 from django.http.response import Http404, HttpResponse
+from django.shortcuts import HttpResponseRedirect, get_object_or_404, render
+from django.template.loader import get_template
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
+from jsonview.decorators import json_view
+from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
+from projects.decorators import user_has_read_rights
+from projects.forms import BusForm, asset_form_factory, get_asset_or_404
+from projects.helpers import parameters_helper
+from projects.models import (
+    Bus,
+    Project,
+    Scenario,
+    SensitivityAnalysis,
+    Simulation,
+    get_project_sensitivity_analysis,
+)
+from projects.scenario_topology_helpers import load_scenario_topology_from_db
+from projects.services import (
+    get_selected_scenarios_in_cache,
+)
+
+from dashboard.forms import (
+    ReportItemForm,
+    graph_parameters_form_factory,
+)
 from dashboard.helpers import *
 from dashboard.models import (
-    AssetsResults,
-    KPICostsMatrixResults,
-    KPIScalarResults,
     KPI_COSTS_TOOLTIPS,
     KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
     KPI_SCALAR_UNITS,
-    get_costs,
-)
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseForbidden
-from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
-from django.urls import reverse
-from django.views.decorators.http import require_http_methods
-from jsonview.decorators import json_view
-from projects.models import (
-    Project,
-    Scenario,
-    Simulation,
-    Asset,
-    Bus,
-    SensitivityAnalysis,
-    get_project_sensitivity_analysis,
-)
-from projects.services import (
-    excuses_design_under_development,
-    get_selected_scenarios_in_cache,
-)
-
-from projects.decorators import user_has_edit_rights, user_has_read_rights
-from projects.forms import BusForm, asset_form_factory, get_asset_or_404
-
-from projects.constants import COMPARE_VIEW, STEP_LIST, MAX_STEP
-from dashboard.models import (
-    ReportItem,
-    FlowResults,
+    REPORT_GRAPHS,
+    AssetsResults,
     FancyResults,
+    KPICostsMatrixResults,
+    KPIScalarResults,
+    ReportItem,
     SensitivityAnalysisGraph,
+    get_costs,
     get_project_reportitems,
     get_project_sensitivity_analysis_graphs,
-    REPORT_GRAPHS,
-    STORAGE_SUB_CATEGORIES,
-    OUTPUT_POWER,
 )
-from projects.scenario_topology_helpers import load_scenario_topology_from_db
-from dashboard.forms import (
-    ReportItemForm,
-    TimeseriesGraphForm,
-    graph_parameters_form_factory,
-)
-from django.utils.translation import gettext_lazy as _
-from django.utils.safestring import mark_safe
-from io import BytesIO
-import xlsxwriter
-import json
-import datetime
-import logging
-import traceback
-from projects.helpers import parameters_helper
 
 logger = logging.getLogger(__name__)
 
@@ -153,11 +145,10 @@ def scenario_visualize_results(
         else:
             if request.POST:
                 proj_id = int(request.POST.get("proj_id"))
+            elif user_projects.exists():
+                proj_id = user_projects.first().id
             else:
-                if user_projects.exists():
-                    proj_id = user_projects.first().id
-                else:
-                    proj_id = None
+                proj_id = None
             if proj_id is None:
                 messages.error(
                     request,
@@ -578,7 +569,7 @@ def update_selected_single_scenario(request, proj_id, scen_id):
             selected_scenario.pop(selected_scenario.index(scen_id))
             msg = _(f"Scenario {scen_id} was deselected")
         else:
-            msg = _(f"At least one scenario need to be selected")
+            msg = _("At least one scenario need to be selected")
             return JsonResponse({"success": msg}, status=405)
     else:
         selected_scenario = [scen_id]
@@ -610,7 +601,7 @@ def update_selected_multi_scenarios(request, proj_id):
         selected_scenarios = selected_scenarios_per_project.get(proj_id, [])
 
         selected_scenarios = scen_ids
-        msg = _(f"Scenarios were updated")
+        msg = _("Scenarios were updated")
 
         selected_scenarios_per_project[proj_id] = selected_scenarios
         request.session["selected_scenarios"] = selected_scenarios_per_project
@@ -992,7 +983,7 @@ def scenario_economic_results(request, scen_id=None):
                 "titleTooltip": KPI_COSTS_TOOLTIPS[category],
                 "units": [KPI_COSTS_UNITS[category] for _ in new_dict[category].keys()],
             }
-            for category in new_dict.keys()
+            for category in new_dict
             if category in KPI_COSTS_UNITS.keys()
             and sum(new_dict[category].values())
             > 0.0  # there is at least one non zero value
@@ -1016,7 +1007,7 @@ def scenario_economic_results(request, scen_id=None):
             f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
         )
         return JsonResponse(
-            {"error": f"Could not retrieve kpi cost data."},
+            {"error": "Could not retrieve kpi cost data."},
             status=404,
             content_type="application/json",
             safe=False,
