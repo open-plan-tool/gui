@@ -10,7 +10,6 @@ from oemof.eesyplan.datapackage.results import import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 import pandas as pd
 from oemof.eesyplan.components.buses.carrier import CarrierBus
-from oemof.eesyplan.postprocessing import graphs, KPIs
 
 from oemof.solph import Bus
 
@@ -34,6 +33,7 @@ from dashboard.models import (
 )
 from projects.constants import DONE, PENDING, ERROR
 import logging
+from oemof.eesyplan.postprocessing import KPIs, graphs
 
 from projects.models import Timeseries
 from projects.helpers import validate_dp_results
@@ -178,8 +178,11 @@ def parse_ezp_results(simulation, response_results):
 
                 imported_results = import_results(res_path, es)
 
-                # Todo problem in variable costs see eesyplan
-                # KPIs.calculate_all_kpis(imported_results, es)
+                # TODO: does it make sense to be calling this on the results page? at this point we should already have the results in the data base and dont need to parse them again
+                # TODO: problem in variable costs see eesyplan
+                KPIs.calculate_all_kpis(imported_results, es)
+                KPIs.project_cost_table(imported_results, es)
+                KPIs.yearly_project_costs(imported_results, es)
 
                 # --- 2. the existing checks ----------------------------------------------
                 fig1, _ = graphs.sankey_2(imported_results, es)
@@ -204,6 +207,17 @@ def parse_ezp_results(simulation, response_results):
                 }
                 # TODO here the content of the dashboard/graphs/ of the dashboard datapackage, if coming from the EZP server, should be dumped
                 simulation.graphs = json.dumps(figs_dict)
+
+                # TODO: it might make more sense for these to already be json and not have to change to json here?
+                # Convert dfs to json before saving to database
+                tables_dict = {}
+                for key, res in imported_results["eesyplan"].items():
+                    if isinstance(res, pd.DataFrame):
+                        tables_dict[key] = res.to_json()
+                    else:
+                        tables_dict[key] = res
+
+                simulation.tables = json.dumps(tables_dict)
 
                 ezp_results = imported_results
 
