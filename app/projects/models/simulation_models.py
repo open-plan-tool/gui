@@ -81,6 +81,11 @@ class Simulation(AbstractSimulation):
         fig_dict["id"] = fig_label
         return fig_dict
 
+    def get_table(self, label):
+        tables_dict = json.loads(self.tables)
+        table_dict = json.loads(tables_dict.get(label))
+        return table_dict
+
 
 class ParameterChangeTracker(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False)
