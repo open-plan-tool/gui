@@ -89,22 +89,23 @@ TABLE_PARAM_MAPPING = {
 KPI_PARAMETERS = {}
 KPI_PARAMETERS_ASSETS = {}
 
-MVS_KPIS_LIST_PATH = RESOURCES_DIR / "MVS_kpis_list.csv"
+EZP_KPIS_LIST_PATH = RESOURCES_DIR / "eesyplan_kpis_list.csv"
 
-if MVS_KPIS_LIST_PATH.exists():
-    with open(MVS_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
+if EZP_KPIS_LIST_PATH.exists():
+    with open(EZP_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+        # TODO: we don't have this case yet for eesyplan but we might in the future
         CARRIER_PLACEHOLDER = ":carrier:"
         for i, row in enumerate(csvreader):
             if i == 0:
                 hdr = row
                 label_idx = hdr.index("label")
                 verbose_idx = hdr.index("verbose")
-                unit_idx = hdr.index(":Unit:")
-                cat_idx = hdr.index("category")
-                subcat_idx = hdr.index("subcategory")
+                unit_idx = hdr.index("unit")
+                scope_idx = hdr.index("scope")
             else:
                 label = row[label_idx]
+                scope = row[scope_idx]
                 if CARRIER_PLACEHOLDER in label:
                     for carrier in SECTORS:
                         new_label = label.replace(CARRIER_PLACEHOLDER, carrier)
@@ -116,16 +117,15 @@ if MVS_KPIS_LIST_PATH.exists():
                     KPIS[label] = {k: v for k, v in zip(raw_hdr, row)}
 
                 # KPI_PARAMETERS / KPI_PARAMETERS_ASSETS: normalized columns, "files" category excluded
-                if category != "files":
-                    KPI_PARAMETERS[label] = {
+                KPI_PARAMETERS[label] = {
+                    k: _(v) if k in ("verbose", "definition") else v
+                    for k, v in zip(norm_hdr, row)
+                }
+                if "asset" in scope:
+                    KPI_PARAMETERS_ASSETS[label] = {
                         k: _(v) if k in ("verbose", "definition") else v
                         for k, v in zip(norm_hdr, row)
                     }
-                    if "asset" in scope:
-                        KPI_PARAMETERS_ASSETS[label] = {
-                            k: _(v) if k in ("verbose", "definition") else v
-                            for k, v in zip(norm_hdr, row)
-                        }
 
 
 #### FUNCTIONS ####
