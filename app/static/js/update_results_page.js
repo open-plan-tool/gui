@@ -227,8 +227,8 @@ function scenario_visualize_sankey(scen_id, ts=null){
  $.ajax({
             url: urlVisualizeSankey + urlParams,
             type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
+            success: async (eesyplan_fig) => {
+                await Plotly.newPlot("sankey", eesyplan_fig.data, eesyplan_fig.layout);
             },
         });
 }

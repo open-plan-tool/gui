@@ -1,13 +1,10 @@
-import datetime
-import json
-import logging
-import traceback
-from io import BytesIO
-
-import numpy as np
-import xlsxwriter
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import tempfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 from django.core.exceptions import PermissionDenied
 from django.db.models import Case, Count, F, Q, Value, When
 from django.db.models.functions import Concat
@@ -16,14 +13,11 @@ from django.http.response import Http404, HttpResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404, render
 from django.template.loader import get_template
 from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
-from projects.helpers import parameters_helper
 from projects.models import (
     Bus,
     Project,
@@ -32,15 +26,13 @@ from projects.models import (
     Simulation,
     get_project_sensitivity_analysis,
 )
-from projects.scenario_topology_helpers import load_scenario_topology_from_db
 from projects.services import (
     get_selected_scenarios_in_cache,
 )
 
-from dashboard.forms import (
-    ReportItemForm,
-    graph_parameters_form_factory,
-)
+from oemof.datapackage import datapackage
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+
 from dashboard.helpers import *
 from dashboard.models import (
     KPI_COSTS_TOOLTIPS,
@@ -58,6 +50,24 @@ from dashboard.models import (
     get_project_reportitems,
     get_project_sensitivity_analysis_graphs,
 )
+
+from projects.scenario_topology_helpers import load_scenario_topology_from_db
+from dashboard.forms import (
+    ReportItemForm,
+    TimeseriesGraphForm,
+    graph_parameters_form_factory,
+)
+from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
+from io import BytesIO
+import xlsxwriter
+import json
+import datetime
+import logging
+import traceback
+from projects.helpers import parameters_helper, add_timeseries_to_database_datapackage
+
+import oemof.eesyplan.postprocessing.graphs as eesyplan_graphs
 
 logger = logging.getLogger(__name__)
 
@@ -1132,22 +1142,35 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 @user_has_read_rights
 def scenario_visualize_sankey(request, scen_id, ts=None):
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    if (scenario.project.user != request.user) and (
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
+    ):
+        raise PermissionDenied
 
-    if ts is not None:
-        ts = int(ts)
-    results_json = report_item_render_to_json(
-        report_item_id="sankey",
-        data=REPORT_GRAPHS[GRAPH_SANKEY](
-            simulation=scenario.simulation,
-            energy_vector=scenario.energy_vectors,
-            timestep=ts,
-        ),
-        title="Sankey",
-        report_item_type=GRAPH_SANKEY,
-    )
+    # TODO this sankey implementation does not allow for single timesteps
+    # if ts is not None:
+    #     ts = int(ts)
+    rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
 
+    # TODO these flows do not generate the correct sankey result yet
+    with tempfile.TemporaryDirectory(prefix="dp_") as td:
+        temp_path = Path(td)
+        dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
+        es = create_energy_system_from_dp(dp_path)
+
+        qs = FancyResults.objects.filter(simulation=scenario.simulation)
+
+        if qs.exists():
+            flows = {
+                (asset, bus): json.loads(flow_data)
+                for asset, bus, flow_data in qs.values_list("asset", "bus", "flow_data")
+            }
+            flows_df = pd.DataFrame(flows)
+            flows_df.index = scenario.get_timestamps()[: len(flows_df)]
+        fig, links_df = eesyplan_graphs.sankey(flows=flows_df, es=es)
     return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
+        fig.to_dict(), status=200, content_type="application/json", safe=False
     )
 
 
