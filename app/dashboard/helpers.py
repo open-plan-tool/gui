@@ -92,7 +92,7 @@ KPI_PARAMETERS_ASSETS = {}
 EZP_KPIS_LIST_PATH = RESOURCES_DIR / "eesyplan_kpis_list.csv"
 
 if EZP_KPIS_LIST_PATH.exists():
-    with open(EZP_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
+    with open(EZP_KPIS_LIST_PATH, encoding="utf-8-sig") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         # TODO: we don't have this case yet for eesyplan but we might in the future
         CARRIER_PLACEHOLDER = ":carrier:"
@@ -111,20 +111,20 @@ if EZP_KPIS_LIST_PATH.exists():
                         new_label = label.replace(CARRIER_PLACEHOLDER, carrier)
                         KPIS[new_label] = {
                             k: v.replace(CARRIER_PLACEHOLDER, carrier)
-                            for k, v in zip(raw_hdr, row)
+                            for k, v in zip(hdr, row)
                         }
                 else:
-                    KPIS[label] = {k: v for k, v in zip(raw_hdr, row)}
+                    KPIS[label] = {k: v for k, v in zip(hdr, row)}
 
                 # KPI_PARAMETERS / KPI_PARAMETERS_ASSETS: normalized columns, "files" category excluded
                 KPI_PARAMETERS[label] = {
                     k: _(v) if k in ("verbose", "definition") else v
-                    for k, v in zip(norm_hdr, row)
+                    for k, v in zip(hdr, row)
                 }
                 if "asset" in scope:
                     KPI_PARAMETERS_ASSETS[label] = {
                         k: _(v) if k in ("verbose", "definition") else v
-                        for k, v in zip(norm_hdr, row)
+                        for k, v in zip(hdr, row)
                     }
 
 
@@ -137,7 +137,7 @@ def prepare_dashboard_table(table_id):
         metadata = {
             "name": _(KPIS[kpi_param]["verbose"]),
             "id": kpi_param,
-            "unit": KPIS[kpi_param][":Unit:"],
+            "unit": KPIS[kpi_param]["unit"],
         }
         return metadata
 
