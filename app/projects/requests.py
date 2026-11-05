@@ -3,6 +3,14 @@ import logging
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from oemof.eesyplan.datapackage.results import import_results
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+import pandas as pd
+from oemof.eesyplan.components.buses.carrier import CarrierBus
+import datapackage as dp
+from oemof.eesyplan.postprocessing import graphs, KPIs
+
+from oemof.solph import Bus
 
 import pandas as pd
 
@@ -157,6 +165,9 @@ def parse_ezp_results(simulation, response_results):
     res = data["raw_results"]
 
     try:
+        # TODO write here the graphs and saving the graphs to the DB
+        # I need a fonction which can add a dashboard folder to the jsonified dp
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             # TODO use temp dir then
@@ -176,12 +187,42 @@ def parse_ezp_results(simulation, response_results):
                 dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
                 es = create_energy_system_from_dp(dp_path)
 
-                ezp_results = import_results(res_path, es)
+                imported_results = import_results(res_path, es)
+
+                # Todo problem in variable costs see eesyplan
+                # KPIs.calculate_all_kpis(imported_results, es)
+
+                # --- 2. the existing checks ----------------------------------------------
+                fig1, _ = graphs.sankey_2(imported_results, es)
+
+                fig2 = graphs.plot_timeseries(imported_results, es)
+
+                fig3 = graphs.plot_energy_mix(imported_results, es)
+
+                fig4 = graphs.plot_renewable_vs_nonrenewable(imported_results, es)
+
+                fig5 = graphs.capacities(imported_results, es)
+
+                fig6 = graphs.plot_annual_costs(imported_results, es)
+
+                figs_dict = {
+                    "renewables": json.loads(fig4.to_json()),
+                    "costs": json.loads(fig6.to_json()),
+                    "sankey2": json.loads(fig1.to_json()),
+                    "timeseries": json.loads(fig2.to_json()),
+                    "energy_mix": json.loads(fig3.to_json()),
+                    "capacities": json.loads(fig5.to_json()),
+                }
+                # TODO here the content of the dashboard/graphs/ of the dashboard datapackage, if coming from the EZP server, should be dumped
+                simulation.graphs = json.dumps(figs_dict)
+
+                ezp_results = imported_results
+
                 es_dp = dp.Package(str(dp_path / "datapackage.json"))
 
                 qs = FancyResults.objects.filter(simulation=simulation)
                 if qs.exists():
-                    raise ValueError("Already existing FancyResults")
+                    logging.info("Already existing FancyResults not reprocessing")
                 else:
                     if "invest" in ezp_results:
                         invest = ezp_results["invest"]
@@ -239,49 +280,6 @@ def parse_ezp_results(simulation, response_results):
 
     except Exception as err:
         logger.error(f"An error occurred while parsing the simulation results: {err}")
-
-    # TODO simply need to write the kpi_scalar dataframe from ezp_results here
-    # Write Scalar KPIs to db
-
-    qs = KPIScalarResults.objects.filter(simulation=simulation)
-    if qs.exists():
-        kpi_scalar = qs.first()
-        kpi_scalar.scalar_values = json.dumps({})  # json.dumps(data["kpi"]["scalars"])
-        kpi_scalar.save()
-    else:
-        KPIScalarResults.objects.create(
-            scalar_values=json.dumps(json.dumps({})),
-            simulation=simulation,
-            # scalar_values=json.dumps(data["kpi"]["scalars"]), simulation=simulation
-        )
-    # TODO simply need to write the kpi_cost_matrix dataframe from ezp_results here
-    # Write Cost Matrix KPIs to db
-    qs = KPICostsMatrixResults.objects.filter(simulation=simulation)
-    if qs.exists():
-        kpi_costs = qs.first()
-        kpi_costs.cost_values = json.dumps({})  # json.dumps(data["kpi"]["cost_matrix"])
-        kpi_costs.save()
-    else:
-        KPICostsMatrixResults.objects.create(
-            cost_values=json.dumps({}),
-            simulation=simulation,
-            # cost_values=json.dumps(data["kpi"]["cost_matrix"]), simulation=simulation
-        )
-
-    # TODO not very important, only for comparison amongst several scenarii
-    # # Write Assets to db
-    # data_subdict = {
-    #     category: v for category, v in data.items() if category in asset_key_list
-    # }
-    # qs = AssetsResults.objects.filter(simulation=simulation)
-    # if qs.exists():
-    #     asset_results = qs.first()
-    #     asset_results.asset_list = json.dumps(data_subdict)
-    #     asset_results.save()
-    # else:
-    #     AssetsResults.objects.create(
-    #         assets_list=json.dumps(data_subdict), simulation=simulation
-    #     )
 
     simulation.results = "processed"
     simulation.save()
