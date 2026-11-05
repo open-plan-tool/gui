@@ -1,11 +1,13 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-import tempfile
-from pathlib import Path
-
+import datetime
+import json
+import logging
+import traceback
+from io import BytesIO
 
 import numpy as np
-import pandas as pd
+import xlsxwriter
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Case, Count, F, Q, Value, When
 from django.db.models.functions import Concat
@@ -14,11 +16,14 @@ from django.http.response import Http404, HttpResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404, render
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
+from projects.helpers import parameters_helper
 from projects.models import (
     Bus,
     Project,
@@ -27,13 +32,15 @@ from projects.models import (
     Simulation,
     get_project_sensitivity_analysis,
 )
+from projects.scenario_topology_helpers import load_scenario_topology_from_db
 from projects.services import (
     get_selected_scenarios_in_cache,
 )
 
-from oemof.datapackage import datapackage
-from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
-
+from dashboard.forms import (
+    ReportItemForm,
+    graph_parameters_form_factory,
+)
 from dashboard.helpers import *
 from dashboard.models import (
     KPI_COSTS_TOOLTIPS,
@@ -52,23 +59,6 @@ from dashboard.models import (
     get_project_sensitivity_analysis_graphs,
 )
 
-from projects.scenario_topology_helpers import load_scenario_topology_from_db
-from dashboard.forms import (
-    ReportItemForm,
-    TimeseriesGraphForm,
-    graph_parameters_form_factory,
-)
-from django.utils.translation import gettext_lazy as _
-from django.utils.safestring import mark_safe
-from io import BytesIO
-import xlsxwriter
-import json
-import datetime
-import logging
-import traceback
-from projects.helpers import parameters_helper
-
-import oemof.eesyplan.postprocessing.graphs as eesyplan_graphs
 
 logger = logging.getLogger(__name__)
 
