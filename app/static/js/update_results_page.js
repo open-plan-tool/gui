@@ -162,13 +162,12 @@ function addWideTable(table_data, table_id){
         "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
 }*/
 
-function request_system_costs_table(scen_id=""){
+function request_results_table(scen_id="", table_id=""){
  $.ajax({
-            url: urlRequestSystemCosts + scen_id,
+            url: urlRequestResultsTable + scen_id + "/" + table_id,
             type: "GET",
-            data: {table_id: "system_costs"},
             success: async (table_data) => {
-                await addWideTable(table_data, table_id="system_costs");
+                await addWideTable(table_data, table_id=table_id);
             },
         });
     }
