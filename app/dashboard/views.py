@@ -5,6 +5,7 @@ import traceback
 from io import BytesIO
 
 import numpy as np
+import pandas as pd
 import xlsxwriter
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -43,8 +44,6 @@ from dashboard.forms import (
 )
 from dashboard.helpers import *
 from dashboard.models import (
-    KPI_COSTS_TOOLTIPS,
-    KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
     KPI_SCALAR_UNITS,
     REPORT_GRAPHS,
@@ -54,7 +53,6 @@ from dashboard.models import (
     KPIScalarResults,
     ReportItem,
     SensitivityAnalysisGraph,
-    get_costs,
     get_project_reportitems,
     get_project_sensitivity_analysis_graphs,
 )
@@ -732,23 +730,23 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
         return JsonResponse(
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
-    scen_costs = get_costs(sim)
+    scen_costs = sim.get_table("project_cost_table")
+    scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
 
     table = {}
     # TODO fix this with the actual descriptions etc
-    for idx, row in scen_costs.iterrows():
+    for idx, row in pd.DataFrame(scen_costs_df).iterrows():
         table[str(idx)] = {
             "name": str(idx),
             "description": "",
             "unit": "",
             "scen_values": [f"{v:,.1f}" for v in row],
         }
-
     answer = JsonResponse(
         {
             "data": table,
-            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs.columns],
-            "title": _("Annualized costs breakdown"),
+            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs_df.columns],
+            "title": _("Project cost breakdown"),
         },
         status=200,
         content_type="application/json",
