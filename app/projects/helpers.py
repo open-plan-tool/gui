@@ -176,7 +176,7 @@ class JSD3Lib:
 @html_safe
 class JSPlotlyLib:
     def __str__(self):
-        return '<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.20.0/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>'
+        return '<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.3.1/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>'
 
 
 class DualInputWidget(forms.MultiWidget):
