@@ -4,18 +4,16 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-import datapackage as dp
+import pandas as pd
+
 import httpx as requests
 import numpy as np
-import pandas as pd
 from dashboard.models import (
     AssetsResults,
     FancyResults,
     KPICostsMatrixResults,
     KPIScalarResults,
 )
-
-from projects.helpers import add_timeseries_to_database_datapackage
 
 from epa.settings import (
     EZP_GET_URL,
@@ -34,8 +32,6 @@ from oemof.eesyplan.datapackage.results import import_results
 from oemof.solph import Bus
 
 from projects.constants import DONE, ERROR, PENDING
-
-from projects.models import Timeseries
 
 logger = logging.getLogger(__name__)
 
@@ -170,7 +166,7 @@ def parse_ezp_results(simulation, response_results):
             )
 
             scenario = simulation.scenario
-            rebuilt_dp = add_timeseries_to_database_datapackage(scenario)
+            rebuilt_dp = scenario.rebuild_datapackage()
 
             with tempfile.TemporaryDirectory(prefix="dp_") as td:
                 temp_path = Path(td)
