@@ -717,7 +717,7 @@ def request_kpi_table(request, proj_id=None):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-def request_system_costs_table(request, proj_id=None, scen_id=None):
+def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
@@ -729,7 +729,7 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
         return JsonResponse(
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
-    scen_costs = sim.get_table("project_cost_table")
+    scen_costs = sim.get_table(table_id)
     scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
 
     table = {}
@@ -745,7 +745,7 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
         {
             "data": table,
             "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs_df.columns],
-            "title": _("Project cost breakdown"),
+            "title": _(table_id.title().replace("_", " ")),
         },
         status=200,
         content_type="application/json",
