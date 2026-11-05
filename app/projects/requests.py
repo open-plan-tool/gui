@@ -4,19 +4,17 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 import datapackage as dp
-
-import pandas as pd
-
 import httpx as requests
 import numpy as np
+import pandas as pd
 from dashboard.models import (
     AssetsResults,
     FancyResults,
     KPICostsMatrixResults,
     KPIScalarResults,
 )
-import logging
 
+# from requests.exceptions import HTTPError
 from epa.settings import (
     EZP_GET_URL,
     EZP_POST_URL,
@@ -25,18 +23,15 @@ from epa.settings import (
     MVS_SA_GET_URL,
     MVS_SA_POST_URL,
     PROXY_CONFIG,
-    ROOT_DIR,
 )
 from oemof.datapackage import datapackage
 from oemof.eesyplan.components.buses.carrier import CarrierBus
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 from oemof.eesyplan.datapackage.results import import_results
-from oemof.eesyplan.postprocessing import graphs, KPIs
+from oemof.eesyplan.postprocessing import KPIs, graphs
 from oemof.solph import Bus
 
 from projects.constants import DONE, ERROR, PENDING
-from projects.models import Timeseries
-from projects.helpers import validate_dp_results
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +179,6 @@ def parse_ezp_results(simulation, response_results):
 
                 imported_results = import_results(res_path, es)
 
-                # TODO: does it make sense to be calling this on the results page? at this point we should already have the results in the data base and dont need to parse them again
                 # TODO: problem in variable costs see eesyplan
                 KPIs.calculate_all_kpis(imported_results, es)
                 KPIs.project_cost_table(imported_results, es)
@@ -276,7 +270,7 @@ def parse_ezp_results(simulation, response_results):
                                 es_dp, component
                             ),  # get it from datapackage
                             # TODO one need to allow the types in MVS_TYPE
-                            "oemof_type": comp_type.split(".")[
+                            "oemof_type": comp_type.rsplit(".", maxsplit=1)[
                                 -1
                             ],  # get it from mapping
                             "flow_data": flow_data.tolist(),
