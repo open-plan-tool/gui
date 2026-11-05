@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 import tempfile
 from pathlib import Path
 
+
 import numpy as np
 import pandas as pd
 from django.core.exceptions import PermissionDenied
@@ -1169,26 +1170,10 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
         # TODO this sankey implementation does not allow for single timesteps
         # if ts is not None:
         #     ts = int(ts)
-        rebuilt_dp = scenario.rebuild_datapackage()
+        results = scenario.simulation.eesyplan_results()
 
-        # TODO these flows do not generate the correct sankey result yet
-        with tempfile.TemporaryDirectory(prefix="dp_") as td:
-            temp_path = Path(td)
-            dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
-            es = create_energy_system_from_dp(dp_path)
+        fig, links_df = eesyplan_graphs.sankey(results["flow"], title="Test Sankey")
 
-            qs = FancyResults.objects.filter(simulation=scenario.simulation)
-
-            if qs.exists():
-                flows = {
-                    (asset, bus): json.loads(flow_data)
-                    for asset, bus, flow_data in qs.values_list(
-                        "asset", "bus", "flow_data"
-                    )
-                }
-                flows_df = pd.DataFrame(flows)
-                flows_df.index = scenario.get_timestamps()[: len(flows_df)]
-            fig, links_df = eesyplan_graphs.sankey(flows=flows_df, es=es)
         return JsonResponse(
             fig.to_dict(), status=200, content_type="application/json", safe=False
         )
