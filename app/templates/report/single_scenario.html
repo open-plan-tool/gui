@@ -139,18 +139,16 @@ parameters specific to this graph type only, other parameters are available in t
 		<div class="row">
 			<div class="col" id="report_items_technical" style="display:flex;flex-direction:column-reverse;">
 				{% include "report/graph_template.html" with id="sankey" title="Sankey diagram" %}
-				<select onchange="javascript:scenario_visualize_sankey(scen_id={{scen_id }},ts=this.value)">
+				<!--select onchange="javascript:scenario_visualize_sankey(scen_id={{scen_id }},ts=this.value)">
 						<option value="">Aggregated</option>
 					{% for ts in timestamps %}
 						<option value="{{ forloop.counter0 }}">{{ ts }}</option>
 					{% endfor %}
-				</select>
+				</select-->
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
-				{% include "report/graph_template.html" with id="stacked_timeseries" title="Stacked timeseries by sector" %}
 				{% include "report/graph_template.html" with id="timeseries" title="Timeseries" %}
 				{% include "report/graph_template.html" with id="renewables" title="Renewable vs non-renewable" %}
 				{% include "report/graph_template.html" with id="energy_mix" title="Accumulated energy supply of the system" %}
-				{% include "report/graph_template.html" with id="sankey2" title="Easyplan Sankey diagramm" %}
 			</div>
 		</div>
 		<div class="header-results" id="financial">
