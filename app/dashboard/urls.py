@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+
 from .views import *
 
 urlpatterns = [
@@ -52,11 +53,6 @@ urlpatterns = [
         "scenario/results/available/<int:scen_id>",
         scenario_available_results,
         name="scenario_available_results",
-    ),
-    path(
-        "scenario/results/request_economic_data/<int:scen_id>",
-        scenario_economic_results,
-        name="scenario_economic_results",
     ),
     re_path(
         r"^asset/view_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
