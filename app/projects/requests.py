@@ -32,6 +32,8 @@ from oemof.eesyplan.datapackage.results import import_results
 from oemof.solph import Bus
 
 from projects.constants import DONE, ERROR, PENDING
+from projects.models import Timeseries
+from projects.helpers import validate_dp_results
 
 logger = logging.getLogger(__name__)
 
@@ -87,9 +89,9 @@ def fetch_ezp_simulation_results(simulation):
                 if simulation.status == ERROR
                 else None
             )
-            simulation.results = (
-                json.dumps(response["results"]) if simulation.status == DONE else None
-            )
+            if simulation.status == DONE:
+                simulation.results = json.dumps(response["results"])
+                simulation.dp_results = json.dumps(response["results"]["raw_results"])
 
             # simulation.mvs_version = response["mvs_version"]
             logger.info(f"The simulation {simulation.id} is finished")
@@ -113,6 +115,7 @@ def fetch_ezp_simulation_results(simulation):
         )
         # TODO also save the dp without the timeseries within an attribute of the simulation object
 
+        # validate_dp_results(simulation.dp_results)
         simulation.save()
 
     return simulation.status != PENDING
@@ -213,9 +216,9 @@ def parse_ezp_results(simulation, response_results):
 
                         kwargs = {
                             "bus": bus.label,
-                            "energy_vector": bus.carrier
-                            if hasattr(bus, "carrier")
-                            else "None",
+                            "energy_vector": (
+                                bus.carrier if hasattr(bus, "carrier") else "None"
+                            ),
                             "direction": direction,
                             "asset": component.label,
                             # TODO this is now not working because of tuple labels of subcomponents
@@ -223,7 +226,7 @@ def parse_ezp_results(simulation, response_results):
                                 es_dp, component
                             ),  # get it from datapackage
                             # TODO one need to allow the types in MVS_TYPE
-                            "oemof_type": comp_type.rsplit(".", maxsplit=1)[
+                            "oemof_type": comp_type.split(".")[
                                 -1
                             ],  # get it from mapping
                             "flow_data": flow_data.tolist(),
@@ -236,7 +239,6 @@ def parse_ezp_results(simulation, response_results):
 
     except Exception as err:
         logger.error(f"An error occurred while parsing the simulation results: {err}")
-    # asset_key_list = []
 
     # TODO simply need to write the kpi_scalar dataframe from ezp_results here
     # Write Scalar KPIs to db
