@@ -198,7 +198,7 @@ def parse_ezp_results(simulation, response_results):
                 figs_dict = {
                     "renewables": json.loads(fig4.to_json()),
                     "costs": json.loads(fig6.to_json()),
-                    "sankey2": json.loads(fig1.to_json()),
+                    "sankey": json.loads(fig1.to_json()),
                     "timeseries": json.loads(fig2.to_json()),
                     "energy_mix": json.loads(fig3.to_json()),
                     "capacities": json.loads(fig5.to_json()),
