@@ -1,44 +1,40 @@
-from projects.models.base_models import AbstractSimulation, Scenario, Asset
-
-
 import json
-import jsonschema
-import numpy as np
 import logging
 import tempfile
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+import jsonschema
+import numpy as np
 
-from django.utils.translation import gettext_lazy as _
+from projects.models.base_models import AbstractSimulation, Asset, Scenario
+
+logger = logging.getLogger(__name__)
 from datetime import datetime
 
+from dashboard.helpers import nested_dict_crawler
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from oemof import eesyplan
 from oemof.datapackage import datapackage
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
-import oemof.eesyplan as eesyplan
 
 from projects.constants import (
-    USER_RATING,
     DONE,
-    PENDING,
     ERROR,
     PARAM_CATEGORY,
     PARAM_TYPE,
+    USER_RATING,
 )
 from projects.helpers import (
-    sensitivity_analysis_payload,
     SA_OUPUT_NAMES_SCHEMA,
-    sa_output_values_schema_generator,
     SA_RESPONSE_SCHEMA,
     format_scenario_for_mvs,
     parameters_helper,
-    DP_RESULTS_SCHEMA,
+    sa_output_values_schema_generator,
+    sensitivity_analysis_payload,
     validate_dp_results,
 )
-
-from dashboard.helpers import nested_dict_crawler
 
 
 class Simulation(AbstractSimulation):
