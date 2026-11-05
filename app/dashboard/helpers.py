@@ -40,21 +40,9 @@ MANAGEMENT_CAT_PARAMS = {
         "levelized_costs_of_electricity_equivalent",
     ]
 }
-# TODO double check parameters and add not implemented ones to post-processing / KPIs list
-# TODO add "location" as parameter to summary -> only coordinates or processed?
-SUMMARY_CAT_PARAMS = {
-    "General": [
-        "total_demand:carrier:",
-        # "levelized_costs_of_electricity_equivalent:carrier:", # TODO enable when it returns correct results
-        "levelized_costs_of_electricity_equivalent",
-        "degree_of_autonomy",
-        "renewable_factor",
-        "onsite_energy_fraction",
-        "project_lifetime",
-        "costs_investment_over_lifetime",
-        "objective_function_result",
-    ]
-}
+
+# TODO: add "location" as parameter to summary -> only coordinates or processed?
+SUMMARY_CAT_PARAMS = {"General": ["total_cost", "lcoe", "renewable_share"]}
 
 # TODO missing -> total variable OPEX, feedin revenue
 ECONOMIC_CAT_PARAMS = {

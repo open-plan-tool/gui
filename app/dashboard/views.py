@@ -649,11 +649,7 @@ def request_kpi_table(request, proj_id=None):
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
         scen_names.append(_(scenario.name))
-        kpi_scalar_results_obj = KPIScalarResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_scalar_results_dict = json.loads(kpi_scalar_results_obj.scalar_values)
-        kpis[scenario_id] = kpi_scalar_results_dict
+        kpis[scenario_id] = json.loads(scenario.simulation.tables)
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
