@@ -1,36 +1,37 @@
-from datetime import datetime
-import httpx as requests
 import json
-import numpy as np
-import datapackage as dp
-from oemof.datapackage import datapackage
+import logging
 import tempfile
+from datetime import datetime
 from pathlib import Path
-from oemof.eesyplan.datapackage.results import import_results
-from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+
+import datapackage as dp
+import httpx as requests
+import numpy as np
 import pandas as pd
-from oemof.eesyplan.components.buses.carrier import CarrierBus
-from oemof.solph import Bus
+from dashboard.models import (
+    AssetsResults,
+    FancyResults,
+    KPICostsMatrixResults,
+    KPIScalarResults,
+)
 
 # from requests.exceptions import HTTPError
 from epa.settings import (
-    PROXY_CONFIG,
-    MVS_POST_URL,
-    MVS_GET_URL,
-    MVS_SA_POST_URL,
-    MVS_SA_GET_URL,
-    EZP_POST_URL,
     EZP_GET_URL,
+    EZP_POST_URL,
+    MVS_GET_URL,
+    MVS_POST_URL,
+    MVS_SA_GET_URL,
+    MVS_SA_POST_URL,
+    PROXY_CONFIG,
 )
-from dashboard.models import (
-    FancyResults,
-    AssetsResults,
-    KPICostsMatrixResults,
-    KPIScalarResults,
-    FlowResults,
-)
-from projects.constants import DONE, PENDING, ERROR
-import logging
+from oemof.datapackage import datapackage
+from oemof.eesyplan.components.buses.carrier import CarrierBus
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+from oemof.eesyplan.datapackage.results import import_results
+from oemof.solph import Bus
+
+from projects.constants import DONE, ERROR, PENDING
 
 logger = logging.getLogger(__name__)
 
@@ -145,84 +146,94 @@ def get_component_type(es_dp, component):
 
 
 def parse_ezp_results(simulation, response_results):
+    if response_results == "processed":
+        return response_results
+
     data = json.loads(response_results)
 
     res = data["raw_results"]
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir = Path(temp_dir)
-        # TODO use temp dir then
-        # destination_path = Path(".").resolve() / "test_processing_res"
-        # es_path = Path(".").resolve() / "test_processing_es"
-        destination_path = temp_dir / "test_processing_res"
-        es_path = temp_dir / "test_processing_es"
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            # TODO use temp dir then
+            # destination_path = Path(".").resolve() / "test_processing_res"
+            # es_path = Path(".").resolve() / "test_processing_es"
+            destination_path = temp_dir / "test_processing_res"
+            es_path = temp_dir / "test_processing_es"
 
-        res_path = datapackage.rebuild_dp_from_json(
-            res, destination_path, overwrite=True
-        )
-        # TODO get the datapackage of the simulation's input (re generating it everytime would be quite long)
-        scenario = simulation.scenario
-        es_dp_path = scenario.to_datapackage(es_path)
-        # TODO allow rebuild from a es with less timesteps (have the timesteps within the project.csv)
-        es = create_energy_system_from_dp(es_dp_path)
+            res_path = datapackage.rebuild_dp_from_json(
+                res, destination_path, overwrite=True
+            )
+            # TODO get the datapackage of the simulation's input (re generating it everytime would be quite long)
+            scenario = simulation.scenario
+            es_dp_path = scenario.to_datapackage(es_path)
+            # TODO allow rebuild from a es with less timesteps (have the timesteps within the project.csv)
+            es = create_energy_system_from_dp(es_dp_path)
 
-        ezp_results = import_results(res_path, es)
+            ezp_results = import_results(res_path, es)
 
-        es_dp = dp.Package(str(es_dp_path / "datapackage.json"))
+            es_dp = dp.Package(str(es_dp_path / "datapackage.json"))
 
-        qs = FancyResults.objects.filter(simulation=simulation)
-        if qs.exists():
-            raise ValueError("Already existing FancyResults")
-        else:
-            if "invest" in ezp_results:
-                invest = ezp_results["invest"]
+            qs = FancyResults.objects.filter(simulation=simulation)
+            if qs.exists():
+                raise ValueError("Already existing FancyResults")
             else:
-                invest = None
+                if "invest" in ezp_results:
+                    invest = ezp_results["invest"]
+                else:
+                    invest = None
 
-            for i, fl in enumerate(ezp_results["flow"]):
-                print(i, fl)
-                if isinstance(fl[0], CarrierBus) or isinstance(fl[0], Bus):
-                    bus = fl[0]
-                    component = fl[1]
-                    direction = "in"
-                elif isinstance(fl[1], CarrierBus) or isinstance(fl[1], Bus):
-                    bus = fl[1]
-                    component = fl[0]
-                    direction = "out"
+                for i, fl in enumerate(ezp_results["flow"]):
+                    print(i, fl)
+                    if isinstance(fl[0], CarrierBus) or isinstance(fl[0], Bus):
+                        bus = fl[0]
+                        component = fl[1]
+                        direction = "in"
+                    elif isinstance(fl[1], CarrierBus) or isinstance(fl[1], Bus):
+                        bus = fl[1]
+                        component = fl[0]
+                        direction = "out"
 
-                print(component, direction, bus)
+                    print(component, direction, bus)
 
-                flow_data = ezp_results["flow"][fl].values
-                total_flow = flow_data.sum()
+                    flow_data = ezp_results["flow"][fl].values
+                    total_flow = flow_data.sum()
 
-                opt_capacity = None
-                if invest is not None:
-                    if fl in invest.columns:
-                        opt_capacity = invest.loc[0, fl]
+                    opt_capacity = None
+                    if invest is not None:
+                        if fl in invest.columns:
+                            opt_capacity = invest.loc[0, fl]
 
-                # print(component.__dict__.keys())
-                print(component.label)
-                comp_type = str(type(component))
-                print(comp_type)
+                    # print(component.__dict__.keys())
+                    print(component.label)
+                    comp_type = str(type(component))
+                    print(comp_type)
 
-                kwargs = {
-                    "bus": bus.label,
-                    "energy_vector": bus.carrier if hasattr(bus, "carrier") else "None",
-                    "direction": direction,
-                    "asset": component.label,
-                    # TODO this is now not working because of tuple labels of subcomponents
-                    "asset_type": get_component_type(
-                        es_dp, component
-                    ),  # get it from datapackage
-                    # TODO one need to allow the types in MVS_TYPE
-                    "oemof_type": comp_type.split(".")[-1],  # get it from mapping
-                    "flow_data": flow_data.tolist(),
-                    "total_flow": total_flow,
-                    "optimized_capacity": opt_capacity,
-                    "simulation": simulation,
-                }
-                fr = FancyResults(**kwargs)
-                fr.save()
+                    kwargs = {
+                        "bus": bus.label,
+                        "energy_vector": bus.carrier
+                        if hasattr(bus, "carrier")
+                        else "None",
+                        "direction": direction,
+                        "asset": component.label,
+                        # TODO this is now not working because of tuple labels of subcomponents
+                        "asset_type": get_component_type(
+                            es_dp, component
+                        ),  # get it from datapackage
+                        # TODO one need to allow the types in MVS_TYPE
+                        "oemof_type": comp_type.rsplit(".", maxsplit=1)[
+                            -1
+                        ],  # get it from mapping
+                        "flow_data": flow_data.tolist(),
+                        "total_flow": total_flow,
+                        "optimized_capacity": opt_capacity,
+                        "simulation": simulation,
+                    }
+                    fr = FancyResults(**kwargs)
+                    fr.save()
+    except Exception as err:
+        logger.error(f"An error occurred while parsing the simulation results: {err}")
     # asset_key_list = []
 
     # TODO simply need to write the kpi_scalar dataframe from ezp_results here
@@ -433,35 +444,34 @@ def parse_mvs_results(simulation, response_results):
     qs = FancyResults.objects.filter(simulation=simulation)
     if qs.exists():
         raise ValueError("Already existing FancyResults")
-    else:
-        # TODO add safety here with json schema
-        # Raw results is a panda dataframe which was saved to json using "split"
-        if "raw_results" in data:
-            results = data["raw_results"]
-            js = json.loads(results)
-            js_data = np.array(js["data"])
+    # TODO add safety here with json schema
+    # Raw results is a panda dataframe which was saved to json using "split"
+    elif "raw_results" in data:
+        results = data["raw_results"]
+        js = json.loads(results)
+        js_data = np.array(js["data"])
 
-            hdrs = [
-                "bus",
-                "energy_vector",
-                "direction",
-                "asset",
-                "asset_type",
-                "oemof_type",
-                "flow_data",
-                "optimized_capacity",
-            ]
+        hdrs = [
+            "bus",
+            "energy_vector",
+            "direction",
+            "asset",
+            "asset_type",
+            "oemof_type",
+            "flow_data",
+            "optimized_capacity",
+        ]
 
-            # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
-            # we append those values here
-            for i, col in enumerate(js["columns"]):
-                col.append(js_data[:-1, i].tolist())
-                col.append(js_data[-1, i])
+        # each columns already contains the values of the hdrs except for flow_data and optimized_capacity
+        # we append those values here
+        for i, col in enumerate(js["columns"]):
+            col.append(js_data[:-1, i].tolist())
+            col.append(js_data[-1, i])
 
-                kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
-                kwargs["simulation"] = simulation
-                fr = FancyResults(**kwargs)
-                fr.save()
+            kwargs = {hdr: item for hdr, item in zip(hdrs, col)}
+            kwargs["simulation"] = simulation
+            fr = FancyResults(**kwargs)
+            fr.save()
 
     return response_results
 
