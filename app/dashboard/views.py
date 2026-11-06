@@ -57,7 +57,6 @@ from dashboard.models import (
     get_project_sensitivity_analysis_graphs,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -122,7 +121,7 @@ def result_change_project(request):
 @login_required
 @require_http_methods(["POST", "GET"])
 def scenario_visualize_results(
-    request, proj_id=None, scen_id=None, step_id=5, max_step=MAX_STEP
+    request, proj_id=None, scen_id=None, step_id=4, max_step=MAX_STEP
 ):
     page_information = mark_safe(
         "Please be aware that the tool is still under development and results are subject to change. "
