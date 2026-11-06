@@ -1000,8 +1000,7 @@ function validateNodeConnections(editor) {
         // Bus
         if (name.startsWith("bus")) {
             if (inputCount < 1 || outputCount < 1) {
-                alert(`Bus "${node.data.name}" must have at least 1 input AND 1 output.`);
-                return false;
+                alert(`Bus "${node.data.name}" should have at least 1 input and 1 output. Without an output, the bus will act as a sink. Please make sure that this is your intended behavior.`);
             }
             continue;
         }
