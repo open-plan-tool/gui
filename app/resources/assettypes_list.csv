@@ -7,6 +7,7 @@ demand,energy_consumption,Electricity,sink,"[name,input_timeseries]",kWh,"{'inpu
 gas_demand,energy_consumption,Gas,sink,"[name,input_timeseries]",,"{'input_1':['bus_in_fuel','Gas']}"
 h2_demand,energy_consumption,H2,sink,"[name,input_timeseries]",,"{'input_1':['bus_in_hydrogen','H2']}"
 heat_demand,energy_consumption,Heat,sink,"[name,input_timeseries]",,"{'input_1':['bus_in_heat','Heat']}"
+electrical_transformer,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['bus_in_electricity','Electricity'],'output_1': ['bus_out_electricity','Electricity']}"
 transformer_station_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['bus_in_electricity','Electricity'],'output_1': ['bus_out_electricity','Electricity']}"
 transformer_station_out,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,maximum_capacity,efficiency]",kVA,"{'input_1':['bus_in_electricity','Electricity'],'output_1': ['bus_out_electricity','Electricity']}"
 storage_charge_controller_in,energy_conversion,Electricity,transformer,"[name,age_installed,installed_capacity,capex_spec,opex_spec,variable_costs,lifetime,optimize_cap,efficiency]",kVA,"{'input_1':['bus_in_electricity','Electricity'],'output_1': ['bus_out_electricity','Electricity']}"
