@@ -317,6 +317,7 @@
     .node__duplicate{
       position: absolute;
       top: -12px;
+      z-index: 1;
       width: 24px;
       height: 24px;
       display: grid;
