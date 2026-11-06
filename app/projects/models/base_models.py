@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import logging
@@ -346,6 +347,7 @@ class Scenario(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
 
     description = models.TextField(default="", blank=True)
+    datapackage = models.JSONField(null=True)
 
     def __str__(self):
         return self.name
@@ -418,14 +420,14 @@ class Scenario(models.Model):
         dm["busses"] = busses
         return dm
 
-    def to_datapackage(self, destination_path=None, number=None):
+    def to_datapackage(self, destination_path=None, n_timestamps=None):
         """
 
         Parameters
         ----------
         destination_path: Path
             Path where the datapackage should be saved
-        number: int
+        n_timestamps: int
             Number of timesteps which should be considered for the exported datapackage
         Returns
         -------
@@ -570,7 +572,7 @@ class Scenario(models.Model):
             for bus_resource_rec in bus_resource_records:
                 absolute_losses = bus_resource_rec.get("absolute_losses", None)
                 if isinstance(absolute_losses, Timeseries):
-                    col = absolute_losses.name
+                    col = f"{absolute_losses.name}__{absolute_losses.id}"
                     bus_resource_rec["absolute_losses"] = col
                     profile_resource_records.update({col: absolute_losses.get_values})
                     timeseries_foreign_keys = True
@@ -630,8 +632,8 @@ class Scenario(models.Model):
             # TODO check if there are column duplicates
 
             # restrict the size of the profiles
-            if number is not None:
-                df = df.iloc[:number]
+            if n_timestamps is not None:
+                df = df.iloc[:n_timestamps]
             df.set_index("timeindex").to_csv(out_path, index=True)
 
         datapackage_metadata_dict["resources"].sort(
@@ -645,9 +647,99 @@ class Scenario(models.Model):
 
         return scenario_folder
 
-    def to_jsonified_datapackage(self, destination_path=None, number=None):
-        scenario_folder = self.to_datapackage(destination_path, number)
-        return json.loads(export_dp_to_json(scenario_folder))
+    def to_jsonified_datapackage(
+        self, destination_path=None, n_timestamps=None, store_database_record=False
+    ):
+        scenario_folder = self.to_datapackage(destination_path, n_timestamps)
+        simulation_dp = json.loads(export_dp_to_json(scenario_folder))
+
+        if store_database_record:
+            ts_fks = {
+                f"{k[0]}__{k[1]}": k[1]
+                for k in Timeseries.objects.filter(scenario=self).values_list(
+                    "name", "id"
+                )
+            }
+            # Create a copy to store in the simulation field
+            db_dp = copy.deepcopy(simulation_dp)
+            # Replace timeseries data with Timeseries id references
+            if "profiles" in db_dp.get("data", {}):
+                # Remove foreignkey references that are not actually in the profile data
+                unused_fks = [
+                    key
+                    for key in ts_fks.keys()
+                    if key not in db_dp["data"]["profiles"]["columns_names"]
+                ]
+                for key in unused_fks:
+                    ts_fks.pop(key)
+
+                # Save the references in the profile data instead of all values
+                db_dp["data"]["profiles"] = ts_fks
+
+            # Save to datapackage field
+            self.datapackage = db_dp
+            self.save()
+        return simulation_dp
+
+    def rebuild_datapackage(self):
+        """Rebuild datapackage including timeseries values from scenario datapackage saved to database, which
+        only contains the timeseries foreignkeys instead of all values"""
+        if not hasattr(self, "datapackage"):
+            logging.warning(
+                "Could not rebuild datapackage, as there is no previous datapackage data saved."
+            )
+            return None
+
+        db_dp = self.datapackage
+        ts_fks = db_dp["data"]["profiles"].values()
+        ts_profiles = {
+            f"{ts.name}__{ts.id}": ts.get_values
+            for ts in Timeseries.objects.filter(id__in=ts_fks)
+        }
+
+        # Replace fks with timeseries data
+        ts_df = pd.DataFrame(ts_profiles)
+
+        df = ts_df.astype(str)
+
+        # Check order of timeseries in dp schema (important for rebuilding)
+        profiles_index = next(
+            (
+                ix
+                for (ix, res) in enumerate(db_dp["metadata"]["resources"])
+                if res["name"] == "profiles"
+            ),
+            None,
+        )
+        profiles_schema = db_dp["metadata"]["resources"][profiles_index]["schema"]
+        profile_names_schema = [field["name"] for field in profiles_schema["fields"]]
+
+        if "timeindex" in profile_names_schema:
+            profile_names_schema.remove("timeindex")
+
+        # Reorder dict columns to preserve datapackage order
+        df = df[profile_names_schema]
+
+        N = len(df.index)
+
+        index = [str(idx) for idx in self.get_timestamps()]
+
+        M = len(df.columns)
+
+        if isinstance(df.columns, pd.MultiIndex):
+            cols = [list(c) for c in df.columns]
+        else:
+            cols = list(df.columns)
+
+        values = df.values.reshape((M * N,)).tolist()
+
+        rebuilt_dp = copy.deepcopy(db_dp)
+        rebuilt_dp["data"]["profiles"] = {
+            "index": index,
+            "columns_names": cols,
+            "values": values,
+        }
+        return rebuilt_dp
 
 
 def get_default_timeseries():
@@ -1104,7 +1196,7 @@ class Asset(TopologyNode):
                         pass
 
                 elif isinstance(value, Timeseries):
-                    col = value.name
+                    col = f"{value.name}__{value.id}"
                     profile_resource_rec[col] = value.get_values
                     value = col
 
@@ -1951,6 +2043,14 @@ class HeatingNetwork(Bus):
                 param_name="absolute_losses",
             )
         }
+
+    @property
+    def is_provider(self):
+        return False
+
+    @property
+    def is_storage(self):
+        return False
 
 
 class HeatingPipe(Asset):

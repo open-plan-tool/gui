@@ -1,19 +1,15 @@
-import logging
-import os
 import copy
 import csv
+import logging
 from copy import deepcopy
-
-from django.utils.translation import gettext_lazy as _
-from django.db.models import Value, Q, F, Case, When
-from django.db.models.functions import Concat, Replace
-from django.templatetags.static import static
 from numbers import Number
 
+from django.db.models import Case, F, Q, Value, When
+from django.db.models.functions import Concat
+from django.templatetags.static import static
+from django.utils.translation import gettext_lazy as _
 from epa.settings import RESOURCES_DIR
-from projects.models import Viewer, Project
-import pickle
-from django.conf import settings as django_settings
+from projects.models import Project, Viewer
 
 logger = logging.getLogger(__name__)
 #### CONSTANTS ####
@@ -44,21 +40,9 @@ MANAGEMENT_CAT_PARAMS = {
         "levelized_costs_of_electricity_equivalent",
     ]
 }
-# TODO double check parameters and add not implemented ones to post-processing / KPIs list
-# TODO add "location" as parameter to summary -> only coordinates or processed?
-SUMMARY_CAT_PARAMS = {
-    "General": [
-        "total_demand:carrier:",
-        # "levelized_costs_of_electricity_equivalent:carrier:", # TODO enable when it returns correct results
-        "levelized_costs_of_electricity_equivalent",
-        "degree_of_autonomy",
-        "renewable_factor",
-        "onsite_energy_fraction",
-        "project_lifetime",
-        "costs_investment_over_lifetime",
-        "objective_function_result",
-    ]
-}
+
+# TODO: add "location" as parameter to summary -> only coordinates or processed?
+SUMMARY_CAT_PARAMS = {"General": ["total_cost", "lcoe", "renewable_share"]}
 
 # TODO missing -> total variable OPEX, feedin revenue
 ECONOMIC_CAT_PARAMS = {
@@ -93,68 +77,43 @@ TABLE_PARAM_MAPPING = {
 KPI_PARAMETERS = {}
 KPI_PARAMETERS_ASSETS = {}
 
-MVS_KPIS_LIST_PATH = RESOURCES_DIR / "MVS_kpis_list.csv"
+EZP_KPIS_LIST_PATH = RESOURCES_DIR / "eesyplan_kpis_list.csv"
 
-if MVS_KPIS_LIST_PATH.exists():
-    with open(MVS_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
+if EZP_KPIS_LIST_PATH.exists():
+    with open(EZP_KPIS_LIST_PATH, encoding="utf-8-sig") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+        # TODO: we don't have this case yet for eesyplan but we might in the future
         CARRIER_PLACEHOLDER = ":carrier:"
         for i, row in enumerate(csvreader):
             if i == 0:
                 hdr = row
                 label_idx = hdr.index("label")
                 verbose_idx = hdr.index("verbose")
-                unit_idx = hdr.index(":Unit:")
-                cat_idx = hdr.index("category")
-                subcat_idx = hdr.index("subcategory")
+                unit_idx = hdr.index("unit")
+                scope_idx = hdr.index("scope")
             else:
                 label = row[label_idx]
+                scope = row[scope_idx]
                 if CARRIER_PLACEHOLDER in label:
                     for carrier in SECTORS:
                         new_label = label.replace(CARRIER_PLACEHOLDER, carrier)
-                        verbose = row[verbose_idx].replace(CARRIER_PLACEHOLDER, carrier)
-                        unit = row[unit_idx].replace(CARRIER_PLACEHOLDER, carrier)
                         KPIS[new_label] = {
                             k: v.replace(CARRIER_PLACEHOLDER, carrier)
                             for k, v in zip(hdr, row)
                         }
                 else:
-                    verbose = row[verbose_idx]
-                    unit = row[unit_idx]
                     KPIS[label] = {k: v for k, v in zip(hdr, row)}
-                # if subcat != EMPTY_SUBCAT:
-                #     if cat in TABLES:
-                #         if subcat not in TABLES[cat]:
-                #             TABLES[cat][subcat] = []
-                #         if label not in TABLES[cat][subcat]:
-                #             # the _() make the text translatable if it is mentionned in the django.po file
-                #             TABLES[cat][subcat].append(
-                #                 {"name": _(verbose), "id": label, "unit": _(unit)}
-                #             )
 
-    with open(MVS_KPIS_LIST_PATH, encoding="utf-8") as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-        for i, row in enumerate(csvreader):
-            if i == 0:
-                hdr = [el.replace(" ", "_").replace(":", "").lower() for el in row]
-                label_idx = hdr.index("label")
-                cat_idx = hdr.index("category")
-                scope_idx = hdr.index("scope")
-            else:
-                label = row[label_idx]
-                category = row[cat_idx]
-                scope = row[scope_idx]
-
-                if category != "files":
-                    KPI_PARAMETERS[label] = {
-                        k: _(v) if k == "verbose" or k == "definition" else v
+                # KPI_PARAMETERS / KPI_PARAMETERS_ASSETS: normalized columns, "files" category excluded
+                KPI_PARAMETERS[label] = {
+                    k: _(v) if k in ("verbose", "definition") else v
+                    for k, v in zip(hdr, row)
+                }
+                if "asset" in scope:
+                    KPI_PARAMETERS_ASSETS[label] = {
+                        k: _(v) if k in ("verbose", "definition") else v
                         for k, v in zip(hdr, row)
                     }
-                    if "asset" in scope:
-                        KPI_PARAMETERS_ASSETS[label] = {
-                            k: _(v) if k == "verbose" or k == "definition" else v
-                            for k, v in zip(hdr, row)
-                        }
 
 
 #### FUNCTIONS ####
@@ -166,7 +125,7 @@ def prepare_dashboard_table(table_id):
         metadata = {
             "name": _(KPIS[kpi_param]["verbose"]),
             "id": kpi_param,
-            "unit": KPIS[kpi_param][":Unit:"],
+            "unit": KPIS[kpi_param]["unit"],
         }
         return metadata
 
@@ -340,11 +299,10 @@ def nested_dict_crawler(dct, path=None, path_dct=None):
                     path_dct[path[-1]] = [tuple(path)]
             else:
                 nested_dict_crawler(value, path, path_dct)
+        elif path[-1] in path_dct:
+            path_dct[path[-1]].append(tuple(path))
         else:
-            if path[-1] in path_dct:
-                path_dct[path[-1]].append(tuple(path))
-            else:
-                path_dct[path[-1]] = [tuple(path)]
+            path_dct[path[-1]] = [tuple(path)]
         path.pop()
     return path_dct
 
@@ -453,11 +411,10 @@ class KPIFinder:
             answer = []
             for p_name in param_name:
                 answer.append(self.get_doc_unit(p_name))
+        elif param_name in self.kpi_info_dict:
+            answer = self.kpi_info_dict[param_name][self.unit_hdr]
         else:
-            if param_name in self.kpi_info_dict:
-                answer = self.kpi_info_dict[param_name][self.unit_hdr]
-            else:
-                answer = None
+            answer = None
         return answer
 
     def get_doc_verbose(self, param_name):
@@ -479,11 +436,10 @@ class KPIFinder:
             answer = []
             for p_name in param_name:
                 answer.append(self.get_doc_definition(p_name))
+        elif param_name in self.kpi_info_dict:
+            answer = self.kpi_info_dict[param_name]["definition"]
         else:
-            if param_name in self.kpi_info_dict:
-                answer = self.kpi_info_dict[param_name]["definition"]
-            else:
-                answer = None
+            answer = None
 
         return self.format_help_text(answer)
 

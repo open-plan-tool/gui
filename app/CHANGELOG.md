@@ -1,11 +1,20 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Display eesyplan results table on results page [[#582](https://github.com/open-plan-tool/gui/pull/582)]
+
+### Changed
+- Allow user to save bus without an output [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Replace various converter assets with one electrical transformer [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+
 ### Fixed
 - Fix automatic simulation status fetching [[#580](https://github.com/open-plan-tool/gui/pull/580)]
 - Fix DSO errors on results page [[#583](https://github.com/open-plan-tool/gui/pull/583)]
 - Fix server error on simulation page [[#583](https://github.com/open-plan-tool/gui/pull/583)]
-
+- Fix small layout bug on results step ribbon button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Fix hover area on duplicate button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Label profiles uniquely inside datapackage profiles.csv [[#479](https://github.com/open-plan-tool/gui/pull/479)]
 
 ## [v1.3.1] – 2026-11-02
 

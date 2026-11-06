@@ -1,7 +1,12 @@
-import csv
-import io
 import json
 import logging
+import io
+import csv
+
+import pandas as pd
+
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 
 from dashboard.helpers import KPIFinder
 from django import forms
@@ -171,7 +176,7 @@ class JSD3Lib:
 @html_safe
 class JSPlotlyLib:
     def __str__(self):
-        return '<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.20.0/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>'
+        return '<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.3.1/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>'
 
 
 class DualInputWidget(forms.MultiWidget):
@@ -744,3 +749,132 @@ def parse_input_timeseries(timeseries_file):
                 params={"fname": timeseries_file.name},
             )
     return timeseries_values
+
+
+DP_RESULTS_SCHEMA = {
+    "type": "object",
+    "required": ["metadata", "data"],
+    "additionalProperties": False,
+    "properties": {
+        "metadata": {
+            "type": "object",
+            "required": ["name", "profile", "resources"],
+            "additionalProperties": False,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                },
+                "profile": {
+                    "type": "string",
+                    "minLength": 1,
+                },
+                "resources": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "path",
+                            "kind",
+                            "format",
+                            "dialect",
+                            "encoding",
+                        ],
+                        "additionalProperties": False,
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                            "path": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": ["element", "sequence"],
+                            },
+                            "format": {
+                                "type": "string",
+                                "enum": ["csv"],
+                            },
+                            "dialect": {
+                                "type": "object",
+                                "required": ["header"],
+                                "additionalProperties": False,
+                                "properties": {
+                                    "header": {
+                                        "type": "boolean",
+                                    },
+                                    "headerRows": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                        },
+                                    },
+                                },
+                            },
+                            "encoding": {
+                                "type": "string",
+                                "minLength": 1,
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "data": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "$ref": "#/$defs/result_table",
+            },
+        },
+    },
+    "$defs": {
+        "result_table": {
+            "type": "object",
+            "required": ["index", "columns_names", "values"],
+            "additionalProperties": False,
+            "properties": {
+                "index": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                    },
+                },
+                "columns_names": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                },
+                            },
+                        ],
+                    },
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                    },
+                },
+            },
+        },
+    },
+}
+
+
+def validate_dp_results(value):
+    try:
+        validate(instance=value, schema=DP_RESULTS_SCHEMA)
+    except JSONSchemaValidationError as exc:
+        raise ValidationError(f"Invalid dp_results format: {exc.message}")

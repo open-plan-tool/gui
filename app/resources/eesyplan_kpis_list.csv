@@ -1,0 +1,9 @@
+﻿label,type,verbose,unit,definition,scope
+total_cost,scalar,Total cost,currency,Total cost of the energy system,results
+lcoe,scalar,Levelized cost of energy,currency/kWh,Total cost / total energy into the demands,results
+renewable_share,scalar,Renewable share,Factor,Total renewable share of all energy produced or bought,results
+yearly_project_costs,table,,,,results
+project_cost_table,table,,,,results
+annualized investment cost,table_param,,,annualised investment cost (annuity),results
+fix operational costs,table_param,,,fixed operation & maintenance cost,results
+dispatch costs,table_param,,,sum of the variable costs of all flows of the component over the whole horizon,results

@@ -2919,6 +2919,16 @@ nav.navbar {
       background-size: contain;
       height: 2rem;
       width: 2rem; }
+    .system-design .drawflow .drawflow-node.electrical_transformer .img::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      right: 3px;
+      transform: translateX(-50%);
+      background-image: url("/static/assets/gui/electrical_transformer.svg");
+      background-size: contain;
+      height: 2rem;
+      width: 2rem; }
     .system-design .drawflow .drawflow-node.transformer_station_in .img::before {
       content: '';
       position: absolute;
@@ -3233,6 +3243,7 @@ nav.navbar {
     .system-design .drawflow .drawflow-node .node__duplicate {
       position: absolute;
       top: -12px;
+      z-index: 1;
       width: 24px;
       height: 24px;
       display: grid;
@@ -4735,5 +4746,3 @@ nav.navbar {
       height: 100%;
       background-color: #E3EAEE;
       z-index: 1; }
-
-/*# sourceMappingURL=main.css.map */
