@@ -873,6 +873,14 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                             then=Concat("asset", Value(" " + _("Charge"))),
                         ),
                         When(
+                            Q(asset_type="heat_pump") & Q(direction="out"),
+                            then=Concat("asset", Value(" in ("), "bus", Value(")")),
+                        ),
+                        When(
+                            Q(asset_type="electrolyzer") & Q(direction="in"),
+                            then=Concat("asset", Value(" out ("), "bus", Value(")")),
+                        ),
+                        When(
                             Q(oemof_type="transformer") & Q(direction="out"),
                             then=Concat("asset", Value(" in")),
                         ),
