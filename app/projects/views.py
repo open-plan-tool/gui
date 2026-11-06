@@ -1459,6 +1459,19 @@ def scenario_delete(request, scen_id):
         )
 
 
+@login_required
+@require_http_methods(["POST"])
+@user_is_owner
+def scenario_reset_simulation(request, scen_id):
+    scenario = get_object_or_404(Scenario, id=scen_id)
+    if request.POST:
+        scenario.simulation.delete()
+        messages.success(request, "simulation successfully reset!")
+        return HttpResponseRedirect(
+            reverse("project_search", args=[scenario.project.id])
+        )
+
+
 # endregion Scenario
 
 # start region ParameterChangeTracker
