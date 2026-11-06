@@ -2044,6 +2044,14 @@ class HeatingNetwork(Bus):
             )
         }
 
+    @property
+    def is_provider(self):
+        return False
+
+    @property
+    def is_storage(self):
+        return False
+
 
 class HeatingPipe(Asset):
     absolute_losses = models.FloatField(

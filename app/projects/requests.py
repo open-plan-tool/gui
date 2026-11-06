@@ -7,6 +7,7 @@ import datapackage as dp
 import httpx as requests
 import numpy as np
 import pandas as pd
+from django.core.exceptions import ObjectDoesNotExist
 from dashboard.models import (
     AssetsResults,
     FancyResults,
@@ -32,6 +33,7 @@ from oemof.eesyplan.postprocessing import KPIs, graphs
 from oemof.solph import Bus
 
 from projects.constants import DONE, ERROR, PENDING
+from projects.models import AssetType
 
 logger = logging.getLogger(__name__)
 
@@ -231,17 +233,14 @@ def parse_ezp_results(simulation, response_results):
                         invest = None
 
                     for i, fl in enumerate(ezp_results["flow"]):
-                        print(i, fl)
                         if isinstance(fl[0], CarrierBus) or isinstance(fl[0], Bus):
                             bus = fl[0]
                             component = fl[1]
-                            direction = "in"
+                            direction = "out"
                         elif isinstance(fl[1], CarrierBus) or isinstance(fl[1], Bus):
                             bus = fl[1]
                             component = fl[0]
-                            direction = "out"
-
-                        print(component, direction, bus)
+                            direction = "in"
 
                         flow_data = ezp_results["flow"][fl].values
                         total_flow = flow_data.sum()
@@ -251,10 +250,16 @@ def parse_ezp_results(simulation, response_results):
                             if fl in invest.columns:
                                 opt_capacity = invest.loc[0, fl]
 
-                        # print(component.__dict__.keys())
-                        print(component.label)
-                        comp_type = str(type(component))
-                        print(comp_type)
+                        asset_type_name = get_component_type(es_dp, component)
+                        try:
+                            oemof_type = (
+                                AssetType.objects.filter(asset_type=asset_type_name)
+                                .values_list("mvs_type", flat=True)
+                                .get()
+                            )
+                        except ObjectDoesNotExist:
+                            comp_type = str(type(component))
+                            oemof_type = comp_type.rsplit(".", maxsplit=1)[-1]
 
                         kwargs = {
                             "bus": bus.label,
@@ -267,10 +272,7 @@ def parse_ezp_results(simulation, response_results):
                             "asset_type": get_component_type(
                                 es_dp, component
                             ),  # get it from datapackage
-                            # TODO one need to allow the types in MVS_TYPE
-                            "oemof_type": comp_type.rsplit(".", maxsplit=1)[
-                                -1
-                            ],  # get it from mapping
+                            "oemof_type": oemof_type,
                             "flow_data": flow_data.tolist(),
                             "total_flow": total_flow,
                             "optimized_capacity": opt_capacity,

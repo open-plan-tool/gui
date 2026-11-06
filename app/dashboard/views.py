@@ -803,8 +803,10 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
         if qs.exists():
-            qs_fine = qs.exclude(asset__contains="@").filter(
-                asset__contains=existing_asset.name
+            qs_fine = (
+                qs.exclude(asset__contains="@")
+                .filter(asset__contains=existing_asset.name)
+                .filter(asset_type=existing_asset.asset_type.asset_type)
             )
             negative_direction = "out"
             if existing_asset.is_storage is True and optimized_cap is True:
@@ -816,7 +818,11 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             elif existing_asset.is_provider is True:
                 negative_direction = "in"
             else:
-                qs_fine = qs_fine.filter(asset=existing_asset.name)
+                qs_fine_temp = qs_fine.filter(asset=existing_asset.name)
+                if not qs_fine_temp.exists():
+                    qs_fine = qs_fine.filter(asset__contains=existing_asset.name)
+                else:
+                    qs_fine = qs_fine_temp
 
             traces = []
             total_flows = []
