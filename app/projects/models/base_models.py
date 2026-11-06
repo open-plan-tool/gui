@@ -1192,7 +1192,7 @@ class Asset(TopologyNode):
                         pass
 
                 elif isinstance(value, Timeseries):
-                    col = value.name
+                    col = f"{value.name}__{value.id}"
                     profile_resource_rec[col] = value.get_values
                     value = col
 
