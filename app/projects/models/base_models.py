@@ -572,7 +572,7 @@ class Scenario(models.Model):
             for bus_resource_rec in bus_resource_records:
                 absolute_losses = bus_resource_rec.get("absolute_losses", None)
                 if isinstance(absolute_losses, Timeseries):
-                    col = absolute_losses.name
+                    col = f"{absolute_losses.name}__{absolute_losses.id}"
                     bus_resource_rec["absolute_losses"] = col
                     profile_resource_records.update({col: absolute_losses.get_values})
                     timeseries_foreign_keys = True
@@ -654,9 +654,12 @@ class Scenario(models.Model):
         simulation_dp = json.loads(export_dp_to_json(scenario_folder))
 
         if store_database_record:
-            ts_fks = dict(
-                Timeseries.objects.filter(scenario=self).values_list("name", "id")
-            )
+            ts_fks = {
+                f"{k[0]}__{k[1]}": k[1]
+                for k in Timeseries.objects.filter(scenario=self).values_list(
+                    "name", "id"
+                )
+            }
             # Create a copy to store in the simulation field
             db_dp = copy.deepcopy(simulation_dp)
             # Replace timeseries data with Timeseries id references
@@ -690,7 +693,8 @@ class Scenario(models.Model):
         db_dp = self.datapackage
         ts_fks = db_dp["data"]["profiles"].values()
         ts_profiles = {
-            ts.name: ts.get_values for ts in Timeseries.objects.filter(id__in=ts_fks)
+            f"{ts.name}__{ts.id}": ts.get_values
+            for ts in Timeseries.objects.filter(id__in=ts_fks)
         }
 
         # Replace fks with timeseries data

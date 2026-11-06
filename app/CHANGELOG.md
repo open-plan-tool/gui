@@ -14,6 +14,7 @@
 - Fix server error on simulation page [[#583](https://github.com/open-plan-tool/gui/pull/583)]
 - Fix small layout bug on results step ribbon button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
 - Fix hover area on duplicate button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Label profiles uniquely inside datapackage profiles.csv [[#479](https://github.com/open-plan-tool/gui/pull/479)]
 
 ## [v1.3.1] – 2026-11-02
 
