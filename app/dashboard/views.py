@@ -780,11 +780,12 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             proj_id=scenario.project.id,
             scenario_id=scenario.id,
         )
-        input_timeseries_data = (
-            existing_asset.input_timeseries.values
-            if existing_asset.input_timeseries
-            else ""
-        )
+
+        input_timeseries_data = ""
+
+        if hasattr(existing_asset, "input_timeseries"):
+            if existing_asset.input_timeseries is not None:
+                input_timeseries_data = existing_asset.input_timeseries.values
 
         context.update(
             {
@@ -905,16 +906,21 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 
                 if existing_asset.is_provider is True:
                     # add the possibility to see the cap limit on the feedin on the result graph
-                    feedin_cap = existing_asset.maximum_feedin_capacity
-                    if feedin_cap is not None:
-                        traces.append(
-                            {
-                                "value": [feedin_cap for t in timestamps],
-                                "name": parameters_helper.get_doc_verbose("feedin_cap"),
-                                "unit": parameters_helper.get_doc_unit("feedin_cap"),
-                                "options": {"visible": "legendonly"},
-                            }
-                        )
+                    if hasattr(existing_asset, "maximum_feedin_capacity"):
+                        feedin_cap = existing_asset.maximum_feedin_capacity
+                        if feedin_cap is not None:
+                            traces.append(
+                                {
+                                    "value": [feedin_cap for t in timestamps],
+                                    "name": parameters_helper.get_doc_verbose(
+                                        "feedin_cap"
+                                    ),
+                                    "unit": parameters_helper.get_doc_unit(
+                                        "feedin_cap"
+                                    ),
+                                    "options": {"visible": "legendonly"},
+                                }
+                            )
 
         context.update(
             {
