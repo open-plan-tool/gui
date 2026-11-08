@@ -39,6 +39,7 @@ from projects.helpers import (
     DualNumberField,
     TimeseriesField,
     parameters_helper,
+    parse_input_timeseries,
 )
 from projects.models import *
 
@@ -1202,6 +1203,7 @@ def asset_form_factory(asset_type=None, **kwargs):
 
 
 class UploadTimeseriesForm(OpenPlanModelForm):
+    # used in timeseries upload inside step 2 of system modeling
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["values"] = DualNumberField(default=0, param_name="values")
@@ -1472,3 +1474,76 @@ CUSTOM_TIMESERIES_FORMS = {
     "pv_plant": CreatePVProductionTimeseriesForm,
     "heat_demand": CreateHeatDemandForm,
 }
+
+ASSET_TYPE_TO_CATEGORY = {
+    "demand": "demand",
+    "gas_demand": "demand",
+    "h2_demand": "demand",
+    "heat_demand": "demand",
+    "pv_plant": "supply",
+    "wind_plant": "supply",
+    "biogas_plant": "supply",
+    "geothermal_conversion": "supply",
+    "solar_thermal_plant": "supply",
+}
+
+
+class TimeseriesModelForm(OpenPlanModelForm):
+    # used in Timeseries Dashboard
+    def __init__(self, *args, require_file=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["timeseries_file"] = forms.FileField(required=require_file)
+        self.fields["open_source"].required = False
+
+        for field in self.fields:
+            self.add_help_text_icon(field, RTD_link=True)
+
+    def clean_timeseries_file(self):
+        uploaded_file = self.cleaned_data.get("timeseries_file")
+
+        if uploaded_file:
+            try:
+                parse_input_timeseries(uploaded_file)
+                uploaded_file.seek(0)
+            except (ValueError, TypeError) as e:
+                raise ValidationError(str(e))
+            except Exception as e:
+                raise ValidationError(f"Could not parse uploaded file: {e}")
+
+        return uploaded_file
+
+    def clean(self):
+        cleaned_data = super().clean()
+        asset_type = cleaned_data.get("asset_type")
+        if asset_type:
+            self.instance.category = ASSET_TYPE_TO_CATEGORY.get(asset_type, "other")
+        return cleaned_data
+
+    class Meta:
+        model = Timeseries
+        exclude = [
+            "id",
+            "user",
+            "scenario",
+            "ts_type",
+            "values",
+            "units",
+            "time_step",
+            "category",
+        ]
+        widgets = {
+            "start_date": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local"},
+            ),
+            "end_date": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local"},
+            ),
+            "name": forms.TextInput(
+                attrs={"placeholder": "e.g. household_demand_2024"}
+            ),
+            "description": forms.Textarea(attrs={"rows": 2}),
+            "generation_parameters": forms.Textarea(attrs={"rows": 2}),
+            "open_source": forms.CheckboxInput(),
+        }

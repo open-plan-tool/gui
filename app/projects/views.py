@@ -11,13 +11,13 @@ from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import F, Func, IntegerField, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
 
 # from django.shortcuts import *
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -82,6 +82,9 @@ from .scenario_topology_helpers import (
     load_scenario_topology_from_db,
     update_deleted_objects_from_database,
 )
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, parse_input_timeseries
+from dashboard.helpers import fetch_user_projects
+from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     excuses_design_under_development,
     get_selected_scenarios_in_cache,
@@ -89,6 +92,329 @@ from .services import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_dashboard(request, ts_id=None):
+    timeseries_upload_form = TimeseriesModelForm(require_file=True)
+
+    # POST request (upload new timeseries)
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, require_file=True)
+        if form.is_valid():
+            new_timeseries = form.save(commit=False)
+            new_timeseries.user = request.user
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                uploaded_file.seek(0)
+                new_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            new_timeseries.save()
+
+            context = timeseries_build_context(request, ts_id=new_timeseries.id)
+            context["timeseries_upload_form"] = timeseries_upload_form
+            table_html = render_to_string(
+                "asset/timeseries_table.html", context, request
+            )
+            details_html = render_to_string(
+                "asset/timeseries_detail_panel.html", context, request
+            )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": timeseries_upload_form},
+                        request=request,
+                    ),
+                    "table_html": table_html,
+                    "details_html": details_html,
+                    "summary_html": summary_html,
+                }
+            )
+        else:
+            timeseries_upload_form = form
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
+
+    # GET request (page first render & reload, table refreshs when filtering, detail panel refresh when selecting)
+    context = timeseries_build_context(request)
+    context["timeseries_upload_form"] = timeseries_upload_form
+
+    if ts_id is not None:
+        try:
+            selected_timeseries = context["timeseries_list"].get(
+                pk=ts_id, user=request.user
+            )
+            context["selected_timeseries"] = selected_timeseries
+            context["timeseries_edit_form"] = TimeseriesModelForm(
+                instance=selected_timeseries
+            )
+        except Timeseries.DoesNotExist:
+            pass
+
+    if request.headers.get("HX-Request") == "true":
+        table_html = render_to_string("asset/timeseries_table.html", context, request)
+        details_html = render_to_string(
+            "asset/timeseries_detail_panel.html", context, request
+        )
+        summary_html = render_to_string(
+            "asset/timeseries_summary.html", context, request
+        )
+        return HttpResponse(table_html + details_html + summary_html)
+    return render(request, "asset/timeseries_dashboard.html", context)
+
+
+def timeseries_build_context(request, ts_id=None):
+    timeseries_qs = timeseries_sort_and_filter(request)
+    all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
+        ts_type="scalar"
+    )
+
+    if ts_id is not None:
+        try:
+            selected_timeseries = timeseries_qs.get(pk=ts_id, user=request.user)
+        except Timeseries.DoesNotExist:
+            selected_timeseries = None
+    else:
+        selected_timeseries = timeseries_qs.first()
+
+    existing_lengths = sorted(set(len(ts.values) for ts in all_timeseries_qs))
+    existing_asset_types = (
+        all_timeseries_qs.exclude(asset_type__isnull=True)
+        .values_list("asset_type", flat=True)
+        .order_by()
+        .distinct()
+    )
+    existing_scenarios = (
+        all_timeseries_qs.exclude(scenario__isnull=True)
+        .values_list("scenario_id", "scenario__name")
+        .order_by()
+        .distinct()
+    )
+
+    context = {
+        "timeseries_list": timeseries_qs,
+        "selected_timeseries": selected_timeseries,
+        "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
+        "warning_boxes": {
+            "timeseries_delete": _(
+                "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
+            ),
+        },
+        "existing_lengths": existing_lengths,
+        "existing_asset_types": existing_asset_types,
+        "existing_scenarios": existing_scenarios,
+        "selected_length": request.GET.get("length"),
+        "selected_asset_type": request.GET.get("asset_type"),
+        "selected_scenario": request.GET.get("scenario"),
+    }
+    return context
+
+
+def timeseries_sort_and_filter(request):
+    """
+    Looks for all the timeseries owned by user and with timeseries type = scalar. Then sorts those
+    for name and id. If the request contains filter parameters, uses these to filter the timeseries.
+    Filter parameters can only be accessed from request.GET since POST requests contain confusing form data.
+
+    Function accessable for all the timeseries views so that sorting and filtering always applies in the same way.
+
+    Args:
+        request: Django HttpRequest (needed for Parameters) either GET or POST
+
+    Returns:
+        QuerySet: timeseries queryset thats sorted and filtered
+    """
+    timeseries_qs = Timeseries.objects.filter(
+        Q(user=request.user) & ~Q(ts_type="scalar")
+    ).order_by("name", "id")
+
+    # apply filters if excisting
+    params = request.GET
+
+    selected_length = params.get("length")
+    selected_asset_type = params.get("asset_type")
+    selected_scenario = params.get("scenario")
+
+    if selected_asset_type:
+        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
+    if selected_length:
+        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+    if selected_scenario:
+        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
+
+    sort = params.get("sort")
+    direction = params.get("dir")
+
+    sort_fields = {
+        "name": "name",
+        "asset_type": "asset_type",
+        "scenario": "scenario_id",
+        "points": "points_count",
+    }
+
+    if sort in sort_fields:
+        if sort == "points":
+            timeseries_qs = timeseries_qs.annotate(
+                points_count=Func(
+                    F("values"), function="cardinality", output_field=IntegerField()
+                )
+            )
+        field = F(sort_fields[sort])
+        if direction == "desc":
+            ordering = field.desc(nulls_last=True)
+        else:
+            ordering = field.asc(nulls_first=True)
+        timeseries_qs = timeseries_qs.order_by(ordering, "id")
+
+    return timeseries_qs
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_edit(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "GET":
+        form = TimeseriesModelForm(instance=timeseries)
+        return render(request, "asset/timeseries_edit_form.html", {"form": form})
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
+        if form.is_valid():
+            updated_timeseries = form.save(commit=False)
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                updated_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            updated_timeseries.save()
+
+            context = timeseries_build_context(request, ts_id=ts_id)
+            context["form"] = TimeseriesModelForm(instance=updated_timeseries)
+            table_html = render_to_string(
+                "asset/timeseries_table.html", context, request
+            )
+            details_html = render_to_string(
+                "asset/timeseries_detail_panel.html", context, request
+            )
+            form_html = render_to_string(
+                "asset/timeseries_edit_form.html", context, request
+            )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": form_html,
+                    "table_html": table_html,
+                    "details_html": details_html,
+                    "summary_html": summary_html,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_edit_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_duplicate(request, ts_id):
+    selected_timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if selected_timeseries.user != request.user:
+        raise PermissionDenied
+
+    if not selected_timeseries:
+        messages.error(request, "No timeseries selected.")
+        return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    selected_timeseries.pk = None
+    selected_timeseries.name = f"{selected_timeseries.name} (Copy)"
+    selected_timeseries.save()
+
+    messages.success(request, "Timeseries successfully duplicated!")
+    # load updated timeseries list
+
+    context = timeseries_build_context(ts_id=selected_timeseries.id)
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_delete(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        timeseries.delete()
+        messages.success(request, "Timeseries successfully deleted!")
+
+    # load updated timeseries list
+    timeseries_list = timeseries_sort_and_filter(request)
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_bulk_delete(request):
+    selected = Timeseries.objects.filter(
+        user=request.user, pk__in=request.POST.getlist("ids")
+    )
+    count = selected.count()
+    selected.delete()
+    if count:
+        messages.success(request, f"{count} timeseries successfully deleted!")
+
+    timeseries_list = timeseries_sort_and_filter(request)
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    return HttpResponse(table_html + summary_html + details_html)
 
 
 @require_http_methods(["GET"])
