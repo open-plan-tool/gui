@@ -249,6 +249,9 @@ msgstr "Brennstoffbus"
 msgid "Hydrogen Bus"
 msgstr "Wasserstoffbus"
 
+msgid "Electrical Transformer"
+msgstr "Stromwandler"
+
 #: projects/forms.py:72
 msgid "Click on the icon for more help"
 msgstr "Klicken Sie auf das Symbol für weitere Hilfe"
