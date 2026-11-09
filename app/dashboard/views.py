@@ -661,7 +661,10 @@ def request_kpi_table(request, proj_id=None):
                 missing = False
 
                 for scen_id in selected_scenarios:
-                    val = kpis.get(scen_id, {}).get(param["id"])
+                    kpi_table = kpis.get(scen_id, {}).get(table_id, {})
+                    if isinstance(kpi_table, str):
+                        kpi_table = json.loads(kpi_table)
+                    val = kpi_table.get(param["id"])
                     if val is None:
                         logger.warning(
                             "KPI %s not found for scenario %s", param["id"], scen_id

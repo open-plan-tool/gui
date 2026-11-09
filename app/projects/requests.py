@@ -29,6 +29,7 @@ from oemof.datapackage import datapackage
 from oemof.eesyplan.components.buses.carrier import CarrierBus
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 from oemof.eesyplan.datapackage.results import import_results
+from oemof.eesyplan.dashboard import import_dashboard_results
 from oemof.eesyplan.postprocessing import KPIs, graphs
 from oemof.solph import Bus
 
@@ -177,47 +178,17 @@ def parse_ezp_results(simulation, response_results):
             with tempfile.TemporaryDirectory(prefix="dp_") as td:
                 temp_path = Path(td)
                 dp_path = datapackage.rebuild_dp_from_json(rebuilt_dp, temp_path)
-                es = create_energy_system_from_dp(dp_path)
 
-                imported_results = import_results(res_path, es)
+                imported_results = import_dashboard_results(dp_path, res_path)
 
-                # TODO: problem in variable costs see eesyplan
-                KPIs.calculate_all_kpis(imported_results, es)
+                imported_results.add_all_figures()
+                imported_results.add_all_tables()
 
-                # --- 2. the existing checks ----------------------------------------------
-                fig1, _ = graphs.sankey_2(imported_results, es)
-
-                fig2 = graphs.plot_timeseries(imported_results, es)
-
-                fig3 = graphs.plot_energy_mix(imported_results, es)
-
-                fig4 = graphs.plot_renewable_vs_nonrenewable(imported_results, es)
-
-                fig5 = graphs.capacities(imported_results, es)
-
-                fig6 = graphs.plot_annual_costs(imported_results, es)
-
-                figs_dict = {
-                    "renewables": json.loads(fig4.to_json()),
-                    "costs": json.loads(fig6.to_json()),
-                    "sankey": json.loads(fig1.to_json()),
-                    "timeseries": json.loads(fig2.to_json()),
-                    "energy_mix": json.loads(fig3.to_json()),
-                    "capacities": json.loads(fig5.to_json()),
-                }
                 # TODO here the content of the dashboard/graphs/ of the dashboard datapackage, if coming from the EZP server, should be dumped
-                simulation.graphs = json.dumps(figs_dict)
-
-                # TODO: it might make more sense for these to already be json and not have to change to json here?
-                # Convert dfs to json before saving to database
-                tables_dict = {}
-                for key, res in imported_results["eesyplan"].items():
-                    if isinstance(res, pd.DataFrame):
-                        tables_dict[key] = res.to_json()
-                    else:
-                        tables_dict[key] = res
-
-                simulation.tables = json.dumps(tables_dict)
+                simulation.graphs = json.dumps(imported_results.figures())
+                simulation.tables = json.dumps(
+                    imported_results.tables(convert_to_json=True)
+                )
 
                 ezp_results = imported_results
 
