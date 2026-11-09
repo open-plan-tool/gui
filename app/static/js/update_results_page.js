@@ -235,7 +235,7 @@ function insertPlotlyGraph(graphId, data, layout){
 }
 
 function scenario_visualize_timeseries(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="timeseries")
+    scenario_visualize_given_graph(scen_id, variable="timeseries");
 }
 
 async function scenario_visualize_given_graph(scen_id = "", variable = "") {
@@ -297,9 +297,9 @@ function scenario_visualize_sankey(scen_id, ts=null){
 }
 
 function scenario_visualize_capacities(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="capacities")
+    scenario_visualize_given_graph(scen_id, variable="capacities");
 }
 
 function scenario_visualize_costs(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="costs")
+    scenario_visualize_given_graph(scen_id, variable="costs");
 }
