@@ -137,7 +137,7 @@ function addWideTable(table_data, table_id){
                 }
             }
             // highlight totals
-            if (value.verbose.includes("Total")) {
+            if (value.verbose.toLowerCase().includes("total")) {
                 tableDataCell.style.fontWeight = "bold";
                 tableDataCell.style.backgroundColor = "#F9F8F7";
             }
