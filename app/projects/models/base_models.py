@@ -1321,8 +1321,8 @@ class Commodity(Asset):
         dm, bus_resource_rec, profile_resource_rec = super().to_datapackage()
         dm["capacity"] = dm.pop("installed_capacity")
         dm["variable_costs"] = dm.pop("capex_spec")
-        dm["commodity"] = dm.pop("commodity_type")
-        dm["bus_out"] = dm.pop("bus_out_electricity")
+        dm["commodity"] = "Heat"  # dm.pop("commodity_type")
+        dm["bus_out"] = dm.pop("bus_out_fuel")
         return dm, bus_resource_rec, profile_resource_rec
 
 
