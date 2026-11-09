@@ -6,5 +6,6 @@ python manage.py update_assettype && \
 python manage.py update_valuetype && \
 python manage.py loaddata "fixtures/valuetypes.json" "fixtures/assettypes.json" "fixtures/test_user.json" "fixtures/example_project.json" && \
 echo yes | python manage.py collectstatic && \
+python manage.py compilejsi18n && \
 pre-commit install && \
 echo 'Completed Setup Successfully!!'
