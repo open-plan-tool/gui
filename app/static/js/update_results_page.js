@@ -216,6 +216,17 @@ function translateFigureLabels(data, layout) {
 
 function insertPlotlyGraph(graphId, data, layout){
     translateFigureLabels(data, layout);
+
+    // finds the title of the section
+    const graph = document.getElementById(`graph-${graphId}`);
+    const title = graph
+    .closest(".chart")
+    .querySelector(".chart__header .title a");
+
+    // replaces section title by the graph title
+    // title.textContent = gettext(layout.title.text);
+    // erases graph title
+    layout.title.text = "";
     Plotly.newPlot(
         "graph-" + graphId,
         data,
