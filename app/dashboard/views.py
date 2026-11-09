@@ -742,7 +742,7 @@ def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
             "name": str(idx),
             "description": "",
             "unit": "",
-            "scen_values": [f"{v:,.1f}" for v in row],
+            "scen_values": [f"{v:,.0f}" for v in row],
         }
     answer = JsonResponse(
         {

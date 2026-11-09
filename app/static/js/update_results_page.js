@@ -137,7 +137,7 @@ function addWideTable(table_data, table_id){
                 }
             }
             // highlight totals
-            if (value.verbose.includes("Total")) {
+            if (value.verbose.toLowerCase().includes("total")) {
                 tableDataCell.style.fontWeight = "bold";
                 tableDataCell.style.backgroundColor = "#F9F8F7";
             }
@@ -187,7 +187,35 @@ function fetchSelectedScenarios(){
     return selectedScenarios;
 }
 
+function translateLabel(label) {
+    return typeof label === "string" ? gettext(label) : label;
+}
+
+function translateFigureLabels(data, layout) {
+    // try and get all strings that might need translation across different chart types
+    data.forEach(trace => {
+        if (trace.name) trace.name = gettext(trace.name);
+        if (Array.isArray(trace.x)) trace.x = trace.x.map(translateLabel);
+        if (Array.isArray(trace.y)) trace.y = trace.y.map(translateLabel);
+        if (Array.isArray(trace.labels)) trace.labels = trace.labels.map(translateLabel);
+    });
+
+    if (layout?.title?.text) layout.title.text = gettext(layout.title.text);
+    if (layout?.legend?.title?.text) layout.legend.title.text = gettext(layout.legend.title.text);
+
+    Object.keys(layout || {})
+        .filter(key => /^[xy]axis\d*$/.test(key))
+        .forEach(axisKey => {
+            const axis = layout[axisKey];
+            if (axis?.title?.text) axis.title.text = gettext(axis.title.text);
+            if (Array.isArray(axis?.categoryarray)) {
+                axis.categoryarray = axis.categoryarray.map(translateLabel);
+            }
+        });
+}
+
 function insertPlotlyGraph(graphId, data, layout){
+    translateFigureLabels(data, layout);
     Plotly.newPlot(
         "graph-" + graphId,
         data,

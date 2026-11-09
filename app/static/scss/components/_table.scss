@@ -7,18 +7,17 @@ table.table {
   thead {
     background-color: $primary-gray-color-1;
 
-    tr {
-      text-transform: uppercase;
-    }
-
     th {
       border-bottom: none;
+      vertical-align: text-bottom;
+      text-align: center;
     }
   }
 
   tbody {
     td {
       border-bottom: 1px solid $primary-gray-color-2;
+      text-align: right;
     }
 
     tr:last-of-type td,
@@ -34,5 +33,12 @@ table.table {
 
   &>:not(caption)>*>* {
     padding: $dashboard-table-cell-padding;
+  }
+
+  &.kpis {
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
   }
 }
