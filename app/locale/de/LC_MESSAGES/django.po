@@ -5244,4 +5244,4 @@ msgid "Accumulated energy supply of the system"
 msgstr "Gesamtenergieversorgung des Systems"
 
 msgid "Yearly Project Costs"
-msgid "Jährliche Projektkosten"
+msgstr "Jährliche Projektkosten"
