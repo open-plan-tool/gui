@@ -10,7 +10,7 @@ django-sass-processor==1.4.2
 django-celery-beat==2.9.0
 flower==2.0.1
 redis==8.0.1
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@fix/graphs
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@feature/add-figures-in-dashboard
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0
