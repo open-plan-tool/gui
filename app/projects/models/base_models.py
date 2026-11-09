@@ -966,7 +966,9 @@ class Bus(TopologyNode):
         dm["balanced"] = "True"
         dm["excess_cost"] = 0
         dm["shortage_cost"] = None
-        dm["absolute_losses"] = None
+        dm["absolute_losses"] = None  # parameter from HeatingNetwork
+        dm["investment_fix_cost"] = None  # parameter from HeatingNetwork
+        dm["annual_fix_cost"] = None  # parameter from HeatingNetwork
         return dm
 
     def export(self):
@@ -2005,6 +2007,15 @@ class HeatingNetwork(Bus):
         AssetType, on_delete=models.CASCADE, null=False, blank=True
     )
 
+    investment_fix_cost = models.FloatField(
+        null=True,
+        default=0.0,
+    )
+    annual_fix_cost = models.FloatField(
+        null=True,
+        default=0.0,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.asset_type = AssetType.objects.get(asset_type="heating_network")
@@ -2016,6 +2027,8 @@ class HeatingNetwork(Bus):
         dm["balanced"] = None
         dm["type"] = "HeatingNetwork"
         dm["absolute_losses"] = self.absolute_losses
+        dm["investment_fix_cost"] = self.investment_fix_cost
+        dm["annual_fix_cost"] = self.annual_fix_cost
         return dm
 
     def export(self):
