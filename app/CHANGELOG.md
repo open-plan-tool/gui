@@ -4,6 +4,7 @@
 ### Added
 - Display eesyplan results table on results page [[#582](https://github.com/open-plan-tool/gui/pull/582)]
 - Enable translation of graph labels [[#588](https://github.com/open-plan-tool/gui/pull/588)]
+- Add parameters `investment_fix_cost` and `annual_fix_cost` to `HeatingNetwork` component [[#592](https://github.com/open-plan-tool/gui/pull/592)]
 
 ### Changed
 - Allow user to save bus without an output [[#586](https://github.com/open-plan-tool/gui/pull/586)]
