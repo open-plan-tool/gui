@@ -433,7 +433,15 @@ updateSortArrows();
     const createTimeseriesGetUrl = `{% url 'get_timeseries_create_form' 0 %}`;
     const createTimeseriesPostUrl = `{% url 'custom_timeseries_create' 0 %}`;
 
+    function resetTsPreview() {
+    const trace = document.getElementById('dashboard_ts_trace');
+    Plotly.purge(trace);
+    trace.style.display = 'none';
+    document.getElementById('dashboard_ts_generation_parameters').style.display = 'none';
+    }
+
     function loadTsForm() {
+        resetTsPreview();
         const assetTypeName = document.getElementById('ts-type-select').value;
         fetch(createTimeseriesGetUrl + assetTypeName)
             .then(response => response.text())
