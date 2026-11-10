@@ -3632,7 +3632,7 @@ msgstr "Willkommen im OpenPlan Tool"
 
 #: templates/registration/login.html:22
 msgid "Do you not have an account yet?"
-msgstr "Besitzen Sie bereits kein Konto?"
+msgstr "Besitzen Sie noch kein Konto?"
 
 #: templates/registration/login.html:26
 msgid "Forgot your password?"
