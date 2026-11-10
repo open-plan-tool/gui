@@ -583,6 +583,15 @@ class Scenario(models.Model):
                 resource_metadata["schema"]["foreignKeys"].append(
                     {"fields": "absolute_losses", "reference": {"resource": "profiles"}}
                 )
+            for field in resource_metadata["schema"]["fields"]:
+                if field["name"] in (
+                    "excess_cost",
+                    "investment_fix_cost",
+                    "annual_fix_cost",
+                    "shortage_cost",
+                ):
+                    field["type"] = "number"
+            resource_metadata
             datapackage_metadata_dict["resources"].append(resource_metadata)
 
             out_path = elements_folder / "bus.csv"
