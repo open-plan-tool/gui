@@ -2281,7 +2281,7 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
         "heat_demand": create_heat_demand,
     }
 
-    scenario = get_object_or_404(Scenario, id=scen_id)
+    scenario = get_object_or_404(Scenario, id=scen_id) if int(scen_id) else None
     if form.is_valid():
         try:
             cleaned_data = form.cleaned_data
@@ -2296,13 +2296,18 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
                     if key != "outdoor_temperature"
                 }
 
+                num_timesteps = (
+                    scenario.get_num_timesteps
+                    if scenario
+                    else int(request.POST.get("num_timesteps", 8760))
+                )
                 outdoor_temperature = cleaned_data.get("outdoor_temperature")
                 if outdoor_temperature is not None and not isinstance(
                     outdoor_temperature, list
                 ):
                     cleaned_data["outdoor_temperature"] = [
                         outdoor_temperature
-                    ] * scenario.get_num_timesteps
+                    ] * num_timesteps
 
             elif asset_type_name == "pv_plant":
                 # set the generation parameters, neglect timeseries and set only file name as reference
