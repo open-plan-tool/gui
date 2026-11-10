@@ -253,6 +253,7 @@ def parse_ezp_results(simulation, response_results):
                         fr.save()
 
     except Exception as err:
+        raise err
         logger.error(f"An error occurred while parsing the simulation results: {err}")
 
     simulation.results = "processed"
