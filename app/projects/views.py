@@ -2372,6 +2372,44 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
 
 
 @login_required
+@require_http_methods(["POST"])
+def timeseries_save_custom(request):
+    try:
+        payload = json.loads(request.POST.get("payload", ""))
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid payload")
+
+    asset_type_name = payload.get("asset_type_name")
+    values = payload.get("values")
+    if (
+        asset_type_name not in CUSTOM_TIMESERIES_FORMS
+        or not isinstance(values, list)
+        or not values
+        or not all(isinstance(v, (int, float)) for v in values)
+    ):
+        return HttpResponseBadRequest("Invalid timeseries")
+
+    new_timeseries = Timeseries.objects.create(
+        user=request.user,
+        name=payload.get("name") or f"Created timeseries ({asset_type_name})",
+        values=values,
+        ts_type=AssetType.objects.get(asset_type=asset_type_name).mvs_type,
+        asset_type=ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name, asset_type_name),
+        category=ASSET_TYPE_TO_CATEGORY[asset_type_name],
+        open_source=False,
+        generation_parameters=payload.get("generation_parameters"),
+    )
+
+    context = timeseries_build_context(request, new_timeseries.pk)
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    return HttpResponse(table_html + summary_html + details_html)
+
+
+@login_required
 @require_http_methods(["GET"])
 def get_asset_cops_form(request, scen_id=0, asset_type_name="", asset_uuid=None):
     opts = {}

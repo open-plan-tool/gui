@@ -412,4 +412,9 @@ urlpatterns = [
     path(
         "timeseries/bulk-delete/", timeseries_bulk_delete, name="timeseries_bulk_delete"
     ),
+    path(
+        "timeseries/save_custom/",
+        timeseries_save_custom,
+        name="timeseries_save_custom",
+    ),
 ]
