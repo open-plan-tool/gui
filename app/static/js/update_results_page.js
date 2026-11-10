@@ -216,6 +216,17 @@ function translateFigureLabels(data, layout) {
 
 function insertPlotlyGraph(graphId, data, layout){
     translateFigureLabels(data, layout);
+
+    // finds the title of the section
+    const graph = document.getElementById(`graph-${graphId}`);
+    const title = graph
+    .closest(".chart")
+    .querySelector(".chart__header .title a");
+
+    // replaces section title by the graph title
+    // title.textContent = gettext(layout.title.text);
+    // erases graph title
+    layout.title.text = "";
     Plotly.newPlot(
         "graph-" + graphId,
         data,
@@ -224,7 +235,7 @@ function insertPlotlyGraph(graphId, data, layout){
 }
 
 function scenario_visualize_timeseries(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="timeseries")
+    scenario_visualize_given_graph(scen_id, variable="timeseries");
 }
 
 async function scenario_visualize_given_graph(scen_id = "", variable = "") {
@@ -286,9 +297,9 @@ function scenario_visualize_sankey(scen_id, ts=null){
 }
 
 function scenario_visualize_capacities(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="capacities")
+    scenario_visualize_given_graph(scen_id, variable="capacities");
 }
 
 function scenario_visualize_costs(scen_id=""){
-    scenario_visualize_given_graph(scen_id, variable="costs")
+    scenario_visualize_given_graph(scen_id, variable="costs");
 }
