@@ -209,6 +209,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.20.0/plotly.min.js" integrity="sha512-tuzZby9zsxdCMgqKMHo+ObEWrfBTFlKZ7yIHSow5IYbr0JseLNTXm37NSn0rrWVbvKMfvGUCSm5L1sK9QGuLyw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.1.1/d3.min.js" integrity="sha512-COTaPOlz12cG4fSfcBsxZsjauBAyldqp+8FQUM/dZHm+ts/jR4AFoJhCqxy8K10Jrf3pojfsbq7fAPTb1XaVkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 {% endblock head_block %}
 
@@ -361,51 +362,34 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create time series</h5>
+                <h5 class="modal-title">Create time series from parameters</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group mb-3">
                     <label for="ts-type-select">Type</label>
-                    <select id="ts-type-select" class="form-select" onchange="toggleTsFields()">
-                        <option value="pv" selected>PV output</option>
-                        <option value="electricity_demand">Electricity demand</option>
-                        <option value="heat_demand">Heat demand</option>
+                    <select id="ts-type-select" class="form-select" onchange="loadTsForm()">
+                        <option value="heat_demand" selected>Heat demand</option>
                     </select>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label for="ts-name">Name</label>
-                    <input type="text" id="ts-name" class="form-control" placeholder="e.g. My PV series">
+                <div id="timeseriesForm">
+                    <div class="modal-addendum"></div>
                 </div>
 
-                <div id="pv-fields">
-                    <div class="form-group mb-3">
-                        <label for="ts-azimuth">Azimuth (°)</label>
-                        <input type="number" id="ts-azimuth" class="form-control" placeholder="180 = south">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="ts-tilt">Tilt (°)</label>
-                        <input type="number" id="ts-tilt" class="form-control" placeholder="0 = horizontal, 90 = vertical">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="ts-efficiency">System efficiency (%)</label>
-                        <input type="number" id="ts-efficiency" class="form-control" min="0" max="100" placeholder="e.g. 80">
-                    </div>
+                <div class="form-group mb-3">
+                    <label for="ts-num-timesteps">Number of timesteps</label>
+                    <input type="number" id="ts-num-timesteps" class="form-control" value="8760" min="1">
+                </div>
 
-                    <div class="form-group mb-2">
-                        <label for="ts-weather-file">Weather data</label>
-                        <input type="file" id="ts-weather-file" class="form-control">
-                        <div class="muted small mt-1">Data may be in TRY or ERA5 format.</div>
-                    </div>
-                    <div class="mb-3">
-                        <button type="button" class="btn btn--medium">Use default weather data based on location</button>
-                    </div>
+                <div id="dashboard_ts_trace"></div>
+                <div id="dashboard_ts_generation_parameters" class="ts-generation-params" style="display:none;">
+                    <dl class="ts-generation-params__list"></dl>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn--medium">Create</button>
+                <button type="button" class="btn btn--medium" onclick="computeDashboardTimeseries()">Compute Timeseries</button>
             </div>
         </div>
     </div>
@@ -444,6 +428,56 @@ document.body.addEventListener('change', (e) => {
 });
 document.body.addEventListener('htmx:afterSettle', updateBulkDeleteButton);
 updateSortArrows();
+</script>
+<script>
+    const createTimeseriesGetUrl = `{% url 'get_timeseries_create_form' 0 %}`;
+    const createTimeseriesPostUrl = `{% url 'custom_timeseries_create' 0 %}`;
+
+    function loadTsForm() {
+        const assetTypeName = document.getElementById('ts-type-select').value;
+        fetch(createTimeseriesGetUrl + assetTypeName)
+            .then(response => response.text())
+            .then(formContent => {
+                document.querySelector('#timeseriesForm .modal-addendum').innerHTML = formContent;
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            })
+            .catch(error => console.error(error));
+    }
+
+    function computeDashboardTimeseries() {
+        const assetTypeName = document.getElementById('ts-type-select').value;
+        const form = document.getElementById('timeseriesForm');
+        const formData = new FormData();
+
+        form.querySelectorAll('input, select').forEach(el => {
+            if (el.type === 'file') {
+                if (el.files.length) formData.append(el.name, el.files[0]);
+            } else {
+                formData.append(el.name, el.value);
+            }
+        });
+        formData.append('num_timesteps', document.getElementById('ts-num-timesteps').value);
+
+        fetch(createTimeseriesPostUrl + assetTypeName, {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrfToken},
+            body: formData,
+        }).then(response => response.json()).then(jsonRes => {
+            if (jsonRes.success) {
+                plotTimeseriesInputTrace(jsonRes.timeseries, 'dashboard_ts');
+                showGenerationParameters(jsonRes.generation_parameters, jsonRes.units, jsonRes.labels, 'dashboard_ts');
+            } else if (jsonRes.form_html) {
+                form.innerHTML = jsonRes.form_html;
+            } else {
+                alert('The timeseries could not be computed.');
+            }
+        }).catch(error => {
+            console.error(error);
+            alert(error.message);
+        });
+    }
+
+    document.getElementById('createTimeseriesModal').addEventListener('show.bs.modal', loadTsForm);
 </script>
 <script>
     const postTimeseriesFormUrl = `{% url 'timeseries_dashboard' %}`;
