@@ -672,7 +672,7 @@ def request_kpi_table(request, proj_id=None):
                         missing = True
                         break
 
-                    if param["unit"] == "%":
+                    if param["unit"] == "%" or "ct" in param["unit"]:
                         values.append(beautify_number(val * 100, 0))
                     elif f"{proj.economic_data.currency}/kWh" in param["unit"]:
                         values.append(beautify_number(val, 2))
