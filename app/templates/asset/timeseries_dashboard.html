@@ -373,6 +373,11 @@
                     </select>
                 </div>
 
+                <div class="form-group mb-3">
+                    <label for="ts-name">Name</label>
+                    <input type="text" id="ts-name" class="form-control" placeholder="e.g. Custom Timeseries">
+                </div>
+
                 <div id="timeseriesForm">
                     <div class="modal-addendum"></div>
                 </div>
@@ -390,6 +395,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn--medium" onclick="computeDashboardTimeseries()">Compute Timeseries</button>
+                <button type="button" class="btn btn--medium" id="createTsBtn" onclick="saveDashboardTimeseries()" disabled>Create</button>
             </div>
         </div>
     </div>
@@ -432,12 +438,17 @@ updateSortArrows();
 <script>
     const createTimeseriesGetUrl = `{% url 'get_timeseries_create_form' 0 %}`;
     const createTimeseriesPostUrl = `{% url 'custom_timeseries_create' 0 %}`;
+    const saveTimeseriesUrl = `{% url 'timeseries_save_custom' %}`;
+    let computedTimeseries = null;
 
     function resetTsPreview() {
-    const trace = document.getElementById('dashboard_ts_trace');
-    Plotly.purge(trace);
-    trace.style.display = 'none';
-    document.getElementById('dashboard_ts_generation_parameters').style.display = 'none';
+        computedTimeseries = null;
+        document.getElementById('createTsBtn').disabled = true;
+        const trace = document.getElementById('dashboard_ts_trace');
+        Plotly.purge(trace);
+        trace.innerHTML = '';
+        trace.style.display = 'none';
+        document.getElementById('dashboard_ts_generation_parameters').style.display = 'none';
     }
 
     function loadTsForm() {
@@ -474,6 +485,12 @@ updateSortArrows();
             if (jsonRes.success) {
                 plotTimeseriesInputTrace(jsonRes.timeseries, 'dashboard_ts');
                 showGenerationParameters(jsonRes.generation_parameters, jsonRes.units, jsonRes.labels, 'dashboard_ts');
+                computedTimeseries = {
+                    asset_type_name: assetTypeName,
+                    values: jsonRes.timeseries,
+                    generation_parameters: jsonRes.generation_parameters,
+                };
+                document.getElementById('createTsBtn').disabled = false;
             } else if (jsonRes.form_html) {
                 form.innerHTML = jsonRes.form_html;
             } else {
@@ -484,6 +501,36 @@ updateSortArrows();
             alert(error.message);
         });
     }
+
+    function saveDashboardTimeseries() {
+        if (!computedTimeseries) return;
+        const payload = JSON.stringify({
+            ...computedTimeseries,
+            name: document.getElementById('ts-name').value,
+        });
+        const modal = bootstrap.Modal.getInstance(document.getElementById('createTimeseriesModal'));
+
+        if (document.getElementById('timeseries_details_panel')) {
+            htmx.ajax('POST', saveTimeseriesUrl, {
+                target: '#timeseries_details_panel',
+                swap: 'outerHTML',
+                values: {payload: payload},
+            }).then(() => modal.hide());
+        } else {
+            const formData = new FormData();
+            formData.append('payload', payload);
+            fetch(saveTimeseriesUrl, {
+                method: 'POST',
+                headers: {'X-CSRFToken': csrfToken},
+                body: formData,
+            }).then(() => window.location.reload());
+        }
+    }
+
+    document.getElementById('timeseriesForm').addEventListener('input', () => {
+        computedTimeseries = null;
+        document.getElementById('createTsBtn').disabled = true;
+    });
 
     document.getElementById('createTimeseriesModal').addEventListener('show.bs.modal', loadTsForm);
 </script>
