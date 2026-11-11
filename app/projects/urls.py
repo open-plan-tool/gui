@@ -357,6 +357,11 @@ urlpatterns = [
         fetch_simulation_results,
         name="fetch_simulation_results",
     ),
+    path(
+        "simulation/reparse-results/<int:sim_id>",
+        reparse_simulation_results,
+        name="reparse_simulation_results",
+    ),
     # Sensitivity analysis
     path(
         "scenario/<int:scen_id>/sensitivity-analysis/create",

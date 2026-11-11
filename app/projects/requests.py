@@ -79,9 +79,11 @@ def ezp_simulation_check_status(token):
         return json.loads(response.text)
 
 
-def fetch_ezp_simulation_results(simulation):
-    if simulation.status == PENDING:
+def fetch_ezp_simulation_results(simulation, force_fetch=False):
+    if simulation.status == PENDING or force_fetch is True:
         response = ezp_simulation_check_status(token=simulation.mvs_token)
+        if force_fetch and response is None:
+            return "no response from server"
         try:
             simulation.status = response["status"]
             simulation.mvs_version = response["simulation_version"]
@@ -92,28 +94,33 @@ def fetch_ezp_simulation_results(simulation):
             )
             if simulation.status == DONE:
                 simulation.results = json.dumps(response["results"])
-                simulation.dp_results = json.dumps(response["results"]["raw_results"])
+                simulation.dp_results = response["results"]["raw_results"]
 
             # simulation.mvs_version = response["mvs_version"]
             logger.info(f"The simulation {simulation.id} is finished")
         except Exception as err:
-            logger.error(
-                f"Could not parse EZP results for simulation {simulation.id}: {err}"
+            msg = f"Could not parse EZP results for simulation {simulation.id}: {err}"
+            logger.error(msg)
+            if not force_fetch:
+                simulation.status = ERROR
+                simulation.results = None
+            else:
+                return msg
+
+        if not force_fetch:
+            simulation.elapsed_seconds = (
+                datetime.now() - simulation.start_date
+            ).seconds
+
+            # Cancel simulation if it has been going on > 48h
+            max_simulation_seconds = 48 * 60 * 60
+            if simulation.elapsed_seconds > max_simulation_seconds:
+                simulation.status = ERROR
+                simulation.results = None
+
+            simulation.end_date = (
+                datetime.now() if simulation.status in [ERROR, DONE] else None
             )
-            simulation.status = ERROR
-            simulation.results = None
-
-        simulation.elapsed_seconds = (datetime.now() - simulation.start_date).seconds
-
-        # Cancel simulation if it has been going on > 48h
-        max_simulation_seconds = 48 * 60 * 60
-        if simulation.elapsed_seconds > max_simulation_seconds:
-            simulation.status = ERROR
-            simulation.results = None
-
-        simulation.end_date = (
-            datetime.now() if simulation.status in [ERROR, DONE] else None
-        )
         # TODO also save the dp without the timeseries within an attribute of the simulation object
 
         # validate_dp_results(simulation.dp_results)
