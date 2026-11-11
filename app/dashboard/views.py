@@ -27,14 +27,6 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
 from oemof.datapackage import datapackage  # noqa
-from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
-from oemof.eesyplan import import_results
-
-from oemof.eesyplan.postprocessing import graphs
-# from oemof.eesyplan.postprocessing.KPIs import compare_KPIs
-# from oemof.eesyplan.postprocessing.KPIs import format_KPIs
-# from oemof.eesyplan.postprocessing.KPIs import normalize_imported_result
-
 
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
