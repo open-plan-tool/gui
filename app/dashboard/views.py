@@ -3,6 +3,9 @@ import json
 import logging
 import traceback
 from io import BytesIO
+import tempfile
+import zipfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -21,6 +24,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
+from oemof.datapackage import datapackage
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
@@ -733,7 +737,7 @@ def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
     scen_costs = sim.get_table(table_id)
-    scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
+    scen_costs_df = pd.DataFrame(scen_costs).set_index("Component")
 
     table = {}
     # TODO fix this with the actual descriptions etc
@@ -1075,42 +1079,31 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
 @login_required
 @require_http_methods(["GET"])
 @user_has_read_rights
-def download_scalar_results(request, scen_id):
+def download_results_datapackage(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(temp_dir)
 
-    try:
-        kpi_scalar_results_obj = KPIScalarResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_scalar_values_dict = json.loads(kpi_scalar_results_obj.scalar_values)
-        scalar_kpis_json = kpi_scalars_list(
-            kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS
+        datapackage.rebuild_dp_from_json(
+            json.loads(scenario.simulation.dp_results), destination_path, overwrite=True
         )
 
-        output = BytesIO()
-        workbook = xlsxwriter.Workbook(output)
-        worksheet = workbook.add_worksheet("Scalars")
+        # Place the temp directory into a zip folder
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+            for file_path in destination_path.rglob("*"):  # Recursively walk all files
+                if file_path.is_file():
+                    # Relative path inside ZIP
+                    arcname = file_path.relative_to(destination_path)
+                    with open(file_path, "rb") as f:
+                        zip_file.writestr(str(arcname), f.read())
 
-        for idx, kpi_obj in enumerate(scalar_kpis_json):
-            if idx == 0:
-                worksheet.write_row(0, 0, kpi_obj.keys())
-            worksheet.write_row(idx + 1, 0, [str(val) for val in kpi_obj.values()])
-
-        workbook.close()
-        output.seek(0)
-    except Exception as e:
-        logger.error(
-            f"Dashboard ERROR: Could not generate KPI Scalars download file with Scenario Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
+        # Let the user download the zip file
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="results_datapackage_scenario_{scen_id}.zip"'
         )
-        raise Http404()
-
-    filename = "kpi_scalar_results.xlsx"
-    response = HttpResponse(
-        output,
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
     return response
 
 
