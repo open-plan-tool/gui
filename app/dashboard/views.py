@@ -806,11 +806,15 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
         if qs.exists():
-            qs_fine = (
-                qs.exclude(asset__contains="@")
-                .filter(asset__contains=existing_asset.name)
-                .filter(asset_type=existing_asset.asset_type.asset_type)
-            )
+            if existing_asset.asset_type.asset_type == "heating_network":
+                qs_fine = qs.filter(bus__contains=existing_asset.name)
+            else:
+                qs_fine = (
+                    qs.exclude(asset__contains="@")
+                    .filter(asset__contains=existing_asset.name)
+                    .filter(asset_type=existing_asset.asset_type.asset_type)
+                )
+
             negative_direction = "out"
             if existing_asset.is_storage is True and optimized_cap is True:
                 for cap in qs_fine.values_list("optimized_capacity", flat=True):
@@ -857,48 +861,71 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                     }
                 )
             else:
-                qs_fine = qs_fine.annotate(
-                    name=Case(
-                        When(
-                            Q(asset_type__contains="chp") & Q(direction="in"),
-                            then=Concat("asset", Value(" out ("), "bus", Value(")")),
+                if existing_asset.asset_type.asset_type == "heating_network":
+                    qs_fine = qs_fine.annotate(
+                        name=Case(
+                            When(
+                                Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            default=F("asset"),
                         ),
-                        When(
-                            Q(asset_type__contains="chp") & Q(direction="out"),
-                            then=Concat("asset", Value(" in")),
+                        unit=Value("kW"),
+                        value=F("flow_data"),
+                    )
+                else:
+                    qs_fine = qs_fine.annotate(
+                        name=Case(
+                            When(
+                                Q(asset_type__contains="chp") & Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(asset_type__contains="chp") & Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            When(
+                                Q(asset_type__contains="ess") & Q(direction="in"),
+                                then=Concat("asset", Value(" " + _("Discharge"))),
+                            ),
+                            When(
+                                Q(asset_type__contains="ess") & Q(direction="out"),
+                                then=Concat("asset", Value(" " + _("Charge"))),
+                            ),
+                            When(
+                                Q(asset_type="heat_pump") & Q(direction="out"),
+                                then=Concat("asset", Value(" in ("), "bus", Value(")")),
+                            ),
+                            When(
+                                Q(asset_type="electrolyzer") & Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(oemof_type="transformer") & Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            When(
+                                Q(oemof_type="transformer") & Q(direction="in"),
+                                then=Concat("asset", Value(" out")),
+                            ),
+                            default=F("asset"),
                         ),
-                        When(
-                            Q(asset_type__contains="ess") & Q(direction="in"),
-                            then=Concat("asset", Value(" " + _("Discharge"))),
+                        unit=Case(
+                            When(Q(asset_type__contains="ess"), then=Value("kWh")),
+                            default=Value("kW"),
                         ),
-                        When(
-                            Q(asset_type__contains="ess") & Q(direction="out"),
-                            then=Concat("asset", Value(" " + _("Charge"))),
-                        ),
-                        When(
-                            Q(asset_type="heat_pump") & Q(direction="out"),
-                            then=Concat("asset", Value(" in ("), "bus", Value(")")),
-                        ),
-                        When(
-                            Q(asset_type="electrolyzer") & Q(direction="in"),
-                            then=Concat("asset", Value(" out ("), "bus", Value(")")),
-                        ),
-                        When(
-                            Q(oemof_type="transformer") & Q(direction="out"),
-                            then=Concat("asset", Value(" in")),
-                        ),
-                        When(
-                            Q(oemof_type="transformer") & Q(direction="in"),
-                            then=Concat("asset", Value(" out")),
-                        ),
-                        default=F("asset"),
-                    ),
-                    unit=Case(
-                        When(Q(asset_type__contains="ess"), then=Value("kWh")),
-                        default=Value("kW"),
-                    ),
-                    value=F("flow_data"),
-                )
+                        value=F("flow_data"),
+                    )
 
                 for y_vals in qs_fine.order_by("direction").values(
                     "name", "value", "unit", "direction", "total_flow"
@@ -999,7 +1026,7 @@ def scenario_visualize_variable(
 
     # TODO allow comparison as well
     simulation = scenario.simulation
-    figure_json = simulation.get_figure(variable)
+    figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
 
     return JsonResponse(
         figure_json, status=200, content_type="application/json", safe=True
