@@ -1,8 +1,14 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Add endpoint to reparse a simulation's results `simulation/reparse-results/<int:sim_id>` [[#597](https://github.com/open-plan-tool/gui/pull/597)]
+- Add endpoint to download the results as datapackage (`scenario/results/download_datapackage/<int:scen_id>`) as well as a button to do so [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 ### Changed
 - Hide and toggle certain fields depending on storage type [[#596](https://github.com/open-plan-tool/gui/pull/596)]
+- Save the graphs, the tables and the results directly as dict into the simulation JSONField's [[#597](https://github.com/open-plan-tool/gui/pull/597)]
+### Removed
+- Remove buttons to download MVS results in the result view [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 
 ## [v1.3.2] – 2026-11-11
 ### Added
