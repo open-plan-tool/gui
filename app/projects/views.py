@@ -526,8 +526,8 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
-    msg = "<center>Dear OpenPlan user,<br> On the 2nd of November, we updated the database to replace the current simulation backend.<br>The operation went successful and we now need to adapt the frontend in the coming days<br>The changes and news are described in this pull request: <a href='https://github.com/open-plan-tool/gui/pull/575'>https://github.com/open-plan-tool/gui/pull/575</a></center>"
-    messages.warning(request, mark_safe(msg))
+    msg = "<center>Dear OpenPlan user,<br> On the 2nd of November, we updated the database to replace the current simulation backend.<br>The operation went successful and we adapted the frontend on November 11th<br></center>"
+    # messages.warning(request, mark_safe(msg))
 
     return render(
         request,
