@@ -958,8 +958,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "biogas_plant": _("Biogas Plant"),
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
-            "commodity": _("Commodity"),
-            "shortage": _("Shortage"),
+            # "commodity": _("Commodity"),
+            # "shortage": _("Shortage"),
         },
         "conversion": {
             "electrical_transformer": _("Electrical Transformer"),
@@ -970,7 +970,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
-            "auxiliary_heat": _("Auxiliary Heat"),
+            # "auxiliary_heat": _("Auxiliary Heat"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -983,8 +983,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
-            "sink": _("Sink"),
-            "excess": _("Excess"),
+            # "sink": _("Sink"),
+            # "excess": _("Excess"),
         },
         "transport": {
             "heating_network": _("Heating Network"),
