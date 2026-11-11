@@ -7,6 +7,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from plotly import graph_objects as go
+from plotly.colors import qualitative
 import numpy as np
 import pandas as pd
 import xlsxwriter
@@ -1034,7 +1036,6 @@ def scenario_visualize_variable(
 
     simulations = []
 
-    print(selected_scenario)
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
         simulations.append(scenario.simulation)
@@ -1043,33 +1044,128 @@ def scenario_visualize_variable(
         simulation = simulations[0]
         figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
     else:
-        datasets = {}
-
-        scenario = simulations[0].scenario
-        with tempfile.TemporaryDirectory(prefix="dp_") as td:
-            temp_path = Path(td)
-            dp_path = datapackage.rebuild_dp_from_json(
-                scenario.rebuild_datapackage(), temp_path
+        if variable == "capacities":
+            results = Simulation.objects.filter(
+                scenario__id__in=selected_scenario
+            ).values_list(
+                "scenario__name",
+                "graphs__capacities__data",
             )
-            es = create_energy_system_from_dp(dp_path)
 
-            for sim in simulations:
-                with tempfile.TemporaryDirectory(prefix="res_") as temp_res:
-                    temp_res = Path(temp_res)
-                    res_path = datapackage.rebuild_dp_from_json(
-                        json.loads(sim.dp_results), temp_res
+            # The following code was AI generated based on the structure of the figure of
+            # eesyplan graphs.compare_capacity and can be improved
+            bars = []
+
+            for scenario, traces in results:
+                for trace in traces or []:
+                    kind = trace["name"]  # "Installed" / "Optimized"
+
+                    for component, capacity in zip(trace["x"], trace["y"]):
+                        if capacity is None:
+                            continue
+                        bars.append(
+                            {
+                                "scenario": scenario,
+                                "component": component,
+                                "capacity": capacity,
+                                "kind": kind,
+                            }
+                        )
+
+            datasets = list(dict.fromkeys(bar["scenario"] for bar in bars))
+
+            components = list(dict.fromkeys(bar["component"] for bar in bars))
+            positions = {component: i for i, component in enumerate(components)}
+
+            scenario_colors = {
+                scenario: qualitative.Plotly[index % len(qualitative.Plotly)]
+                for index, scenario in enumerate(datasets)
+            }
+
+            fig = go.Figure()
+
+            def _cost_type_marker(color, pattern):
+                """Marker of one cost type: the colour with its fill pattern."""
+                marker = {"color": color}
+                if pattern:
+                    marker["pattern"] = {
+                        "shape": pattern,
+                        "fgcolor": color,
+                        "bgcolor": "rgba(0,0,0,0)",
+                    }
+                return marker
+
+            def _format_number(value, decimals=1):
+                """Format a number with space as thousands separator."""
+                if value is None or (isinstance(value, float) and pd.isna(value)):
+                    return ""
+                try:
+                    return f"{float(value):,.{decimals}f}".replace(",", " ")
+                except Exception:
+                    return str(value)
+
+            kinds = (("Installed", "x"), ("Optimized", ""))
+            for scenario in datasets:
+                color = scenario_colors[scenario]
+
+                for kind, pattern in kinds:
+                    selected = [
+                        bar
+                        for bar in bars
+                        if bar["scenario"] == scenario and bar["kind"] == kind
+                    ]
+
+                    if not selected:
+                        continue
+
+                    fig.add_bar(
+                        x=[positions[bar["component"]] for bar in selected],
+                        y=[float(bar["capacity"]) for bar in selected],
+                        name=scenario,
+                        legendgroup=scenario,
+                        marker={
+                            **_cost_type_marker(color, pattern),
+                            "line": {
+                                "color": color,
+                                "width": 1.5,
+                            },
+                        },
+                        customdata=[
+                            [
+                                bar["component"],
+                                _format_number(bar["capacity"], 1),
+                                kind,
+                            ]
+                            for bar in selected
+                        ],
+                        hovertemplate=(
+                            "<b>%{customdata[0]}</b><br>"
+                            f"Scenario: {scenario}<br>"
+                            "Capacity: %{customdata[1]}<br>"
+                            "Type: %{customdata[2]}"
+                            "<extra></extra>"
+                        ),
                     )
-                    results = import_results(path=res_path, es=es)
-                    # normalize_imported_results(results) #only patch kann dann weg/ignoriert
-                    datasets[scenario.name] = (results, es)
 
-            # print(format_KPIs(compare_KPIs(datasets)))
+            # for kind, pattern in kinds:
+            #     fig.add_bar(
+            #         x=[None],
+            #         y=[None],
+            #         name=kind,
+            #         legendgroup=f"capacity_kind_{kind}",
+            #         showlegend=True,
+            #         marker=_cost_type_marker("#808080", pattern),
+            #         hoverinfo="skip",
+            #     )
 
-            # fig = graphs.compare_annual_costs(datasets)
-
-            fig_capacities = graphs.compare_capacities(datasets)
-            figure_json = json.loads(fig_capacities.to_json())
+            fig.update_xaxes(
+                tickvals=list(positions.values()),
+                ticktext=list(positions.keys()),
+            )
+            figure_json = json.loads(fig.to_json())
             figure_json["id"] = variable
+        else:
+            figure_json = dict(id=variable, data=[], layout={})
 
     return JsonResponse(
         figure_json, status=200, content_type="application/json", safe=True
