@@ -137,7 +137,7 @@ function addWideTable(table_data, table_id){
                 }
             }
             // highlight totals
-            if (value.verbose.includes("Total")) {
+            if (value.verbose.toLowerCase().includes("total")) {
                 tableDataCell.style.fontWeight = "bold";
                 tableDataCell.style.backgroundColor = "#F9F8F7";
             }
@@ -162,13 +162,12 @@ function addWideTable(table_data, table_id){
         "<strong>Success: </strong> We have encountered an error: " + errmsg + "</div>");
 }*/
 
-function request_system_costs_table(scen_id=""){
+function request_results_table(scen_id="", table_id=""){
  $.ajax({
-            url: urlRequestSystemCosts + scen_id,
+            url: urlRequestResultsTable + scen_id + "/" + table_id,
             type: "GET",
-            data: {table_id: "system_costs"},
             success: async (table_data) => {
-                await addWideTable(table_data, table_id="system_costs");
+                await addWideTable(table_data, table_id=table_id);
             },
         });
     }
@@ -188,16 +187,80 @@ function fetchSelectedScenarios(){
     return selectedScenarios;
 }
 
+function translateLabel(label) {
+    return typeof label === "string" ? gettext(label) : label;
+}
 
+function translateFigureLabels(data, layout) {
+    // try and get all strings that might need translation across different chart types
+    data.forEach(trace => {
+        if (trace.name) trace.name = gettext(trace.name);
+        if (Array.isArray(trace.x)) trace.x = trace.x.map(translateLabel);
+        if (Array.isArray(trace.y)) trace.y = trace.y.map(translateLabel);
+        if (Array.isArray(trace.labels)) trace.labels = trace.labels.map(translateLabel);
+    });
 
-function scenario_visualize_timeseries(scen_id=""){
- $.ajax({
-            url: urlVisualizeTimeseries + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
+    if (layout?.title?.text) layout.title.text = gettext(layout.title.text);
+    if (layout?.legend?.title?.text) layout.legend.title.text = gettext(layout.legend.title.text);
+
+    Object.keys(layout || {})
+        .filter(key => /^[xy]axis\d*$/.test(key))
+        .forEach(axisKey => {
+            const axis = layout[axisKey];
+            if (axis?.title?.text) axis.title.text = gettext(axis.title.text);
+            if (Array.isArray(axis?.categoryarray)) {
+                axis.categoryarray = axis.categoryarray.map(translateLabel);
             }
         });
+}
+
+function insertPlotlyGraph(graphId, data, layout){
+    translateFigureLabels(data, layout);
+
+    // finds the title of the section
+    const graph = document.getElementById(`graph-${graphId}`);
+    const title = graph
+    .closest(".chart")
+    .querySelector(".chart__header .title a");
+
+    // replaces section title by the graph title
+    // title.textContent = gettext(layout.title.text);
+    // erases graph title
+    layout.title.text = "";
+    Plotly.newPlot(
+        "graph-" + graphId,
+        data,
+        layout
+    );
+}
+
+function scenario_visualize_timeseries(scen_id=""){
+    scenario_visualize_given_graph(scen_id, variable="timeseries");
+}
+
+async function scenario_visualize_given_graph(scen_id = "", variable = "") {
+    const url =
+        `${urlVisualizeAnyGraph}` +
+        `${encodeURIComponent(scen_id)}/` +
+        `${encodeURIComponent(variable)}`;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const figure = await response.json();
+
+        await insertPlotlyGraph(
+            figure.id,
+            figure.data,
+            figure.layout
+        );
+    } catch (error) {
+        console.error("Could not load graph:", error);
+    }
 }
 
 function scenario_visualize_stacked_timeseries(scen_id){
@@ -224,41 +287,19 @@ function scenario_visualize_sankey(scen_id, ts=null){
 	else{
 		urlParams = scen_id + "/" + ts;
 	}
- $.ajax({
-            url: urlVisualizeSankey + urlParams,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            },
-        });
+    $.ajax({
+        url: urlVisualizeSankey + urlParams,
+        type: "GET",
+        success: async (figure) => {
+            await insertPlotlyGraph(figure.id, figure.data,figure.layout);
+        },
+    });
 }
 
 function scenario_visualize_capacities(scen_id=""){
- $.ajax({
-            url: urlVisualizeCapacities + scen_id,
-            type: "GET",
-            success: async (parameters) => {
-                await graph_type_mapping[parameters.type](parameters.id, parameters);
-            },
-        });
+    scenario_visualize_given_graph(scen_id, variable="capacities");
 }
 
 function scenario_visualize_costs(scen_id=""){
- $.ajax({
-            url: urlVisualizeCosts + scen_id,
-            type: "GET",
-            success: async (graphs) => {
-								const parentDiv = document.getElementById("costs");
-                await graphs.map(parameters => {
-                    const newGraph = document.createElement('div');
-                    newGraph.id = "costs" + parameters.id;
-                    parentDiv.appendChild(newGraph);
-                    if(parameters.title === "var1" || parameters.title === "var2")
-            				{ graph_type= parameters.type;
-            					parameters.title = "";}
-            				else{ graph_type = parameters.type + "Scenarios";}
-                    graph_type_mapping[graph_type](newGraph.id, parameters);
-                });
-            },
-        });
+    scenario_visualize_given_graph(scen_id, variable="costs");
 }

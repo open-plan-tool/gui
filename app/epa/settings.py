@@ -11,15 +11,15 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import ssl
+import sys
+from pathlib import Path
 
+import environ
 from celery.schedules import crontab
 from django.contrib.messages import constants as messages
-import environ
-from pathlib import Path
-import sys
 
 # Version number -> gets updated by bump-my-version, do not touch manually
-APP_VERSION_NUMBER = "1.3.1"
+APP_VERSION_NUMBER = "1.3.2"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap4",
     "django_celery_beat",
+    "statici18n",
 ]
 
 if DEBUG is True:
@@ -120,6 +121,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "epa.context_processors.debug",
@@ -310,6 +312,9 @@ REDIS_SSL = REDIS_URL.startswith("rediss://")
 if USE_TZ:
     # https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-timezone
     CELERY_TIMEZONE = TIME_ZONE
+# https://django-celery-beat.readthedocs.io/en/latest/
+# see https://github.com/celery/django-celery-beat/issues/924
+DJANGO_CELERY_BEAT_TZ_AWARE = False
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-broker_url
 CELERY_BROKER_URL = REDIS_URL
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#redis-backend-use-ssl

@@ -282,12 +282,16 @@ function plotDualInputTrace(obj, param_name=""){
 
 }
 
-function updateScalarInput(array,param_name){
+function updateScalarInput(array,param_name, generation_parameters=null){
     // write the array as json inside the scalar input field and trigger the change event
     var scalarID = "id_" + param_name + "_2";
     var scalar_input = document.getElementById(scalarID);
     if (scalar_input) {
-        scalar_input.value = JSON.stringify(array.map(el => Number(el[0])));
+        const values = array.map(el => Number(el[0]));
+        const payload = generation_parameters
+            ? {values: values, generation_parameters: generation_parameters}
+            : values;
+        scalar_input.value = JSON.stringify(payload);
         scalar_input.dispatchEvent(new Event("change"));
     }
 }

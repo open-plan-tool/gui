@@ -154,6 +154,11 @@ urlpatterns = [
     path("scenario/update/<int:scen_id>", scenario_update, name="scenario_update"),
     path("scenario/delete/<int:scen_id>", scenario_delete, name="scenario_delete"),
     path(
+        "scenario/reset/simulation/<int:scen_id>",
+        scenario_reset_simulation,
+        name="scenario_reset_simulation",
+    ),
+    path(
         "scenario/duplicate/<int:scen_id>",
         scenario_duplicate,
         name="scenario_duplicate",

@@ -818,15 +818,9 @@ function computeCustomTimeseries(event){
             const generationParameters = jsonRes.generation_parameters;
             const units = jsonRes.units;
             const labels = jsonRes.labels;
-            // clear the other subfields first: the scalar field's onchange handler
-            // (initTimeseriesManualValue) re-triggers the select field's own change handler
-            // with whatever it currently holds, which would otherwise re-fetch and clobber
-            // the value we're about to set here with a stale, previously-selected timeseries
+            document.getElementById('id_' + paramName + '_0').value = '';
             document.getElementById('id_' + paramName + '_1').value = '';
-            document.getElementById('id_' + paramName + '_2').value = '';
-            const scalarInput = document.getElementById('id_' + paramName + '_0');
-            scalarInput.value = JSON.stringify({values: tsValues, generation_parameters: generationParameters});
-            scalarInput.dispatchEvent(new Event('change'));
+            updateScalarInput(tsValues.map(v => [v]), paramName, generationParameters)
             plotTimeseriesInputTrace(tsValues, paramName);
             showGenerationParameters(generationParameters, units, labels, paramName);
         } else {
@@ -1000,8 +994,7 @@ function validateNodeConnections(editor) {
         // Bus
         if (name.startsWith("bus")) {
             if (inputCount < 1 || outputCount < 1) {
-                alert(`Bus "${node.data.name}" must have at least 1 input AND 1 output.`);
-                return false;
+                alert(`Bus "${node.data.name}" should have at least 1 input and 1 output. Without an output, the bus will act as a sink. Please make sure that this is your intended behavior.`);
             }
             continue;
         }

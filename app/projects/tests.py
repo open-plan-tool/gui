@@ -1302,11 +1302,15 @@ class CHPAssetTest(TestCase):
         dp, bus_records, profile_records = asset.to_datapackage()
         self.assertEqual(dp["type"], "chp")
         self.assertEqual(
-            dp["efficiency_electricity_state_b"], f"constant value = {0.35}"
+            dp["efficiency_electricity_state_b"].split("__")[0],
+            f"constant value = {0.35}",
         )
-        self.assertEqual(dp["efficiency_heat_state_b"], f"constant value = {0.5}")
         self.assertEqual(
-            dp["efficiency_electricity_state_a"], f"constant value = {0.4}"
+            dp["efficiency_heat_state_b"].split("__")[0], f"constant value = {0.5}"
+        )
+        self.assertEqual(
+            dp["efficiency_electricity_state_a"].split("__")[0],
+            f"constant value = {0.4}",
         )
         # MVS parameter names may not leak into the datapackage
         self.assertNotIn("efficiency", dp)

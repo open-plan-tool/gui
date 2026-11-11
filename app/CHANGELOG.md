@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [v1.3.2] – 2026-11-11
+### Added
+- Display eesyplan results table on results page [[#582](https://github.com/open-plan-tool/gui/pull/582)]
+- Enable translation of graph labels [[#588](https://github.com/open-plan-tool/gui/pull/588)]
+- Add parameters `investment_fix_cost` and `annual_fix_cost` to `HeatingNetwork` component [[#592](https://github.com/open-plan-tool/gui/pull/592)]
+- Add endpoint to reset a simulation and the option to do so in the project's scenarios view[[#479](https://github.com/open-plan-tool/gui/pull/479)]
+
+### Changed
+- Allow user to save bus without an output [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Replace various converter assets with one electrical transformer [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Sankey diagramm is currently only the aggregated values diagramm [[#479](https://github.com/open-plan-tool/gui/pull/479)]
+
+### Fixed
+- Fix automatic simulation status fetching [[#580](https://github.com/open-plan-tool/gui/pull/580)]
+- Fix DSO errors on results page [[#583](https://github.com/open-plan-tool/gui/pull/583)]
+- Fix server error on simulation page [[#583](https://github.com/open-plan-tool/gui/pull/583)]
+- Fix small layout bug on results step ribbon button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Fix hover area on duplicate button [[#586](https://github.com/open-plan-tool/gui/pull/586)]
+- Label profiles uniquely inside datapackage profiles.csv [[#479](https://github.com/open-plan-tool/gui/pull/479)]
+- Fix table styling [[#588](https://github.com/open-plan-tool/gui/pull/588)]
+
 ## [v1.3.1] – 2026-11-02
 
 ### Added
