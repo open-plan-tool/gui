@@ -656,6 +656,26 @@ class Scenario(models.Model):
 
         return scenario_folder
 
+    def get_assets_timeseries(self):
+        timeseries_ids = set()
+
+        for asset_type, uuid in self.asset_set.all().values_list(
+            "asset_type__asset_type", "unique_id"
+        ):
+            asset_type_model = ASSET_MAPPING.get(asset_type, Asset)
+            concrete_asset = get_object_or_404(asset_type_model, unique_id=uuid)
+            for field in concrete_asset._meta.get_fields():
+                if (
+                    isinstance(field, models.ForeignKey)
+                    and field.related_model is Timeseries
+                ):
+                    timeseries = getattr(concrete_asset, field.name, None)
+
+                    if timeseries is not None:
+                        timeseries_ids.add(timeseries.pk)
+
+        return timeseries_ids
+
     def to_jsonified_datapackage(
         self, destination_path=None, n_timestamps=None, store_database_record=False
     ):
@@ -665,9 +685,9 @@ class Scenario(models.Model):
         if store_database_record:
             ts_fks = {
                 f"{k[0]}__{k[1]}": k[1]
-                for k in Timeseries.objects.filter(scenario=self).values_list(
-                    "name", "id"
-                )
+                for k in Timeseries.objects.filter(
+                    id__in=self.get_assets_timeseries()
+                ).values_list("name", "id")
             }
             # Create a copy to store in the simulation field
             db_dp = copy.deepcopy(simulation_dp)
@@ -2206,6 +2226,27 @@ ASSET_MAPPING = {
     "sink": Sink,
     "auxiliary_heat": AuxiliaryHeat,
 }
+
+
+def get_assets_timeseries(scenario):
+    timeseries_ids = set()
+
+    for asset_type, uuid in scenario.asset_set.all().values_list(
+        "asset_type__asset_type", "unique_id"
+    ):
+        asset_type_model = ASSET_MAPPING.get(asset_type, Asset)
+        concrete_asset = get_object_or_404(asset_type_model, unique_id=uuid)
+        for field in concrete_asset._meta.get_fields():
+            if (
+                isinstance(field, models.ForeignKey)
+                and field.related_model is Timeseries
+            ):
+                timeseries = getattr(concrete_asset, field.name, None)
+
+                if timeseries is not None:
+                    timeseries_ids.add(timeseries.pk)
+
+    return timeseries_ids
 
 
 class COPCalculator(models.Model):
