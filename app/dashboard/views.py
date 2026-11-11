@@ -24,7 +24,16 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
-from oemof.datapackage import datapackage
+from oemof.datapackage import datapackage  # noqa
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+from oemof.eesyplan import import_results
+
+from oemof.eesyplan.postprocessing import graphs
+# from oemof.eesyplan.postprocessing.KPIs import compare_KPIs
+# from oemof.eesyplan.postprocessing.KPIs import format_KPIs
+# from oemof.eesyplan.postprocessing.KPIs import normalize_imported_result
+
+
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
@@ -275,6 +284,7 @@ def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     ]
 
     selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
+
     return render(
         request,
         "report/compare_scenario.html",
@@ -1024,13 +1034,42 @@ def scenario_visualize_variable(
 
     simulations = []
 
+    print(selected_scenario)
     qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
     for scenario in qs:
         simulations.append(scenario.simulation)
 
-    # TODO allow comparison as well
-    simulation = scenario.simulation
-    figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    if len(simulations) == 1:
+        simulation = simulations[0]
+        figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    else:
+        datasets = {}
+
+        scenario = simulations[0].scenario
+        with tempfile.TemporaryDirectory(prefix="dp_") as td:
+            temp_path = Path(td)
+            dp_path = datapackage.rebuild_dp_from_json(
+                scenario.rebuild_datapackage(), temp_path
+            )
+            es = create_energy_system_from_dp(dp_path)
+
+            for sim in simulations:
+                with tempfile.TemporaryDirectory(prefix="res_") as temp_res:
+                    temp_res = Path(temp_res)
+                    res_path = datapackage.rebuild_dp_from_json(
+                        json.loads(sim.dp_results), temp_res
+                    )
+                    results = import_results(path=res_path, es=es)
+                    # normalize_imported_results(results) #only patch kann dann weg/ignoriert
+                    datasets[scenario.name] = (results, es)
+
+            # print(format_KPIs(compare_KPIs(datasets)))
+
+            # fig = graphs.compare_annual_costs(datasets)
+
+            fig_capacities = graphs.compare_capacities(datasets)
+            figure_json = json.loads(fig_capacities.to_json())
+            figure_json["id"] = variable
 
     return JsonResponse(
         figure_json, status=200, content_type="application/json", safe=True

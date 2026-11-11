@@ -95,6 +95,11 @@ urlpatterns = [
         name="scenario_visualize_variable",
     ),
     path(
+        "project/<int:proj_id>/scenario/results/request/<str:variable>",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
+    ),
+    path(
         "project/<int:proj_id>/scenario/results/request/<int:scen_id>/<str:variable>",
         scenario_visualize_variable,
         name="scenario_visualize_variable",
