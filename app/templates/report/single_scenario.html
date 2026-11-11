@@ -45,9 +45,8 @@ parameters specific to this graph type only, other parameters are available in t
 
 
 {% block export-results %}
-<a type="button" class="btn btn-small" href="{% url 'redirect_download_timeseries_results' proj_id %}"><span class="icon icon-export"></span>{% translate "Download Timeseries" %}</a>
-<a type="button" class="btn btn-small" href="{% url 'download_scalar_results' scen_id %}"><span class="icon icon-export"></span>{% translate "Download KPIs" %}</a>
-<a type="button" class="btn btn-small" href="{% url 'download_cost_results' scen_id %}"><span class="icon icon-export"></span>{% translate "Download Component Costs" %}</a>
+<a type="button" class="btn btn-small" href="{% url 'download_results_datapackage' scen_id %}"><span class="icon icon-export"></span>{% translate "Download results" %}</a>
+<!--a type="button" class="btn btn-small" href="{% url 'download_cost_results' scen_id %}"><span class="icon icon-export"></span>{% translate "Download Component Costs" %}</a-->
 {% endblock export-results %}
 
 
