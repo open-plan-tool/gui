@@ -650,7 +650,7 @@ def request_kpi_table(request, proj_id=None):
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
         scen_names.append(_(scenario.name))
-        kpis[scenario_id] = json.loads(scenario.simulation.tables)
+        kpis[scenario_id] = scenario.simulation.tables
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}

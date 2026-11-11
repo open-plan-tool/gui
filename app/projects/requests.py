@@ -192,10 +192,8 @@ def parse_ezp_results(simulation, response_results):
                 imported_results.add_all_tables()
 
                 # TODO here the content of the dashboard/graphs/ of the dashboard datapackage, if coming from the EZP server, should be dumped
-                simulation.graphs = json.dumps(imported_results.figures())
-                simulation.tables = json.dumps(
-                    imported_results.tables(convert_to_json=True)
-                )
+                simulation.graphs = imported_results.figures()
+                simulation.tables = imported_results.tables(convert_to_json=True)
 
                 ezp_results = imported_results
 
