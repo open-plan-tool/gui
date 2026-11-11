@@ -44,7 +44,7 @@ table_id:
 						</div>
 					</div>
 					<div class="chart__plot collapse show" id="container_{{ table_id }}">
-						<table class="table" id="{{ table_id }}Table"></table>
+						<table class="table {% if table_id == "summary" %} kpis {% endif %}" id="{{ table_id }}Table"></table>
 						<!--<div class="table-add">
 							<span class="icon icon-add"></span>
 							<span class="table-add__text">

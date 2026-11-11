@@ -249,6 +249,9 @@ msgstr "Brennstoffbus"
 msgid "Hydrogen Bus"
 msgstr "Wasserstoffbus"
 
+msgid "Electrical Transformer"
+msgstr "Stromwandler"
+
 #: projects/forms.py:72
 msgid "Click on the icon for more help"
 msgstr "Klicken Sie auf das Symbol für weitere Hilfe"
@@ -3629,7 +3632,7 @@ msgstr "Willkommen im OpenPlan Tool"
 
 #: templates/registration/login.html:22
 msgid "Do you not have an account yet?"
-msgstr "Besitzen Sie bereits kein Konto?"
+msgstr "Besitzen Sie noch kein Konto?"
 
 #: templates/registration/login.html:26
 msgid "Forgot your password?"
@@ -5236,3 +5239,12 @@ msgstr "Fernwärmeleitung"
 
 msgid "Auxiliary Heat"
 msgstr "Temperaturanhebung"
+
+msgid "Renewable vs non-renewable"
+msgstr "Erneuerbar vs. nicht-erneuerbar"
+
+msgid "Accumulated energy supply of the system"
+msgstr "Gesamtenergieversorgung des Systems"
+
+msgid "Yearly Project Costs"
+msgstr "Jährliche Projektkosten"

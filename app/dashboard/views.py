@@ -5,6 +5,7 @@ import traceback
 from io import BytesIO
 
 import numpy as np
+import pandas as pd
 import xlsxwriter
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -43,8 +44,6 @@ from dashboard.forms import (
 )
 from dashboard.helpers import *
 from dashboard.models import (
-    KPI_COSTS_TOOLTIPS,
-    KPI_COSTS_UNITS,
     KPI_SCALAR_TOOLTIPS,
     KPI_SCALAR_UNITS,
     REPORT_GRAPHS,
@@ -54,7 +53,6 @@ from dashboard.models import (
     KPIScalarResults,
     ReportItem,
     SensitivityAnalysisGraph,
-    get_costs,
     get_project_reportitems,
     get_project_sensitivity_analysis_graphs,
 )
@@ -123,7 +121,7 @@ def result_change_project(request):
 @login_required
 @require_http_methods(["POST", "GET"])
 def scenario_visualize_results(
-    request, proj_id=None, scen_id=None, step_id=5, max_step=MAX_STEP
+    request, proj_id=None, scen_id=None, step_id=4, max_step=MAX_STEP
 ):
     page_information = mark_safe(
         "Please be aware that the tool is still under development and results are subject to change. "
@@ -195,6 +193,7 @@ def scenario_visualize_results(
                     # TODO here allow more than one scenario to be selected
                     scen_id = selected_scenarios[0]
 
+            # TODO adapt for EZP
             # collect the report items of the project
             report_items_data = [
                 ri.render_json for ri in get_project_reportitems(project)
@@ -637,11 +636,7 @@ def request_kpi_table(request, proj_id=None):
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
         scen_names.append(_(scenario.name))
-        kpi_scalar_results_obj = KPIScalarResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_scalar_results_dict = json.loads(kpi_scalar_results_obj.scalar_values)
-        kpis[scenario_id] = kpi_scalar_results_dict
+        kpis[scenario_id] = json.loads(scenario.simulation.tables)
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
@@ -666,7 +661,10 @@ def request_kpi_table(request, proj_id=None):
                 missing = False
 
                 for scen_id in selected_scenarios:
-                    val = kpis.get(scen_id, {}).get(param["id"])
+                    kpi_table = kpis.get(scen_id, {}).get(table_id, {})
+                    if isinstance(kpi_table, str):
+                        kpi_table = json.loads(kpi_table)
+                    val = kpi_table.get(param["id"])
                     if val is None:
                         logger.warning(
                             "KPI %s not found for scenario %s", param["id"], scen_id
@@ -674,7 +672,7 @@ def request_kpi_table(request, proj_id=None):
                         missing = True
                         break
 
-                    if param["unit"] == "%":
+                    if param["unit"] == "%" or "ct" in param["unit"]:
                         values.append(beautify_number(val * 100, 0))
                     elif f"{proj.economic_data.currency}/kWh" in param["unit"]:
                         values.append(beautify_number(val, 2))
@@ -722,7 +720,7 @@ def request_kpi_table(request, proj_id=None):
 @login_required
 @json_view
 @require_http_methods(["GET"])
-def request_system_costs_table(request, proj_id=None, scen_id=None):
+def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
@@ -734,23 +732,23 @@ def request_system_costs_table(request, proj_id=None, scen_id=None):
         return JsonResponse(
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
-    scen_costs = get_costs(sim)
+    scen_costs = sim.get_table(table_id)
+    scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
 
     table = {}
     # TODO fix this with the actual descriptions etc
-    for idx, row in scen_costs.iterrows():
+    for idx, row in pd.DataFrame(scen_costs_df).iterrows():
         table[str(idx)] = {
             "name": str(idx),
             "description": "",
             "unit": "",
-            "scen_values": [f"{v:,.1f}" for v in row],
+            "scen_values": [f"{v:,.0f}" for v in row],
         }
-
     answer = JsonResponse(
         {
             "data": table,
-            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs.columns],
-            "title": _("Annualized costs breakdown"),
+            "hdrs": [col.replace("_", " ") + " (€)" for col in scen_costs_df.columns],
+            "title": _(table_id.title().replace("_", " ")),
         },
         status=200,
         content_type="application/json",
@@ -785,11 +783,12 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             proj_id=scenario.project.id,
             scenario_id=scenario.id,
         )
-        input_timeseries_data = (
-            existing_asset.input_timeseries.values
-            if existing_asset.input_timeseries
-            else ""
-        )
+
+        input_timeseries_data = ""
+
+        if hasattr(existing_asset, "input_timeseries"):
+            if existing_asset.input_timeseries is not None:
+                input_timeseries_data = existing_asset.input_timeseries.values
 
         context.update(
             {
@@ -807,9 +806,15 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         qs = FancyResults.objects.filter(simulation=scenario.simulation)
 
         if qs.exists():
-            qs_fine = qs.exclude(asset__contains="@").filter(
-                asset__contains=existing_asset.name
-            )
+            if existing_asset.asset_type.asset_type == "heating_network":
+                qs_fine = qs.filter(bus__contains=existing_asset.name)
+            else:
+                qs_fine = (
+                    qs.exclude(asset__contains="@")
+                    .filter(asset__contains=existing_asset.name)
+                    .filter(asset_type=existing_asset.asset_type.asset_type)
+                )
+
             negative_direction = "out"
             if existing_asset.is_storage is True and optimized_cap is True:
                 for cap in qs_fine.values_list("optimized_capacity", flat=True):
@@ -820,7 +825,11 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
             elif existing_asset.is_provider is True:
                 negative_direction = "in"
             else:
-                qs_fine = qs_fine.filter(asset=existing_asset.name)
+                qs_fine_temp = qs_fine.filter(asset=existing_asset.name)
+                if not qs_fine_temp.exists():
+                    qs_fine = qs_fine.filter(asset__contains=existing_asset.name)
+                else:
+                    qs_fine = qs_fine_temp
 
             traces = []
             total_flows = []
@@ -852,40 +861,71 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
                     }
                 )
             else:
-                qs_fine = qs_fine.annotate(
-                    name=Case(
-                        When(
-                            Q(asset_type__contains="chp") & Q(direction="in"),
-                            then=Concat("asset", Value(" out ("), "bus", Value(")")),
+                if existing_asset.asset_type.asset_type == "heating_network":
+                    qs_fine = qs_fine.annotate(
+                        name=Case(
+                            When(
+                                Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            default=F("asset"),
                         ),
-                        When(
-                            Q(asset_type__contains="chp") & Q(direction="out"),
-                            then=Concat("asset", Value(" in")),
+                        unit=Value("kW"),
+                        value=F("flow_data"),
+                    )
+                else:
+                    qs_fine = qs_fine.annotate(
+                        name=Case(
+                            When(
+                                Q(asset_type__contains="chp") & Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(asset_type__contains="chp") & Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            When(
+                                Q(asset_type__contains="ess") & Q(direction="in"),
+                                then=Concat("asset", Value(" " + _("Discharge"))),
+                            ),
+                            When(
+                                Q(asset_type__contains="ess") & Q(direction="out"),
+                                then=Concat("asset", Value(" " + _("Charge"))),
+                            ),
+                            When(
+                                Q(asset_type="heat_pump") & Q(direction="out"),
+                                then=Concat("asset", Value(" in ("), "bus", Value(")")),
+                            ),
+                            When(
+                                Q(asset_type="electrolyzer") & Q(direction="in"),
+                                then=Concat(
+                                    "asset", Value(" out ("), "bus", Value(")")
+                                ),
+                            ),
+                            When(
+                                Q(oemof_type="transformer") & Q(direction="out"),
+                                then=Concat("asset", Value(" in")),
+                            ),
+                            When(
+                                Q(oemof_type="transformer") & Q(direction="in"),
+                                then=Concat("asset", Value(" out")),
+                            ),
+                            default=F("asset"),
                         ),
-                        When(
-                            Q(asset_type__contains="ess") & Q(direction="in"),
-                            then=Concat("asset", Value(" " + _("Discharge"))),
+                        unit=Case(
+                            When(Q(asset_type__contains="ess"), then=Value("kWh")),
+                            default=Value("kW"),
                         ),
-                        When(
-                            Q(asset_type__contains="ess") & Q(direction="out"),
-                            then=Concat("asset", Value(" " + _("Charge"))),
-                        ),
-                        When(
-                            Q(oemof_type="transformer") & Q(direction="out"),
-                            then=Concat("asset", Value(" in")),
-                        ),
-                        When(
-                            Q(oemof_type="transformer") & Q(direction="in"),
-                            then=Concat("asset", Value(" out")),
-                        ),
-                        default=F("asset"),
-                    ),
-                    unit=Case(
-                        When(Q(asset_type__contains="ess"), then=Value("kWh")),
-                        default=Value("kW"),
-                    ),
-                    value=F("flow_data"),
-                )
+                        value=F("flow_data"),
+                    )
 
                 for y_vals in qs_fine.order_by("direction").values(
                     "name", "value", "unit", "direction", "total_flow"
@@ -910,16 +950,21 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
 
                 if existing_asset.is_provider is True:
                     # add the possibility to see the cap limit on the feedin on the result graph
-                    feedin_cap = existing_asset.maximum_feedin_capacity
-                    if feedin_cap is not None:
-                        traces.append(
-                            {
-                                "value": [feedin_cap for t in timestamps],
-                                "name": parameters_helper.get_doc_verbose("feedin_cap"),
-                                "unit": parameters_helper.get_doc_unit("feedin_cap"),
-                                "options": {"visible": "legendonly"},
-                            }
-                        )
+                    if hasattr(existing_asset, "maximum_feedin_capacity"):
+                        feedin_cap = existing_asset.maximum_feedin_capacity
+                        if feedin_cap is not None:
+                            traces.append(
+                                {
+                                    "value": [feedin_cap for t in timestamps],
+                                    "name": parameters_helper.get_doc_verbose(
+                                        "feedin_cap"
+                                    ),
+                                    "unit": parameters_helper.get_doc_unit(
+                                        "feedin_cap"
+                                    ),
+                                    "options": {"visible": "legendonly"},
+                                }
+                            )
 
         context.update(
             {
@@ -931,118 +976,6 @@ def view_asset_parameters(request, scen_id, asset_type_name, asset_uuid):
         )
 
     return render(request, template, context)
-
-
-@login_required
-@json_view
-@require_http_methods(["GET"])
-@user_has_read_rights
-def scenario_economic_results(request, scen_id=None):
-    """
-    This view gathers all simulation specific cost matrix KPI results
-    and sends them to the client for representation.
-    """
-    if scen_id is None:
-        return JsonResponse(
-            {"error": "No scenario name provided"},
-            status=404,
-            content_type="application/json",
-            safe=False,
-        )
-
-    scenario = get_object_or_404(Scenario, pk=scen_id)
-
-    try:
-        kpi_cost_results_obj = KPICostsMatrixResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_cost_values_dict = json.loads(kpi_cost_results_obj.cost_values)
-
-        new_dict = dict()
-        for asset_name in kpi_cost_values_dict.keys():
-            for category, v in kpi_cost_values_dict[asset_name].items():
-                new_dict.setdefault(category, {})[asset_name] = v
-
-        # non-dummy data
-        results_json = [
-            {
-                "values": [
-                    (
-                        round(value, 3)
-                        if "€/kWh" in KPI_COSTS_UNITS[category]
-                        else round(value, 2)
-                    )
-                    for value in new_dict[category].values()
-                ],
-                "labels": [
-                    asset.replace("_", " ").upper()
-                    for asset in new_dict[category].keys()
-                ],
-                "type": "pie",
-                "title": category.replace("_", " ").upper(),
-                "titleTooltip": KPI_COSTS_TOOLTIPS[category],
-                "units": [KPI_COSTS_UNITS[category] for _ in new_dict[category].keys()],
-            }
-            for category in new_dict
-            if category in KPI_COSTS_UNITS.keys()
-            and sum(new_dict[category].values())
-            > 0.0  # there is at least one non zero value
-            and len(
-                list(
-                    filter(
-                        lambda asset_name: new_dict[category][asset_name] > 0.0,
-                        new_dict[category],
-                    )
-                )
-            )
-            > 1.0
-            # there are more than one assets with value > 0
-        ]
-
-        return JsonResponse(
-            results_json, status=200, content_type="application/json", safe=False
-        )
-    except Exception as e:
-        logger.error(
-            f"Dashboard ERROR: MVS Req Id: {scenario.simulation.mvs_token}. Thrown Exception: {traceback.format_exc()}"
-        )
-        return JsonResponse(
-            {"error": "Could not retrieve kpi cost data."},
-            status=404,
-            content_type="application/json",
-            safe=False,
-        )
-
-
-# TODO: Improve automatic unit recognition and selection
-# TODO: If providers are used in model, delete duplicate time-series "DSO_consumption_period"
-#  (naive string matching solution in get_asset_and_ts() done)
-@login_required
-@json_view
-@require_http_methods(["GET"])
-@user_has_read_rights
-def scenario_visualize_timeseries(request, proj_id=None, scen_id=None):
-    if scen_id is None:
-        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
-    else:
-        selected_scenario = [scen_id]
-
-    simulations = []
-
-    for scen_id in selected_scenario:
-        scenario = get_object_or_404(Scenario, pk=scen_id)
-        simulations.append(scenario.simulation)
-
-    results_json = report_item_render_to_json(
-        report_item_id="all_timeseries",
-        data=REPORT_GRAPHS[GRAPH_TIMESERIES](simulations=simulations),
-        title="",
-        report_item_type=GRAPH_TIMESERIES,
-    )
-
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
 
 
 @login_required
@@ -1070,9 +1003,16 @@ def scenario_visualize_stacked_timeseries(request, scen_id):
     )
 
 
-# TODO exclude sink components
+@login_required
+@json_view
+@require_http_methods(["GET"])
 @user_has_read_rights
-def scenario_visualize_capacities(request, proj_id, scen_id=None):
+def scenario_visualize_variable(
+    request,
+    proj_id,
+    scen_id=None,
+    variable="",
+):
     if scen_id is None:
         selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
     else:
@@ -1084,46 +1024,12 @@ def scenario_visualize_capacities(request, proj_id, scen_id=None):
     for scenario in qs:
         simulations.append(scenario.simulation)
 
-    results_json = report_item_render_to_json(
-        report_item_id="capacities",
-        data=REPORT_GRAPHS[GRAPH_CAPACITIES](simulations=simulations, y_variables=None),
-        title="",
-        report_item_type=GRAPH_CAPACITIES,
-    )
+    # TODO allow comparison as well
+    simulation = scenario.simulation
+    figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
 
     return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
-
-
-@user_has_read_rights
-def scenario_visualize_costs(request, proj_id, scen_id=None):
-    if scen_id is None:
-        selected_scenario = get_selected_scenarios_in_cache(request, proj_id)
-    else:
-        selected_scenario = [scen_id]
-
-    simulations = []
-
-    qs = Scenario.objects.filter(id__in=selected_scenario).order_by("name")
-    for scenario in qs:
-        simulations.append(scenario.simulation)
-
-    results_json = []
-    for arrangement in [COSTS_PER_ASSETS]:
-        results_json.append(
-            report_item_render_to_json(
-                report_item_id=arrangement,
-                data=REPORT_GRAPHS[GRAPH_COSTS](
-                    simulations=simulations, y_variables=None, arrangement=arrangement
-                ),
-                title=arrangement,
-                report_item_type=GRAPH_COSTS,
-            )
-        )
-
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
+        figure_json, status=200, content_type="application/json", safe=True
     )
 
 
@@ -1132,23 +1038,38 @@ def scenario_visualize_costs(request, proj_id, scen_id=None):
 @user_has_read_rights
 def scenario_visualize_sankey(request, scen_id, ts=None):
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    if (scenario.project.user != request.user) and (
+        scenario.project.viewers.filter(user__email=request.user.email).exists()
+        is False
+    ):
+        raise PermissionDenied
 
-    if ts is not None:
-        ts = int(ts)
-    results_json = report_item_render_to_json(
-        report_item_id="sankey",
-        data=REPORT_GRAPHS[GRAPH_SANKEY](
-            simulation=scenario.simulation,
-            energy_vector=scenario.energy_vectors,
-            timestep=ts,
-        ),
-        title="Sankey",
-        report_item_type=GRAPH_SANKEY,
-    )
+    if scenario.datapackage is None:
+        if ts is not None:
+            ts = int(ts)
 
-    return JsonResponse(
-        results_json, status=200, content_type="application/json", safe=False
-    )
+        results_json = report_item_render_to_json(
+            report_item_id="sankey",
+            data=REPORT_GRAPHS[GRAPH_SANKEY](
+                simulation=scenario.simulation,
+                energy_vector=scenario.energy_vectors,
+                timestep=ts,
+            ),
+            title="Sankey",
+            report_item_type=GRAPH_SANKEY,
+        )
+        return JsonResponse(
+            results_json, status=200, content_type="application/json", safe=False
+        )
+    else:
+        # TODO this sankey implementation does not allow for single timesteps
+        # if ts is not None:
+        #     ts = int(ts)
+        figure_json = scenario.simulation.get_figure("sankey")  # GRAPH_SANKEY
+
+        return JsonResponse(
+            figure_json, status=200, content_type="application/json", safe=False
+        )
 
 
 @login_required

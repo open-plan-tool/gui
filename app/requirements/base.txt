@@ -8,9 +8,10 @@ django-extensions==4.1
 django-jsonview==2.0.0
 django-sass-processor==1.4.2
 django-celery-beat==2.9.0
+django-statici18n==2.8.0
 flower==2.0.1
 redis==8.0.1
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op1.3.0
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@feature/add-figures-in-dashboard
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0

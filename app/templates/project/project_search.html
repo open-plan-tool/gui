@@ -75,10 +75,10 @@
                 <span class="role">
 													{{ project_role}}
 												</span>
-                <a href="{% url 'not_implemented' %}?url={{ request.get_full_path }}" class="location">
+                <p class="location">
                     <span class="icon-pin" aria-hidden="true"></span>
                     {{ project.country }}
-                </a>
+                </p>
             </div>
             <div class="project__details">
                 <div class="details">
@@ -222,6 +222,9 @@
                                         </a>
                                             <button class="btn btn--action action" type="submit" formaction="{% url 'scenario_delete' scenario.id %}" formmethod="post" onclick="return confirm('{{ warning_boxes.scenario_delete|escapejs }}')">
                                                 <span class="icon icon-delete" aria-hidden="true"></span>
+                                            </button>
+																			      <button class="btn btn--action action" type="submit" formaction="{% url 'scenario_reset_simulation' scenario.id %}" formmethod="post" onclick="return confirm('{{ warning_boxes.scenario_delete|escapejs }}')">
+                                                <span class="icon icon-refresh" aria-hidden="true">reset</span>
                                             </button>
 
                                     </div>

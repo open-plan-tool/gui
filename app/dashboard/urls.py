@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+
 from .views import *
 
 urlpatterns = [
@@ -53,11 +54,6 @@ urlpatterns = [
         scenario_available_results,
         name="scenario_available_results",
     ),
-    path(
-        "scenario/results/request_economic_data/<int:scen_id>",
-        scenario_economic_results,
-        name="scenario_economic_results",
-    ),
     re_path(
         r"^asset/view_form/(?P<scen_id>\d+)/(?P<asset_type_name>\w+)?(/(?P<asset_uuid>[0-9a-f-]+))?$",
         view_asset_parameters,
@@ -68,10 +64,15 @@ urlpatterns = [
         request_kpi_table,
         name="request_kpi_table",
     ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request_systen_costs_table/(?P<scen_id>\d+)?$",
-        request_system_costs_table,
-        name="request_system_costs_table",
+    path(
+        "project/<int:proj_id>/scenario/results/request_results_table/",
+        request_results_table,
+        name="request_results_table",
+    ),
+    path(
+        "project/<int:proj_id>/scenario/results/request_results_table/<int:scen_id>/<str:table_id>",
+        request_results_table,
+        name="request_results_table",
     ),
     re_path(
         r"^project/(?P<proj_id>\d+)/scenario/results/update-selected-single-scenario/(?P<scen_id>\d+)?$",
@@ -84,14 +85,19 @@ urlpatterns = [
         name="update_selected_multi_scenarios",
     ),
     re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request_timeseries/(?P<scen_id>\d+)?$",
-        scenario_visualize_timeseries,
-        name="scenario_visualize_timeseries",
-    ),
-    re_path(
         r"^scenario/results/request_stacked_timeseries/(?P<scen_id>\d+)?$",
         scenario_visualize_stacked_timeseries,
         name="scenario_visualize_stacked_timeseries",
+    ),
+    path(
+        "project/<int:proj_id>/scenario/results/request/",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
+    ),
+    path(
+        "project/<int:proj_id>/scenario/results/request/<int:scen_id>/<str:variable>",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
     ),
     re_path(
         r"^scenario/results/request_sankey/(?P<scen_id>\d+)?$",
@@ -102,16 +108,6 @@ urlpatterns = [
         r"^scenario/results/request_sankey/(?P<scen_id>\d+)?(/(?P<ts>\d+))?$",
         scenario_visualize_sankey,
         name="scenario_visualize_sankey",
-    ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request-capacities/(?P<scen_id>\d+)?$",
-        scenario_visualize_capacities,
-        name="scenario_visualize_capacities",
-    ),
-    re_path(
-        r"^project/(?P<proj_id>\d+)/scenario/results/request-costs/(?P<scen_id>\d+)?$",
-        scenario_visualize_costs,
-        name="scenario_visualize_costs",
     ),
     path(
         "scenario/results/download_scalars/<int:scen_id>",

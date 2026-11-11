@@ -10,5 +10,6 @@ python /src/manage.py update_assettype --update
 python /src/manage.py update_valuetype --update
 echo UPDATETRANSLATIONS
 python /src/manage.py compilemessages
+python /src/manage.py compilejsi18n
 echo $(ls -L 1 --dirsfirst)
 gunicorn epa.wsgi:application --bind 0.0.0.0:8000 --workers=4 --timeout=120

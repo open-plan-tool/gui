@@ -82,6 +82,10 @@ from .scenario_topology_helpers import (
     load_scenario_topology_from_db,
     update_deleted_objects_from_database,
 )
+
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, validate_dp_results
+from dashboard.helpers import fetch_user_projects
+from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     excuses_design_under_development,
     get_selected_scenarios_in_cache,
@@ -954,15 +958,11 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "biogas_plant": _("Biogas Plant"),
             "geothermal_conversion": _("Geothermal Conversion"),
             "solar_thermal_plant": _("Solar Thermal Plant"),
-            "commodity": _("Commodity"),
-            "shortage": _("Shortage"),
+            # "commodity": _("Commodity"),
+            # "shortage": _("Shortage"),
         },
         "conversion": {
-            "transformer_station_in": _("Transformer Station (in)"),
-            "transformer_station_out": _("Transformer Station (out)"),
-            "storage_charge_controller_in": _("Storage Charge Controller (in)"),
-            "storage_charge_controller_out": _("Storage Charge Controller (out)"),
-            "solar_inverter": _("Solar Inverter"),
+            "electrical_transformer": _("Electrical Transformer"),
             "diesel_generator": _("Diesel Generator"),
             "fuel_cell": _(" Fuel Cell"),
             "gas_boiler": _("Gas Boiler"),
@@ -970,7 +970,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             "heat_pump": _("Heat Pump"),
             "chp": _("Combined Heat and Power"),
             "chp_fixed_ratio": _("CHP fixed ratio"),
-            "auxiliary_heat": _("Auxiliary Heat"),
+            # "auxiliary_heat": _("Auxiliary Heat"),
         },
         "storage": {
             "bess": _("Electricity Storage"),
@@ -983,8 +983,8 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
             # "gas_demand": _("Gas Demand"),
             "h2_demand": _("H2 Demand"),
             "heat_demand": _("Heat Demand"),
-            "sink": _("Sink"),
-            "excess": _("Excess"),
+            # "sink": _("Sink"),
+            # "excess": _("Excess"),
         },
         "transport": {
             "heating_network": _("Heating Network"),
@@ -1378,7 +1378,9 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
     with tempfile.TemporaryDirectory() as temp_dir:
         destination_path = Path(temp_dir)
         # write the content of the scenario into a temp directory
-        scenario_folder = scenario.to_datapackage(destination_path, number=n_timestamps)
+        scenario_folder = scenario.to_datapackage(
+            destination_path, n_timestamps=n_timestamps
+        )
 
         # Place the temp directory into a zip folder
         zip_buffer = io.BytesIO()
@@ -1406,7 +1408,7 @@ def scenario_export_as_datapackage(request, scen_id, n_timestamps=None):
 def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None):
     scenario = get_object_or_404(Scenario, id=int(scen_id))
 
-    json_dp = scenario.to_jsonified_datapackage(number=n_timestamps)
+    json_dp = scenario.to_jsonified_datapackage(n_timestamps=n_timestamps)
     response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
@@ -1422,7 +1424,7 @@ def project_export_as_datapackage(request, proj_id, n_timestamps=None):
         destination_path = Path(temp_dir)
 
         for scenario in project.scenario_set.all():
-            scenario.to_datapackage(destination_path, number=n_timestamps)
+            scenario.to_datapackage(destination_path, n_timestamps=n_timestamps)
 
         # Place the temp directory into a zip folder
         zip_buffer = io.BytesIO()
@@ -1452,6 +1454,19 @@ def scenario_delete(request, scen_id):
     if request.POST:
         scenario.delete()
         messages.success(request, "scenario successfully deleted!")
+        return HttpResponseRedirect(
+            reverse("project_search", args=[scenario.project.id])
+        )
+
+
+@login_required
+@require_http_methods(["POST"])
+@user_is_owner
+def scenario_reset_simulation(request, scen_id):
+    scenario = get_object_or_404(Scenario, id=scen_id)
+    if request.POST:
+        scenario.simulation.delete()
+        messages.success(request, "simulation successfully reset!")
         return HttpResponseRedirect(
             reverse("project_search", args=[scenario.project.id])
         )
@@ -2148,7 +2163,8 @@ def request_mvs_simulation(request, scen_id=0):
             results["status"] == DONE or results["status"] == ERROR
         ):
             simulation.status = results["status"]
-            simulation.results = results["results"]
+            simulation.results = json.dumps(results["results"])
+            simulation.dp_results = json.dumps(results["results"]["raw_results"])
             simulation.end_date = datetime.datetime.now()
         else:  # PENDING
             simulation.status = results["status"]
@@ -2156,6 +2172,8 @@ def request_mvs_simulation(request, scen_id=0):
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
         ).seconds
+
+        # validate_dp_results(simulation.dp_results)
         simulation.save()
 
         answer = HttpResponseRedirect(
@@ -2177,7 +2195,7 @@ def request_ezp_simulation(request, scen_id=0):
         )
     # Load scenario
     scenario = Scenario.objects.get(pk=scen_id)
-    json_dp = scenario.to_jsonified_datapackage()
+    json_dp = scenario.to_jsonified_datapackage(store_database_record=True)
 
     # if request.method == "POST":
     #     output_lp_file = request.POST.get("output_lp_file", None)
@@ -2224,16 +2242,6 @@ def request_ezp_simulation(request, scen_id=0):
         simulation.elapsed_seconds = (
             datetime.datetime.now() - simulation.start_date
         ).seconds
-
-        # Keep a trace of the input datapackage which defines the simulation
-        # (without the full timeseries to save disk space, but with foreign keys to the timeseries)
-        with tempfile.TemporaryDirectory() as temp_dir:
-            destination_path = Path(temp_dir)
-            # write the content of the scenario into a temp directory
-            scenario_folder = scenario.to_datapackage(destination_path, number=0)
-
-            json_dp = json.loads(export_dp_to_json(scenario_folder))
-            # TODO Save json_dp into a new field Simulation object ?
         simulation.save()
 
         answer = HttpResponseRedirect(
