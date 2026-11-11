@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Hide and toggle certain fields depending on storage type [[#596](https://github.com/open-plan-tool/gui/pull/596)]
 
 ## [v1.3.2] – 2026-11-11
 ### Added
