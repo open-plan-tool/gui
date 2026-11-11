@@ -24,12 +24,12 @@
 					</select>
 				</div>
 				{% if scenario_list %}
-				<div class="dashboard__add">
+				<!--div class="dashboard__add">
 					<button class="btn btn--small btn--transparent" type="submit" onclick="javascript:showCreateReportItemModal(event)">
 						<span class="icon icon-add"></span>
 						{% translate "Add chart" %}
 					</button>
-				</div>
+				</div-->
 				{% endif %}
 			</div>
 		</div>
@@ -45,7 +45,6 @@
 		<div class="row">
 			<div class="col" id="report_items">
 				{% include "report/graph_template.html" with id="costs" title="Costs" %}
-				{% include "report/graph_template.html" with id="all_timeseries" title="All timeseries" %}
 				{% include "report/graph_template.html" with id="capacities" title="Installed and optimized capacities" %}
 
 			</div>
@@ -65,9 +64,8 @@ $(document).ready(function () {
     // update the kpi table
     update_kpi_table_style();
     if(fetchSelectedScenarios().length > 0 ){
-    	scenario_visualize_timeseries();
     	scenario_visualize_capacities();
-    	scenario_visualize_costs();
+    	//scenario_visualize_costs();
     }
 });
 
@@ -88,9 +86,8 @@ function update_selected_multi_scenarios(target){
                 /* Update the kpi table */
                 update_kpi_table_style();
                 if(scen_ids.length > 0){
-                	scenario_visualize_timeseries();
                 	scenario_visualize_capacities();
-                	scenario_visualize_costs();
+                	//scenario_visualize_costs();
                 }
             },
         });

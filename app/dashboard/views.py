@@ -3,7 +3,12 @@ import json
 import logging
 import traceback
 from io import BytesIO
+import tempfile
+import zipfile
+from pathlib import Path
 
+from plotly import graph_objects as go
+from plotly.colors import qualitative
 import numpy as np
 import pandas as pd
 import xlsxwriter
@@ -21,6 +26,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
+from oemof.datapackage import datapackage  # noqa
+
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
@@ -271,6 +278,7 @@ def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     ]
 
     selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
+
     return render(
         request,
         "report/compare_scenario.html",
@@ -636,7 +644,7 @@ def request_kpi_table(request, proj_id=None):
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
         scen_names.append(_(scenario.name))
-        kpis[scenario_id] = json.loads(scenario.simulation.tables)
+        kpis[scenario_id] = scenario.simulation.tables
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
@@ -733,7 +741,7 @@ def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
     scen_costs = sim.get_table(table_id)
-    scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
+    scen_costs_df = pd.DataFrame(scen_costs).set_index("Component")
 
     table = {}
     # TODO fix this with the actual descriptions etc
@@ -1024,9 +1032,132 @@ def scenario_visualize_variable(
     for scenario in qs:
         simulations.append(scenario.simulation)
 
-    # TODO allow comparison as well
-    simulation = scenario.simulation
-    figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    if len(simulations) == 1:
+        simulation = simulations[0]
+        figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    else:
+        if variable == "capacities":
+            results = Simulation.objects.filter(
+                scenario__id__in=selected_scenario
+            ).values_list(
+                "scenario__name",
+                "graphs__capacities__data",
+            )
+
+            # The following code was AI generated based on the structure of the figure of
+            # eesyplan graphs.compare_capacity and can be improved
+            bars = []
+
+            for scenario, traces in results:
+                for trace in traces or []:
+                    kind = trace["name"]  # "Installed" / "Optimized"
+
+                    for component, capacity in zip(trace["x"], trace["y"]):
+                        if capacity is None:
+                            continue
+                        bars.append(
+                            {
+                                "scenario": scenario,
+                                "component": component,
+                                "capacity": capacity,
+                                "kind": kind,
+                            }
+                        )
+
+            datasets = list(dict.fromkeys(bar["scenario"] for bar in bars))
+
+            components = list(dict.fromkeys(bar["component"] for bar in bars))
+            positions = {component: i for i, component in enumerate(components)}
+
+            scenario_colors = {
+                scenario: qualitative.Plotly[index % len(qualitative.Plotly)]
+                for index, scenario in enumerate(datasets)
+            }
+
+            fig = go.Figure()
+
+            def _cost_type_marker(color, pattern):
+                """Marker of one cost type: the colour with its fill pattern."""
+                marker = {"color": color}
+                if pattern:
+                    marker["pattern"] = {
+                        "shape": pattern,
+                        "fgcolor": color,
+                        "bgcolor": "rgba(0,0,0,0)",
+                    }
+                return marker
+
+            def _format_number(value, decimals=1):
+                """Format a number with space as thousands separator."""
+                if value is None or (isinstance(value, float) and pd.isna(value)):
+                    return ""
+                try:
+                    return f"{float(value):,.{decimals}f}".replace(",", " ")
+                except Exception:
+                    return str(value)
+
+            kinds = (("Installed", "x"), ("Optimized", ""))
+            for scenario in datasets:
+                color = scenario_colors[scenario]
+
+                for kind, pattern in kinds:
+                    selected = [
+                        bar
+                        for bar in bars
+                        if bar["scenario"] == scenario and bar["kind"] == kind
+                    ]
+
+                    if not selected:
+                        continue
+
+                    fig.add_bar(
+                        x=[positions[bar["component"]] for bar in selected],
+                        y=[float(bar["capacity"]) for bar in selected],
+                        name=scenario,
+                        legendgroup=scenario,
+                        marker={
+                            **_cost_type_marker(color, pattern),
+                            "line": {
+                                "color": color,
+                                "width": 1.5,
+                            },
+                        },
+                        customdata=[
+                            [
+                                bar["component"],
+                                _format_number(bar["capacity"], 1),
+                                kind,
+                            ]
+                            for bar in selected
+                        ],
+                        hovertemplate=(
+                            "<b>%{customdata[0]}</b><br>"
+                            f"Scenario: {scenario}<br>"
+                            "Capacity: %{customdata[1]}<br>"
+                            "Type: %{customdata[2]}"
+                            "<extra></extra>"
+                        ),
+                    )
+
+            # for kind, pattern in kinds:
+            #     fig.add_bar(
+            #         x=[None],
+            #         y=[None],
+            #         name=kind,
+            #         legendgroup=f"capacity_kind_{kind}",
+            #         showlegend=True,
+            #         marker=_cost_type_marker("#808080", pattern),
+            #         hoverinfo="skip",
+            #     )
+
+            fig.update_xaxes(
+                tickvals=list(positions.values()),
+                ticktext=list(positions.keys()),
+            )
+            figure_json = json.loads(fig.to_json())
+            figure_json["id"] = variable
+        else:
+            figure_json = dict(id=variable, data=[], layout={})
 
     return JsonResponse(
         figure_json, status=200, content_type="application/json", safe=True
@@ -1075,42 +1206,31 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
 @login_required
 @require_http_methods(["GET"])
 @user_has_read_rights
-def download_scalar_results(request, scen_id):
+def download_results_datapackage(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(temp_dir)
 
-    try:
-        kpi_scalar_results_obj = KPIScalarResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_scalar_values_dict = json.loads(kpi_scalar_results_obj.scalar_values)
-        scalar_kpis_json = kpi_scalars_list(
-            kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS
+        datapackage.rebuild_dp_from_json(
+            json.loads(scenario.simulation.dp_results), destination_path, overwrite=True
         )
 
-        output = BytesIO()
-        workbook = xlsxwriter.Workbook(output)
-        worksheet = workbook.add_worksheet("Scalars")
+        # Place the temp directory into a zip folder
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+            for file_path in destination_path.rglob("*"):  # Recursively walk all files
+                if file_path.is_file():
+                    # Relative path inside ZIP
+                    arcname = file_path.relative_to(destination_path)
+                    with open(file_path, "rb") as f:
+                        zip_file.writestr(str(arcname), f.read())
 
-        for idx, kpi_obj in enumerate(scalar_kpis_json):
-            if idx == 0:
-                worksheet.write_row(0, 0, kpi_obj.keys())
-            worksheet.write_row(idx + 1, 0, [str(val) for val in kpi_obj.values()])
-
-        workbook.close()
-        output.seek(0)
-    except Exception as e:
-        logger.error(
-            f"Dashboard ERROR: Could not generate KPI Scalars download file with Scenario Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
+        # Let the user download the zip file
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="results_datapackage_scenario_{scen_id}.zip"'
         )
-        raise Http404()
-
-    filename = "kpi_scalar_results.xlsx"
-    response = HttpResponse(
-        output,
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
     return response
 
 

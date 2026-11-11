@@ -2277,14 +2277,29 @@ def update_simulation_rating(request):
 @require_http_methods(["GET"])
 def fetch_simulation_results(request, sim_id):
     simulation = get_object_or_404(Simulation, id=sim_id)
-    are_result_ready = fetch_mvs_simulation_results(simulation)
-    # TODO temporary, remove MVS then
-    if are_result_ready is False:
-        are_result_ready = fetch_ezp_simulation_results(simulation)
+    are_result_ready = fetch_ezp_simulation_results(simulation)
     return JsonResponse(
         dict(areResultReady=are_result_ready),
         status=200,
         content_type="application/json",
+    )
+
+
+@login_required
+@require_http_methods(["GET"])
+def reparse_simulation_results(request, sim_id):
+    simulation = get_object_or_404(Simulation, id=sim_id)
+    answer = fetch_ezp_simulation_results(simulation, force_fetch=True)
+    if isinstance(answer, bool) and simulation.status == DONE:
+        parse_ezp_results(simulation, simulation.results)
+        messages.info(request, _("The reparsing was successful"))
+    else:
+        messages.error(request, _("The reparsing could not happend due to : ") + answer)
+    return HttpResponseRedirect(
+        reverse(
+            "scenario_review",
+            args=[simulation.scenario.project.id, simulation.scenario.id],
+        )
     )
 
 
