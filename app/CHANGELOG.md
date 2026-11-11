@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v1.3.2] – 2026-11-11
 ### Added
 - Display eesyplan results table on results page [[#582](https://github.com/open-plan-tool/gui/pull/582)]
 - Enable translation of graph labels [[#588](https://github.com/open-plan-tool/gui/pull/588)]

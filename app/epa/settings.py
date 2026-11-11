@@ -19,7 +19,7 @@ from celery.schedules import crontab
 from django.contrib.messages import constants as messages
 
 # Version number -> gets updated by bump-my-version, do not touch manually
-APP_VERSION_NUMBER = "1.3.1"
+APP_VERSION_NUMBER = "1.3.2"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
