@@ -5171,8 +5171,8 @@ msgstr "Nachführsystem"
 msgid "Weather data file"
 msgstr "Wetterdatendatei"
 
-msgid "Upload weather data file. Currently only TRY files are supported"
-msgstr "Wetterdatendatei hochladen. Derzeit werden nur TRY-Dateien unterstützt"
+msgid "Upload weather data file. Currently only TRY files are supported. If you use the TRY file from the German Weather Service, it should be a .dat file."
+msgstr "Wetterdatendatei hochladen. Derzeit werden nur TRY-Dateien unterstützt. TRY-Datein des DWDs sind im .dat-Format enthalten."
 
 msgid "Azimuth"
 msgstr "Azimut"
