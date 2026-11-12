@@ -445,8 +445,6 @@ scenario_widgets = {
             "min": "1",
             "max": "600",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Length of the time steps"),
         },
         choices=((60, "60 min"),),
     ),
@@ -455,18 +453,12 @@ scenario_widgets = {
             "placeholder": "eg. 10 days",
             "min": "1",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Number of days simulated with the energy system model."),
         }
     ),
     "capex_fix": forms.NumberInput(
         attrs={
             "placeholder": "e.g. 10000€",
             "min": "0",
-            "data-bs-toggle": "tooltip",
-            "title": _(
-                "A fixed cost to implement the asset, eg. planning costs which do not depend on the (optimized) asset capacity."
-            ),
         }
     ),
 }
@@ -825,16 +817,6 @@ def asset_form_factory(asset_type=None, **kwargs):
             )
 
             if self.asset_type_name == "chp_fixed_ratio":
-                self.fields["efficiency_electricity_chp"].label = _(
-                    "Efficiency gas to electricity"
-                )
-
-                # TODO
-                self.fields[
-                    "efficiency_electricity_chp"
-                ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon("efficiency_electricity_chp", RTD_link=True)
-
                 self.fields["efficiency_heat_chp"].widget = forms.NumberInput(
                     attrs={
                         "placeholder": _("eg. 0.1"),
@@ -843,7 +825,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                         "step": "0.00001",
                     }
                 )
-                self.fields["efficiency_heat_chp"].label = _("Efficiency gas to heat")
 
             """ DrawFlow specific configuration, add a special attribute to
                 every field in order for the framework to be able to export
