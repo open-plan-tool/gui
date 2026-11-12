@@ -61,14 +61,13 @@ def gettext_variables(some_string, lang="de"):
             pickle.dump(trans_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
+def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True, RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"):
     if field.help_text is not None:
         help_text = field.help_text + ". "
         field.help_text = None
     else:
         help_text = ""
     if field.label is not None:
-        RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
         if param_name in parameters:
             param_ref = parameters[param_name]["label"].replace("_", "-")
         else:
@@ -194,8 +193,14 @@ class OpenPlanForm(forms.Form):
         super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field, parameters=self.parameters)
+            if hasattr(self, "RTD_url"):
+                RTD_link = True
+                RTD_url = self.RTD_url
+            else:
+                RTD_link = False
+                RTD_url = None
             add_help_text_icon(
-                field, fieldname, parameters=self.parameters, RTD_link=False
+                field, fieldname, parameters=self.parameters, RTD_link=RTD_link, RTD_url=RTD_url
             )
 
 
@@ -666,8 +671,6 @@ class COPCalculatorForm(OpenPlanModelForm):
         # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
         for field in ["temperature_low", "temperature_high"]:
             set_parameter_info(field, self.fields[field])
-
-        for field in self.fields:
             self.add_help_text_icon(field, RTD_link=True)
 
     class Meta:
@@ -741,7 +744,7 @@ def asset_form_factory(asset_type=None, **kwargs):
             proj_id = kwargs.pop("proj_id", None)
             scenario_id = kwargs.pop("scenario_id", None)
             view_only = kwargs.pop("view_only", False)
-            self.existing_asset = kwargs.get("instance", None)
+            self.existing_asset = kwargs.get("instance")
             # get the connections with busses
             self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
@@ -1289,6 +1292,7 @@ PV_TIMESERIES_PARAMETERS = {
 
 
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
+    eesyplan_ref ="oemof.eesyplan.importer.create_timeseries_pv.create_pv_production_timeseries"
     parameters = PV_TIMESERIES_PARAMETERS
 
     mounting_type_choices = (
