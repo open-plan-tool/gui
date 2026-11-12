@@ -1235,7 +1235,7 @@ class UploadTimeseriesForm(OpenPlanModelForm):
 PV_TIMESERIES_PARAMETERS = {
     "weather_file": {
         "verbose": "Weather data file",
-        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported",
+        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported. If you use the TRY file from the German Weather Service, it should be a .dat file.",
         ":Unit:": "None",
         ":Default:": "None",
         "label": "weather_file",
