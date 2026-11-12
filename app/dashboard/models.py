@@ -1,55 +1,55 @@
-import copy
 import json
-import jsonschema
-import traceback
 import logging
+import traceback
+
+import jsonschema
 import numpy as np
-import plotly.graph_objects as go
 import pandas as pd
-
-
-from django.utils.translation import gettext_lazy as _
-from django.shortcuts import get_object_or_404
+import plotly.graph_objects as go
 from django.db import models
-from django.db.models import Value, Q, F, Case, When
+from django.db.models import Case, F, Q, Value, When
 from django.db.models.functions import Concat, Replace
-from dashboard.helpers import (
-    KPI_PARAMETERS,
-    KPI_PARAMETERS_ASSETS,
-    KPI_helper,
-    GRAPH_TIMESERIES,
-    GRAPH_TIMESERIES_STACKED,
-    GRAPH_CAPACITIES,
-    GRAPH_BAR,
-    GRAPH_COSTS,
-    GRAPH_PIE,
-    GRAPH_LOAD_DURATION,
-    GRAPH_SANKEY,
-    GRAPH_PARAMETERS_SCHEMAS,
-    GRAPH_SENSITIVITY_ANALYSIS,
-    REPORT_TYPES,
-    COSTS_PER_ASSETS_STACKED,
-    COSTS_PER_CATEGORY_STACKED,
-    COSTS_PER_ASSETS,
-    COSTS_PER_CATEGORY,
-    single_timeseries_to_json,
-    simulation_timeseries_to_json,
-    report_item_render_to_json,
-    sensitivity_analysis_graph_render_to_json,
-    format_storage_subasset_name,
-)
-
-from projects.models import Bus, Simulation, SensitivityAnalysis, ConnectionLink, Asset
+from django.utils.translation import gettext_lazy as _
 from projects.constants import (
-    MAP_EPA_MVS,
-    STORAGE_SUB_CATEGORIES,
-    INPUT_POWER,
-    OUTPUT_POWER,
     ASSET_TYPE,
     ENERGY_VECTOR,
     MVS_TYPE,
+    STORAGE_SUB_CATEGORIES,
 )
-from projects.models import Simulation, Scenario
+from projects.models import (
+    Asset,
+    Bus,
+    ConnectionLink,
+    Scenario,
+    SensitivityAnalysis,
+    Simulation,
+)
+
+from dashboard.helpers import (
+    COSTS_PER_ASSETS,
+    COSTS_PER_ASSETS_STACKED,
+    COSTS_PER_CATEGORY,
+    COSTS_PER_CATEGORY_STACKED,
+    GRAPH_BAR,
+    GRAPH_CAPACITIES,
+    GRAPH_COSTS,
+    GRAPH_LOAD_DURATION,
+    GRAPH_PARAMETERS_SCHEMAS,
+    GRAPH_PIE,
+    GRAPH_SANKEY,
+    GRAPH_SENSITIVITY_ANALYSIS,
+    GRAPH_TIMESERIES,
+    GRAPH_TIMESERIES_STACKED,
+    KPI_PARAMETERS,
+    KPI_PARAMETERS_ASSETS,
+    REPORT_TYPES,
+    KPI_helper,
+    format_storage_subasset_name,
+    report_item_render_to_json,
+    sensitivity_analysis_graph_render_to_json,
+    simulation_timeseries_to_json,
+    single_timeseries_to_json,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +187,7 @@ class FancyResults(models.Model):
         try:
             self.total_flow = np.array(self.flow_data).sum()
         except TypeError:
-            logging.error(
+            logging.exception(
                 f"The flow data of the asset {self.asset} have some NaN value"
             )
         super().save(*args, **kwargs)
@@ -565,8 +565,8 @@ class FlowResults(models.Model):
                         target=targets,
                         value=values,
                         hovertemplate="Link from node %{source.label}<br />"
-                        + "to node%{target.label}<br />has value %{value}"
-                        + "<br />and data <extra></extra>",
+                        "to node%{target.label}<br />has value %{value}"
+                        "<br />and data <extra></extra>",
                     ),
                 )
             ]
@@ -665,21 +665,20 @@ class AssetsResults(models.Model):
                                         asset["label"], sub_cat
                                     )
                                 ] = storage_subasset
-                    else:
-                        if (
-                            "flow" in asset
-                            and "_consumption_period" not in asset["label"]
-                            and "@" not in asset["label"]
-                        ):
-                            asset["category"] = category
-                            qs = ConnectionLink.objects.filter(
-                                asset__name=asset["label"],
-                                scenario=self.simulation.scenario,
-                                flow_direction="A2B",
-                            ).values_list("bus__name", "bus__type")
-                            if qs.exists():
-                                asset["output_busses"] = {c[0]: c[1] for c in qs}
-                            self.__available_timeseries[asset["label"]] = asset
+                    elif (
+                        "flow" in asset
+                        and "_consumption_period" not in asset["label"]
+                        and "@" not in asset["label"]
+                    ):
+                        asset["category"] = category
+                        qs = ConnectionLink.objects.filter(
+                            asset__name=asset["label"],
+                            scenario=self.simulation.scenario,
+                            flow_direction="A2B",
+                        ).values_list("bus__name", "bus__type")
+                        if qs.exists():
+                            asset["output_busses"] = {c[0]: c[1] for c in qs}
+                        self.__available_timeseries[asset["label"]] = asset
         else:
             print("\n\nNOT reloading __available_timeseries\n\n")
         return self.__available_timeseries
@@ -727,16 +726,15 @@ class AssetsResults(models.Model):
                                         raise ValueError(
                                             f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
                                         )
-                    else:
-                        if asset_name == asset["label"]:
-                            if answer is None:
-                                answer = asset
-                                answer["category"] = category
-                                break
-                            else:
-                                raise ValueError(
-                                    f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
-                                )
+                    elif asset_name == asset["label"]:
+                        if answer is None:
+                            answer = asset
+                            answer["category"] = category
+                            break
+                        else:
+                            raise ValueError(
+                                f"Asset named {asset_name} appears twice in simulations results, this should not be possible"
+                            )
         else:
             answer = self.__available_timeseries.get(asset_name)
         return answer
@@ -1494,8 +1492,8 @@ def graph_sankey(simulation, energy_vector, timestep=None):
                         target=targets,
                         value=values,
                         hovertemplate="Link from node %{source.label}<br />"
-                        + "to node%{target.label}<br />has value %{value}"
-                        + "<br />and data <extra></extra>",
+                        "to node%{target.label}<br />has value %{value}"
+                        "<br />and data <extra></extra>",
                     ),
                 )
             ]
@@ -1536,7 +1534,6 @@ class ReportItem(models.Model):
             )
         super().__init__(*args, **kwargs)
 
-    #
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.initial_simulations is not None:

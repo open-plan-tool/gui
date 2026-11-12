@@ -5,25 +5,18 @@ import pickle
 
 import numpy as np
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    Submit,
+)
 from dashboard.helpers import KPI_PARAMETERS_ASSETS
 from django import forms
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
+from django.shortcuts import get_object_or_404
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.shortcuts import get_object_or_404
-
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Row,
-    Column,
-    Field,
-    Fieldset,
-    ButtonHolder,
-)
 from django.utils.translation import gettext_lazy as _
 
 from projects.constants import (

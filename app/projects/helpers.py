@@ -1,20 +1,17 @@
+import csv
+import io
 import json
 import logging
-import io
-import csv
-
-import pandas as pd
-
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 
 from dashboard.helpers import KPIFinder
 from django import forms
-from django.db.models import Q
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.html import html_safe
 from django.utils.translation import gettext_lazy as _
 from epa.settings import RESOURCES_DIR
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 from openpyxl import load_workbook
 
 from projects.dtos import convert_to_dto
