@@ -411,6 +411,8 @@ function submitForm() {
             updateCapacityFieldsVisibility();
             // make certain to show form
             guiModal.show();
+            // enable Bootstrap tooltips
+            $('[data-bs-toggle="tooltip"]').tooltip();
         }
     }).catch(error => {
         console.error(error);
