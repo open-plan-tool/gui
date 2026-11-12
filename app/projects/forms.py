@@ -129,7 +129,10 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
         field.help_text = _(resolved["help_text"])
 
     if resolved["default"] is not None:
-        field.initial = resolved["default"]
+        if isinstance(field, TimeseriesField):
+            field.initial = [None, None, resolved["default"]]
+        else:
+            field.initial = resolved["default"]
 
 
 def get_field_units(parameters, param_names):
