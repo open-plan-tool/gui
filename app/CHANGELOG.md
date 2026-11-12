@@ -4,6 +4,8 @@
 ### Added
 - Add endpoint to reparse a simulation's results `simulation/reparse-results/<int:sim_id>` [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 - Add endpoint to download the results as datapackage (`scenario/results/download_datapackage/<int:scen_id>`) as well as a button to do so [[#597](https://github.com/open-plan-tool/gui/pull/597)]
+- KPI in the result table for total dispatch costs over a year (including energy costs) [[#599](https://github.com/open-plan-tool/gui/pull/599)]
+-
 ### Changed
 - Hide and toggle certain fields depending on storage type [[#596](https://github.com/open-plan-tool/gui/pull/596)]
 - Save the graphs, the tables and the results directly as dict into the simulation JSONField's [[#597](https://github.com/open-plan-tool/gui/pull/597)]
