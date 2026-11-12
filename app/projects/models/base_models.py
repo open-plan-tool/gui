@@ -2205,6 +2205,42 @@ ASSET_MAPPING = {
     "auxiliary_heat": AuxiliaryHeat,
 }
 
+# Map every asset type to its eesyplan component. Used primarily to correctly assign the parameters metadata from eesyplan-parameters-list.csv
+ASSET_TYPE_TO_EESYPLAN_COMPONENT = {
+    "dso": "DsoElectricity",
+    "gas_dso": "DsoFuel",
+    "h2_dso": "DsoHydrogen",
+    "heat_dso": "DsoHeat",
+    "demand": "ElectricityDemand",
+    "gas_demand": "FuelDemand",
+    "h2_demand": "H2Demand",
+    "heat_demand": "HeatDemand",
+    "electrical_transformer": "ElectricalTransformator",
+    "diesel_generator": "FuelGenerator",
+    "fuel_cell": "FuelCell",
+    "gas_boiler": "Boiler",
+    "electrolyzer": "Electrolyzer",
+    "heat_pump": "HeatPump",
+    "pv_plant": "PvPlant",
+    "wind_plant": "WindTurbine",
+    "biogas_plant": "BiogasPlant",
+    "geothermal_conversion": "GeothermalPlant",
+    "solar_thermal_plant": "SolarThermalPlant",
+    "bess": "ElectricalStorage",
+    "gess": "FuelStorage",
+    "h2ess": "HydrogenStorage",
+    "hess": "ThermalStorage",
+    "chp_fixed_ratio": "ChpFixedRatio",
+    "chp": "ChpVariableRatio",
+    "commodity": "Commodity",
+    "heating_pipe": "HeatingPipe",
+    "heating_network": "HeatingNetwork",
+    "sink": "Sink",
+    "auxiliary_heat": "AuxiliaryHeat",
+    "excess": "Excess",
+    "shortage": "Shortage",
+}
+
 
 class COPCalculator(models.Model):
     scenario = models.ForeignKey(
