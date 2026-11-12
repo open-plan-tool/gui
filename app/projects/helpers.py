@@ -1,23 +1,19 @@
+import csv
+import io
 import json
 import logging
-import io
-import csv
-
-import pandas as pd
-
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 
 from dashboard.helpers import KPIFinder
 from django import forms
-from django.db.models import Q
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.html import html_safe
 from django.utils.translation import gettext_lazy as _
 from epa.settings import RESOURCES_DIR
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 from openpyxl import load_workbook
 
-from projects.constants import MAP_MVS_EPA
 from projects.dtos import convert_to_dto
 from projects.models import Timeseries
 
@@ -26,26 +22,24 @@ TS_UPLOAD_TYPE = "upload"
 TS_MANUAL_TYPE = "manual"
 TS_INPUT_TYPES = (TS_MANUAL_TYPE, TS_SELECT_TYPE, TS_UPLOAD_TYPE)
 
-MVS_PARAMETERS_LIST_PATH = RESOURCES_DIR / "MVS_parameters_list.csv"
+PARAMETERS_LIST_PATH = RESOURCES_DIR / "eesyplan_parameters_list.csv"
 
 PARAMETERS = {}
-if MVS_PARAMETERS_LIST_PATH.exists():
-    with open(MVS_PARAMETERS_LIST_PATH, encoding="utf-8") as csvfile:
+if PARAMETERS_LIST_PATH.exists():
+    with open(PARAMETERS_LIST_PATH, encoding="utf-8-sig") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
         for i, row in enumerate(csvreader):
             if i == 0:
                 hdr = row
-                label_idx = hdr.index("label")
+                label_idx = hdr.index("parameter_name")
+                component_idx = hdr.index("component")
             else:
-                label = row[label_idx]
-                label = MAP_MVS_EPA.get(label, label)
+                label = f"{row[component_idx]}_{row[label_idx]}"
                 PARAMETERS[label] = {}
                 for k, v in zip(hdr, row):
-                    if k == "sensitivity_analysis":
-                        v = bool(int(v))
                     PARAMETERS[label][k] = v
 
-parameters_helper = KPIFinder(param_info_dict=PARAMETERS, unit_header=":Unit:")
+parameters_helper = KPIFinder(param_info_dict=PARAMETERS, unit_header="unit")
 
 
 # Helper method to clean dict data from empty values

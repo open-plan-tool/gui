@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
 from django.forms.fields import FloatField
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
@@ -676,7 +675,7 @@ class Scenario(models.Model):
                 # Remove foreignkey references that are not actually in the profile data
                 unused_fks = [
                     key
-                    for key in ts_fks.keys()
+                    for key in ts_fks
                     if key not in db_dp["data"]["profiles"]["columns_names"]
                 ]
                 for key in unused_fks:
@@ -1219,9 +1218,8 @@ class Asset(TopologyNode):
             if optimize_cap is True:
                 if "installed_capacity" in attributes:
                     dp["installed_capacity"] = None
-            else:
-                if "maximum_capacity" in attributes:
-                    dp["maximum_capacity"] = None
+            elif "maximum_capacity" in attributes:
+                dp["maximum_capacity"] = None
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
@@ -1407,32 +1405,24 @@ class CHP(Asset):
 
         return {
             "efficiency_heat_state_a": TimeseriesField(
-                default=0,
                 min=0,
                 max=1,
                 param_name="efficiency_heat_state_a",
-                label=_("Thermal efficiency with no heat extraction"),
             ),
             "efficiency_heat_state_b": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_heat_state_b",
-                label=_("Thermal efficiency with maximal heat extraction"),
             ),
             "efficiency_electricity_state_b": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_electricity_state_b",
-                label=_("Electrical efficiency with no heat extraction"),
             ),
             "efficiency_electricity_state_a": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_electricity_state_a",
-                label=_("Efficiency electricity full condensation"),
             ),
         }
 
@@ -1483,11 +1473,8 @@ class HeatPump(Asset):
 
         return {
             "cop": TimeseriesField(
-                default=1,
                 min=1,
                 param_name="cop",
-                label=_("COP"),
-                help_text="This is the custom help text for COP",
             )
         }
 
@@ -1513,8 +1500,6 @@ class Electrolyzer(Asset):
             "efficiency_heat": FloatField(
                 min_value=0,
                 max_value=1.0,
-                label=_("Heat loss"),
-                help_text="This is the custom help text for electrolyzer",
             )
         }
 
@@ -1586,11 +1571,9 @@ class DSO(Asset):
 
         return {
             "energy_price": TimeseriesField(
-                default=0.1,
                 param_name="energy_price",
             ),
             "feedin_tariff": TimeseriesField(
-                default=0.1,
                 param_name="feedin_tariff",
             ),
         }
@@ -1987,12 +1970,10 @@ class ThermalStorage(Asset):
 
         return {
             "fixed_losses_absolute": TimeseriesField(
-                default=0.1,
                 min=0.0,
                 param_name="fixed_losses_absolute",
             ),
             "fixed_losses_relative": TimeseriesField(
-                default=0.1,
                 min=0.0,
                 max=1.0,
                 param_name="fixed_losses_relative",
@@ -2205,6 +2186,42 @@ ASSET_MAPPING = {
     "heating_network": HeatingNetwork,
     "sink": Sink,
     "auxiliary_heat": AuxiliaryHeat,
+}
+
+# Map every asset type to its eesyplan component. Used primarily to correctly assign the parameters metadata from eesyplan-parameters-list.csv
+ASSET_TYPE_TO_EESYPLAN_COMPONENT = {
+    "dso": "DsoElectricity",
+    "gas_dso": "DsoFuel",
+    "h2_dso": "DsoHydrogen",
+    "heat_dso": "DsoHeat",
+    "demand": "ElectricityDemand",
+    "gas_demand": "FuelDemand",
+    "h2_demand": "H2Demand",
+    "heat_demand": "HeatDemand",
+    "electrical_transformer": "ElectricalTransformator",
+    "diesel_generator": "FuelGenerator",
+    "fuel_cell": "FuelCell",
+    "gas_boiler": "Boiler",
+    "electrolyzer": "Electrolyzer",
+    "heat_pump": "HeatPump",
+    "pv_plant": "PvPlant",
+    "wind_plant": "WindTurbine",
+    "biogas_plant": "BiogasPlant",
+    "geothermal_conversion": "GeothermalPlant",
+    "solar_thermal_plant": "SolarThermalPlant",
+    "bess": "ElectricalStorage",
+    "gess": "FuelStorage",
+    "h2ess": "HydrogenStorage",
+    "hess": "ThermalStorage",
+    "chp_fixed_ratio": "ChpFixedRatio",
+    "chp": "ChpVariableRatio",
+    "commodity": "Commodity",
+    "heating_pipe": "HeatingPipe",
+    "heating_network": "HeatingNetwork",
+    "sink": "Sink",
+    "auxiliary_heat": "AuxiliaryHeat",
+    "excess": "Excess",
+    "shortage": "Shortage",
 }
 
 

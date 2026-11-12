@@ -5,25 +5,18 @@ import pickle
 
 import numpy as np
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    Submit,
+)
 from dashboard.helpers import KPI_PARAMETERS_ASSETS
 from django import forms
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
+from django.shortcuts import get_object_or_404
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.shortcuts import get_object_or_404
-
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Row,
-    Column,
-    Field,
-    Fieldset,
-    ButtonHolder,
-)
 from django.utils.translation import gettext_lazy as _
 
 from projects.constants import (
@@ -68,14 +61,13 @@ def gettext_variables(some_string, lang="de"):
             pickle.dump(trans_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
+def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True, RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"):
     if field.help_text is not None:
         help_text = field.help_text + ". "
         field.help_text = None
     else:
         help_text = ""
     if field.label is not None:
-        RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
         if param_name in parameters:
             param_ref = parameters[param_name]["label"].replace("_", "-")
         else:
@@ -93,7 +85,7 @@ def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
 
 
 def resolve_parameter(parameters, param_name):
-    """Look up param_name in a PARAMETERS-shaped dict (verbose/:Definition_Short:/:Unit:/:Default:).
+    """Look up param_name in a PARAMETERS-shaped dict.
     Returns None if param_name isn't in parameters.
     """
     row = parameters.get(param_name)
@@ -107,9 +99,9 @@ def resolve_parameter(parameters, param_name):
 
     return {
         "verbose": clean(row["verbose"]),
-        "help_text": row[":Definition_Short:"],
-        "unit": clean(row[":Unit:"], unit=True),
-        "default": clean(row[":Default:"]),
+        "help_text": row["short_description"],
+        "unit": clean(row["unit"], unit=True),
+        "default": clean(row["default_value"]),
     }
 
 
@@ -136,7 +128,10 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
         field.help_text = _(resolved["help_text"])
 
     if resolved["default"] is not None:
-        field.initial = resolved["default"]
+        if isinstance(field, TimeseriesField):
+            field.initial = [None, None, resolved["default"]]
+        else:
+            field.initial = resolved["default"]
 
 
 def get_field_units(parameters, param_names):
@@ -169,8 +164,20 @@ class OpenPlanModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field)
+        if hasattr(self, "asset_type_name"):
+            component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(self.asset_type_name, None)
+            for fieldname, field in self.fields.items():
+                # combine component and param name to match label convention in PARAMETERS
+                param_name = f"{component}_{fieldname}"
+                set_parameter_info(param_name, field)
+        else:
+            # if not an asset, get the model name
+            component = type(self.instance).__name__
+            for fieldname, field in self.fields.items():
+                param_name = f"{component}_{fieldname}"
+                set_parameter_info(param_name, field)
+                # set the help text icon already for the non-asset forms as the fields don't get edited later
+                self.add_help_text_icon(fieldname)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
@@ -186,8 +193,14 @@ class OpenPlanForm(forms.Form):
         super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
             set_parameter_info(fieldname, field, parameters=self.parameters)
+            if hasattr(self, "RTD_url"):
+                RTD_link = True
+                RTD_url = self.RTD_url
+            else:
+                RTD_link = False
+                RTD_url = None
             add_help_text_icon(
-                field, fieldname, parameters=self.parameters, RTD_link=False
+                field, fieldname, parameters=self.parameters, RTD_link=RTD_link, RTD_url=RTD_url
             )
 
 
@@ -446,8 +459,6 @@ scenario_widgets = {
             "min": "1",
             "max": "600",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Length of the time steps"),
         },
         choices=((60, "60 min"),),
     ),
@@ -456,18 +467,12 @@ scenario_widgets = {
             "placeholder": "eg. 10 days",
             "min": "1",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Number of days simulated with the energy system model."),
         }
     ),
     "capex_fix": forms.NumberInput(
         attrs={
             "placeholder": "e.g. 10000€",
             "min": "0",
-            "data-bs-toggle": "tooltip",
-            "title": _(
-                "A fixed cost to implement the asset, eg. planning costs which do not depend on the (optimized) asset capacity."
-            ),
         }
     ),
 }
@@ -666,8 +671,6 @@ class COPCalculatorForm(OpenPlanModelForm):
         # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
         for field in ["temperature_low", "temperature_high"]:
             set_parameter_info(field, self.fields[field])
-
-        for field in self.fields:
             self.add_help_text_icon(field, RTD_link=True)
 
     class Meta:
@@ -741,7 +744,7 @@ def asset_form_factory(asset_type=None, **kwargs):
             proj_id = kwargs.pop("proj_id", None)
             scenario_id = kwargs.pop("scenario_id", None)
             view_only = kwargs.pop("view_only", False)
-            self.existing_asset = kwargs.get("instance", None)
+            self.existing_asset = kwargs.get("instance")
             # get the connections with busses
             self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
@@ -789,6 +792,13 @@ def asset_form_factory(asset_type=None, **kwargs):
                         if field.help_text == "":
                             field.help_text = self.fields[field_name].help_text
                         self.fields[field_name] = field
+                        component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(
+                            self.asset_type_name, None
+                        )
+                        param_name = (
+                            f"{component}_{field_name}" if component else field_name
+                        )
+                        set_parameter_info(param_name, field)
 
             # remove the fields not needed for the AssetType
             for field in list(self.fields):
@@ -819,16 +829,6 @@ def asset_form_factory(asset_type=None, **kwargs):
             )
 
             if self.asset_type_name == "chp_fixed_ratio":
-                self.fields["efficiency_electricity_chp"].label = _(
-                    "Efficiency gas to electricity"
-                )
-
-                # TODO
-                self.fields[
-                    "efficiency_electricity_chp"
-                ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon("efficiency_electricity_chp", RTD_link=True)
-
                 self.fields["efficiency_heat_chp"].widget = forms.NumberInput(
                     attrs={
                         "placeholder": _("eg. 0.1"),
@@ -837,7 +837,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                         "step": "0.00001",
                     }
                 )
-                self.fields["efficiency_heat_chp"].label = _("Efficiency gas to heat")
 
             """ DrawFlow specific configuration, add a special attribute to
                 every field in order for the framework to be able to export
@@ -1235,7 +1234,7 @@ class UploadTimeseriesForm(OpenPlanModelForm):
 PV_TIMESERIES_PARAMETERS = {
     "weather_file": {
         "verbose": "Weather data file",
-        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported",
+        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported. If you use the TRY file from the German Weather Service, it should be a .dat file.",
         ":Unit:": "None",
         ":Default:": "None",
         "label": "weather_file",
@@ -1293,6 +1292,7 @@ PV_TIMESERIES_PARAMETERS = {
 
 
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
+    eesyplan_ref ="oemof.eesyplan.importer.create_timeseries_pv.create_pv_production_timeseries"
     parameters = PV_TIMESERIES_PARAMETERS
 
     mounting_type_choices = (
