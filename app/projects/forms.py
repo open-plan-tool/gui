@@ -165,11 +165,20 @@ class OpenPlanModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(self.asset_type_name, None)
-        for fieldname, field in self.fields.items():
-            # combine component and param name to match label convention in PARAMETERS
-            param_name = f"{component}_{fieldname}" if component else fieldname
-            set_parameter_info(param_name, field)
+        if hasattr(self, "asset_type_name"):
+            component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(self.asset_type_name, None)
+            for fieldname, field in self.fields.items():
+                # combine component and param name to match label convention in PARAMETERS
+                param_name = f"{component}_{fieldname}"
+                set_parameter_info(param_name, field)
+        else:
+            # if not an asset, get the model name
+            component = type(self.instance).__name__
+            for fieldname, field in self.fields.items():
+                param_name = f"{component}_{fieldname}"
+                set_parameter_info(param_name, field)
+                # set the help text icon already for the non-asset forms as the fields don't get edited later
+                self.add_help_text_icon(fieldname)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
