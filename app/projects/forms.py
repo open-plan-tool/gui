@@ -93,7 +93,7 @@ def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
 
 
 def resolve_parameter(parameters, param_name):
-    """Look up param_name in a PARAMETERS-shaped dict (verbose/:Definition_Short:/:Unit:/:Default:).
+    """Look up param_name in a PARAMETERS-shaped dict.
     Returns None if param_name isn't in parameters.
     """
     row = parameters.get(param_name)
@@ -107,9 +107,9 @@ def resolve_parameter(parameters, param_name):
 
     return {
         "verbose": clean(row["verbose"]),
-        "help_text": row[":Definition_Short:"],
-        "unit": clean(row[":Unit:"], unit=True),
-        "default": clean(row[":Default:"]),
+        "help_text": row["short_description"],
+        "unit": clean(row["unit"], unit=True),
+        "default": clean(row["default_value"]),
     }
 
 
@@ -170,7 +170,10 @@ class OpenPlanModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field)
+            # combine model and param name to match label convention in PARAMETERS
+            model = type(self.instance).__name__
+            param_name = f"{model}_{fieldname}"
+            set_parameter_info(param_name, field)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
