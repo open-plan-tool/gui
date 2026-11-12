@@ -447,48 +447,11 @@ SIMULATION_STATUS = (
 )
 
 SIMULATION_SERVERS = (
-    ("MVS", "MVS"),
+    ("MVS", "MVS"),  # legacy, no longer in use
     ("EZP", "EZP"),
 )
 
 USER_RATING = ((1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"))
-
-MAP_EPA_MVS = {
-    "economic_data": "economic_data",
-    "energy_providers": "energyProviders",
-    "energy_busses": "energyBusses",
-    "energy_consumption": "energyConsumption",
-    "energy_conversion": "energyConversion",
-    "energy_production": "energyProduction",
-    "energy_storage": "energyStorage",
-    "project_data": "project_data",
-    "simulation_settings": "simulation_settings",
-    "energy_vector": "energyVector",
-    "installed_capacity": "installedCap",
-    "capacity": "storage capacity",
-    "input_power": "input power",
-    "output_power": "output power",
-    "optimize_capacity": "optimizeCap",
-    "maximum_capacity": "maximumCap",
-    "input_timeseries": "timeseries",
-    "constraints": "constraints",
-    "renewable_asset": "renewableAsset",
-    "kpi": "kpi",
-    "fixcost": "fixcost",
-    "time_step": "timestep",
-    "data": "value",
-    "replacement_costs_during_project_lifetime": "replacement_costs_during_project_lifetime",
-    "specific_replacement_costs_of_installed_capacity": "specific_replacement_costs_of_installed_capacity",
-    "specific_replacement_costs_of_optimized_capacity": "specific_replacement_costs_of_optimized_capacity",
-    "asset_type": "type_asset",
-    "capex_fix": "development_costs",
-    "capex_spec": "specific_costs",
-    "opex_spec": "specific_costs_om",
-    "variable_costs": "dispatch_price",
-    "discount": "discount_factor",
-    "duration": "project_duration",
-}
-MAP_MVS_EPA = {value: key for (key, value) in MAP_EPA_MVS.items()}
 
 COMPARE_VIEW = "compare"
 
