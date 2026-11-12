@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
 from django.forms.fields import FloatField
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404
@@ -676,7 +675,7 @@ class Scenario(models.Model):
                 # Remove foreignkey references that are not actually in the profile data
                 unused_fks = [
                     key
-                    for key in ts_fks.keys()
+                    for key in ts_fks
                     if key not in db_dp["data"]["profiles"]["columns_names"]
                 ]
                 for key in unused_fks:
@@ -1219,9 +1218,8 @@ class Asset(TopologyNode):
             if optimize_cap is True:
                 if "installed_capacity" in attributes:
                     dp["installed_capacity"] = None
-            else:
-                if "maximum_capacity" in attributes:
-                    dp["maximum_capacity"] = None
+            elif "maximum_capacity" in attributes:
+                dp["maximum_capacity"] = None
         # to collect the bus(ses) used by the asset
         bus_resource_rec = []
 
