@@ -43,7 +43,13 @@ MANAGEMENT_CAT_PARAMS = {
 
 # TODO: add "location" as parameter to summary -> only coordinates or processed?
 SUMMARY_CAT_PARAMS = {
-    "General": ["total_cost_year0", "total_cost", "lcoe", "renewable_share"]
+    "General": [
+        "total_cost_year0",
+        "total_cost",
+        "total_dispatch_costs",
+        "lcoe",
+        "renewable_share",
+    ]
 }
 
 # TODO missing -> total variable OPEX, feedin revenue
