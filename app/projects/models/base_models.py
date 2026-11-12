@@ -1405,32 +1405,24 @@ class CHP(Asset):
 
         return {
             "efficiency_heat_state_a": TimeseriesField(
-                default=0,
                 min=0,
                 max=1,
                 param_name="efficiency_heat_state_a",
-                label=_("Thermal efficiency with no heat extraction"),
             ),
             "efficiency_heat_state_b": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_heat_state_b",
-                label=_("Thermal efficiency with maximal heat extraction"),
             ),
             "efficiency_electricity_state_b": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_electricity_state_b",
-                label=_("Electrical efficiency with no heat extraction"),
             ),
             "efficiency_electricity_state_a": TimeseriesField(
-                default=1,
                 min=0,
                 max=1,
                 param_name="efficiency_electricity_state_a",
-                label=_("Efficiency electricity full condensation"),
             ),
         }
 
@@ -1481,11 +1473,8 @@ class HeatPump(Asset):
 
         return {
             "cop": TimeseriesField(
-                default=1,
                 min=1,
                 param_name="cop",
-                label=_("COP"),
-                help_text="This is the custom help text for COP",
             )
         }
 
@@ -1511,8 +1500,6 @@ class Electrolyzer(Asset):
             "efficiency_heat": FloatField(
                 min_value=0,
                 max_value=1.0,
-                label=_("Heat loss"),
-                help_text="This is the custom help text for electrolyzer",
             )
         }
 
@@ -1584,11 +1571,9 @@ class DSO(Asset):
 
         return {
             "energy_price": TimeseriesField(
-                default=0.1,
                 param_name="energy_price",
             ),
             "feedin_tariff": TimeseriesField(
-                default=0.1,
                 param_name="feedin_tariff",
             ),
         }
@@ -1985,12 +1970,10 @@ class ThermalStorage(Asset):
 
         return {
             "fixed_losses_absolute": TimeseriesField(
-                default=0.1,
                 min=0.0,
                 param_name="fixed_losses_absolute",
             ),
             "fixed_losses_relative": TimeseriesField(
-                default=0.1,
                 min=0.0,
                 max=1.0,
                 param_name="fixed_losses_relative",
