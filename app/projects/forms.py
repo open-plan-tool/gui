@@ -942,6 +942,9 @@ def asset_form_factory(asset_type=None, **kwargs):
                             },
                         )
                     )
+                    # remove errors that could have happened while cleaning the form related to these fields
+                    self._errors.pop("age_installed", None)
+                    self._errors.pop("installed_capacity", None)
                     self._errors.pop("fixed_losses_absolute", None)
                 else:
                     cleaned_data["maximum_capacity"] = None
