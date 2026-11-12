@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
 from oemof.datapackage import datapackage  # noqa
+from oemof.eesyplan.postprocessing import graphs
 
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
@@ -36,9 +37,11 @@ from projects.models import (
     Bus,
     Project,
     Scenario,
+    Asset,
     SensitivityAnalysis,
     Simulation,
     get_project_sensitivity_analysis,
+    ASSET_MAPPING,
 )
 from projects.scenario_topology_helpers import load_scenario_topology_from_db
 from projects.services import (
@@ -1040,120 +1043,50 @@ def scenario_visualize_variable(
             results = Simulation.objects.filter(
                 scenario__id__in=selected_scenario
             ).values_list(
+                "scenario__id",
                 "scenario__name",
                 "graphs__capacities__data",
             )
 
-            # The following code was AI generated based on the structure of the figure of
-            # eesyplan graphs.compare_capacity and can be improved
             bars = []
 
-            for scenario, traces in results:
+            # numeric x positions: bars of one type sit next to each other, one
+            # empty position separates the type groups
+            position = 0
+            previous_type = None
+            for scenario_id, scenario, traces in results:
                 for trace in traces or []:
                     kind = trace["name"]  # "Installed" / "Optimized"
 
                     for component, capacity in zip(trace["x"], trace["y"]):
                         if capacity is None:
                             continue
+                        type_name = (
+                            Asset.objects.filter(scenario__id=scenario_id)
+                            .filter(name=component)
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                        if previous_type is not None and type_name != previous_type:
+                            position += 1
                         bars.append(
                             {
+                                "position": position,
                                 "scenario": scenario,
+                                "type": type_name,
                                 "component": component,
                                 "capacity": capacity,
                                 "kind": kind,
                             }
                         )
+                        previous_type = type_name
+                        position += 1
+
+            # TODO sort the bars using the index based on type
 
             datasets = list(dict.fromkeys(bar["scenario"] for bar in bars))
+            fig = graphs.multi_scenario_capacities_graph(datasets, bars)
 
-            components = list(dict.fromkeys(bar["component"] for bar in bars))
-            positions = {component: i for i, component in enumerate(components)}
-
-            scenario_colors = {
-                scenario: qualitative.Plotly[index % len(qualitative.Plotly)]
-                for index, scenario in enumerate(datasets)
-            }
-
-            fig = go.Figure()
-
-            def _cost_type_marker(color, pattern):
-                """Marker of one cost type: the colour with its fill pattern."""
-                marker = {"color": color}
-                if pattern:
-                    marker["pattern"] = {
-                        "shape": pattern,
-                        "fgcolor": color,
-                        "bgcolor": "rgba(0,0,0,0)",
-                    }
-                return marker
-
-            def _format_number(value, decimals=1):
-                """Format a number with space as thousands separator."""
-                if value is None or (isinstance(value, float) and pd.isna(value)):
-                    return ""
-                try:
-                    return f"{float(value):,.{decimals}f}".replace(",", " ")
-                except Exception:
-                    return str(value)
-
-            kinds = (("Installed", "x"), ("Optimized", ""))
-            for scenario in datasets:
-                color = scenario_colors[scenario]
-
-                for kind, pattern in kinds:
-                    selected = [
-                        bar
-                        for bar in bars
-                        if bar["scenario"] == scenario and bar["kind"] == kind
-                    ]
-
-                    if not selected:
-                        continue
-
-                    fig.add_bar(
-                        x=[positions[bar["component"]] for bar in selected],
-                        y=[float(bar["capacity"]) for bar in selected],
-                        name=scenario,
-                        legendgroup=scenario,
-                        marker={
-                            **_cost_type_marker(color, pattern),
-                            "line": {
-                                "color": color,
-                                "width": 1.5,
-                            },
-                        },
-                        customdata=[
-                            [
-                                bar["component"],
-                                _format_number(bar["capacity"], 1),
-                                kind,
-                            ]
-                            for bar in selected
-                        ],
-                        hovertemplate=(
-                            "<b>%{customdata[0]}</b><br>"
-                            f"Scenario: {scenario}<br>"
-                            "Capacity: %{customdata[1]}<br>"
-                            "Type: %{customdata[2]}"
-                            "<extra></extra>"
-                        ),
-                    )
-
-            # for kind, pattern in kinds:
-            #     fig.add_bar(
-            #         x=[None],
-            #         y=[None],
-            #         name=kind,
-            #         legendgroup=f"capacity_kind_{kind}",
-            #         showlegend=True,
-            #         marker=_cost_type_marker("#808080", pattern),
-            #         hoverinfo="skip",
-            #     )
-
-            fig.update_xaxes(
-                tickvals=list(positions.values()),
-                ticktext=list(positions.keys()),
-            )
             figure_json = json.loads(fig.to_json())
             figure_json["id"] = variable
         else:

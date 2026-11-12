@@ -1,6 +1,7 @@
 ﻿label,type,verbose,unit,definition,scope
 total_cost_year0,scalar,Total investment costs (year 0),currency,Total cost of upfront investment costs of the energy system,results
 total_cost,scalar,Total yearly cost,currency/year,Total cost of the energy system per year,results
+total_dispatch_costs,scalar,Total yearly dispatch costs (including energy costs),currency/year,Total yearly dispatch costs (including energy costs),results
 lcoe,scalar,Levelized cost of energy,ctcurrency/kWh,Total cost / total energy into the demands,results
 renewable_share,scalar,Renewable share,Factor,Total renewable share of all energy produced or bought,results
 yearly_project_costs,table,,,,results
