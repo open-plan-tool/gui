@@ -1,24 +1,24 @@
 # from bootstrap_modal_forms.generic import BSModalCreateView
 import datetime
 import io
+import json
 import tempfile
 import traceback
 import zipfile
 from pathlib import Path
 
-from dashboard.helpers import fetch_user_projects
 from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import CharField, F, Func, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
 
-# from django.shortcuts import *
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -30,14 +30,12 @@ from epa.settings import (
     SHOW_MVS,
 )
 from jsonview.decorators import json_view
-from oemof.datapackage.datapackage import export_dp_to_json
 
 from projects.decorators import (
     user_has_edit_rights,
     user_has_read_rights,
     user_is_owner,
 )
-from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
     ASSET_MAPPING,
     Asset,
@@ -61,7 +59,6 @@ from projects.models import (
     UseCase,
 )
 
-from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
 from .forms import *
 from .requests import (
     ezp_simulation_request,
@@ -93,6 +90,24 @@ from .services import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def has_invalid_dp_results(scenario_id):
+    if isinstance(scenario_id, int):
+        scenario_id = [scenario_id]
+    qs = Simulation.objects.filter(scenario_id__in=scenario_id).annotate(
+        dp_results_type=Func(
+            F("dp_results"),
+            function="jsonb_typeof",
+            output_field=CharField(),
+        )
+    )
+    if qs.filter(dp_results__isnull=True).exists():
+        return "reset"
+    if qs.filter(dp_results_type="string").exists():
+        return "reparse"
+
+    return ""
 
 
 @require_http_methods(["GET"])
@@ -1191,6 +1206,8 @@ def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
 
         qs = Simulation.objects.filter(scenario_id=scen_id)
 
+        dp_results_error = has_invalid_dp_results(scen_id)
+
         if qs.exists():
             simulation = qs.first()
 
@@ -1213,6 +1230,11 @@ def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
             )
             if simulation.status == DONE:
                 html_template = "scenario/simulation/success.html"
+                msg = None
+                if dp_results_error == "reset":
+                    msg = _(
+                        "The simulation was performed with an outdated simulation server version, please reset it and start a new one"
+                    )
                 # Look for back compatibility of simulation results with the result view
                 qs = FancyResults.objects.filter(simulation=simulation)
                 if not qs.exists():
@@ -1226,11 +1248,23 @@ def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
                     qs = FancyResults.objects.filter(simulation=simulation)
                     # inform the user about the problem if the updated results could not be parsed from the existing simulation
                     if not qs.exists():
+                        if dp_results_error == "reparse":
+                            msg = _(
+                                "The simulation was performed with an outdated simulation server version, please reset it rerun the simulation"
+                            )
+
                         simulation.status = ERROR
                         simulation.errors = _(
-                            "The simulation was performed with an older MVS version which is not compatible with the result view anymore, please reset and rerun the simulation"
+                            "The simulation was performed with an older simulation version which is not compatible with the result view anymore, please reset and rerun the simulation"
+                        )
+                else:
+                    if dp_results_error == "reparse":
+                        msg = _(
+                            "The simulation was performed with an outdated simulation server version, please reset it rerun the simulation"
                         )
 
+                if msg is not None:
+                    messages.warning(request, msg)
             if simulation.status == ERROR:
                 context.update({"simulation_error_msg": simulation.errors})
                 html_template = "scenario/simulation/error.html"
@@ -1412,6 +1446,50 @@ def scenario_export_as_jsonified_datapackage(request, scen_id, n_timestamps=None
     response = JsonResponse(json_dp, status=200, content_type="application/json")
 
     return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def reparse_scenario_simulation_results(request, scen_id):
+    scenario = get_object_or_404(Scenario, id=scen_id)
+    simulation = scenario.simulation
+    if simulation is not None:
+        dp_results_error = has_invalid_dp_results(scen_id)
+        if dp_results_error == "reparse":
+            simulation.dp_results = json.loads(simulation.dp_results)
+            if isinstance(simulation.graphs, str):
+                simulation.graphs = json.loads(simulation.graphs)
+            if isinstance(simulation.tables, str):
+                simulation.tables = json.loads(simulation.tables)
+            simulation.save()
+            messages.info(
+                request,
+                _(
+                    "The JSONFields of the simulation are now not jsonified strings anymore, maybe it fixed your results view"
+                ),
+            )
+        else:
+            answer = fetch_ezp_simulation_results(simulation, force_fetch=True)
+            if isinstance(answer, bool) and simulation.status == DONE:
+                parse_ezp_results(simulation, simulation.results)
+                messages.info(request, _("The reparsing was successful"))
+            else:
+                messages.error(
+                    request, _("The reparsing could not happend due to : ") + answer
+                )
+    else:
+        messages.warning(
+            request,
+            _(
+                "The scenario you provided for reparsing doesn't have a simulation, please start a simulation first"
+            ),
+        )
+    return HttpResponseRedirect(
+        reverse(
+            "scenario_review",
+            args=[scenario.project.id, scenario.id],
+        )
+    )
 
 
 @login_required
