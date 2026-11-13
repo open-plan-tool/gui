@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ARG BUILD_ENVIRONMENT=production
 # Optional: Cache bust for fresh dependencies (change value to bust cache)
-ARG CACHE_BUST=1
+ARG CACHE_BUST=2
 
 RUN mkdir ${CONFIG_ROOT}
 COPY app/requirements/base.txt ${CONFIG_ROOT}/base.txt
@@ -21,7 +21,6 @@ RUN apt-get update && \
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
     && pip install gunicorn
-RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op1.3.0"
 RUN pip install pvlib
 WORKDIR ${APP_ROOT}
 
