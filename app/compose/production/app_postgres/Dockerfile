@@ -22,6 +22,7 @@ RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r ${CONFIG_ROOT}/${BUILD_ENVIRONMENT}.txt \
     && pip install gunicorn
 RUN pip install pvlib
+RUN pip install "git+https://github.com/oemof/oemof-datapackage.git@dev"
 WORKDIR ${APP_ROOT}
 
 
