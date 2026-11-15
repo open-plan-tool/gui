@@ -23,7 +23,11 @@ const layout = {
         t:15,
     },
     xaxis:{
-        type: "date"
+        type: "date",
+        title: { text: gettext("Time Range") },
+    },
+    yaxis:{
+        title: { text: "kW" }
     }
 };
 
@@ -56,7 +60,6 @@ function makePlotly( x, y, plot_id="",userLayout=null){
         plotLayout.xaxis.type = "date";
     }
     plotLayout.xaxis.autorange = "true";
-    plotLayout["yaxis"] = {autorange: "true"};
     plotLayout = {...plotLayout, ...userLayout};
     var traces = [{type: "scatter", x: x, y: y}];
 
