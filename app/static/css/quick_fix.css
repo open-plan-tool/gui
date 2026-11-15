@@ -40,6 +40,7 @@ opacity: 0.6;
 .info__icon{
 height: 1.2rem;
 margin-left: .5rem;
+}
 
 #energy-system {
     height: 650px !important;
@@ -47,4 +48,12 @@ margin-left: .5rem;
 
 form-control.view-only {
  background-color: red;
+}
+
+#manual-tab-energy_price {
+    white-space: nowrap;
+}
+
+#manual-tab-feedin_tariff {
+    white-space: nowrap;
 }
