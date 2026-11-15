@@ -10,6 +10,10 @@
 ### Changed
 - Hide and toggle certain fields depending on storage type [[#596](https://github.com/open-plan-tool/gui/pull/596)]
 - Save the graphs, the tables and the results directly as dict into the simulation JSONField's [[#597](https://github.com/open-plan-tool/gui/pull/597)]
+
+### Fixed
+- Fix collecting Timeseries ids linked to assets within a given scenario [[#602](https://github.com/open-plan-tool/gui/pull/602)]
+
 ### Removed
 - Remove buttons to download MVS results in the result view [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 
