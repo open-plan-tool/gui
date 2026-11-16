@@ -82,8 +82,11 @@ def ezp_simulation_check_status(token):
 def fetch_ezp_simulation_results(simulation, force_fetch=False):
     if simulation.status == PENDING or force_fetch is True:
         response = ezp_simulation_check_status(token=simulation.mvs_token)
-        if force_fetch and response is None:
-            return "no response from server"
+        if force_fetch:
+            if response is None:
+                return "no response from server, maybe it is offline"
+            if response["status"] == PENDING:
+                return "simulation's result not on the simulation server anymore, please reset and restart a simulation"
         try:
             simulation.status = response["status"]
             simulation.mvs_version = response["simulation_version"]

@@ -5,10 +5,15 @@
 - Add endpoint to reparse a simulation's results `simulation/reparse-results/<int:sim_id>` [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 - Add endpoint to download the results as datapackage (`scenario/results/download_datapackage/<int:scen_id>`) as well as a button to do so [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 - KPI in the result table for total dispatch costs over a year (including energy costs) [[#599](https://github.com/open-plan-tool/gui/pull/599)]
--
+- Warn the user if the simulation's results are ill formated that they should reset and re-simulate [[#599](https://github.com/open-plan-tool/gui/pull/599)]
+
 ### Changed
 - Hide and toggle certain fields depending on storage type [[#596](https://github.com/open-plan-tool/gui/pull/596)]
 - Save the graphs, the tables and the results directly as dict into the simulation JSONField's [[#597](https://github.com/open-plan-tool/gui/pull/597)]
+
+### Fixed
+- Fix collecting Timeseries ids linked to assets within a given scenario [[#602](https://github.com/open-plan-tool/gui/pull/602)]
+
 ### Removed
 - Remove buttons to download MVS results in the result view [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 

@@ -42,7 +42,7 @@
         <a class="btn btn--medium btn--hollow" href="{{ MVS_LP_FILE_URL }}{{ mvs_token }}">{% translate "Download LP files" %}</a>
         <a class="btn btn--medium btn--hollow" href="{% url 'simulation_cancel' scen_id %}" onclick="return confirm('Are you sure?')">{% translate "Reset simulation" %}</a>
         {% if show_mvs_button %}
-					<a class="btn btn--medium btn--hollow" href="{% url 'reparse_simulation_results' sim_id %}" onclick="return confirm('Are you sure?')">{% translate "Reparse simulation" %}</a>
+					<a class="btn btn--medium btn--hollow" href="{% url 'reparse_scenario_simulation_results' scen_id %}" onclick="return confirm('Are you sure?')">{% translate "Reparse simulation" %}</a>
 				{% endif %}
 				</div>
       </div>

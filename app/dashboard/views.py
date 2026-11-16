@@ -38,6 +38,7 @@ from projects.models import (
     Project,
     Scenario,
     Asset,
+    HeatingNetwork,
     SensitivityAnalysis,
     Simulation,
     get_project_sensitivity_analysis,
@@ -1049,12 +1050,9 @@ def scenario_visualize_variable(
             )
 
             bars = []
-
-            # numeric x positions: bars of one type sit next to each other, one
-            # empty position separates the type groups
-            position = 0
-            previous_type = None
+            scenario_names = []
             for scenario_id, scenario, traces in results:
+                scenario_names.append(scenario)
                 for trace in traces or []:
                     kind = trace["name"]  # "Installed" / "Optimized"
 
@@ -1067,26 +1065,56 @@ def scenario_visualize_variable(
                             .values_list("asset_type__asset_type", flat=True)
                             .get()
                         )
-                        if previous_type is not None and type_name != previous_type:
-                            position += 1
+                        # TODO use dict and not lists, too error prone
                         bars.append(
-                            {
-                                "position": position,
-                                "scenario": scenario,
-                                "type": type_name,
-                                "component": component,
-                                "capacity": capacity,
-                                "kind": kind,
-                            }
+                            [
+                                scenario,
+                                type_name,
+                                type_name,
+                                component,
+                                capacity,
+                                kind,
+                            ]
                         )
-                        previous_type = type_name
-                        position += 1
 
-            # TODO sort the bars using the index based on type
+            fig = graphs.multi_scenario_capacities_graph(scenario_names, bars)
 
-            datasets = list(dict.fromkeys(bar["scenario"] for bar in bars))
-            fig = graphs.multi_scenario_capacities_graph(datasets, bars)
+            figure_json = json.loads(fig.to_json())
+            figure_json["id"] = variable
+        elif variable == "costs":
+            results = Simulation.objects.filter(
+                scenario__id__in=selected_scenario
+            ).values_list(
+                "scenario__id",
+                "scenario__name",
+                "tables__yearly_project_costs",
+            )
 
+            bars = []
+            scenario_names = []
+            for scenario_id, scenario, traces in results:
+                scenario_names.append(scenario)
+
+                table = pd.DataFrame.from_dict(traces, orient="columns")
+                table = table[table["Component"] != "total"]
+                for _, row in table.iterrows():
+                    try:
+                        type_name = (
+                            Asset.objects.filter(scenario__id=scenario_id)
+                            .filter(name=row["Component"])
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                    except Asset.DoesNotExist as e:
+                        type_name = (
+                            HeatingNetwork.objects.filter(scenario__id=scenario_id)
+                            .filter(name=row["Component"])
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                    bars.append((scenario, type_name, type_name, row))
+
+            fig = graphs.multi_scenario_annual_costs(scenario_names, bars)
             figure_json = json.loads(fig.to_json())
             figure_json["id"] = variable
         else:

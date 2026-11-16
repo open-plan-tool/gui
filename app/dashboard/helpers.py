@@ -45,7 +45,7 @@ MANAGEMENT_CAT_PARAMS = {
 SUMMARY_CAT_PARAMS = {
     "General": [
         "total_cost_year0",
-        "total_cost",
+        "total_yearly_fixed_costs",
         "total_dispatch_costs",
         "lcoe",
         "renewable_share",
