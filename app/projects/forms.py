@@ -68,6 +68,8 @@ def build_help_icon_html(
     RTD_link=True,
     RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#",
 ):
+    if not help_text:
+        return None
     param_ref = ""
     if param_name in parameters:
         param_ref = (parameters[param_name].get("rtd_link_label") or "").replace(
@@ -100,7 +102,8 @@ def add_help_text_icon(
         icon = build_help_icon_html(
             param_name, help_text, parameters, RTD_link, RTD_url
         )
-        field.label = mark_safe(field.label + icon)
+        if icon:
+            field.label = mark_safe(field.label + icon)
 
 
 def resolve_parameter(parameters, param_name):
@@ -842,6 +845,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                     # the "name" row documents the component as a whole, not the
                     # name field itself, so show its icon next to the modal title instead
                     help_text = self.fields[field].help_text or ""
+                    self.fields[field].help_text = None
                     self.component_help_icon = build_help_icon_html(
                         f"{self.component}_name", help_text
                     )
