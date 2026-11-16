@@ -700,7 +700,7 @@ class COPCalculatorForm(OpenPlanModelForm):
         )
         # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
         for field in ["temperature_low", "temperature_high"]:
-            set_parameter_info(field, self.fields[field])
+            set_parameter_info(f"{self.component}_{field}", self.fields[field])
             self.add_help_text_icon(field, RTD_link=True)
 
     class Meta:
@@ -1327,7 +1327,7 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
     gcr = forms.FloatField(
         widget=forms.NumberInput(),
         required=False,
-        initial=100,
+        initial=0.5,
     )
 
     mounting_type = forms.ChoiceField(
