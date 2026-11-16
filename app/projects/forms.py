@@ -800,6 +800,13 @@ def asset_form_factory(asset_type=None, **kwargs):
                         )
                         set_parameter_info(param_name, field)
 
+            # Optimize capacity is not an eesyplan field but specific to the GUI, so we set its label/help text here
+            if "optimize_cap" in self.fields:
+                self.fields["optimize_cap"].label = _("Optimize capacity")
+                self.fields["optimize_cap"].help_text = _(
+                    "Choose whether to optimize the asset capacity or use a fixed installed capacity."
+                )
+
             # remove the fields not needed for the AssetType
             for field in list(self.fields):
                 if field not in self.asset_type.visible_fields:

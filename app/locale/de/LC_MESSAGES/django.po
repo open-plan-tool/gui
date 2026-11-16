@@ -4730,6 +4730,9 @@ msgstr "Gibt an, ob die Optimierung zu einem Netto-Nullenergie-System führen mu
 msgid "Optimize capacity"
 msgstr "Anlagengröße optimieren"
 
+msgid "Choose whether to optimize the asset capacity or use a fixed installed capacity."
+msgstr "Entscheiden Sie, ob Sie die Kapazität der Anlage optimieren oder eine feste installierte Kapazität verwenden möchten."
+
 msgid "Choose if capacity optimization should be performed for this asset."
 msgstr "Wählen Sie, ob für diese Anlage eine Kapazitätsoptimierung durchgeführt werden soll."
 
