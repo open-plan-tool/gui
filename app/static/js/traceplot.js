@@ -27,7 +27,7 @@ const layout = {
         title: { text: gettext("Time Range") },
     },
     yaxis:{
-        title: { text: "kW" }
+        title: { text: "" }
     }
 };
 
@@ -60,6 +60,10 @@ function makePlotly( x, y, plot_id="",userLayout=null){
         plotLayout.xaxis.type = "date";
     }
     plotLayout.xaxis.autorange = "true";
+
+    // todo get the field thanks to plot_id and make and endpoint to get the ylabel
+    plotLayout.yaxis.title.text= "" ;
+
     plotLayout = {...plotLayout, ...userLayout};
     var traces = [{type: "scatter", x: x, y: y}];
 
