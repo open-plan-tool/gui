@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v1.3.3] – 2026-11-16
 ### Added
 - Add endpoint to reparse a simulation's results `simulation/reparse-results/<int:sim_id>` [[#597](https://github.com/open-plan-tool/gui/pull/597)]
 - Add endpoint to download the results as datapackage (`scenario/results/download_datapackage/<int:scen_id>`) as well as a button to do so [[#597](https://github.com/open-plan-tool/gui/pull/597)]
