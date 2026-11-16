@@ -69,18 +69,19 @@ def add_help_text_icon(
     RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#",
 ):
     if field.help_text is not None:
-        help_text = field.help_text + ". "
+        help_text = field.help_text
         field.help_text = None
     else:
         help_text = ""
     if field.label is not None:
+        param_ref = ""
         if param_name in parameters:
-            param_ref = parameters[param_name]["label"].replace("_", "-")
-        else:
-            param_ref = ""
+            param_ref = (parameters[param_name].get("rtd_link_label") or "").replace(
+                "_", "-"
+            )
         if param_name != "name":
-            if RTD_link is True:
-                help_text += _("Click on the icon for more help") + "."
+            if RTD_link and param_ref:
+                help_text += " " + _("Click on the icon for more help") + "."
                 question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
             else:
                 question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
@@ -171,23 +172,28 @@ class OpenPlanModelForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if hasattr(self, "asset_type_name"):
-            component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(self.asset_type_name, None)
+            self.component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(
+                self.asset_type_name, None
+            )
             for fieldname, field in self.fields.items():
                 # combine component and param name to match label convention in PARAMETERS
-                param_name = f"{component}_{fieldname}"
+                param_name = f"{self.component}_{fieldname}"
                 set_parameter_info(param_name, field)
         else:
             # if not an asset, get the model name
-            component = type(self.instance).__name__
+            self.component = type(self.instance).__name__
             for fieldname, field in self.fields.items():
-                param_name = f"{component}_{fieldname}"
+                param_name = f"{self.component}_{fieldname}"
                 set_parameter_info(param_name, field)
                 # set the help text icon already for the non-asset forms as the fields don't get edited later
                 self.add_help_text_icon(fieldname)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
-            add_help_text_icon(self.fields[param_name], param_name, RTD_link=True)
+            full_param_name = (
+                f"{self.component}_{param_name}" if self.component else param_name
+            )
+            add_help_text_icon(self.fields[param_name], full_param_name, RTD_link=True)
 
 
 class OpenPlanForm(forms.Form):
