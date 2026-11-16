@@ -50,10 +50,6 @@ form-control.view-only {
  background-color: red;
 }
 
-#manual-tab-energy_price {
-    white-space: nowrap;
-}
-
-#manual-tab-feedin_tariff {
+[id^=manual-tab] {
     white-space: nowrap;
 }
