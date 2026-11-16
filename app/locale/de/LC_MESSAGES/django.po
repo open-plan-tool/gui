@@ -5607,3 +5607,45 @@ msgstr "Geben Sie das Netzentgelt pro kW Spitzenlast im Abrechnungszeitraum ein 
 
 msgid "Enter the maximum power that may be fed into the grid, or leave empty for no limit."
 msgstr "Geben Sie die maximale Leistung ein, die ins Netz eingespeist werden darf, oder lassen Sie das Feld leer, wenn keine Begrenzung gelten soll."
+
+msgid "Total cost of upfront investment costs of the energy system"
+msgstr "Gesamtkosten der anfänglichen Investitionskosten des Energiesystems"
+
+msgid "Total cost of the energy system per year"
+msgstr "Gesamtkosten des Energiesystems pro Jahr"
+
+msgid "Total fix costs (opex) of the energy system per year"
+msgstr "Gesamte Fixkosten (Betriebskosten) des Energiesystems pro Jahr"
+
+msgid "Total yearly dispatch costs (including energy costs)"
+msgstr "Gesamte jährliche Einsatzkosten (einschließlich Energiekosten)"
+
+msgid "Total cost / total energy into the demands"
+msgstr "Gesamtkosten / gesamte in die Bedarfe eingespeiste Energie"
+
+msgid "Total renewable share of all energy produced or bought"
+msgstr "Gesamter erneuerbarer Anteil an der gesamten erzeugten oder zugekauften Energie"
+
+msgid "annualised investment cost (annuity)"
+msgstr "Annualisierte Investitionskosten (Annuität)"
+
+msgid "fixed operation & maintenance cost"
+msgstr "Fixe Betriebs- und Wartungskosten"
+
+msgid "sum of the variable costs of all flows of the component over the whole horizon"
+msgstr "Summe der variablen Kosten aller Flüsse der Komponente über den gesamten Zeithorizont"
+
+msgid "Total investment costs (year 0)"
+msgstr "Gesamte Investitionskosten (Jahr 0)"
+
+msgid "Total yearly cost"
+msgstr "Gesamtkosten pro Jahr"
+
+msgid "Total yearly fix costs"
+msgstr "Gesamte jährliche Fixkosten"
+
+msgid "Levelized cost of energy"
+msgstr "Stromgestehungskosten"
+
+msgid "Renewable share"
+msgstr "Erneuerbarer Anteil"
