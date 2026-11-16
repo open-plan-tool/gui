@@ -963,7 +963,7 @@ def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
     components = {
         "providers": {
             "dso": _("Electricity DSO"),
-            "gas_dso": _("Gas DSO"),
+            "gas_dso": _("Fuel DSO"),
             "h2_dso": _("H2 DSO"),
             "heat_dso": _("Heat DSO"),
         },
