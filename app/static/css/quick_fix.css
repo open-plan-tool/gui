@@ -49,7 +49,3 @@ margin-left: .5rem;
 form-control.view-only {
  background-color: red;
 }
-
-[id^=manual-tab] {
-    white-space: nowrap;
-}
