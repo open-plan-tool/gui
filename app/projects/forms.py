@@ -213,7 +213,9 @@ class OpenPlanModelForm(ModelForm):
             full_param_name = (
                 f"{self.component}_{param_name}" if self.component else param_name
             )
-            add_help_text_icon(self.fields[param_name], full_param_name, RTD_link=True)
+            add_help_text_icon(
+                self.fields[param_name], full_param_name, RTD_link=RTD_link
+            )
 
 
 class OpenPlanForm(forms.Form):
