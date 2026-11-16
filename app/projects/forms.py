@@ -193,12 +193,12 @@ class OpenPlanModelForm(ModelForm):
 class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
-    parameters = PARAMETERS
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        component = type(self).__name__
         for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field, parameters=self.parameters)
+            param_name = f"{component}_{fieldname}"
+            set_parameter_info(param_name, field)
             if hasattr(self, "RTD_url"):
                 RTD_link = True
                 RTD_url = self.RTD_url
@@ -207,8 +207,7 @@ class OpenPlanForm(forms.Form):
                 RTD_url = None
             add_help_text_icon(
                 field,
-                fieldname,
-                parameters=self.parameters,
+                param_name,
                 RTD_link=RTD_link,
                 RTD_url=RTD_url,
             )
@@ -1251,71 +1250,10 @@ class UploadTimeseriesForm(OpenPlanModelForm):
         }
 
 
-PV_TIMESERIES_PARAMETERS = {
-    "weather_file": {
-        "verbose": "Weather data file",
-        "short_description": "Upload weather data file. Currently only TRY files are supported. If you use the TRY file from the German Weather Service, it should be a .dat file.",
-        "unit": "None",
-        "default_value": "None",
-        "label": "weather_file",
-    },
-    "azimuth": {
-        "verbose": "Azimuth",
-        "short_description": "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems",
-        "unit": "°",
-        "default_value": "None",
-        "label": "azimuth",
-    },
-    "tilt": {
-        "verbose": "Tilt",
-        "short_description": "Tilt angle in degrees (0° is horizontal, 90° is vertical)",
-        "unit": "°",
-        "default_value": "None",
-        "label": "tilt",
-    },
-    "system_eff": {
-        "verbose": "System Efficiency",
-        "short_description": "Performance ratio of the total PV-System (usually around 0.8)",
-        "unit": "Factor",
-        "default_value": "None",
-        "label": "system_eff",
-    },
-    "gcr": {
-        "verbose": "Ground Coverage Ratio",
-        "short_description": "Ratio of the module area to the ground area of the module field, only needed for tracker",
-        "unit": "Factor",
-        "default_value": "None",
-        "label": "gcr",
-    },
-    "mounting_type": {
-        "verbose": "Mounting Type",
-        "short_description": "Static systems, east-west like system or 1-axis tracking system",
-        "unit": "None",
-        "default_value": "None",
-        "label": "mounting_type",
-    },
-    "albedo": {
-        "verbose": "Albedo",
-        "short_description": "Reflection fraction of sunlight in the surrounding area",
-        "unit": "Factor",
-        "default_value": "None",
-        "label": "albedo",
-    },
-    "max_angle": {
-        "verbose": "Max. tilt angle",
-        "short_description": "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems",
-        "unit": "°",
-        "default_value": "None",
-        "label": "max_angle",
-    },
-}
-
-
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
     eesyplan_ref = (
         "oemof.eesyplan.importer.create_timeseries_pv.create_pv_production_timeseries"
     )
-    parameters = PV_TIMESERIES_PARAMETERS
 
     mounting_type_choices = (
         ("fix tilt", _("Fix Tilt")),
@@ -1391,48 +1329,7 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         }
 
 
-HEAT_DEMAND_PARAMETERS = {
-    "outdoor_temperature": {
-        "verbose": "Outdoor Temperature",
-        "short_description": "Constant Temperature or Timeseries",
-        "unit": "°C",
-        "default_value": "None",
-        "label": "outdoor_temperature",
-    },
-    "profile_type": {
-        "verbose": "Profile Type",
-        "short_description": "Select from one of the available BDEW heat profiles",
-        "unit": "None",
-        "default_value": "None",
-        "label": "profile_type",
-    },
-    "annual_heat_demand": {
-        "verbose": "Annual Heat Demand",
-        "short_description": "Total heat demand in the chosen timeperiod",
-        "unit": "kWh",
-        "default_value": "None",
-        "label": "annual_heat_demand",
-    },
-    "building_year": {
-        "verbose": "Building Year",
-        "short_description": "Only for residential buildings, used for estimating insulation",
-        "unit": "None",
-        "default_value": "None",
-        "label": "building_year",
-    },
-    "wind_class": {
-        "verbose": "Wind class",
-        "short_description": "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities",
-        "unit": "None",
-        "default_value": "None",
-        "label": "wind_class",
-    },
-}
-
-
 class CreateHeatDemandForm(OpenPlanForm):
-    parameters = HEAT_DEMAND_PARAMETERS
-
     profile_type_choices = (
         ("EFH", _("Single-family house")),
         ("MFH", _("Apartment building")),
