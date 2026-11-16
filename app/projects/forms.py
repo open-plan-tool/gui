@@ -848,7 +848,7 @@ def asset_form_factory(asset_type=None, **kwargs):
                     self.component_help_icon = build_help_icon_html(
                         f"{self.component}_name",
                         help_text,
-                        RTD_url="https://open-plan-documentation.readthedocs.io/en/feature-eesyplan-components-page/model/components.html#",
+                        RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/components.html#",
                     )
                 else:
                     self.add_help_text_icon(field)
