@@ -101,3 +101,6 @@ msgstr "Erneuerbar vs. nicht-erneuerbar"
 
 msgid "Accumulated energy supply of the system"
 msgstr "Gesamtenergieversorgung des Systems"
+
+msgid "Time Range"
+msgstr "Zeitspanne"

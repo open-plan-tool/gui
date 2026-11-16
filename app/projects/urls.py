@@ -194,6 +194,11 @@ urlpatterns = [
         scenario_export_as_jsonified_datapackage,
         name="scenario_export_as_jsonified_datapackage",
     ),
+    path(
+        "scenario/reparse-results/<int:scen_id>",
+        reparse_scenario_simulation_results,
+        name="reparse_scenario_simulation_results",
+    ),
     path("scenario/upload/<int:proj_id>", scenario_upload, name="scenario_upload"),
     # path('scenario/upload/<int:proj_id>', LoadScenarioFromFileView.as_view(), name='scenario_upload'),
     # Timeseries Model
@@ -356,6 +361,11 @@ urlpatterns = [
         "simulation/fetch-results/<int:sim_id>",
         fetch_simulation_results,
         name="fetch_simulation_results",
+    ),
+    path(
+        "simulation/reparse-results/<int:sim_id>",
+        reparse_simulation_results,
+        name="reparse_simulation_results",
     ),
     # Sensitivity analysis
     path(

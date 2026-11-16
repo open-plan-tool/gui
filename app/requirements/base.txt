@@ -2,7 +2,7 @@ crispy-bootstrap4==2026.2
 Django==5.2.16
 django-bootstrap-modal-forms==3.0.5
 django-compressor==4.6.0
-django-crispy-forms==2.5
+django-crispy-forms==2.7
 django-environ==0.13.0
 django-extensions==4.1
 django-jsonview==2.0.0
@@ -11,7 +11,7 @@ django-celery-beat==2.9.0
 django-statici18n==2.8.0
 flower==2.0.1
 redis==8.0.1
-oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@feature/add-figures-in-dashboard
+oemof-eesyplan[importer] @ git+https://github.com/oemof/oemof-eesyplan.git@op2.0.0rc2
 httpx<0.28
 jsonschema==4.26.0
 libsass==0.23.0

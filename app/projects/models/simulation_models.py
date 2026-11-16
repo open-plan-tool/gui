@@ -76,14 +76,14 @@ class Simulation(AbstractSimulation):
         return results
 
     def get_figure(self, fig_label):
-        figs_dict = json.loads(self.graphs)
+        figs_dict = self.graphs
         fig_dict = figs_dict.get(fig_label, {"data": [], "layout": []})
         fig_dict["id"] = fig_label
         return fig_dict
 
     def get_table(self, label):
-        tables_dict = json.loads(self.tables)
-        table_dict = json.loads(tables_dict.get(label))
+        tables_dict = self.tables
+        table_dict = tables_dict.get(label)
         return table_dict
 
 

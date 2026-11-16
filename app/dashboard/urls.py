@@ -95,6 +95,11 @@ urlpatterns = [
         name="scenario_visualize_variable",
     ),
     path(
+        "project/<int:proj_id>/scenario/results/request/<str:variable>",
+        scenario_visualize_variable,
+        name="scenario_visualize_variable",
+    ),
+    path(
         "project/<int:proj_id>/scenario/results/request/<int:scen_id>/<str:variable>",
         scenario_visualize_variable,
         name="scenario_visualize_variable",
@@ -110,9 +115,9 @@ urlpatterns = [
         name="scenario_visualize_sankey",
     ),
     path(
-        "scenario/results/download_scalars/<int:scen_id>",
-        download_scalar_results,
-        name="download_scalar_results",
+        "scenario/results/download_datapackage/<int:scen_id>",
+        download_results_datapackage,
+        name="download_results_datapackage",
     ),
     path(
         "scenario/results/download_costs/<int:scen_id>",

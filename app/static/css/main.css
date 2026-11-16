@@ -2178,6 +2178,9 @@ nav.navbar {
 .navbar2 .dropdown.dropdown--navbar button.btn {
   color: #17405C !important; }
 
+[id^=manual-tab] {
+  white-space: nowrap; }
+
 /* ----------------------------- open_plan 2 ----------------------------- */
 /* ----------------------------- open_plan 2 ----------------------------- */
 .dashboard-tabs {
@@ -4750,3 +4753,5 @@ nav.navbar {
       height: 100%;
       background-color: #E3EAEE;
       z-index: 1; }
+
+/*# sourceMappingURL=main.css.map */

@@ -932,6 +932,20 @@ def asset_form_factory(asset_type=None, **kwargs):
                 if cleaned_data["optimize_cap"]:
                     cleaned_data["age_installed"] = 0
                     cleaned_data["installed_capacity"] = 0.0
+                    # since the field is a required timeseriesfield, we need to submit data manually and also remove the error from the form submission, otherwise it will not continue to validate the timeseries field correctly
+                    cleaned_data["fixed_losses_absolute"] = json.dumps(
+                        dict(
+                            values=[0.0],
+                            input_method={
+                                "type": "manual",
+                                "generation_parameters": None,
+                            },
+                        )
+                    )
+                    # remove errors that could have happened while cleaning the form related to these fields
+                    self._errors.pop("age_installed", None)
+                    self._errors.pop("installed_capacity", None)
+                    self._errors.pop("fixed_losses_absolute", None)
                 else:
                     cleaned_data["maximum_capacity"] = None
 

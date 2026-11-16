@@ -215,18 +215,20 @@ function translateFigureLabels(data, layout) {
 }
 
 function insertPlotlyGraph(graphId, data, layout){
-    translateFigureLabels(data, layout);
-
-    // finds the title of the section
-    const graph = document.getElementById(`graph-${graphId}`);
-    const title = graph
-    .closest(".chart")
-    .querySelector(".chart__header .title a");
-
-    // replaces section title by the graph title
-    // title.textContent = gettext(layout.title.text);
-    // erases graph title
-    layout.title.text = "";
+    console.log(data);
+    console.log(layout);
+//    //translateFigureLabels(data, layout);
+//
+//    // finds the title of the section
+//    const graph = document.getElementById(`graph-${graphId}`);
+//    const title = graph
+//    .closest(".chart")
+//    .querySelector(".chart__header .title a");
+//
+//    // replaces section title by the graph title
+//    // title.textContent = gettext(layout.title.text);
+//    // erases graph title
+//    layout.title.text = "";
     Plotly.newPlot(
         "graph-" + graphId,
         data,
@@ -241,7 +243,7 @@ function scenario_visualize_timeseries(scen_id=""){
 async function scenario_visualize_given_graph(scen_id = "", variable = "") {
     const url =
         `${urlVisualizeAnyGraph}` +
-        `${encodeURIComponent(scen_id)}/` +
+        `${scen_id ? `${encodeURIComponent(scen_id)}/` : ""}` +
         `${encodeURIComponent(variable)}`;
 
     try {

@@ -3,7 +3,12 @@ import json
 import logging
 import traceback
 from io import BytesIO
+import tempfile
+import zipfile
+from pathlib import Path
 
+from plotly import graph_objects as go
+from plotly.colors import qualitative
 import numpy as np
 import pandas as pd
 import xlsxwriter
@@ -21,6 +26,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from jsonview.decorators import json_view
+from oemof.datapackage import datapackage  # noqa
+from oemof.eesyplan.postprocessing import graphs
+
 from projects.constants import COMPARE_VIEW, MAX_STEP, STEP_LIST
 from projects.decorators import user_has_read_rights
 from projects.forms import BusForm, asset_form_factory, get_asset_or_404
@@ -29,9 +37,12 @@ from projects.models import (
     Bus,
     Project,
     Scenario,
+    Asset,
+    HeatingNetwork,
     SensitivityAnalysis,
     Simulation,
     get_project_sensitivity_analysis,
+    ASSET_MAPPING,
 )
 from projects.scenario_topology_helpers import load_scenario_topology_from_db
 from projects.services import (
@@ -271,6 +282,7 @@ def project_compare_results(request, proj_id, step_id=5, max_step=MAX_STEP):
     ]
 
     selected_scenarios = get_selected_scenarios_in_cache(request, proj_id)
+
     return render(
         request,
         "report/compare_scenario.html",
@@ -636,7 +648,7 @@ def request_kpi_table(request, proj_id=None):
     for scenario_id in selected_scenarios:
         scenario = get_object_or_404(Scenario, pk=scenario_id)
         scen_names.append(_(scenario.name))
-        kpis[scenario_id] = json.loads(scenario.simulation.tables)
+        kpis[scenario_id] = scenario.simulation.tables
 
     proj = get_object_or_404(Project, id=scenario.project.id)
     unit_conv = {"currency": proj.economic_data.currency, "Factor": "%"}
@@ -733,7 +745,7 @@ def request_results_table(request, proj_id=None, scen_id=None, table_id=""):
             {"msg": "Multi-scenario not implemented for costs table"}, status=400
         )
     scen_costs = sim.get_table(table_id)
-    scen_costs_df = pd.DataFrame(scen_costs).set_index("component")
+    scen_costs_df = pd.DataFrame(scen_costs).set_index("Component")
 
     table = {}
     # TODO fix this with the actual descriptions etc
@@ -1024,9 +1036,89 @@ def scenario_visualize_variable(
     for scenario in qs:
         simulations.append(scenario.simulation)
 
-    # TODO allow comparison as well
-    simulation = scenario.simulation
-    figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    if len(simulations) == 1:
+        simulation = simulations[0]
+        figure_json = simulation.get_figure(variable)  # Here allow lookup inside Json
+    else:
+        if variable == "capacities":
+            results = Simulation.objects.filter(
+                scenario__id__in=selected_scenario
+            ).values_list(
+                "scenario__id",
+                "scenario__name",
+                "graphs__capacities__data",
+            )
+
+            bars = []
+            scenario_names = []
+            for scenario_id, scenario, traces in results:
+                scenario_names.append(scenario)
+                for trace in traces or []:
+                    kind = trace["name"]  # "Installed" / "Optimized"
+
+                    for component, capacity in zip(trace["x"], trace["y"]):
+                        if capacity is None:
+                            continue
+                        type_name = (
+                            Asset.objects.filter(scenario__id=scenario_id)
+                            .filter(name=component)
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                        # TODO use dict and not lists, too error prone
+                        bars.append(
+                            [
+                                scenario,
+                                type_name,
+                                type_name,
+                                component,
+                                capacity,
+                                kind,
+                            ]
+                        )
+
+            fig = graphs.multi_scenario_capacities_graph(scenario_names, bars)
+
+            figure_json = json.loads(fig.to_json())
+            figure_json["id"] = variable
+        elif variable == "costs":
+            results = Simulation.objects.filter(
+                scenario__id__in=selected_scenario
+            ).values_list(
+                "scenario__id",
+                "scenario__name",
+                "tables__yearly_project_costs",
+            )
+
+            bars = []
+            scenario_names = []
+            for scenario_id, scenario, traces in results:
+                scenario_names.append(scenario)
+
+                table = pd.DataFrame.from_dict(traces, orient="columns")
+                table = table[table["Component"] != "total"]
+                for _, row in table.iterrows():
+                    try:
+                        type_name = (
+                            Asset.objects.filter(scenario__id=scenario_id)
+                            .filter(name=row["Component"])
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                    except Asset.DoesNotExist as e:
+                        type_name = (
+                            HeatingNetwork.objects.filter(scenario__id=scenario_id)
+                            .filter(name=row["Component"])
+                            .values_list("asset_type__asset_type", flat=True)
+                            .get()
+                        )
+                    bars.append((scenario, type_name, type_name, row))
+
+            fig = graphs.multi_scenario_annual_costs(scenario_names, bars)
+            figure_json = json.loads(fig.to_json())
+            figure_json["id"] = variable
+        else:
+            figure_json = dict(id=variable, data=[], layout={})
 
     return JsonResponse(
         figure_json, status=200, content_type="application/json", safe=True
@@ -1075,42 +1167,31 @@ def scenario_visualize_sankey(request, scen_id, ts=None):
 @login_required
 @require_http_methods(["GET"])
 @user_has_read_rights
-def download_scalar_results(request, scen_id):
+def download_results_datapackage(request, scen_id):
     scenario = get_object_or_404(Scenario, pk=scen_id)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_path = Path(temp_dir)
 
-    try:
-        kpi_scalar_results_obj = KPIScalarResults.objects.get(
-            simulation=scenario.simulation
-        )
-        kpi_scalar_values_dict = json.loads(kpi_scalar_results_obj.scalar_values)
-        scalar_kpis_json = kpi_scalars_list(
-            kpi_scalar_values_dict, KPI_SCALAR_UNITS, KPI_SCALAR_TOOLTIPS
+        datapackage.rebuild_dp_from_json(
+            json.loads(scenario.simulation.dp_results), destination_path, overwrite=True
         )
 
-        output = BytesIO()
-        workbook = xlsxwriter.Workbook(output)
-        worksheet = workbook.add_worksheet("Scalars")
+        # Place the temp directory into a zip folder
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+            for file_path in destination_path.rglob("*"):  # Recursively walk all files
+                if file_path.is_file():
+                    # Relative path inside ZIP
+                    arcname = file_path.relative_to(destination_path)
+                    with open(file_path, "rb") as f:
+                        zip_file.writestr(str(arcname), f.read())
 
-        for idx, kpi_obj in enumerate(scalar_kpis_json):
-            if idx == 0:
-                worksheet.write_row(0, 0, kpi_obj.keys())
-            worksheet.write_row(idx + 1, 0, [str(val) for val in kpi_obj.values()])
-
-        workbook.close()
-        output.seek(0)
-    except Exception as e:
-        logger.error(
-            f"Dashboard ERROR: Could not generate KPI Scalars download file with Scenario Id: {scen_id}. Thrown Exception: {traceback.format_exc()}"
+        # Let the user download the zip file
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="results_datapackage_scenario_{scen_id}.zip"'
         )
-        raise Http404()
-
-    filename = "kpi_scalar_results.xlsx"
-    response = HttpResponse(
-        output,
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
-    response["Content-Disposition"] = f"attachment; filename={filename}"
-
     return response
 
 

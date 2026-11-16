@@ -712,15 +712,20 @@ function updateCapacityFieldsVisibility() {
     const optimizeCapInput = guiModalDOM.querySelector('input[name="optimize_cap"]');
     if (!optimizeCapInput) return;
 
-    const maxCapacityGroup = guiModalDOM.querySelector('input[name="maximum_capacity"]')?.closest('.form-group');
-    const installedCapacityGroup = guiModalDOM.querySelector('input[name="installed_capacity"]')?.closest('.form-group');
-    const ageInstalledGroup = guiModalDOM.querySelector('input[name="age_installed"]')?.closest('.form-group');
-
+    const toggleFieldTargets = ["maximum_capacity", "installed_capacity", "age_installed", "fixed_losses_absolute"]
     function toggleFields() {
         const isOptimized = optimizeCapInput.checked;
-        if (maxCapacityGroup) maxCapacityGroup.style.display = isOptimized ? '' : 'none';
-        if (installedCapacityGroup) installedCapacityGroup.style.display = isOptimized ? 'none' : '';
-        if (ageInstalledGroup) ageInstalledGroup.style.display = isOptimized ? 'none' : '';
+        toggleFieldTargets.forEach(field => {
+            fieldStr = 'div[id="div_id_' + field + '"]';
+            fieldGroup = guiModalDOM.querySelector(fieldStr);
+            if (fieldGroup) {
+                if (field == "maximum_capacity") {
+                    fieldGroup.style.display = isOptimized ? '' : 'none';
+                } else {
+                    fieldGroup.style.display = isOptimized ? 'none' : '';
+                }
+            }
+        })
     }
 
     toggleFields();
