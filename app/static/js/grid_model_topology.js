@@ -447,6 +447,11 @@ $("#guiModal").on('show.bs.modal', function (event) {
   if(nodeName){
     modal.find('.modal-title').text(nodeName.value.replaceAll("_", " "));
   }
+  // append the component's help icon, if the loaded form provides one
+  const helpIcon = guiModalDOM.querySelector('#component-help-icon');
+  if (helpIcon) {
+    modal.find('.modal-title').append(helpIcon.innerHTML);
+  }
   editor.editor_mode = "fixed";
 });
 
