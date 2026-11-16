@@ -72,8 +72,13 @@ def build_help_icon_html(
         return None
     param_ref = ""
     if param_name in parameters:
-        param_ref = (parameters[param_name].get("rtd_link_label") or "").replace(
-            "_", "-"
+        param_ref = (
+            (
+                parameters[param_name].get("rtd_link_label")
+                or parameters[param_name].get("component")
+            )
+            .replace("_", "-")
+            .replace("comp-", "")
         )
     if RTD_link and param_ref:
         help_text += " " + _("Click on the icon for more help") + "."
