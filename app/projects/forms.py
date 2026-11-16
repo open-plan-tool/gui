@@ -842,12 +842,13 @@ def asset_form_factory(asset_type=None, **kwargs):
                 if field not in self.asset_type.visible_fields:
                     self.fields.pop(field)
                 elif field == "name":
-                    # the "name" row documents the component as a whole, not the
-                    # name field itself, so show its icon next to the modal title instead
+                    # add the help icon for the name field next to the component name and link to it rather than a specific parameter
                     help_text = self.fields[field].help_text or ""
                     self.fields[field].help_text = None
                     self.component_help_icon = build_help_icon_html(
-                        f"{self.component}_name", help_text
+                        f"{self.component}_name",
+                        help_text,
+                        RTD_url="https://open-plan-documentation.readthedocs.io/en/feature-eesyplan-components-page/model/components.html#",
                     )
                 else:
                     self.add_help_text_icon(field)
