@@ -476,7 +476,7 @@ def project_from_usecase(request, usecase_id=None):
     else:
         usecase_id = 0
     usecase = get_object_or_404(UseCase, id=usecase_id)
-    proj_id = usecase.assign(request.user)
+    proj_id = usecase.assign(request.user, locale_lang=request.LANGUAGE_CODE)
 
     return HttpResponseRedirect(reverse("project_search", args=[proj_id]))
 
