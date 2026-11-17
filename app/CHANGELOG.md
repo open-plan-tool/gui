@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.0.0] – 2026-11-17
 ### Changed
 - Updated parameter descriptions and translations in line with documentation update [[#598](https://github.com/open-plan-tool/gui/pull/598)]
 
