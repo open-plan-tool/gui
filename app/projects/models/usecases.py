@@ -1,4 +1,6 @@
 import logging
+from django.utils.translation import override
+from django.utils.translation import gettext as _
 
 from projects.models.base_models import Project, EconomicData
 from projects.scenario_topology_helpers import (
@@ -11,8 +13,19 @@ logger = logging.getLogger(__name__)
 
 
 class UseCase(Project):
-    def assign(self, user):
+    def assign(self, user, locale_lang="fr"):
         dm = self.export(bind_scenario_data=True)
+        # translate here depending on locale
+        with override(locale_lang):
+            for attr in ["name", "description"]:
+                dm[attr] = _(dm[attr])
+            for scen in dm["scenario_set_data"]:
+                for attr in ["name", "description"]:
+                    scen[attr] = _(scen[attr])
+                for asset in scen["assets"]:
+                    asset["name"] = _(asset["name"])
+                for bus in scen["busses"]:
+                    bus["name"] = _(bus["name"])
         return load_project_from_dict(dm, user)
 
     def export(self, bind_scenario_data=True):
