@@ -5,25 +5,18 @@ import pickle
 
 import numpy as np
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import (
+    Submit,
+)
 from dashboard.helpers import KPI_PARAMETERS_ASSETS
 from django import forms
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelForm
+from django.shortcuts import get_object_or_404
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.shortcuts import get_object_or_404
-
-from crispy_forms.layout import (
-    Submit,
-    Layout,
-    Row,
-    Column,
-    Field,
-    Fieldset,
-    ButtonHolder,
-)
 from django.utils.translation import gettext_lazy as _
 
 from projects.constants import (
@@ -68,32 +61,58 @@ def gettext_variables(some_string, lang="de"):
             pickle.dump(trans_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def add_help_text_icon(field, param_name, parameters=PARAMETERS, RTD_link=True):
+def build_help_icon_html(
+    param_name,
+    help_text,
+    parameters=PARAMETERS,
+    RTD_link=True,
+    RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#",
+):
+    if not help_text:
+        return None
+    param_ref = ""
+    if param_name in parameters:
+        param_ref = (
+            (
+                parameters[param_name].get("rtd_link_label")
+                or parameters[param_name].get("component")
+            )
+            .replace("_", "-")
+            .replace("comp-", "")
+        )
+    if RTD_link and param_ref:
+        help_text += " " + _("Click on the icon for more help") + "."
+        return mark_safe(
+            f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer">'
+            f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
+        )
+    return mark_safe(
+        f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
+    )
+
+
+def add_help_text_icon(
+    field,
+    param_name,
+    parameters=PARAMETERS,
+    RTD_link=True,
+    RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#",
+):
     if field.help_text is not None:
-        help_text = field.help_text + ". "
+        help_text = field.help_text
         field.help_text = None
     else:
         help_text = ""
     if field.label is not None:
-        RTD_url = "https://open-plan-documentation.readthedocs.io/en/latest/model/input_parameters.html#"
-        if param_name in parameters:
-            param_ref = parameters[param_name]["label"].replace("_", "-")
-        else:
-            param_ref = ""
-        if param_name != "name":
-            if RTD_link is True:
-                help_text += _("Click on the icon for more help") + "."
-                question_icon = f'<a href="{RTD_url}{param_ref.lower()}" target="_blank" rel="noreferrer"><span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span></a>'
-            else:
-                question_icon = f'<span class="icon icon-question" data-bs-toggle="tooltip" title="{help_text}"></span>'
-
-        else:
-            question_icon = ""
-        field.label = mark_safe(field.label + question_icon)
+        icon = build_help_icon_html(
+            param_name, help_text, parameters, RTD_link, RTD_url
+        )
+        if icon:
+            field.label = mark_safe(field.label + icon)
 
 
 def resolve_parameter(parameters, param_name):
-    """Look up param_name in a PARAMETERS-shaped dict (verbose/:Definition_Short:/:Unit:/:Default:).
+    """Look up param_name in a PARAMETERS-shaped dict.
     Returns None if param_name isn't in parameters.
     """
     row = parameters.get(param_name)
@@ -107,9 +126,9 @@ def resolve_parameter(parameters, param_name):
 
     return {
         "verbose": clean(row["verbose"]),
-        "help_text": row[":Definition_Short:"],
-        "unit": clean(row[":Unit:"], unit=True),
-        "default": clean(row[":Default:"]),
+        "help_text": row["short_description"],
+        "unit": clean(row["unit"], unit=True),
+        "default": clean(row["default_value"]),
     }
 
 
@@ -136,7 +155,10 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
         field.help_text = _(resolved["help_text"])
 
     if resolved["default"] is not None:
-        field.initial = resolved["default"]
+        if isinstance(field, TimeseriesField):
+            field.initial = [None, None, resolved["default"]]
+        else:
+            field.initial = resolved["default"]
 
 
 def get_field_units(parameters, param_names):
@@ -169,25 +191,53 @@ class OpenPlanModelForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field)
+        if hasattr(self, "asset_type_name"):
+            self.component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(
+                self.asset_type_name, None
+            )
+            for fieldname, field in self.fields.items():
+                # combine component and param name to match label convention in PARAMETERS
+                param_name = f"{self.component}_{fieldname}"
+                set_parameter_info(param_name, field)
+        else:
+            # if not an asset, get the model name
+            self.component = type(self.instance).__name__
+            for fieldname, field in self.fields.items():
+                param_name = f"{self.component}_{fieldname}"
+                set_parameter_info(param_name, field)
+                # set the help text icon already for the non-asset forms as the fields don't get edited later
+                self.add_help_text_icon(fieldname)
 
     def add_help_text_icon(self, param_name, RTD_link=True):
         if param_name in self.fields:
-            add_help_text_icon(self.fields[param_name], param_name, RTD_link=True)
+            full_param_name = (
+                f"{self.component}_{param_name}" if self.component else param_name
+            )
+            add_help_text_icon(
+                self.fields[param_name], full_param_name, RTD_link=RTD_link
+            )
 
 
 class OpenPlanForm(forms.Form):
     """Class to automatize the assignation and translation of the labels, help_text and units"""
 
-    parameters = PARAMETERS
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        component = type(self).__name__
         for fieldname, field in self.fields.items():
-            set_parameter_info(fieldname, field, parameters=self.parameters)
+            param_name = f"{component}_{fieldname}"
+            set_parameter_info(param_name, field)
+            if hasattr(self, "RTD_url"):
+                RTD_link = True
+                RTD_url = self.RTD_url
+            else:
+                RTD_link = False
+                RTD_url = None
             add_help_text_icon(
-                field, fieldname, parameters=self.parameters, RTD_link=False
+                field,
+                param_name,
+                RTD_link=RTD_link,
+                RTD_url=RTD_url,
             )
 
 
@@ -446,8 +496,6 @@ scenario_widgets = {
             "min": "1",
             "max": "600",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Length of the time steps"),
         },
         choices=((60, "60 min"),),
     ),
@@ -456,18 +504,12 @@ scenario_widgets = {
             "placeholder": "eg. 10 days",
             "min": "1",
             "step": "1",
-            "data-bs-toggle": "tooltip",
-            "title": _("Number of days simulated with the energy system model."),
         }
     ),
     "capex_fix": forms.NumberInput(
         attrs={
             "placeholder": "e.g. 10000€",
             "min": "0",
-            "data-bs-toggle": "tooltip",
-            "title": _(
-                "A fixed cost to implement the asset, eg. planning costs which do not depend on the (optimized) asset capacity."
-            ),
         }
     ),
 }
@@ -665,9 +707,7 @@ class COPCalculatorForm(OpenPlanModelForm):
         )
         # Reset labels, units, help text etc. (deleted when defining as DualNumberField)
         for field in ["temperature_low", "temperature_high"]:
-            set_parameter_info(field, self.fields[field])
-
-        for field in self.fields:
+            set_parameter_info(f"{self.component}_{field}", self.fields[field])
             self.add_help_text_icon(field, RTD_link=True)
 
     class Meta:
@@ -741,7 +781,7 @@ def asset_form_factory(asset_type=None, **kwargs):
             proj_id = kwargs.pop("proj_id", None)
             scenario_id = kwargs.pop("scenario_id", None)
             view_only = kwargs.pop("view_only", False)
-            self.existing_asset = kwargs.get("instance", None)
+            self.existing_asset = kwargs.get("instance")
             # get the connections with busses
             self.input_output_mapping = kwargs.pop("input_output_mapping", None)
 
@@ -789,11 +829,34 @@ def asset_form_factory(asset_type=None, **kwargs):
                         if field.help_text == "":
                             field.help_text = self.fields[field_name].help_text
                         self.fields[field_name] = field
+                        component = ASSET_TYPE_TO_EESYPLAN_COMPONENT.get(
+                            self.asset_type_name, None
+                        )
+                        param_name = (
+                            f"{component}_{field_name}" if component else field_name
+                        )
+                        set_parameter_info(param_name, field)
+
+            # Optimize capacity is not an eesyplan field but specific to the GUI, so we set its label/help text here
+            if "optimize_cap" in self.fields:
+                self.fields["optimize_cap"].label = _("Optimize capacity")
+                self.fields["optimize_cap"].help_text = _(
+                    "Choose whether to optimize the asset capacity or use a fixed installed capacity."
+                )
 
             # remove the fields not needed for the AssetType
             for field in list(self.fields):
                 if field not in self.asset_type.visible_fields:
                     self.fields.pop(field)
+                elif field == "name":
+                    # add the help icon for the name field next to the component name and link to it rather than a specific parameter
+                    help_text = self.fields[field].help_text or ""
+                    self.fields[field].help_text = None
+                    self.component_help_icon = build_help_icon_html(
+                        f"{self.component}_name",
+                        help_text,
+                        RTD_url="https://open-plan-documentation.readthedocs.io/en/latest/model/components.html#",
+                    )
                 else:
                     self.add_help_text_icon(field)
 
@@ -819,16 +882,6 @@ def asset_form_factory(asset_type=None, **kwargs):
             )
 
             if self.asset_type_name == "chp_fixed_ratio":
-                self.fields["efficiency_electricity_chp"].label = _(
-                    "Efficiency gas to electricity"
-                )
-
-                # TODO
-                self.fields[
-                    "efficiency_electricity_chp"
-                ].help_text = "This is the custom help text for chp efficiency"
-                self.add_help_text_icon("efficiency_electricity_chp", RTD_link=True)
-
                 self.fields["efficiency_heat_chp"].widget = forms.NumberInput(
                     attrs={
                         "placeholder": _("eg. 0.1"),
@@ -837,7 +890,6 @@ def asset_form_factory(asset_type=None, **kwargs):
                         "step": "0.00001",
                     }
                 )
-                self.fields["efficiency_heat_chp"].label = _("Efficiency gas to heat")
 
             """ DrawFlow specific configuration, add a special attribute to
                 every field in order for the framework to be able to export
@@ -1235,68 +1287,10 @@ class UploadTimeseriesForm(OpenPlanModelForm):
         }
 
 
-PV_TIMESERIES_PARAMETERS = {
-    "weather_file": {
-        "verbose": "Weather data file",
-        ":Definition_Short:": "Upload weather data file. Currently only TRY files are supported",
-        ":Unit:": "None",
-        ":Default:": "None",
-        "label": "weather_file",
-    },
-    "azimuth": {
-        "verbose": "Azimuth",
-        ":Definition_Short:": "For fix tilt: Azimuth angle of the module orientation in degrees (North is 0°, East is 90°); For tracker: Azimuth angle of the rotation-axis for tracking systems",
-        ":Unit:": "°",
-        ":Default:": "None",
-        "label": "azimuth",
-    },
-    "tilt": {
-        "verbose": "Tilt",
-        ":Definition_Short:": "Tilt angle in degrees (0° is horizontal, 90° is vertical)",
-        ":Unit:": "°",
-        ":Default:": "None",
-        "label": "tilt",
-    },
-    "system_eff": {
-        "verbose": "System Efficiency",
-        ":Definition_Short:": "Performance ratio of the total PV-System (usually around 0.8)",
-        ":Unit:": "Factor",
-        ":Default:": "None",
-        "label": "system_eff",
-    },
-    "gcr": {
-        "verbose": "Ground Coverage Ratio",
-        ":Definition_Short:": "Ratio of the module area to the ground area of the module field, only needed for tracker",
-        ":Unit:": "Factor",
-        ":Default:": "None",
-        "label": "gcr",
-    },
-    "mounting_type": {
-        "verbose": "Mounting Type",
-        ":Definition_Short:": "Static systems, east-west like system or 1-axis tracking system",
-        ":Unit:": "None",
-        ":Default:": "None",
-        "label": "mounting_type",
-    },
-    "albedo": {
-        "verbose": "Albedo",
-        ":Definition_Short:": "Reflection fraction of sunlight in the surrounding area",
-        ":Unit:": "Factor",
-        ":Default:": "None",
-        "label": "albedo",
-    },
-    "max_angle": {
-        "verbose": "Max. tilt angle",
-        ":Definition_Short:": "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems",
-        ":Unit:": "°",
-        ":Default:": "None",
-        "label": "max_angle",
-    },
-}
-
-
 class CreatePVProductionTimeseriesForm(OpenPlanForm):
-    parameters = PV_TIMESERIES_PARAMETERS
+    eesyplan_ref = (
+        "oemof.eesyplan.importer.create_timeseries_pv.create_pv_production_timeseries"
+    )
 
     mounting_type_choices = (
         ("fix tilt", _("Fix Tilt")),
@@ -1340,7 +1334,7 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
     gcr = forms.FloatField(
         widget=forms.NumberInput(),
         required=False,
-        initial=100,
+        initial=0.5,
     )
 
     mounting_type = forms.ChoiceField(
@@ -1372,48 +1366,7 @@ class CreatePVProductionTimeseriesForm(OpenPlanForm):
         }
 
 
-HEAT_DEMAND_PARAMETERS = {
-    "outdoor_temperature": {
-        "verbose": "Outdoor Temperature",
-        ":Definition_Short:": "Constant Temperature or Timeseries",
-        ":Unit:": "°C",
-        ":Default:": "None",
-        "label": "outdoor_temperature",
-    },
-    "profile_type": {
-        "verbose": "Profile Type",
-        ":Definition_Short:": "Select from one of the available BDEW heat profiles",
-        ":Unit:": "None",
-        ":Default:": "None",
-        "label": "profile_type",
-    },
-    "annual_heat_demand": {
-        "verbose": "Annual Heat Demand",
-        ":Definition_Short:": "Total heat demand in the chosen timeperiod",
-        ":Unit:": "kWh",
-        ":Default:": "None",
-        "label": "annual_heat_demand",
-    },
-    "building_year": {
-        "verbose": "Building Year",
-        ":Definition_Short:": "Only for residential buildings, used for estimating insulation",
-        ":Unit:": "None",
-        ":Default:": "None",
-        "label": "building_year",
-    },
-    "wind_class": {
-        "verbose": "Wind class",
-        ":Definition_Short:": "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities",
-        ":Unit:": "None",
-        ":Default:": "None",
-        "label": "wind_class",
-    },
-}
-
-
 class CreateHeatDemandForm(OpenPlanForm):
-    parameters = HEAT_DEMAND_PARAMETERS
-
     profile_type_choices = (
         ("EFH", _("Single-family house")),
         ("MFH", _("Apartment building")),

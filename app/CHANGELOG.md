@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v2.0.0] – 2026-11-17
+### Changed
+- Updated parameter descriptions and translations in line with documentation update [[#598](https://github.com/open-plan-tool/gui/pull/598)]
+
 ## [v1.3.3] – 2026-11-16
 ### Added
 - Add endpoint to reparse a simulation's results `simulation/reparse-results/<int:sim_id>` [[#597](https://github.com/open-plan-tool/gui/pull/597)]

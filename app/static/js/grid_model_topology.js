@@ -411,6 +411,8 @@ function submitForm() {
             updateCapacityFieldsVisibility();
             // make certain to show form
             guiModal.show();
+            // enable Bootstrap tooltips
+            $('[data-bs-toggle="tooltip"]').tooltip();
         }
     }).catch(error => {
         console.error(error);
@@ -444,6 +446,11 @@ $("#guiModal").on('show.bs.modal', function (event) {
   const nodeName = guiModalDOM.querySelector('input[df-name]');
   if(nodeName){
     modal.find('.modal-title').text(nodeName.value.replaceAll("_", " "));
+  }
+  // append the component's help icon, if the loaded form provides one
+  const helpIcon = guiModalDOM.querySelector('#component-help-icon');
+  if (helpIcon) {
+    modal.find('.modal-title').append(helpIcon.innerHTML);
   }
   editor.editor_mode = "fixed";
 });
