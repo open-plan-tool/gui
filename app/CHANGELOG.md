@@ -1,8 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Possibility to translate the name of the scenario and assets of a usecase when selecting it as a template [[#607](https://github.com/open-plan-tool/gui/pull/607)]
 ### Fixed
 - Fix undefined error when creating custom timeseries [[#609](https://github.com/open-plan-tool/gui/pull/609)]
+- Add folder for usecases images in start script [[#607](https://github.com/open-plan-tool/gui/pull/607)]
 
 ## [v2.0.0] – 2026-11-17
 ### Changed
