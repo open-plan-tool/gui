@@ -215,7 +215,7 @@ msgstr "Versorgung"
 
 #: projects/constants.py:286
 msgid "Electricity"
-msgstr "Elektrizität"
+msgstr "Strom"
 
 #: projects/constants.py:287
 msgid "Heat"
@@ -839,7 +839,7 @@ msgstr "Sie haben derzeit keine Projekte, bitte erstellen Sie zuerst eines"
 
 #: projects/views.py:877
 msgid "Electricity DSO"
-msgstr "Elektrizitätsversorger"
+msgstr "Stromversorger"
 
 #: projects/views.py:878
 msgid "Gas DSO"
@@ -923,7 +923,7 @@ msgstr "Kraft-Wärme-Kopplung festes Verhältnis"
 
 #: projects/views.py:904
 msgid "Electricity Storage"
-msgstr "Elektrizitätsspeicher"
+msgstr "Stromspeicher"
 
 #: projects/views.py:906
 msgid "H2 Storage"
@@ -935,7 +935,7 @@ msgstr "Wärmespeicher"
 
 #: projects/views.py:910
 msgid "Electricity Demand"
-msgstr "Elektrizitätsnachfrage"
+msgstr "Strombedarf"
 
 #: projects/views.py:912
 msgid "H2 Demand"
@@ -4835,7 +4835,7 @@ msgid "Szenario 4 - S01 + PV + Wind + Batterie"
 msgstr "Szenario 4 - S01 + PV + Wind + Batterie"
 
 msgid "Electricity supply to community"
-msgstr "Elektrizitätsversorgung der Gemeinde"
+msgstr "Stromversorgung der Gemeinde"
 
 msgid "A community of 3,000 residents wants to determine how they can increase the self-sufficiency of their electricity supply. PV and wind as renewable sources are considered, and battery storage."
 msgstr "Eine Gemeinde mit 3.000 Einwohnern möchte herausfinden, wie sie die Autarkie ihrer Stromversorgung erhöhen kann. In Frage kommen PV und Wind als erneuerbare Quellen sowie Batteriespeicher."
