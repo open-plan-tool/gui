@@ -161,7 +161,7 @@ def set_parameter_info(param_name, field, parameters=PARAMETERS):
             field.initial = resolved["default"]
 
 
-def get_field_units(parameters, param_names):
+def get_field_units(param_names, parameters=PARAMETERS):
     """
     Return {param_name: unit} for the given params. Matches the unit set on the form label.
     """
@@ -173,7 +173,7 @@ def get_field_units(parameters, param_names):
     return units
 
 
-def get_field_labels(parameters, param_names):
+def get_field_labels(param_names, parameters=PARAMETERS):
     """
     Return {param_name: verbose label} for the given params. Matches the verbose
     set on the form label.

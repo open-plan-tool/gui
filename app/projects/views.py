@@ -7,6 +7,7 @@ import traceback
 import zipfile
 from pathlib import Path
 
+from dashboard.helpers import fetch_user_projects
 from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,12 +15,9 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import CharField, F, Func, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
-
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from epa.settings import (
@@ -36,6 +34,7 @@ from projects.decorators import (
     user_has_read_rights,
     user_is_owner,
 )
+from projects.helpers import PARAMETERS, format_scenario_for_mvs
 from projects.models import (
     ASSET_MAPPING,
     Asset,
@@ -59,6 +58,7 @@ from projects.models import (
     UseCase,
 )
 
+from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
 from .forms import *
 from .requests import (
     ezp_simulation_request,
@@ -79,10 +79,6 @@ from .scenario_topology_helpers import (
     load_scenario_topology_from_db,
     update_deleted_objects_from_database,
 )
-
-from projects.helpers import format_scenario_for_mvs, PARAMETERS, validate_dp_results
-from dashboard.helpers import fetch_user_projects
-from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     excuses_design_under_development,
     get_selected_scenarios_in_cache,
@@ -1257,11 +1253,10 @@ def scenario_review(request, proj_id, scen_id, step_id=3, max_step=MAX_STEP):
                         simulation.errors = _(
                             "The simulation was performed with an older simulation version which is not compatible with the result view anymore, please reset and rerun the simulation"
                         )
-                else:
-                    if dp_results_error == "reparse":
-                        msg = _(
-                            "The simulation was performed with an outdated simulation server version, please reset it rerun the simulation"
-                        )
+                elif dp_results_error == "reparse":
+                    msg = _(
+                        "The simulation was performed with an outdated simulation server version, please reset it rerun the simulation"
+                    )
 
                 if msg is not None:
                     messages.warning(request, msg)
@@ -1729,9 +1724,19 @@ def get_timeseries(request, ts_id=None):
             units = {}
             labels = {}
             if generation_parameters and ts.asset_type in CUSTOM_TIMESERIES_FORMS:
-                parameters = CUSTOM_TIMESERIES_FORMS[ts.asset_type].parameters
-                units = get_field_units(parameters, generation_parameters.keys())
-                labels = get_field_labels(parameters, generation_parameters.keys())
+                form_prefix = f"{CUSTOM_TIMESERIES_FORMS[ts.asset_type].__name__}_"
+                parameter_labels = [
+                    f"{form_prefix}{param}" for param in generation_parameters.keys()
+                ]
+
+                units = {
+                    key.replace(form_prefix, ""): val
+                    for key, val in get_field_units(parameter_labels).items()
+                }
+                labels = {
+                    key.replace(form_prefix, ""): val
+                    for key, val in get_field_labels(parameter_labels).items()
+                }
             return JsonResponse(
                 {
                     "values": ts.get_values,
@@ -1995,13 +2000,20 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
                     cleaned_data[attr] = getattr(scenario.project, attr)
 
             timeseries = custom_ts_fun(**cleaned_data)
+            form_prefix = f"{custom_form.__name__}_"
+            parameter_labels = [
+                f"{form_prefix}{param}" for param in generation_parameters.keys()
+            ]
 
-            units = get_field_units(
-                custom_form.parameters, generation_parameters.keys()
-            )
-            labels = get_field_labels(
-                custom_form.parameters, generation_parameters.keys()
-            )
+            # pass the units and labels back removing the form prefix that is needed to fetch them from the PARAMETERS dict
+            units = {
+                key.replace(form_prefix, ""): val
+                for key, val in get_field_units(parameter_labels).items()
+            }
+            labels = {
+                key.replace(form_prefix, ""): val
+                for key, val in get_field_labels(parameter_labels).items()
+            }
 
             return JsonResponse(
                 {
