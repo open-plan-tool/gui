@@ -89,7 +89,13 @@ def fetch_ezp_simulation_results(simulation, force_fetch=False):
                 return "simulation's result not on the simulation server anymore, please reset and restart a simulation"
         try:
             simulation.status = response["status"]
-            simulation.mvs_version = response["simulation_version"]
+            sim_version = response["simulation_version"]
+            # TODO do this in .save() method
+            # protect against the simulation version beeing too long
+            if sim_version:
+                if len(sim_version) > 15:
+                    sim_version = sim_version[:14]
+            simulation.mvs_version = sim_version
             simulation.errors = (
                 json.dumps(response["results"][ERROR])
                 if simulation.status == ERROR
