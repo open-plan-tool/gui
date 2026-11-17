@@ -4730,6 +4730,9 @@ msgstr "Gibt an, ob die Optimierung zu einem Netto-Nullenergie-System führen mu
 msgid "Optimize capacity"
 msgstr "Anlagengröße optimieren"
 
+msgid "Choose whether to optimize the asset capacity or use a fixed installed capacity."
+msgstr "Entscheiden Sie, ob Sie die Kapazität der Anlage optimieren oder eine feste installierte Kapazität verwenden möchten."
+
 msgid "Choose if capacity optimization should be performed for this asset."
 msgstr "Wählen Sie, ob für diese Anlage eine Kapazitätsoptimierung durchgeführt werden soll."
 
@@ -5171,8 +5174,8 @@ msgstr "Nachführsystem"
 msgid "Weather data file"
 msgstr "Wetterdatendatei"
 
-msgid "Upload weather data file. Currently only TRY files are supported"
-msgstr "Wetterdatendatei hochladen. Derzeit werden nur TRY-Dateien unterstützt"
+msgid "Upload weather data file. Currently only TRY files are supported. If you use the TRY file from the German Weather Service, it should be a .dat file."
+msgstr "Wetterdatendatei hochladen. Derzeit werden nur TRY-Dateien unterstützt. TRY-Datein des DWDs sind im .dat-Format enthalten."
 
 msgid "Azimuth"
 msgstr "Azimut"
@@ -5248,3 +5251,401 @@ msgstr "Gesamtenergieversorgung des Systems"
 
 msgid "Yearly Project Costs"
 msgstr "Jährliche Projektkosten"
+
+msgid "Conversion efficiency"
+msgstr "Umwandlungswirkungsgrad"
+
+msgid "Recovered heat efficiency"
+msgstr "Wirkungsgrad der Wärmerückgewinnung"
+
+msgid "Age of the installed asset"
+msgstr "Alter der installierten Anlage"
+
+msgid "Specific investment costs"
+msgstr "Spezifische Investitionskosten"
+
+msgid "Specific yearly operational costs "
+msgstr "Spezifische jährliche Betriebskosten"
+
+msgid "lifetime of the asset"
+msgstr "Lebensdauer der Anlage"
+
+msgid "Electrical efficiency at minimum heat extraction"
+msgstr "Elektrischer Wirkungsgrad bei minimaler Wärmeauskopplung"
+
+msgid "Electrical efficiency at maximum heat extraction"
+msgstr "Elektrischer Wirkungsgrad bei maximaler Wärmeauskopplung"
+
+msgid "Thermal efficiency  at minimum heat extraction"
+msgstr "Thermischer Wirkungsgrad bei minimaler Wärmeauskopplung"
+
+msgid "Thermal efficiency at maximum heat extraction"
+msgstr "Thermischer Wirkungsgrad bei maximaler Wärmeauskopplung"
+
+msgid "Specific yearly operational costs"
+msgstr "Spezifische jährliche Betriebskosten"
+
+msgid "Electrical efficiency"
+msgstr "Elektrischer Wirkungsgrad"
+
+msgid "Thermal efficiency"
+msgstr "Thermischer Wirkungsgrad"
+
+msgid "Coefficient of performance"
+msgstr "Leistungszahl"
+
+msgid "normed Timeseries"
+msgstr "Normierte Zeitreihe"
+
+msgid "Specific relative thermal losses"
+msgstr "Spezifische relative Wärmeverluste"
+
+msgid "Specific fixed thermal losses"
+msgstr "Spezifische fixe Wärmeverluste"
+
+msgid "Total thermal loss per hour"
+msgstr "Gesamter Wärmeverlust pro Stunde"
+
+msgid "Storage efficiency"
+msgstr "Speicherwirkungsgrad"
+
+msgid "Charging rate (C-Rate)"
+msgstr "Laderate (C-Rate)"
+
+msgid "Discharge rate"
+msgstr "Entladerate"
+
+msgid "Absolute heat losses"
+msgstr "Absolute Wärmeverluste"
+
+msgid "Total investment cost"
+msgstr "Gesamtinvestitionskosten"
+
+msgid "Jährliche Betriebskosten"
+msgstr "Jährliche Betriebskosten"
+
+msgid "Relative heat losses"
+msgstr "Relative Wärmeverluste"
+
+msgid "Return pipe"
+msgstr "Rücklaufleitung"
+
+msgid "Feed-in tariff"
+msgstr "Einspeisevergütung"
+
+msgid "Peak demand pricing"
+msgstr "Leistungspreis"
+
+msgid "Maximum feed-in power"
+msgstr "Maximale Einspeiseleistung"
+
+# ===== Spalte J: short description =====
+
+msgid "The default parameter represents a 10 MW capacity alkaline electrolysis plant (AEC)."
+msgstr "Der Standardparameter entspricht einer alkalischen Elektrolyseanlage (AEC) mit einer Leistung von 10 MW."
+
+msgid "Enter the ratio of hydrogen output to electricity input, e.g. 0,7 for 70%."
+msgstr "Geben Sie das Verhältnis von erzeugtem Wasserstoff zu eingesetztem Strom ein, z. B. 0,7 für 70 %."
+
+msgid "Enter the ratio of recovered heat to electricity input for further utilization, e.g. 0,1 for 10%. Together with the conversion efficiency, it must not exceed 1."
+msgstr "Geben Sie das Verhältnis der zur weiteren Nutzung zurückgewonnenen Wärme zum eingesetzten Strom ein, z. B. 0,1 für 10 %. Zusammen mit dem Umwandlungswirkungsgrad darf der Wert 1 nicht überschreiten."
+
+msgid "Enter how many years the asset has already been operating (0 for a new asset). Only relevant if an installed capacity is given, otherwise 0."
+msgstr "Geben Sie an, wie viele Jahre die Anlage bereits in Betrieb ist (0 für eine neue Anlage). Nur relevant, wenn eine installierte Kapazität angegeben ist, andernfalls 0."
+
+msgid "Enter the capacity that is already installed on site"
+msgstr "Geben Sie die Kapazität ein, die bereits vor Ort installiert ist"
+
+msgid "Enter the maximum capacity of the electrical output that fits the site or leave empty to allow unlimited expansion."
+msgstr "Geben Sie die maximale elektrische Ausgangsleistung ein, die am Standort realisierbar ist, oder lassen Sie das Feld leer, um einen unbegrenzten Ausbau zuzulassen."
+
+msgid "Enter the investment costs per maximum kW_h2 output."
+msgstr "Geben Sie die Investitionskosten pro kW_h2 maximaler Ausgangsleistung ein."
+
+msgid "Enter the annual operation and maintenance costs per kW_el (no energy costs)."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kW_el ein (ohne Energiekosten)."
+
+msgid "Additional costs per generated kWh, e.g. for wear-related maintenance (fuel costs are entered at the fuel source)."
+msgstr "Zusätzliche Kosten pro erzeugter kWh, z. B. für verschleißbedingte Wartung (Brennstoffkosten werden bei der Brennstoffquelle eingegeben)."
+
+msgid "Enter the expected operational lifetime of the asset in years."
+msgstr "Geben Sie die erwartete Betriebslebensdauer der Anlage in Jahren ein."
+
+msgid "The default parameters represent a single CHP unit with a variable power-to-heat ratio."
+msgstr "Die Standardparameter entsprechen einer einzelnen KWK-Anlage mit variabler Stromkennzahl."
+
+msgid "Enter the highest electrical efficiency the CHP can reach when minimizing heat extraction e.g. 0,45 for 45%"
+msgstr "Geben Sie den höchsten elektrischen Wirkungsgrad ein, den die KWK-Anlage bei minimaler Wärmeauskopplung erreichen kann, z. B. 0,45 für 45 %"
+
+msgid "Enter the minimum electrical efficiency of the CHP when maximum heat is extracted, e.g. 0,35 for 35%."
+msgstr "Geben Sie den minimalen elektrischen Wirkungsgrad der KWK-Anlage bei maximaler Wärmeauskopplung ein, z. B. 0,35 für 35 %."
+
+msgid "Enter the minimum thermal efficiency of the CHP, which is the amount of heat that always has to be used or removed."
+msgstr "Geben Sie den minimalen thermischen Wirkungsgrad der KWK-Anlage ein, also die Wärmemenge, die immer genutzt oder abgeführt werden muss."
+
+msgid "Enter the highest thermal efficiency the CHP can reach when minimizing electrical generation e.g. 0,55 for 55%"
+msgstr "Geben Sie den höchsten thermischen Wirkungsgrad ein, den die KWK-Anlage bei minimaler Stromerzeugung erreichen kann, z. B. 0,55 für 55 %"
+
+msgid "Enter the investment costs per maximum kW_el output."
+msgstr "Geben Sie die Investitionskosten pro kW_el maximaler Ausgangsleistung ein."
+
+msgid "The default parameters represent a single CHP unit with a fixed power-to-heat ratio."
+msgstr "Die Standardparameter entsprechen einer einzelnen KWK-Anlage mit fester Stromkennzahl."
+
+msgid "Enter the electrical efficiency of the CHP when heat is fully used, e.g. 0,35 for 35%."
+msgstr "Geben Sie den elektrischen Wirkungsgrad der KWK-Anlage bei vollständiger Wärmenutzung ein, z. B. 0,35 für 35 %."
+
+msgid "Enter the thermal efficiency of the CHP when heat is fully used, e.g. 0,55 for 55%."
+msgstr "Geben Sie den thermischen Wirkungsgrad der KWK-Anlage bei vollständiger Wärmenutzung ein, z. B. 0,55 für 55 %."
+
+msgid "The default parameter represents a 0,10 MW electrical PEM fuel cell per unit."
+msgstr "Der Standardparameter entspricht einer PEM-Brennstoffzelle mit 0,10 MW elektrischer Leistung pro Einheit."
+
+msgid "Enter the ratio of electricity output to hydrogen input, e.g. 0,5 for 50%."
+msgstr "Geben Sie das Verhältnis von erzeugtem Strom zu eingesetztem Wasserstoff ein, z. B. 0,5 für 50 %."
+
+msgid "The default parameter represents an 18 MW electrical capacity Diesel engine."
+msgstr "Der Standardparameter entspricht einem Dieselmotor mit 18 MW elektrischer Leistung."
+
+msgid "Enter the ratio of electricity output to fuel input, e.g. 0,3 for 30%."
+msgstr "Geben Sie das Verhältnis von erzeugtem Strom zu eingesetztem Brennstoff ein, z. B. 0,3 für 30 %."
+
+msgid "The default parameter represents a 300 MVA capacity 380/110 kV transformer."
+msgstr "Der Standardparameter entspricht einem 380/110-kV-Transformator mit einer Leistung von 300 MVA."
+
+msgid "Enter the ratio of electricity output to electricity input, e.g. 0,98 for 98%."
+msgstr "Geben Sie das Verhältnis von abgegebenem Strom zu aufgenommenem Strom ein, z. B. 0,98 für 98 %."
+
+msgid "The default parameter represents a 20 kW thermal capacity gas boiler."
+msgstr "Der Standardparameter entspricht einem Gaskessel mit 20 kW thermischer Leistung."
+
+msgid "Enter the ratio of heat output to fuel input, e.g. 0,8 for 80%."
+msgstr "Geben Sie das Verhältnis von erzeugter Wärme zu eingesetztem Brennstoff ein, z. B. 0,8 für 80 %."
+
+msgid "Enter the maximum capacity of the thermal output that fits the site or leave empty to allow unlimited expansion."
+msgstr "Geben Sie die maximale thermische Ausgangsleistung ein, die am Standort realisierbar ist, oder lassen Sie das Feld leer, um einen unbegrenzten Ausbau zuzulassen."
+
+msgid "Enter the investment costs per maximum kW_th output."
+msgstr "Geben Sie die Investitionskosten pro kW_th maximaler Ausgangsleistung ein."
+
+msgid "Enter the annual operation and maintenance costs per kW_th (no energy costs)."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kW_th ein (ohne Energiekosten)."
+
+msgid "The default parameter represents a 20 kW thermal air-water heat pump."
+msgstr "Der Standardparameter entspricht einer Luft-Wasser-Wärmepumpe mit 20 kW thermischer Leistung."
+
+msgid "Enter the coefficient of performance, this is the heat output per unit of electricity input,  as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760). You can also create such a timesseries based on your temperature levels with the function below."
+msgstr "Geben Sie die Leistungszahl, also die abgegebene Wärme pro Einheit eingesetzten Stroms, als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen ein, wie es Zeitschritte gibt (ein Jahr = 8760). Mit der untenstehenden Funktion können Sie die Leistungszahl auch auf Basis Ihrer Temperaturniveaus berechnen."
+
+msgid "Provide the PV generation per 1 kWp of installed capacity as a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die PV-Erzeugung pro 1 kWp installierter Kapazität als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "The default parameter represents a 0,006 MW electrical residential rooftop PV system per unit."
+msgstr "Der Standardparameter entspricht einer PV-Dachanlage für Wohngebäude mit 0,006 MW elektrischer Leistung pro Einheit."
+
+msgid "Enter how many years the asset has already been operating (0 for a new plant). Only relevant if an installed capacity is given, otherwise 0."
+msgstr "Geben Sie an, wie viele Jahre die Anlage bereits in Betrieb ist (0 für eine neue Anlage). Nur relevant, wenn eine installierte Kapazität angegeben ist, andernfalls 0."
+
+msgid "Enter the maximum capacity of the rated electrical power that fits the site or leave empty to allow unlimited expansion."
+msgstr "Geben Sie die maximale elektrische Nennleistung ein, die am Standort realisierbar ist, oder lassen Sie das Feld leer, um einen unbegrenzten Ausbau zuzulassen."
+
+msgid "Enter the investment costs per rated kWp."
+msgstr "Geben Sie die Investitionskosten pro kWp Nennleistung ein."
+
+msgid "Enter the annual operation and maintenance costs per kWp."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kWp ein."
+
+msgid "Enter the expected operational lifetime of the plant in years."
+msgstr "Geben Sie die erwartete Betriebslebensdauer der Anlage in Jahren ein."
+
+msgid "Provide the wind power generation per 1 kW of installed capacity as a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die Windstromerzeugung pro 1 kW installierter Kapazität als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "The default parameter represents a 4,2 MW electrical onshore wind turbine per unit."
+msgstr "Der Standardparameter entspricht einer Onshore-Windenergieanlage mit 4,2 MW elektrischer Leistung pro Einheit."
+
+msgid "Enter the investment costs per rated kW."
+msgstr "Geben Sie die Investitionskosten pro kW Nennleistung ein."
+
+msgid "Enter the annual operation and maintenance costs per kW."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kW ein."
+
+msgid "Provide the solar heat generation per 1 kW_th of installed capacity as a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die solare Wärmeerzeugung pro 1 kW_th installierter Kapazität als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "The default parameter represents a 10 kW thermal rooftop solar thermal evacuated tube collector per unit."
+msgstr "Der Standardparameter entspricht einem solarthermischen Vakuumröhrenkollektor auf dem Dach mit 10 kW thermischer Leistung pro Einheit."
+
+msgid "Enter the annual operation and maintenance costs per kW_th."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kW_th ein."
+
+msgid "Provide the available geothermal heat per 1 kW_th of installed capacity as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die verfügbare geothermische Wärme pro 1 kW_th installierter Kapazität als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "The default parameter represents a 5 MW thermal Geothermal Plant."
+msgstr "Der Standardparameter entspricht einer Geothermieanlage mit 5 MW thermischer Leistung."
+
+msgid "Provide the available biogas production per 1 kW of installed capacity as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die verfügbare Biogasproduktion pro 1 kW installierter Kapazität als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "The default parameter represents a 29,63 MW output small basic biogas plant per unit."
+msgstr "Der Standardparameter entspricht einer kleinen, einfachen Biogasanlage mit 29,63 MW Ausgangsleistung pro Einheit."
+
+msgid "Enter the maximum capacity of the Gas output (HHV) that fits the site or leave empty to allow unlimited expansion."
+msgstr "Geben Sie die maximale Gas-Ausgangsleistung (HHV) ein, die am Standort realisierbar ist, oder lassen Sie das Feld leer, um einen unbegrenzten Ausbau zuzulassen."
+
+msgid "Enter the investment costs per maximum kW_gas output."
+msgstr "Geben Sie die Investitionskosten pro kW_gas maximaler Ausgangsleistung ein."
+
+msgid "Choose if this asset is considered to count as renewable"
+msgstr "Wählen Sie aus, ob diese Anlage als erneuerbar gilt"
+
+msgid "The default parameter represents a double-walled tank storage with specific costs of about 1.500 €/m³."
+msgstr "Der Standardparameter entspricht einem doppelwandigen Tankspeicher mit spezifischen Kosten von etwa 1.500 €/m³."
+
+msgid "Enter the maximum storage capacity that fits the site or leave empty to allow unlimited expansion."
+msgstr "Geben Sie die maximale Speicherkapazität ein, die am Standort realisierbar ist, oder lassen Sie das Feld leer, um einen unbegrenzten Ausbau zuzulassen."
+
+msgid "Enter the investment costs per kWh storage capacity."
+msgstr "Geben Sie die Investitionskosten pro kWh Speicherkapazität ein."
+
+msgid "Enter the annual operation and maintenance costs per kWh (no energy costs)."
+msgstr "Geben Sie die jährlichen Betriebs- und Wartungskosten pro kWh ein (ohne Energiekosten)."
+
+msgid "Enter the upper limit of the state of charge as a factor between 0 and 1."
+msgstr "Geben Sie die Obergrenze des Ladezustands als Faktor zwischen 0 und 1 ein."
+
+msgid "Enter the lower limit of the state of charge as a factor between 0 and 1. Can be used to model a reserve for emergencies."
+msgstr "Geben Sie die Untergrenze des Ladezustands als Faktor zwischen 0 und 1 ein. Kann verwendet werden, um eine Reserve für Notfälle abzubilden."
+
+msgid "The default parameter represents a 250 MWh thermal energy storage tank (TTES) per unit."
+msgstr "Der Standardparameter entspricht einem thermischen Tankspeicher (TTES) mit 250 MWh pro Einheit."
+
+msgid "Enter the energy lost per timestep as a factor of the actual stored energy, e.g. 0,002 for 0,2% of the actual stored energy per hour. The loss therfore depends on the state of charge and the total capacity of the storage."
+msgstr "Geben Sie die pro Zeitschritt verlorene Energie als Anteil der tatsächlich gespeicherten Energie ein, z. B. 0,002 für 0,2 % der tatsächlich gespeicherten Energie pro Stunde. Der Verlust hängt daher vom Ladezustand und von der Gesamtkapazität des Speichers ab."
+
+msgid "Enter the specific heat loss per timestep per kWh storage capacity, as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie den spezifischen Wärmeverlust pro Zeitschritt und kWh Speicherkapazität als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen ein, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Independent of capacity and fill level, as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Unabhängig von Kapazität und Füllstand, als konstanter Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Enter the ratio of energy available to energy charged, e.g. 0,95 for 95%."
+msgstr "Geben Sie das Verhältnis von verfügbarer Energie zu geladener Energie ein, z. B. 0,95 für 95 %."
+
+msgid "The default parameter represents a 16,7 MWh hydrogen gas storage tank system per unit."
+msgstr "Der Standardparameter entspricht einem Wasserstoff-Gasspeichertanksystem mit 16,7 MWh pro Einheit."
+
+msgid "The default parameter represents a lithium-ion battery storage system per unit."
+msgstr "Der Standardparameter entspricht einem Lithium-Ionen-Batteriespeichersystem pro Einheit."
+
+msgid "Enter the C-rate (the fraction of the capacity that can be charged per hour). For example, if you have a 10 MWh capacity and a 1 MW maximum power limit, your C-rate is 0,1C."
+msgstr "Geben Sie die C-Rate ein (den Anteil der Kapazität, der pro Stunde geladen werden kann). Beispiel: Bei einer Kapazität von 10 MWh und einer maximalen Leistung von 1 MW beträgt Ihre C-Rate 0,1C."
+
+msgid "Enter the discharging rate relative to the maximum capacity. If left blank the charging-rate will be used."
+msgstr "Geben Sie die Entladerate bezogen auf die maximale Kapazität ein. Bleibt das Feld leer, wird die Laderate verwendet."
+
+msgid "The demand must be met at all times. If this is not possible within the defined energy system the simulation will show an error."
+msgstr "Der Bedarf muss jederzeit gedeckt werden. Ist dies innerhalb des definierten Energiesystems nicht möglich, gibt die Simulation einen Fehler aus."
+
+msgid "Provide the heat demand as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760). You can also create a timeseries based on your demand with the tool below."
+msgstr "Geben Sie den Wärmebedarf als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760). Mit dem untenstehenden Tool können Sie auch eine Zeitreihe auf Basis Ihres Bedarfs erstellen."
+
+msgid "Provide the electricity demand as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760). "
+msgstr "Geben Sie den Strombedarf als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Provide the hydrogen demand as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760). "
+msgstr "Geben Sie den Wasserstoffbedarf als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Provide the fuel demand as a constant value or as a CSV file with one column and as many rows as there are timesteps (one year = 8760). "
+msgstr "Geben Sie den Brennstoffbedarf als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen an, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "A representative default parameter set cannot be given."
+msgstr "Ein repräsentativer Standardparametersatz kann nicht angegeben werden."
+
+msgid "Enter the heat losses of the whole network in kW (=kWh/h), as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die Wärmeverluste des gesamten Netzes in kW (=kWh/h) als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen ein, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Enter the total investement cost for the heating network. "
+msgstr "Geben Sie die Gesamtinvestitionskosten für das Wärmenetz ein."
+
+msgid "Enter the operating and maintanance cost of the total heating network per year"
+msgstr "Geben Sie die Betriebs- und Wartungskosten des gesamten Wärmenetzes pro Jahr ein"
+
+msgid "Name as it will show in the results"
+msgstr "Name, wie er in den Ergebnissen angezeigt wird"
+
+msgid "Select the energy carrier that is transported on this bus, e.g. electricity, gas, heat or hydrogen."
+msgstr "Wählen Sie den Energieträger aus, der über diesen Bus transportiert wird, z. B. Strom, Gas, Wärme oder Wasserstoff."
+
+msgid "Enter the heat losses of the pipe in kW (=kWh/h)"
+msgstr "Geben Sie die Wärmeverluste der Leitung in kW (=kWh/h) ein"
+
+msgid "Enter the heat loss as a factor of the transfered heat, e.g. 0,1 for 10%."
+msgstr "Geben Sie den Wärmeverlust als Anteil der übertragenen Wärme ein, z. B. 0,1 für 10 %."
+
+msgid "Decide whether the pipe is used for transporting heat in both directions."
+msgstr "Legen Sie fest, ob die Leitung für den Wärmetransport in beide Richtungen genutzt wird."
+
+msgid "Enter the price per kWh paid for energy drawn from the grid, e.g. 0,30 as a constant price."
+msgstr "Geben Sie den Preis pro kWh für aus dem Netz bezogene Energie ein, z. B. 0,30 als konstanten Preis."
+
+msgid "Enter the price received per kWh fed into the grid. Only a constant value can be entered for this provider; it must not exceed the energy price."
+msgstr "Geben Sie den Preis ein, den Sie pro ins Netz eingespeister kWh erhalten. Für diesen Versorger kann nur ein konstanter Wert eingegeben werden; er darf den Energiepreis nicht überschreiten."
+
+msgid "Enter a maximum capacity for the grid connection"
+msgstr "Geben Sie eine maximale Kapazität für den Netzanschluss ein"
+
+msgid "Enter the price per kWh for electricity purchased from the utility grid, as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie den Preis pro kWh für aus dem öffentlichen Netz bezogenen Strom als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen ein, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Enter the compensation (feed-in tariff) per kWh received for injecting surplus electricity back into the distribution grid, as a constant value or as an a CSV file with one column and as many rows as there are timesteps (one year = 8760)."
+msgstr "Geben Sie die Vergütung (Einspeisevergütung) pro kWh, die Sie für die Rückspeisung von überschüssigem Strom in das Verteilnetz erhalten, als konstanten Wert oder als CSV-Datei mit einer Spalte und so vielen Zeilen ein, wie es Zeitschritte gibt (ein Jahr = 8760)."
+
+msgid "Enter the grid fee per kW of peak demand in the billing period, more common in MV-grid connections."
+msgstr "Geben Sie das Netzentgelt pro kW Spitzenlast im Abrechnungszeitraum ein (vor allem bei Anschlüssen an das Mittelspannungsnetz relevant)."
+
+msgid "Enter the maximum power that may be fed into the grid, or leave empty for no limit."
+msgstr "Geben Sie die maximale Leistung ein, die ins Netz eingespeist werden darf, oder lassen Sie das Feld leer, wenn keine Begrenzung gelten soll."
+
+msgid "Total cost of upfront investment costs of the energy system"
+msgstr "Gesamtkosten der anfänglichen Investitionskosten des Energiesystems"
+
+msgid "Total cost of the energy system per year"
+msgstr "Gesamtkosten des Energiesystems pro Jahr"
+
+msgid "Total fix costs (opex) of the energy system per year"
+msgstr "Gesamte Fixkosten (Betriebskosten) des Energiesystems pro Jahr"
+
+msgid "Total yearly dispatch costs (including energy costs)"
+msgstr "Gesamte jährliche Einsatzkosten (einschließlich Energiekosten)"
+
+msgid "Total cost / total energy into the demands"
+msgstr "Gesamtkosten / gesamte in die Bedarfe eingespeiste Energie"
+
+msgid "Total renewable share of all energy produced or bought"
+msgstr "Gesamter erneuerbarer Anteil an der gesamten erzeugten oder zugekauften Energie"
+
+msgid "annualised investment cost (annuity)"
+msgstr "Annualisierte Investitionskosten (Annuität)"
+
+msgid "fixed operation & maintenance cost"
+msgstr "Fixe Betriebs- und Wartungskosten"
+
+msgid "sum of the variable costs of all flows of the component over the whole horizon"
+msgstr "Summe der variablen Kosten aller Flüsse der Komponente über den gesamten Zeithorizont"
+
+msgid "Total investment costs (year 0)"
+msgstr "Gesamte Investitionskosten (Jahr 0)"
+
+msgid "Total yearly cost"
+msgstr "Gesamtkosten pro Jahr"
+
+msgid "Total yearly fix costs"
+msgstr "Gesamte jährliche Fixkosten"
+
+msgid "Levelized cost of energy"
+msgstr "Stromgestehungskosten"
+
+msgid "Renewable share"
+msgstr "Erneuerbarer Anteil"

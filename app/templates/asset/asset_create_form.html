@@ -6,6 +6,9 @@
   <div class="form-group{% if field.errors %} invalid{% endif %}" {% if display_results %} style="display:none" {% endif %}>
     {{ form.name|as_crispy_field }}
   </div>
+  {% if form.component_help_icon %}
+    <span id="component-help-icon" style="display:none">{{ form.component_help_icon }}</span>
+  {% endif %}
 
 <div class="container">
     {% if display_results %}
