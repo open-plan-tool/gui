@@ -5,7 +5,6 @@ echo PUBLICATIONS
 mkdir /src/cdn_static_root/assets/publications
 cp /var/publications/op_publications/*.pdf /src/cdn_static_root/assets/publications/
 echo USECASES
-mkdir /src/cdn_static_root/assets/illustrations
 cp /var/usecases/*.png /src/cdn_static_root/assets/illustrations/
 echo MIGRATE
 python /src/manage.py showmigrations
