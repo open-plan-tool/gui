@@ -4516,7 +4516,7 @@ msgid "Total H2 demand"
 msgstr "Wasserstoffbedarf gesamt"
 
 msgid "Levelized costs of electricity equivalent Electricity"
-msgstr "Stromgestehungskosten"
+msgstr "Energiegestehungskosten"
 
 msgid "Levelized costs of electricity equivalent Heat"
 msgstr "Wärmegestehungskosten"
@@ -5645,7 +5645,229 @@ msgid "Total yearly fix costs"
 msgstr "Gesamte jährliche Fixkosten"
 
 msgid "Levelized cost of energy"
-msgstr "Stromgestehungskosten"
+msgstr "Energiegestehungskosten"
 
 msgid "Renewable share"
 msgstr "Erneuerbarer Anteil"
+
+msgid "1. Central Gas Heating System"
+msgstr "1. Zentrale Gasheizungsanlage"
+
+msgid "1. Connection: School/Daycare"
+msgstr "1. Anschluss: Schule/Kita"
+
+msgid "1. Gas Boiler"
+msgstr "1. Gaskessel"
+
+msgid "1. Grid-Supplied Hydrogen"
+msgstr "1. Netzbezogener Wasserstoff"
+
+msgid "16 Multi-Family Houses"
+msgstr "16 Mehrfamilienhäuser"
+
+msgid "2. Connection: School/Daycare + 100% MFH + 100% SFH"
+msgstr "2. Anschluss: Schule/Kita + 100% MFH + 100% EFH"
+
+msgid "2. Ground Source Heat Probe and Heat Pump"
+msgstr "2. Erdwärmesonde und Wärmepumpe"
+
+msgid "2. Hydrogen Storage and On-Site Reconversion"
+msgstr "2. Wasserstoffspeicherung und Rückverwandlung vor Ort"
+
+msgid "2. Solar Thermal + Gas Boiler"
+msgstr "2. Solarthermie + Gaskessel"
+
+msgid "25 Single-Family Houses"
+msgstr "25 Einfamilienhäuser"
+
+msgid "3. Connection: School/Daycare + 50% MFH + 50% SFH"
+msgstr "3. Anschluss: Schule/Kita + 50% MFH + 50 % EFH"
+
+msgid "3. Green Hydrogen"
+msgstr "3. Grüner Wasserstoff"
+
+msgid "3. Ground Source Heat Probe + Heat Pump + PV (East-West)"
+msgstr "3. Erdwärmesonde + Wärmepumpe + PV (Ost-West)"
+
+msgid "3. Heat Pump + Gas Boiler + Heat Storage"
+msgstr "3. Wärmepumpe + Gaskessel + Wärmespeicher"
+
+msgid "4. Air Source Heat Pump + PV (East-West)"
+msgstr "4. Luft-Wärmepumpe + PV (Ost-West)"
+
+msgid "4. Waste Heat + Heat Pump"
+msgstr "4. Abwärme + Wärmepumpe"
+
+msgid "50 Single-Family Houses"
+msgstr "50 Einfamilienhäuser"
+
+msgid "8 Multi-Family Houses"
+msgstr "8 Mehrfamilienhäuser"
+
+msgid "Air Source Heat Pump"
+msgstr "Luft-Wärmepumpe"
+
+msgid "Alternative provision of heat with an air source heat pump"
+msgstr "Alternative Bereitstellung von Wärme mit einer Luft-Wärmepumpe"
+
+msgid "As part of municipal heat planning, this area was assessed as suitable for the expansion of a heat network. The school, which also supplies a daycare centre, serves as the starting point of the heat network. Further scenarios will examine how connecting the 50 single-family and 16 multi-family houses affects the economic viability of the project.\r\nThe total heat demand of the quarter is 3,453 MWh per year. Heat is provided by a large brine heat pump with ground source heat probes and a peak load boiler."
+msgstr "Im Rahmen einer kommunalen Wärmeplanung wurde dieses Gebiet als Eignungsgebiet für den Ausbau eines Wärmenetzes bewertet. Als Keimzelle des Wärmenetzes dient die Schule, die zusätzlich eine Kindertagesstätte mitversorgt. In weiteren Szenarien soll untersucht werden, wie sich der Anschluss der 50 Einfamilien- und 16 Mehrfamilienhäuser auf die Wirtschaftlichkeit des Vorhabens auswirkt.\r\nDer Gesamtwärmebedarf des Quartiers liegt bei 3.453 MWh pro Jahr. Die Wärmebereitstellung erfolgt über eine Großwärmepumpe mit Erdsonden sowie einen Spitzenlastkessel."
+
+msgid "Biogas Heating Boiler"
+msgstr "Biogaskessel"
+
+msgid "Biogas Supplier"
+msgstr "Biogaslieferant"
+
+msgid "Brine Heat Pump"
+msgstr "Sole-Wärmepumpe"
+
+msgid "Brine-Bus"
+msgstr "Solebus"
+
+msgid "Coastal Wind Plant"
+msgstr "Windkraftanlage Küste"
+
+msgid "Conversion of the existing fossil-fuelled municipal heating network to renewable energy sources, comparing supply options by costs, renewable share and CO₂ emissions."
+msgstr "Umstellung des bestehenden fossil befeuerten kommunalen Wärmenetzes auf erneuerbare Energiequellen, Vergleich der Versorgungsoptionen anhand von Kosten, erneuerbarem Anteil und CO₂-Emissionen."
+
+msgid "Decarbonising the Municipal Heating Network"
+msgstr "Dekarbonisierung des kommunalen Wärmenetzes"
+
+msgid "East-West Rooftop PV System"
+msgstr "Ost-West-Dachanlage"
+
+msgid "Electricity Supplier"
+msgstr "Stromversorger"
+
+msgid "Electricity Supplier Heat Pump Tariff"
+msgstr "Stromversorger-Wärmepumpentarif"
+
+msgid "Electricity-Bus"
+msgstr "Strombus"
+
+msgid "Energy system model of a hydrogen innovation park. The project covers the local hydrogen network, including hydrogen production via electrolysis, storage, and supply to consumers on site."
+msgstr "Energiesystemmodell eines Wasserstoff-Innovationsparks. Das Projekt umfasst das lokale Wasserstoffnetz, einschließlich der Wasserstofferzeugung durch Elektrolyse, der Speicherung und der Versorgung der Verbraucher vor Ort."
+
+msgid "Expansion of a Heat Network in a Residential Quarter"
+msgstr "Ausbau eines Wärmenetzes in einem Wohngebiet"
+
+msgid "Fuel Cell"
+msgstr "Brennstoffzelle"
+
+msgid "Fuel Cell Electricity-Bus"
+msgstr "Brennstoffzellen-Strombus"
+
+msgid "Gas Supplier"
+msgstr "Gaslieferant"
+
+msgid "Gas-Bus"
+msgstr "Gasbus"
+
+msgid "Ground Source Heat Probe"
+msgstr "Erdwärmesonde"
+
+msgid "Ground Source Heat Probes"
+msgstr "Erdwärmesonden"
+
+msgid "Heat Storage Tank"
+msgstr "Wärmespeicher"
+
+msgid "Heat Supply for a Residential Quarter"
+msgstr "Wärmeversorgung Wohnquartier"
+
+msgid "Heating Boiler"
+msgstr "Heizkessel"
+
+msgid "Hot Water Storage Tank"
+msgstr "Warmwasser-Speicher"
+
+msgid "Hydrogen Demand"
+msgstr "Wasserstoffbedarf"
+
+msgid "Hydrogen Innovation Park"
+msgstr "Wasserstoff-Innovationspark"
+
+msgid "Hydrogen Storage"
+msgstr "Wasserstoffspeicher"
+
+msgid "Hydrogen-Bus"
+msgstr "Wasserstoffbus"
+
+msgid "In a further scenario, the additional connection of the surrounding 50 single-family houses and 16 multi-family houses is examined. The length of the heat network increases to 1,400 m."
+msgstr "In einem weiteren Szenario wird der zusätzliche Anschluss der umliegenden 50 Einfamilienhäuser und 16 Mehrfamilienhäuser untersucht. Die Länge des Wärmenetzes erhöht sich hierbei auf 1.400 m."
+
+msgid "Industrial Waste Heat"
+msgstr "Industrielle Abwärme"
+
+msgid "Large Brine Heat Pump"
+msgstr "Großwärmepumpe"
+
+msgid "Local Heat Distribution"
+msgstr "Nahwärmenetz"
+
+msgid "Peak Load Boiler"
+msgstr "Spitzenlastkessel"
+
+msgid "Reduction of electricity costs through a rooftop PV system"
+msgstr "Reduktion der Stromkosten durch PV-Dachanlage"
+
+msgid "Renewal of the existing central heating boiler."
+msgstr "Erneuerung des bestehenden zentralen Heizkessels."
+
+msgid "Rooftop PV System"
+msgstr "PV-Dachanlage"
+
+msgid "Rural Wind Plant"
+msgstr "Windkraftanlage ländlicher Raum"
+
+msgid "School + Daycare"
+msgstr "Schule + Kita"
+
+msgid "School Rooftop PV System"
+msgstr "PV-Dachanlage Schule"
+
+msgid "Solar Thermal System"
+msgstr "Solarthermieanlage"
+
+msgid "Surplus Feed-in"
+msgstr "Überschuss-Einspeisung"
+
+msgid "Switching the heat supply to a heat pump and ground source heat probes in the inner courtyard."
+msgstr "Wechsel der Wärmeversorgung auf eine Wärmepumpe und Erdsonden im Innenhof."
+
+msgid "The connection of the school and the daycare centre is examined as the reference case. In this scenario, the length of the heat network is 420 m."
+msgstr "Der Anschluss der Schule und der Kita wird als Referenzfall untersucht. In diesem Szenario beträgt die Länge des Wärmenetzes 420 m."
+
+msgid "The effects of connection rates on the sizing of the heat network are examined. The 50 single-family houses and 16 multi-family houses are simulated with a connection rate of 50%.\r\nThe length of the heat network remains 1,400 m."
+msgstr "Die Auswirkungen der Anschlussraten auf die Auslegung des Wärmenetzes wird untersucht. Die 50 Einfamilienhäuser und 16 Mehrfamilienhäuser werden mit einer Anschlussrate von 50% simuliert.\r\nDie Länge des Wärmenetzes beträgt weiterhin 1.400 m."
+
+msgid "The future heat supply strategy for a residential complex consisting of several connected multi-family houses is being sought. Currently, heating and domestic hot water are provided by a central gas boiler."
+msgstr "Es wird nach der zukünftigen Wärmeversorgungsstrategie für einen Wohnkomplex bestehend aus mehreren verbundenden Mehrfamilienhäusern gesucht. Aktuell wird die Heiz- und Warmwasser-Versorgung mit einem zentralen Gasheizkessel bereitgestellt."
+
+msgid "This scenario extends the reference case by a hydrogen storage and a fuel cell. The electrolyzer is still supplied with electricity from the public grid, while the storage balances hydrogen production and demand. The fuel cell uses part of the hydrogen to cover the electricity demand of the park itself, e.g. for pumps and lighting."
+msgstr "Dieses Szenario erweitert den Referenzfall um einen Wasserstoffspeicher und eine Brennstoffzelle. Der Elektrolyseur wird weiterhin mit Strom aus dem öffentlichen Netz versorgt, während der Speicher die Wasserstoffproduktion und den Bedarf ausgleicht. Die Brennstoffzelle nutzt einen Teil des Wasserstoffs, um den eigenen Strombedarf des Parks zu decken, z. B. für Pumpen und Beleuchtung."
+
+msgid "This scenario extends the second scenario by a fully renewable electricity supply. The electrolyzer is no longer supplied from the public grid, but with electricity from two wind plants at a rural and a coastal site, a PV plant and electricity generated from industrial waste heat. An electricity storage and the hydrogen storage balance the fluctuating generation and the hydrogen demand. The fuel cell still uses part of the hydrogen to cover the electricity demand of the park itself, e.g. for pumps and lighting."
+msgstr "Dieses Szenario erweitert das zweite Szenario um eine vollständig erneuerbare Stromversorgung. Der Elektrolyseur wird nicht mehr aus dem öffentlichen Netz, sondern mit Strom aus zwei Windkraftanlagen an einem ländlichen und einem küstennahen Standort, einer PV-Anlage sowie aus industrielle Abwärme erzeugtem Strom versorgt. Ein Stromspeicher und der Wasserstoffspeicher gleichen die schwankende Erzeugung und den Wasserstoffbedarf aus. Die Brennstoffzelle nutzt weiterhin einen Teil des Wasserstoffs, um den eigenen Strombedarf des Parks zu decken, z. B. für Pumpen und Beleuchtung."
+
+msgid "This scenario represents a renewable-based supply of the existing municipal heating network, combining a heat pump, a thermal storage and a gas boiler. The heat pump is powered by electricity from the PV plant, while the gas boiler covers peak loads with a capacity of 2,000 kW. Surplus electricity generated by the PV plant is fed into the public grid."
+msgstr "Dieses Szenario stellt eine auf erneuerbaren Energien basierende Versorgung des bestehenden kommunalen Wärmenetzes dar, die eine Wärmepumpe, einen Wärmespeicher und einen Gaskessel kombiniert. Die Wärmepumpe wird mit Strom aus der PV-Anlage betrieben, während der Gaskessel Spitzenlasten mit einer Kapazität von 2.000 kW abdeckt. Überschüssiger Strom aus der PV-Anlage wird in das öffentliche Netz eingespeist."
+
+msgid "This scenario represents the current supply of the existing municipal heating network, which is supplied entirely with fossil natural gas via gas boilers."
+msgstr "Dieses Szenario stellt die aktuelle Versorgung des bestehenden kommunalen Wärmenetzes dar, das vollständig mit fossilem Erdgas über Gaskessel versorgt wird."
+
+msgid "This scenario represents the reference case of the hydrogen innovation park, in which the hydrogen demand is covered by an electrolyzer that is supplied entirely with electricity from the public grid."
+msgstr "Dieses Szenario stellt den Referenzfall des Wasserstoff-Innovationsparks dar, in dem der Wasserstoffbedarf durch einen Elektrolyseur gedeckt wird, der vollständig mit Strom aus dem öffentlichen Netz versorgt wird."
+
+msgid "This scenario represents the supply of the existing municipal heating network by a solar thermal plant with a maximum capacity of 2,000 kW thermal, complemented by a natural gas boiler that covers the remaining heat demand."
+msgstr "Dieses Szenario stellt die Versorgung des bestehenden kommunalen Wärmenetzes durch eine Solarthermieanlage mit einer maximalen Kapazität von 2.000 kW thermisch dar, ergänzt durch einen Erdgaskessel, der den verbleibenden Wärmebedarf deckt."
+
+msgid "This scenario represents the use of local waste heat as a heat source for a heat pump, which provides the heating power for the existing municipal heating network."
+msgstr "Dieses Szenario stellt die Nutzung lokaler Abwärme als Wärmequelle für eine Wärmepumpe dar, die die Heizleistung für das bestehende kommunale Wärmenetz bereitstellt."
+
+msgid "Waste Heat Power Plant"
+msgstr "Abwärmekraftwerk"
+
+msgid "Waste Heat-Bus"
+msgstr "Abwärmebus"
