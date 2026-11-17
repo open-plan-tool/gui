@@ -702,6 +702,74 @@ class UploadTimeseriesTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(asset.input_timeseries.values, [1])
 
+    def test_custom_pv_timeseries_is_computed(self):
+        with open("./test_files/custom_timeseries_TRY.dat", "rb") as weather_file:
+            response = self.client.post(
+                reverse(
+                    "custom_timeseries_create",
+                    kwargs={
+                        "scen_id": self.scenario.id,
+                        "asset_type_name": "pv_plant",
+                    },
+                ),
+                data={
+                    "weather_file": weather_file,
+                    "azimuth": 180,
+                    "tilt": 30,
+                    "system_eff": 0.85,
+                    "gcr": 0.5,
+                    "mounting_type": "fix tilt",
+                    "albedo": 0.25,
+                    "max_angle": 60,
+                },
+                format="multipart",
+            )
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert data["success"] is True
+        assert len(data["timeseries"]) > 0
+        assert all(value >= 0 for value in data["timeseries"])
+        assert any(value > 0 for value in data["timeseries"])
+
+    def test_custom_heat_demand_timeseries_is_computed(self):
+        with open(
+            "./test_files/custom_timeseries_heat.csv", "rb"
+        ) as outdoor_temperature:
+            response = self.client.post(
+                reverse(
+                    "custom_timeseries_create",  # adapt to your URL name
+                    kwargs={
+                        "scen_id": self.scenario.id,
+                        "asset_type_name": "heat_demand",
+                    },
+                ),
+                data={
+                    "profile_type": "EFH",
+                    "annual_heat_demand": 10000,
+                    "building_year": 1970,
+                    "wind_class": "Not windy",
+                    "outdoor_temperature_scalar": "",
+                    "outdoor_temperature_file": outdoor_temperature,
+                },
+                format="multipart",
+            )
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert data["success"] is True
+
+        timeseries = data["timeseries"]
+
+        assert isinstance(timeseries, list)
+        assert all(isinstance(value, (int, float)) for value in timeseries)
+        assert all(value >= 0 for value in timeseries)
+        assert any(value > 0 for value in timeseries)
+
 
 @tag("unittest")
 class OptimizeCapacityToggleTest(TestCase):

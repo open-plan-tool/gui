@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Fix undefined error when creating custom timeseries [[#609](https://github.com/open-plan-tool/gui/pull/609)]
 
 ## [v2.0.0] – 2026-11-17
 ### Changed
