@@ -235,17 +235,19 @@ function update_selected_single_scenario(target){
 
             // Update the kpi table
 			update_kpi_table_style(scen_id, "summary");
-			update_kpi_table_style(scen_id, "technical");
-			update_kpi_table_style(scen_id, "economic");
-			update_kpi_table_style(scen_id, "environmental");
-			request_results_table(scen_id, "project_cost_table");
-			request_results_table(scen_id, "project_cost_table");
+			//update_kpi_table_style(scen_id, "technical");
+			//update_kpi_table_style(scen_id, "economic");
+			//update_kpi_table_style(scen_id, "environmental");
+			//request_results_table(scen_id, "project_cost_table");
+			request_results_table(scen_id, "yearly_project_costs");
 
             scenario_visualize_timeseries(scen_id);
             // scenario_visualize_stacked_timeseries(scen_id);
             scenario_visualize_sankey(scen_id);
             scenario_visualize_capacities(scen_id);
             scenario_visualize_costs(scen_id);
+    				scenario_visualize_given_graph(scen_id, "renewables");
+    				scenario_visualize_given_graph(scen_id, "energy_mix");
             // data is provided by scenario_topology_helpers.py::load_scenario_topology_from_db
             updateDrawflow(data.topology_data_list);
 
