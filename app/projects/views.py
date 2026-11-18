@@ -630,7 +630,7 @@ def project_asset_info(request, proj_id):
 # region Usecase
 @require_http_methods(["GET"])
 def usecase_search(request, usecase_id=None, scen_id=None):
-    usecase_list = UseCase.objects.all()
+    usecase_list = UseCase.objects.filter(id__gt=3000)
 
     return render(
         request,

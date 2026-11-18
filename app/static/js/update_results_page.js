@@ -101,7 +101,7 @@ function addWideTable(table_data, table_id){
     table_headers.map(hdr =>
         {
             var tableHdr = document.createElement('th');
-            tableHdr.innerHTML = hdr;
+            tableHdr.innerHTML = gettext(hdr);
             tableHeadContent.appendChild(tableHdr);
         }
     );
@@ -113,7 +113,7 @@ function addWideTable(table_data, table_id){
 
     for (const [key, entry] of Object.entries(table_data.data)) {
         const value = {
-            verbose: entry.name,
+            verbose: gettext(entry.name),
             description: entry.description || "",
             unit: entry.unit || "",
             value: entry.scen_values
@@ -215,9 +215,7 @@ function translateFigureLabels(data, layout) {
 }
 
 function insertPlotlyGraph(graphId, data, layout){
-    console.log(data);
-    console.log(layout);
-//    //translateFigureLabels(data, layout);
+    translateFigureLabels(data, layout);
 //
 //    // finds the title of the section
 //    const graph = document.getElementById(`graph-${graphId}`);
@@ -227,8 +225,8 @@ function insertPlotlyGraph(graphId, data, layout){
 //
 //    // replaces section title by the graph title
 //    // title.textContent = gettext(layout.title.text);
-//    // erases graph title
-//    layout.title.text = "";
+    // erases graph title
+    layout.title.text = "";
     Plotly.newPlot(
         "graph-" + graphId,
         data,
