@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+- Disable plolty graphs title in results view [[#611](https://github.com/open-plan-tool/gui/pull/611)]
+
+### Fixed
+- Colors of the connections in energy system results graph are now correct [[#611](https://github.com/open-plan-tool/gui/pull/611)]
+- Fix actualisation of results when selecting scenario in dropdown menu [[#611](https://github.com/open-plan-tool/gui/pull/611)]
+- Results table headers are now translated [[#611](https://github.com/open-plan-tool/gui/pull/611)]
+
 ## [v2.0.1] – 2026-11-18
 ### Added
 - Possibility to translate the name of the scenario and assets of a usecase when selecting it as a template [[#607](https://github.com/open-plan-tool/gui/pull/607)]
