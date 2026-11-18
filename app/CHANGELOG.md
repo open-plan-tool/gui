@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v2.0.2] – 2026-11-18
+
 ### Changed
 - Disable plolty graphs title in results view [[#611](https://github.com/open-plan-tool/gui/pull/611)]
 
