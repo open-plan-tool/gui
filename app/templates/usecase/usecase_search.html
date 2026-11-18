@@ -43,9 +43,9 @@
 					<h2 class="name">
 						{% translate usecase.name %}
 					</h2>
-					<a href="{% url 'not_implemented' %}?url={{ request.get_full_path }}" class="location">
+					<a href="#" class="location">
 						<span class="icon-pin" aria-hidden="true"></span>
-						{{ usecase.country }}
+						{% translate usecase.country %}
 					</a>
 				</div>
 				<div class="project__details">
@@ -55,7 +55,7 @@
 							<span class="detail__value">99.999 EUR</span>
 						</div-->
 						<div class="detail">
-							<span class="detail__property">Lifetime</span>
+							<span class="detail__property">{% translate "Lifetime" %}</span>
 							<span class="detail__value">{{ usecase.economic_data.duration }} {% translate "years" %}</span>
 						</div>
 					</div>
