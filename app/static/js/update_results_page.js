@@ -227,8 +227,8 @@ function insertPlotlyGraph(graphId, data, layout){
 //
 //    // replaces section title by the graph title
 //    // title.textContent = gettext(layout.title.text);
-//    // erases graph title
-//    layout.title.text = "";
+    // erases graph title
+    layout.title.text = "";
     Plotly.newPlot(
         "graph-" + graphId,
         data,
