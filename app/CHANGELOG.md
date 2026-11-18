@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [v2.0.1] – 2026-11-18
 ### Added
 - Possibility to translate the name of the scenario and assets of a usecase when selecting it as a template [[#607](https://github.com/open-plan-tool/gui/pull/607)]
 ### Fixed
