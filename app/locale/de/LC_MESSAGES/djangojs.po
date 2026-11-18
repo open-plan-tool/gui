@@ -81,19 +81,34 @@ msgstr "Jähliche Kosten [EUR]"
 msgid "Component"
 msgstr "Komponente"
 
-msgid "annualized investment cost"
-msgstr "Kapazität"
+msgid "Annualized investment cost"
+msgstr "Annualisierte Investitionskosten"
+
+msgid "Annualized investment cost (€)"
+msgstr "Annualisierte Investitionskosten (€)"
 
 msgid "Cost type"
 msgstr "Kostenart"
 
-msgid "fix operational costs"
+msgid "Fix operational costs"
 msgstr "Feste Betriebskosten"
+
+msgid "Fix operational costs (€)"
+msgstr "Feste Betriebskosten (€)"
 
 msgid "dispatch costs"
 msgstr "Dispatch-Kosten"
 
+msgid "Dispatch costs"
+msgstr "Dispatch-Kosten"
+
+msgid "Dispatch costs (€)"
+msgstr "Dispatch-Kosten (€)"
+
 msgid "Time Series"
+msgstr "Zeitreihe"
+
+msgid "Time series"
 msgstr "Zeitreihe"
 
 msgid "Renewable vs non-renewable"
