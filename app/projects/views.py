@@ -211,6 +211,23 @@ def timeseries_dashboard(request, ts_id=None):
 
 
 def timeseries_build_context(request, ts_id=None):
+    timeseries_asset_type_names = {
+        "demand": _("Electricity Demand"),
+        "dso": _("Electricity DSO"),
+        "dso_heat": _("Heat DSO"),
+        "dso_h2": _("H2 DSO"),
+        "dso_gas": _("Gas DSO"),
+        "gas_demand": _("Gas Demand"),
+        "h2_demand": _("H2 Demand"),
+        "heat_demand": _("Heat Demand"),
+        "pv_plant": _("PV Plant"),
+        "wind_plant": _("Wind Plant"),
+        "biogas_plant": _("Biogas Plant"),
+        "geothermal_conversion": _("Geothermal Conversion"),
+        "solar_thermal_plant": _("Solar Thermal Plant"),
+        "chp": _("Combined Heat and Power"),
+    }
+
     timeseries_qs = timeseries_sort_and_filter(request)
     all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
         ts_type="scalar"
@@ -231,13 +248,13 @@ def timeseries_build_context(request, ts_id=None):
         .order_by()
         .distinct()
     )
+
     existing_scenarios = (
         all_timeseries_qs.exclude(scenario__isnull=True)
         .values_list("scenario_id", "scenario__name")
         .order_by()
         .distinct()
     )
-
     context = {
         "timeseries_list": timeseries_qs,
         "selected_timeseries": selected_timeseries,
@@ -249,6 +266,10 @@ def timeseries_build_context(request, ts_id=None):
         },
         "existing_lengths": existing_lengths,
         "existing_asset_types": existing_asset_types,
+        "asset_type_options": [
+            (asset_type, timeseries_asset_type_names.get(asset_type, asset_type))
+            for asset_type in existing_asset_types
+        ],
         "existing_scenarios": existing_scenarios,
         "selected_length": request.GET.get("length"),
         "selected_asset_type": request.GET.get("asset_type"),

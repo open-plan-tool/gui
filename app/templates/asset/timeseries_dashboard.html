@@ -259,8 +259,8 @@
                                 <label for="assetTypeSelect" style="display: block;">Asset type</label>
                                 <select name="asset_type" id="assetTypeSelect" class="form-select">
                                     <option value=""></option>
-                                    {% for asset_type in existing_asset_types %}
-                                    <option value="{{ asset_type }}" {% if asset_type == selected_asset_type %}selected{% endif %}>{{ asset_type }}</option>
+                                    {% for value, label in asset_type_options %}
+                                        <option value="{{ value }}" {% if value == selected_asset_type %}selected{% endif %}>{{ label }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
