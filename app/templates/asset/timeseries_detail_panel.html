@@ -44,6 +44,18 @@
 
             <div class="detail-label">Length</div>
             <div>{{ selected_timeseries.values|length }} points</div>
+
+            <div class="detail-label">Peak</div>
+            <div>{{ peak|default:"-" }} {% if peak %} {{ selected_timeseries.units }} {% endif %}</div>
+
+            <div class="detail-label">Mean</div>
+            <div>{{ mean|default:"-" }} {% if mean %} {{ selected_timeseries.units }} {% endif %}</div>
+
+            <div class="detail-label">Annual Total</div>
+            <div>{{ annual_total|default:"-" }} {% if annual_total %} {{ selected_timeseries.units }} {% endif %}</div>
+
+            <div class="detail-label">Zero or missing</div>
+            <div>{{ zero_or_missing|default:"-" }} {% if zero_or_missing %} values {% endif %}</div>
         </div>
 
         <div class="detail-plot"

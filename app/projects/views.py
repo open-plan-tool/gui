@@ -2,6 +2,7 @@
 import datetime
 import io
 import json
+import math
 import tempfile
 import traceback
 import zipfile
@@ -181,6 +182,19 @@ def timeseries_dashboard(request, ts_id=None):
             context["timeseries_edit_form"] = TimeseriesModelForm(
                 instance=selected_timeseries
             )
+
+            values = selected_timeseries.values
+            zero_or_missing = sum(
+                1
+                for v in values
+                if v is None or (isinstance(v, float) and math.isnan(v)) or v == 0
+            )
+            if values:
+                context["annual_total"] = sum(values)
+                context["mean"] = sum(values) / len(values)
+                context["peak"] = max(values)
+                context["zero_or_missing"] = zero_or_missing
+
         except Timeseries.DoesNotExist:
             pass
 
