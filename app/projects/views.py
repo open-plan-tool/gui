@@ -397,7 +397,7 @@ def timeseries_duplicate(request, ts_id):
     messages.success(request, "Timeseries successfully duplicated!")
     # load updated timeseries list
 
-    context = timeseries_build_context(ts_id=selected_timeseries.id)
+    context = timeseries_build_context(request, ts_id=selected_timeseries.id)
     table_html = render_to_string("asset/timeseries_table.html", context, request)
     details_html = render_to_string(
         "asset/timeseries_detail_panel.html", context, request
