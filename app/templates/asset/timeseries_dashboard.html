@@ -381,12 +381,12 @@
                 <div id="timeseriesForm">
                     <div class="modal-addendum"></div>
                 </div>
-
+                {% comment %}
                 <div class="form-group mb-3">
                     <label for="ts-num-timesteps">Number of timesteps</label>
                     <input type="number" id="ts-num-timesteps" class="form-control" value="8760" min="1">
                 </div>
-
+                {% endcomment %}
                 <div id="dashboard_ts_trace"></div>
                 <div id="dashboard_ts_generation_parameters" class="ts-generation-params" style="display:none;">
                     <dl class="ts-generation-params__list"></dl>
@@ -475,7 +475,7 @@ updateSortArrows();
                 formData.append(el.name, el.value);
             }
         });
-        formData.append('num_timesteps', document.getElementById('ts-num-timesteps').value);
+        // formData.append('num_timesteps', document.getElementById('ts-num-timesteps').value);
 
         fetch(createTimeseriesPostUrl + assetTypeName, {
             method: 'POST',
