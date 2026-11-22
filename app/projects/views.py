@@ -2328,7 +2328,11 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
 
                 # add latitude and longitude to the generation parameters
                 for attr in ["latitude", "longitude"]:
-                    cleaned_data[attr] = getattr(scenario.project, attr)
+                    if scenario:
+                        cleaned_data[attr] = getattr(scenario.project, attr)
+                    else:
+                        # for the dashboard
+                        cleaned_data[attr] = float(request.POST[attr])
 
             timeseries = custom_ts_fun(**cleaned_data)
             form_prefix = f"{custom_form.__name__}_"

@@ -370,6 +370,7 @@
                     <label for="ts-type-select">Type</label>
                     <select id="ts-type-select" class="form-select" onchange="loadTsForm()">
                         <option value="heat_demand" selected>Heat demand</option>
+                        <option value="pv_plant">PV plant</option>
                     </select>
                 </div>
 
@@ -387,6 +388,16 @@
                     <input type="number" id="ts-num-timesteps" class="form-control" value="8760" min="1">
                 </div>
                 {% endcomment %}
+                <div id="ts-location-group" style="display:none;">
+                    <div class="form-group mb-3">
+                        <label for="ts-latitude">Latitude</label>
+                        <input type="number" step="any" name="latitude" id="ts-latitude" class="form-control" placeholder="e.g. 52.5">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="ts-longitude">Longitude</label>
+                        <input type="number" step="any" name="longitude" id="ts-longitude" class="form-control" placeholder="e.g. 13.4">
+                    </div>
+                </div>
                 <div id="dashboard_ts_trace"></div>
                 <div id="dashboard_ts_generation_parameters" class="ts-generation-params" style="display:none;">
                     <dl class="ts-generation-params__list"></dl>
@@ -454,6 +465,7 @@ updateSortArrows();
     function loadTsForm() {
         resetTsPreview();
         const assetTypeName = document.getElementById('ts-type-select').value;
+        document.getElementById('ts-location-group').style.display = assetTypeName === 'pv_plant' ? '' : 'none';
         fetch(createTimeseriesGetUrl + assetTypeName)
             .then(response => response.text())
             .then(formContent => {
@@ -468,7 +480,7 @@ updateSortArrows();
         const form = document.getElementById('timeseriesForm');
         const formData = new FormData();
 
-        form.querySelectorAll('input, select').forEach(el => {
+        document.querySelectorAll('#timeseriesForm input, #timeseriesForm select, #ts-location-group input').forEach(el => {
             if (el.type === 'file') {
                 if (el.files.length) formData.append(el.name, el.files[0]);
             } else {
@@ -492,7 +504,7 @@ updateSortArrows();
                 };
                 document.getElementById('createTsBtn').disabled = false;
             } else if (jsonRes.form_html) {
-                form.innerHTML = jsonRes.form_html;
+                form.querySelector('.modal-addendum').innerHTML = jsonRes.form_html;
             } else {
                 alert('The timeseries could not be computed.');
             }
@@ -527,10 +539,12 @@ updateSortArrows();
         }
     }
 
-    document.getElementById('timeseriesForm').addEventListener('input', () => {
-        computedTimeseries = null;
-        document.getElementById('createTsBtn').disabled = true;
-    });
+        ['timeseriesForm', 'ts-location-group'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                computedTimeseries = null;
+                document.getElementById('createTsBtn').disabled = true;
+            });
+        });
 
     document.getElementById('createTimeseriesModal').addEventListener('show.bs.modal', loadTsForm);
 </script>
