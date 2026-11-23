@@ -3540,9 +3540,8 @@ msgstr "Anwendungsbeispiele"
 
 #: templates/navbar.html:45 templates/report/single_scenario.html:88
 #: templates/report/single_scenario.html:106
-#: templates/navbar.html:58 templates/project/project_search.html:37
-msgid "My Projects"
-msgstr "Meine Projekte"
+msgid "Overview"
+msgstr "Übersicht"
 
 #: templates/navbar.html:47
 msgid "Sponsoring"
