@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- The list of eesyplan's components' parameters is kept separated from the OpenPlan models' attribute in order to simplify the update of the documentation on RTD  [[#613](https://github.com/open-plan-tool/gui/pull/613)]
+
 ## [v2.0.2] – 2026-11-18
 
 ### Changed
