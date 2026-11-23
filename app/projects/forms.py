@@ -26,6 +26,7 @@ from projects.constants import (
 )
 from projects.helpers import (
     PARAMETERS,
+    OPEN_PLAN_PARAMETER_LABELS,
     TS_MANUAL_TYPE,
     TS_SELECT_TYPE,
     TS_UPLOAD_TYPE,
@@ -213,6 +214,8 @@ class OpenPlanModelForm(ModelForm):
             full_param_name = (
                 f"{self.component}_{param_name}" if self.component else param_name
             )
+            if full_param_name in OPEN_PLAN_PARAMETER_LABELS:
+                RTD_link = False
             add_help_text_icon(
                 self.fields[param_name], full_param_name, RTD_link=RTD_link
             )

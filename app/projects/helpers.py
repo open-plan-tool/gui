@@ -26,9 +26,9 @@ PARAMETERS_LIST_PATHS = [
     RESOURCES_DIR / "eesyplan_parameters_list.csv",
     RESOURCES_DIR / "openplan_parameters_list.csv",
 ]
-
+OPEN_PLAN_PARAMETER_LABELS = []
 PARAMETERS = {}
-for parameter_list in PARAMETERS_LIST_PATHS:
+for model, parameter_list in zip(("eesyplan", "openplan"), PARAMETERS_LIST_PATHS):
     if parameter_list.exists():
         with open(parameter_list, encoding="utf-8-sig") as csvfile:
             csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
@@ -39,6 +39,8 @@ for parameter_list in PARAMETERS_LIST_PATHS:
                     component_idx = hdr.index("component")
                 else:
                     label = f"{row[component_idx]}_{row[label_idx]}"
+                    if model == "openplan":
+                        OPEN_PLAN_PARAMETER_LABELS.append(label)
                     PARAMETERS[label] = {}
                     for k, v in zip(hdr, row):
                         PARAMETERS[label][k] = v
