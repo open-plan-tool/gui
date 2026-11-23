@@ -16,6 +16,13 @@
             <td>{{ ts.get_asset_type_display|default:"-" }}</td>
             <td>{{ ts.scenario.id|default:"-" }}</td>
             <td>{{ ts.values|length }}</td>
+            <td>
+                {% if ts.annual_total is not None %}
+                    {{ ts.annual_total|floatformat:0 }} {{ ts.units|default:"" }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
 </tbody>

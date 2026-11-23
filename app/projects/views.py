@@ -12,7 +12,10 @@ from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import CharField, F, Func, IntegerField, Q
+from django.db.models import CharField, F, Func, Q, ExpressionWrapper
+from django.db.models import FloatField as DBFloatField
+from django.db.models import IntegerField as DBIntegerField
+from django.db.models.functions import NullIf
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -240,6 +243,14 @@ def timeseries_build_context(request, ts_id=None):
     return context
 
 
+# Helper for annual total
+HOURS_PER_YEAR = 8760
+
+
+class ArraySum(Func):
+    template = "(SELECT SUM(elem) FROM unnest(%(expressions)s) AS elem)"
+
+
 def timeseries_sort_and_filter(request):
     """
     Looks for all the timeseries owned by user and with timeseries type = scalar. Then sorts those
@@ -254,9 +265,23 @@ def timeseries_sort_and_filter(request):
     Returns:
         QuerySet: timeseries queryset thats sorted and filtered
     """
-    timeseries_qs = Timeseries.objects.filter(
-        Q(user=request.user) & ~Q(ts_type="scalar")
-    ).order_by("name", "id")
+    timeseries_qs = (
+        Timeseries.objects.filter(Q(user=request.user) & ~Q(ts_type="scalar"))
+        .annotate(
+            points_count=Func(
+                F("values"), function="cardinality", output_field=DBIntegerField()
+            )
+        )
+        .annotate(
+            annual_total=ExpressionWrapper(
+                ArraySum(F("values"), output_field=DBFloatField())
+                * HOURS_PER_YEAR
+                / NullIf(F("points_count"), 0),
+                output_field=DBFloatField(),
+            )
+        )
+        .order_by("name", "id")
+    )
 
     # apply filters if excisting
     params = request.GET
@@ -280,15 +305,10 @@ def timeseries_sort_and_filter(request):
         "asset_type": "asset_type",
         "scenario": "scenario_id",
         "points": "points_count",
+        "annual_total": "annual_total",
     }
 
     if sort in sort_fields:
-        if sort == "points":
-            timeseries_qs = timeseries_qs.annotate(
-                points_count=Func(
-                    F("values"), function="cardinality", output_field=IntegerField()
-                )
-            )
         field = F(sort_fields[sort])
         if direction == "desc":
             ordering = field.desc(nulls_last=True)
