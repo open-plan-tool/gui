@@ -22,22 +22,26 @@ TS_UPLOAD_TYPE = "upload"
 TS_MANUAL_TYPE = "manual"
 TS_INPUT_TYPES = (TS_MANUAL_TYPE, TS_SELECT_TYPE, TS_UPLOAD_TYPE)
 
-PARAMETERS_LIST_PATH = RESOURCES_DIR / "eesyplan_parameters_list.csv"
+PARAMETERS_LIST_PATHS = [
+    RESOURCES_DIR / "eesyplan_parameters_list.csv",
+    RESOURCES_DIR / "openplan_parameters_list.csv",
+]
 
 PARAMETERS = {}
-if PARAMETERS_LIST_PATH.exists():
-    with open(PARAMETERS_LIST_PATH, encoding="utf-8-sig") as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-        for i, row in enumerate(csvreader):
-            if i == 0:
-                hdr = row
-                label_idx = hdr.index("parameter_name")
-                component_idx = hdr.index("component")
-            else:
-                label = f"{row[component_idx]}_{row[label_idx]}"
-                PARAMETERS[label] = {}
-                for k, v in zip(hdr, row):
-                    PARAMETERS[label][k] = v
+for parameter_list in PARAMETERS_LIST_PATHS:
+    if parameter_list.exists():
+        with open(parameter_list, encoding="utf-8-sig") as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+            for i, row in enumerate(csvreader):
+                if i == 0:
+                    hdr = row
+                    label_idx = hdr.index("parameter_name")
+                    component_idx = hdr.index("component")
+                else:
+                    label = f"{row[component_idx]}_{row[label_idx]}"
+                    PARAMETERS[label] = {}
+                    for k, v in zip(hdr, row):
+                        PARAMETERS[label][k] = v
 
 parameters_helper = KPIFinder(param_info_dict=PARAMETERS, unit_header="unit")
 
