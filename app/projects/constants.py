@@ -417,6 +417,52 @@ ASSET_TYPE = (
     ("hess", "hess"),
 )
 
+ASSET_VERBOSE_NAMES = {
+    # providers
+    "dso": _("Electricity DSO"),
+    "gas_dso": _("Fuel DSO"),
+    "h2_dso": _("H2 DSO"),
+    "heat_dso": _("Heat DSO"),
+    # production
+    "pv_plant": _("PV Plant"),
+    "wind_plant": _("Wind Plant"),
+    "biogas_plant": _("Biogas Plant"),
+    "geothermal_conversion": _("Geothermal Conversion"),
+    "solar_thermal_plant": _("Solar Thermal Plant"),
+    "commodity": _("Commodity"),
+    "shortage": _("Shortage"),
+    # conversion
+    "electrical_transformer": _("Electrical Transformer"),
+    "diesel_generator": _("Diesel Generator"),
+    "fuel_cell": _(" Fuel Cell"),
+    "gas_boiler": _("Gas Boiler"),
+    "electrolyzer": _("Electrolyzer"),
+    "heat_pump": _("Heat Pump"),
+    "chp": _("Combined Heat and Power"),
+    "chp_fixed_ratio": _("CHP fixed ratio"),
+    "auxiliary_heat": _("Auxiliary Heat"),
+    # storage
+    "bess": _("Electricity Storage"),
+    "gess": _("Gas Storage"),
+    "h2ess": _("H2 Storage"),
+    "hess": _("Heat Storage"),
+    # demand
+    "demand": _("Electricity Demand"),
+    "gas_demand": _("Gas Demand"),
+    "h2_demand": _("H2 Demand"),
+    "heat_demand": _("Heat Demand"),
+    "sink": _("Sink"),
+    "excess": _("Excess"),
+    # transport
+    "heating_network": _("Heating Network"),
+    "heating_pipe": _("Heating pipe"),
+    # bus
+    "bus-electricity": _("Electricity Bus"),
+    "bus-heat": _("Heat Bus"),
+    "bus-gas": _("Fuel Bus"),
+    "bus-h2": _("Hydrogen Bus"),
+}
+
 ASSET_TO_TIMESERIES_ASSET_TYPE = {}
 
 RENEWABLE_ASSETS = (

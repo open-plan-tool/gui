@@ -62,7 +62,15 @@ from projects.models import (
     UseCase,
 )
 
-from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
+from .constants import (
+    DONE,
+    ERROR,
+    MAX_STEP,
+    MODIFIED,
+    PENDING,
+    STEP_LIST,
+    ASSET_VERBOSE_NAMES,
+)
 from .forms import *
 from .requests import (
     ezp_simulation_request,
@@ -211,23 +219,6 @@ def timeseries_dashboard(request, ts_id=None):
 
 
 def timeseries_build_context(request, ts_id=None):
-    timeseries_asset_type_names = {
-        "demand": _("Electricity Demand"),
-        "dso": _("Electricity DSO"),
-        "dso_heat": _("Heat DSO"),
-        "dso_h2": _("H2 DSO"),
-        "dso_gas": _("Gas DSO"),
-        "gas_demand": _("Gas Demand"),
-        "h2_demand": _("H2 Demand"),
-        "heat_demand": _("Heat Demand"),
-        "pv_plant": _("PV Plant"),
-        "wind_plant": _("Wind Plant"),
-        "biogas_plant": _("Biogas Plant"),
-        "geothermal_conversion": _("Geothermal Conversion"),
-        "solar_thermal_plant": _("Solar Thermal Plant"),
-        "chp": _("Combined Heat and Power"),
-    }
-
     timeseries_qs = timeseries_sort_and_filter(request)
     all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
         ts_type="scalar"
@@ -267,7 +258,7 @@ def timeseries_build_context(request, ts_id=None):
         "existing_lengths": existing_lengths,
         "existing_asset_types": existing_asset_types,
         "asset_type_options": [
-            (asset_type, timeseries_asset_type_names.get(asset_type, asset_type))
+            (asset_type, ASSET_VERBOSE_NAMES.get(asset_type, asset_type))
             for asset_type in existing_asset_types
         ],
         "existing_scenarios": existing_scenarios,
@@ -1339,54 +1330,54 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
     components = {
         "providers": {
-            "dso": _("Electricity DSO"),
-            "gas_dso": _("Fuel DSO"),
-            "h2_dso": _("H2 DSO"),
-            "heat_dso": _("Heat DSO"),
+            "dso": ASSET_VERBOSE_NAMES["dso"],
+            "gas_dso": ASSET_VERBOSE_NAMES["gas_dso"],
+            "h2_dso": ASSET_VERBOSE_NAMES["h2_dso"],
+            "heat_dso": ASSET_VERBOSE_NAMES["heat_dso"],
         },
         "production": {
-            "pv_plant": _("PV Plant"),
-            "wind_plant": _("Wind Plant"),
-            "biogas_plant": _("Biogas Plant"),
-            "geothermal_conversion": _("Geothermal Conversion"),
-            "solar_thermal_plant": _("Solar Thermal Plant"),
-            # "commodity": _("Commodity"),
-            # "shortage": _("Shortage"),
+            "pv_plant": ASSET_VERBOSE_NAMES["pv_plant"],
+            "wind_plant": ASSET_VERBOSE_NAMES["wind_plant"],
+            "biogas_plant": ASSET_VERBOSE_NAMES["biogas_plant"],
+            "geothermal_conversion": ASSET_VERBOSE_NAMES["geothermal_conversion"],
+            "solar_thermal_plant": ASSET_VERBOSE_NAMES["solar_thermal_plant"],
+            # "commodity": ASSET_VERBOSE_NAMES["commodity"],
+            # "shortage": ASSET_VERBOSE_NAMES["shortage"],
         },
         "conversion": {
-            "electrical_transformer": _("Electrical Transformer"),
-            "diesel_generator": _("Diesel Generator"),
-            "fuel_cell": _(" Fuel Cell"),
-            "gas_boiler": _("Gas Boiler"),
-            "electrolyzer": _("Electrolyzer"),
-            "heat_pump": _("Heat Pump"),
-            "chp": _("Combined Heat and Power"),
-            "chp_fixed_ratio": _("CHP fixed ratio"),
-            # "auxiliary_heat": _("Auxiliary Heat"),
+            "electrical_transformer": ASSET_VERBOSE_NAMES["electrical_transformer"],
+            "diesel_generator": ASSET_VERBOSE_NAMES["diesel_generator"],
+            "fuel_cell": ASSET_VERBOSE_NAMES["fuel_cell"],
+            "gas_boiler": ASSET_VERBOSE_NAMES["gas_boiler"],
+            "electrolyzer": ASSET_VERBOSE_NAMES["electrolyzer"],
+            "heat_pump": ASSET_VERBOSE_NAMES["heat_pump"],
+            "chp": ASSET_VERBOSE_NAMES["chp"],
+            "chp_fixed_ratio": ASSET_VERBOSE_NAMES["chp_fixed_ratio"],
+            # "auxiliary_heat": ASSET_VERBOSE_NAMES["auxiliary_heat"],
         },
         "storage": {
-            "bess": _("Electricity Storage"),
-            # "gess": _("Gas Storage"),
-            "h2ess": _("H2 Storage"),
-            "hess": _("Heat Storage"),
+            "bess": ASSET_VERBOSE_NAMES["bess"],
+            # "gess": ASSET_VERBOSE_NAMES["gess"],
+            "h2ess": ASSET_VERBOSE_NAMES["h2ess"],
+            "hess": ASSET_VERBOSE_NAMES["hess"],
         },
         "demand": {
-            "demand": _("Electricity Demand"),
-            # "gas_demand": _("Gas Demand"),
-            "h2_demand": _("H2 Demand"),
-            "heat_demand": _("Heat Demand"),
-            # "sink": _("Sink"),
-            # "excess": _("Excess"),
+            "demand": ASSET_VERBOSE_NAMES["demand"],
+            # "gas_demand": ASSET_VERBOSE_NAMES["gas_demand"],
+            "h2_demand": ASSET_VERBOSE_NAMES["h2_demand"],
+            "heat_demand": ASSET_VERBOSE_NAMES["heat_demand"],
+            # "sink": ASSET_VERBOSE_NAMES["sink"],
+            # "excess": ASSET_VERBOSE_NAMES["excess"],
         },
         "transport": {
-            "heating_network": _("Heating Network"),
-            "heating_pipe": _("Heating pipe"),
+            "heating_network": ASSET_VERBOSE_NAMES["heating_network"],
+            "heating_pipe": ASSET_VERBOSE_NAMES["heating_pipe"],
         },
         "bus": {
-            "bus-electricity": _("Electricity Bus"),
-            "bus-heat": _("Heat Bus"),
-            "bus-gas": _("Fuel Bus"),
-            "bus-h2": _("Hydrogen Bus"),
+            "bus-electricity": ASSET_VERBOSE_NAMES["bus-electricity"],
+            "bus-heat": ASSET_VERBOSE_NAMES["bus-heat"],
+            "bus-gas": ASSET_VERBOSE_NAMES["bus-gas"],
+            "bus-h2": ASSET_VERBOSE_NAMES["bus-h2"],
         },
     }
     group_names = {group: _(group) for group in components}
