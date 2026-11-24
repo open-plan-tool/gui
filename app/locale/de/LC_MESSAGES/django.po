@@ -5876,3 +5876,123 @@ msgstr "Abwärmekraftwerk"
 
 msgid "Waste Heat-Bus"
 msgstr "Abwärmebus"
+
+msgid "The number of years the project is intended to be operational. This also sets the installation time of the simulated assets; once the project ends, these assets are considered 'sold' and the refund is credited against the initial investment cost."
+msgstr "Die Anzahl der Jahre, für die das Projekt betrieben werden soll. Dadurch wird zugleich die Installationsdauer der simulierten Anlagen festgelegt; nach Projektende gelten diese Anlagen als verkauft und der Rückerstattungswert wird mit den anfänglichen Investitionskosten verrechnet."
+
+msgid "Accounts for the depreciation in the value of money over time. Commonly derived from the weighted average cost of capital (WACC)."
+msgstr "Berücksichtigt die Abnahme des Geldwerts über die Zeit. Wird üblicherweise aus den gewichteten durchschnittlichen Kapitalkosten (WACC) abgeleitet."
+
+msgid "Tax factor applied in the project's economic calculation."
+msgstr "Steuerfaktor, der bei der wirtschaftlichen Berechnung des Projekts angewendet wird."
+
+msgid "Name of the country where the project is being deployed."
+msgstr "Name des Landes, in dem das Projekt umgesetzt wird."
+
+msgid "Project name"
+msgstr "Projektname"
+
+msgid "Name given to the project."
+msgstr "Name des Projekts."
+
+msgid "Name given to the scenario."
+msgstr "Name des Szenarios."
+
+msgid "Start date"
+msgstr "Startdatum"
+
+msgid "Date and time when the simulation starts with the first time step. Also used for the result graphs and the timeseries upload."
+msgstr "Datum und Uhrzeit, zu denen die Simulation mit dem ersten Zeitschritt beginnt. Wird auch für die Ergebnisdiagramme und den Zeitreihen-Upload verwendet."
+
+msgid "Time step length"
+msgstr "Zeitschrittlänge"
+
+msgid "Length of a simulation time step, in minutes. Currently only 60 minutes is supported."
+msgstr "Länge eines Simulationszeitschritts in Minuten. Derzeit werden nur 60 Minuten unterstützt."
+
+msgid "Evaluated period"
+msgstr "Auswertungszeitraum"
+
+msgid "Number of days for which the simulation is run."
+msgstr "Anzahl der Tage, für die die Simulation durchgeführt wird."
+
+msgid "Minimum share of energy supplied by renewable generation that the optimization needs to meet. Applies to the whole, sector-coupled energy system, not to specific sectors individually."
+msgstr "Mindestanteil der Energieversorgung aus erneuerbarer Erzeugung, den die Optimierung erreichen muss. Gilt für das gesamte sektorgekoppelte Energiesystem und nicht für einzelne Sektoren."
+
+msgid "Maximum emissions"
+msgstr "Maximale Emissionen"
+
+msgid "Maximum amount of total emissions allowed in the optimized energy system."
+msgstr "Maximal zulässige Gesamtemissionen im optimierten Energiesystem."
+
+msgid "Minimum degree of autonomy that the optimization needs to meet. Applies to the whole, sector-coupled energy system, not to specific sectors individually."
+msgstr "Mindestautarkiegrad, den die Optimierung erreichen muss. Gilt für das gesamte sektorgekoppelte Energiesystem und nicht für einzelne Sektoren."
+
+msgid "Temperature of the high-temperature heat reservoir, at the heat pump's exit point. Temperature losses through the heat exchanger are not accounted for."
+msgstr "Temperatur des Hochtemperatur-Wärmereservoirs am Austritt der Wärmepumpe. Temperaturverluste über den Wärmetauscher werden nicht berücksichtigt."
+
+msgid "Temperature of the low-temperature heat reservoir, at the heat pump's entrance point. Temperature losses through the heat exchanger are not accounted for."
+msgstr "Temperatur des Niedertemperatur-Wärmereservoirs am Eintritt der Wärmepumpe. Temperaturverluste über den Wärmetauscher werden nicht berücksichtigt."
+
+msgid "Measure of how efficiently the heat pump transfers heat from a lower to a higher temperature: the ratio of the actual efficiency achieved to the theoretical maximum (Carnot) efficiency."
+msgstr "Maß dafür, wie effizient die Wärmepumpe Wärme von einem niedrigeren auf ein höheres Temperaturniveau überträgt: das Verhältnis des tatsächlich erreichten Wirkungsgrads zum theoretisch maximalen Carnot-Wirkungsgrad."
+
+msgid "For fix tilt: azimuth angle of the module orientation in degrees (North is 0°, East is 90°); for tracker: azimuth angle of the rotation axis for tracking systems."
+msgstr "Bei fester Neigung: Azimutwinkel der Modulausrichtung in Grad (Nord = 0°, Ost = 90°); bei Trackern: Azimutwinkel der Rotationsachse des Nachführsystems."
+
+msgid "Tilt angle in degrees (0° is horizontal, 90° is vertical)."
+msgstr "Neigungswinkel in Grad (0° ist horizontal, 90° ist vertikal)."
+
+msgid "System efficiency"
+msgstr "Systemwirkungsgrad"
+
+msgid "Performance ratio of the total PV system (usually around 0.8)."
+msgstr "Performance Ratio des gesamten PV-Systems (üblicherweise etwa 0,8)."
+
+msgid "Ground coverage ratio"
+msgstr "Flächenbelegungsgrad"
+
+msgid "Ratio of the module area to the ground area of the module field, only needed for tracker."
+msgstr "Verhältnis der Modulfläche zur Bodenfläche des Modulfeldes; wird nur für Tracker benötigt."
+
+msgid "Mounting type"
+msgstr "Montageart"
+
+msgid "Static system, east-west like system or 1-axis tracking system."
+msgstr "Statisches System, Ost-West-System oder einachsiges Nachführsystem."
+
+msgid "Reflection fraction of sunlight in the surrounding area."
+msgstr "Anteil des in der Umgebung reflektierten Sonnenlichts."
+
+msgid "Maximum tilt angle for tracking systems. This value is only used for 'tracker' systems."
+msgstr "Maximaler Neigungswinkel für Nachführsysteme. Dieser Wert wird nur für Tracker-Systeme verwendet."
+
+msgid "Outdoor temperature"
+msgstr "Außentemperatur"
+
+msgid "Constant temperature or timeseries."
+msgstr "Konstante Temperatur oder Zeitreihe."
+
+msgid "Profile type"
+msgstr "Profiltyp"
+
+msgid "Select from one of the available BDEW heat profiles."
+msgstr "Wählen Sie eines der verfügbaren BDEW-Wärmeprofile aus."
+
+msgid "Annual heat demand"
+msgstr "Jahreswärmebedarf"
+
+msgid "Total heat demand in the chosen time period."
+msgstr "Gesamter Wärmebedarf im gewählten Zeitraum."
+
+msgid "Building year"
+msgstr "Baujahr"
+
+msgid "Only for residential buildings, used for estimating insulation."
+msgstr "Nur für Wohngebäude; wird zur Abschätzung der Wärmedämmung verwendet."
+
+msgid "Wind class"
+msgstr "Windklasse"
+
+msgid "Windy for exposed buildings on free fields, near coast or high ground. Not windy for unexposed buildings in villages/cities."
+msgstr "Windig für exponierte Gebäude auf freien Flächen, in Küstennähe oder in Höhenlagen. Nicht windig für geschützte Gebäude in Dörfern und Städten."
