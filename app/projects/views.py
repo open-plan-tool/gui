@@ -199,7 +199,7 @@ def timeseries_dashboard(request, ts_id=None):
             )
             if values:
                 context["annual_total"] = sum(values)
-                context["mean"] = sum(values) / len(values)
+                context["mean"] = round(sum(values) / len(values), 3)
                 context["peak"] = max(values)
                 context["zero_or_missing"] = zero_or_missing
 
