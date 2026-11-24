@@ -2,18 +2,21 @@ import csv
 import io
 import json
 import logging
+from copy import deepcopy
 
-from dashboard.helpers import KPIFinder
+from oemof.eesyplan import TYPEMAP
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.html import html_safe
 from django.utils.translation import gettext_lazy as _
-from epa.settings import RESOURCES_DIR
+from epa.settings import RESOURCES_DIR, SHOW_MVS
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
 from openpyxl import load_workbook
 
+from dashboard.helpers import KPIFinder
 from projects.dtos import convert_to_dto
 from projects.models import Timeseries
 
@@ -46,6 +49,77 @@ for model, parameter_list in zip(("eesyplan", "openplan"), PARAMETERS_LIST_PATHS
                         PARAMETERS[label][k] = v
 
 parameters_helper = KPIFinder(param_info_dict=PARAMETERS, unit_header="unit")
+
+
+def get_component_categories():
+    component_categories = {
+        "providers": {
+            "dso": _("Electricity DSO"),
+            "gas_dso": _("Fuel DSO"),
+            "h2_dso": _("H2 DSO"),
+            "heat_dso": _("Heat DSO"),
+        },
+        "production": {
+            "pv_plant": _("PV Plant"),
+            "wind_plant": _("Wind Plant"),
+            "biogas_plant": _("Biogas Plant"),
+            "geothermal_conversion": _("Geothermal Conversion"),
+            "solar_thermal_plant": _("Solar Thermal Plant"),
+            "commodity": _("Commodity"),
+            "shortage": _("Shortage"),
+        },
+        "conversion": {
+            "electrical_transformer": _("Electrical Transformer"),
+            "diesel_generator": _("Diesel Generator"),
+            "fuel_cell": _(" Fuel Cell"),
+            "gas_boiler": _("Gas Boiler"),
+            "electrolyzer": _("Electrolyzer"),
+            "heat_pump": _("Heat Pump"),
+            "chp": _("Combined Heat and Power"),
+            "chp_fixed_ratio": _("CHP fixed ratio"),
+            "auxiliary_heat": _("Auxiliary Heat"),
+        },
+        "storage": {
+            "bess": _("Electricity Storage"),
+            "gess": _("Gas Storage"),
+            "h2ess": _("H2 Storage"),
+            "hess": _("Heat Storage"),
+        },
+        "demand": {
+            "demand": _("Electricity Demand"),
+            "gas_demand": _("Gas Demand"),
+            "h2_demand": _("H2 Demand"),
+            "heat_demand": _("Heat Demand"),
+            "sink": _("Sink"),
+            "excess": _("Excess"),
+        },
+        "transport": {
+            "heating_network": _("Heating Network"),
+            "heating_pipe": _("Heating pipe"),
+        },
+        "bus": {
+            "bus-electricity": _("Electricity Bus"),
+            "bus-heat": _("Heat Bus"),
+            "bus-gas": _("Fuel Bus"),
+            "bus-h2": _("Hydrogen Bus"),
+        },
+    }
+    components = deepcopy(component_categories)
+    if not SHOW_MVS:
+        # remove the components which are not listed as 'production' under the column 'published_on_branch'
+        # of the file resources/eesyplan_parameters_list.csv
+        for cat in component_categories:
+            for comp in component_categories[cat]:
+                if cat != "bus" and comp in TYPEMAP:
+                    eesyplan_component_model = TYPEMAP[comp].__name__
+                    if (
+                        PARAMETERS[f"{eesyplan_component_model}_name"][
+                            "published_on_branch"
+                        ]
+                        != "production"
+                    ):
+                        components[cat].pop(comp)
+    return components
 
 
 # Helper method to clean dict data from empty values
