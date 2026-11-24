@@ -2,6 +2,7 @@
 
 {% block head_block %}
 
+{% load statici18n %}
 {% load static %}
 <head>
     <meta charset="UTF-8">
@@ -556,6 +557,7 @@ updateSortArrows();
     const tsValuesUrl = `{% url 'get_timeseries' %}`;
     let scen_ts_length_str = 0;
 </script>
+<script src="{% statici18n LANGUAGE_CODE %}"></script>
 <script src="{% static 'js/modal_utils.js' %}"></script>
 <script src="{% static 'js/traceplot.js' %}"></script>
 <script src="{% static 'js/timeseries_dashboard_utils.js' %}"></script>
