@@ -6,6 +6,9 @@
 - The list of eesyplan's components' parameters is kept separated from the OpenPlan models' attribute in order to simplify the update of the documentation on RTD  [[#613](https://github.com/open-plan-tool/gui/pull/613)]
 - The list of eesyplan's components' parameters is used to decide which component are shown on the production server and which ones are not [[#614](https://github.com/open-plan-tool/gui/pull/614)]
 
+### Added
+- Model to display/hide messages temporarily on the landing page of the production server without having to release to production branch [[#615](https://github.com/open-plan-tool/gui/pull/615)]
+
 ## [v2.0.2] – 2026-11-18
 
 ### Changed

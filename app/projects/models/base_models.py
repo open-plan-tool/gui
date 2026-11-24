@@ -52,6 +52,14 @@ class Feedback(models.Model):
     rating = models.PositiveSmallIntegerField(choices=USER_RATING, null=True)
 
 
+class LandingMessage(models.Model):
+    body = models.TextField()
+    category = models.CharField(
+        max_length=7,
+        choices=(("info", "info"), ("warning", "warning"), ("error", "error")),
+    )
+
+
 class EconomicData(models.Model):
     duration = models.PositiveSmallIntegerField()
     currency = models.CharField(max_length=3, choices=CURRENCY)
