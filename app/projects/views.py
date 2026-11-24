@@ -18,6 +18,7 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
 from epa.settings import (
@@ -60,6 +61,7 @@ from projects.models import (
     Simulation,
     Timeseries,
     UseCase,
+    LandingMessage,
 )
 
 from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
@@ -541,8 +543,15 @@ def project_search(request, proj_id=None, scen_id=None):
         usecase_qs=UseCase.objects.all(), usecase_url=reverse("usecase_search")
     )
 
-    msg = "<center>Dear OpenPlan user,<br> On the 2nd of November, we updated the database to replace the current simulation backend.<br>The operation went successful and we adapted the frontend on November 11th<br></center>"
-    # messages.warning(request, mark_safe(msg))
+    msg_qs = LandingMessage.objects.all()
+    if msg_qs.exists():
+        msg = msg_qs.last()
+        if msg.category == "warning":
+            messages.warning(request, msg.body)
+        elif msg.category == "error":
+            messages.error(request, msg.body)
+        elif msg.category == "info":
+            messages.info(request, mark_safe(msg.body))
 
     return render(
         request,
