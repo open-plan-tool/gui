@@ -280,36 +280,6 @@ BOOL_CHOICES = ((True, _("Yes")), (False, _("No")))
 
 FLOW_DIRECTION = (("B2A", "Bus_to_Asset"), ("A2B", "Asset_to_Bus"))
 
-TIMESERIES_UNITS = (
-    ("Wh", "Wh"),
-    ("kWh", "kWh"),
-    ("MWh", "MWh"),
-    ("GWh", "GWh"),
-    ("TWh", "TWh"),
-)
-TIMESERIES_CATEGORIES = (
-    ("other", _("Other")),
-    ("demand", _("Demand")),
-    ("supply", _("Supply")),
-)
-TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
-TIMESERIES_ASSET_TYPES = (
-    ("demand", _("demand")),
-    ("dso", _("dso")),
-    ("dso_heat", _("dso_heat")),
-    ("dso_h2", _("dso_h2")),
-    ("dso_gas", _("dso_gas")),
-    ("gas_demand", _("gas_demand")),
-    ("h2_demand", _("h2_demand")),
-    ("heat_demand", _("heat_demand")),
-    ("pv_plant", _("pv_plant")),
-    ("wind_plant", _("wind_plant")),
-    ("biogas_plant", _("biogas_plant")),
-    ("geothermal_conversion", _("geothermal_conversion")),
-    ("solar_thermal_plant", _("solar_thermal_plant")),
-    ("chp", _("chp")),
-)
-
 ENERGY_VECTOR = (
     ("", "Choose..."),
     ("Electricity", _("Electricity")),
@@ -417,7 +387,83 @@ ASSET_TYPE = (
     ("hess", "hess"),
 )
 
+ASSET_VERBOSE_NAMES = {
+    # providers
+    "dso": _("Electricity DSO"),
+    "gas_dso": _("Fuel DSO"),
+    "h2_dso": _("H2 DSO"),
+    "heat_dso": _("Heat DSO"),
+    # production
+    "pv_plant": _("PV Plant"),
+    "wind_plant": _("Wind Plant"),
+    "biogas_plant": _("Biogas Plant"),
+    "geothermal_conversion": _("Geothermal Conversion"),
+    "solar_thermal_plant": _("Solar Thermal Plant"),
+    "commodity": _("Commodity"),
+    "shortage": _("Shortage"),
+    # conversion
+    "electrical_transformer": _("Electrical Transformer"),
+    "diesel_generator": _("Diesel Generator"),
+    "fuel_cell": _(" Fuel Cell"),
+    "gas_boiler": _("Gas Boiler"),
+    "electrolyzer": _("Electrolyzer"),
+    "heat_pump": _("Heat Pump"),
+    "chp": _("Combined Heat and Power"),
+    "chp_fixed_ratio": _("CHP fixed ratio"),
+    "auxiliary_heat": _("Auxiliary Heat"),
+    # storage
+    "bess": _("Electricity Storage"),
+    "gess": _("Gas Storage"),
+    "h2ess": _("H2 Storage"),
+    "hess": _("Heat Storage"),
+    # demand
+    "demand": _("Electricity Demand"),
+    "gas_demand": _("Gas Demand"),
+    "h2_demand": _("H2 Demand"),
+    "heat_demand": _("Heat Demand"),
+    "sink": _("Sink"),
+    "excess": _("Excess"),
+    # transport
+    "heating_network": _("Heating Network"),
+    "heating_pipe": _("Heating pipe"),
+    # bus
+    "bus-electricity": _("Electricity Bus"),
+    "bus-heat": _("Heat Bus"),
+    "bus-gas": _("Fuel Bus"),
+    "bus-h2": _("Hydrogen Bus"),
+}
+
 ASSET_TO_TIMESERIES_ASSET_TYPE = {}
+
+TIMESERIES_UNITS = (
+    ("Wh", "Wh"),
+    ("kWh", "kWh"),
+    ("MWh", "MWh"),
+    ("GWh", "GWh"),
+    ("TWh", "TWh"),
+)
+TIMESERIES_CATEGORIES = (
+    ("other", _("Other")),
+    ("demand", _("Demand")),
+    ("supply", _("Supply")),
+)
+TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
+TIMESERIES_ASSET_TYPES = (
+    ("demand", ASSET_VERBOSE_NAMES["demand"]),
+    ("dso", ASSET_VERBOSE_NAMES["dso"]),
+    ("dso_heat", ASSET_VERBOSE_NAMES["heat_dso"]),
+    ("dso_h2", ASSET_VERBOSE_NAMES["h2_dso"]),
+    ("dso_gas", ASSET_VERBOSE_NAMES["gas_dso"]),
+    ("gas_demand", ASSET_VERBOSE_NAMES["gas_demand"]),
+    ("h2_demand", ASSET_VERBOSE_NAMES["h2_demand"]),
+    ("heat_demand", ASSET_VERBOSE_NAMES["heat_demand"]),
+    ("pv_plant", ASSET_VERBOSE_NAMES["pv_plant"]),
+    ("wind_plant", ASSET_VERBOSE_NAMES["wind_plant"]),
+    ("biogas_plant", ASSET_VERBOSE_NAMES["biogas_plant"]),
+    ("geothermal_conversion", ASSET_VERBOSE_NAMES["geothermal_conversion"]),
+    ("solar_thermal_plant", ASSET_VERBOSE_NAMES["solar_thermal_plant"]),
+    ("chp", ASSET_VERBOSE_NAMES["chp"]),
+)
 
 RENEWABLE_ASSETS = (
     "electrolyzer",

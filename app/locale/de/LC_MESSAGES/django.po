@@ -3551,6 +3551,10 @@ msgstr "Sponsoring"
 msgid "My Projects"
 msgstr "Meine Projekte"
 
+#: templates/navbar.html:85
+msgid "Timeseries dashboard"
+msgstr "Zeitreihen-Dashboard"
+
 #: templates/navbar.html:89
 msgid "Account"
 msgstr "Konto"

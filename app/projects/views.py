@@ -2,6 +2,7 @@
 import datetime
 import io
 import json
+import math
 import tempfile
 import traceback
 import zipfile
@@ -12,11 +13,14 @@ from dashboard.models import FancyResults
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import CharField, F, Func, Q
+from django.db.models import CharField, F, Func, Q, ExpressionWrapper
+from django.db.models import FloatField as DBFloatField
+from django.db.models import IntegerField as DBIntegerField
+from django.db.models.functions import NullIf
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -58,7 +62,15 @@ from projects.models import (
     UseCase,
 )
 
-from .constants import DONE, ERROR, MAX_STEP, MODIFIED, PENDING, STEP_LIST
+from .constants import (
+    DONE,
+    ERROR,
+    MAX_STEP,
+    MODIFIED,
+    PENDING,
+    STEP_LIST,
+    ASSET_VERBOSE_NAMES,
+)
 from .forms import *
 from .requests import (
     ezp_simulation_request,
@@ -79,6 +91,9 @@ from .scenario_topology_helpers import (
     load_scenario_topology_from_db,
     update_deleted_objects_from_database,
 )
+from projects.helpers import format_scenario_for_mvs, PARAMETERS, parse_input_timeseries
+from dashboard.helpers import fetch_user_projects
+from .constants import DONE, PENDING, ERROR, MODIFIED, STEP_LIST, MAX_STEP
 from .services import (
     excuses_design_under_development,
     get_selected_scenarios_in_cache,
@@ -104,6 +119,363 @@ def has_invalid_dp_results(scenario_id):
         return "reparse"
 
     return ""
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_dashboard(request, ts_id=None):
+    timeseries_upload_form = TimeseriesModelForm(require_file=True)
+
+    # POST request (upload new timeseries)
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, require_file=True)
+        if form.is_valid():
+            new_timeseries = form.save(commit=False)
+            new_timeseries.user = request.user
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                uploaded_file.seek(0)
+                new_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            new_timeseries.save()
+
+            context = timeseries_build_context(request, ts_id=new_timeseries.id)
+            context["timeseries_upload_form"] = timeseries_upload_form
+            table_html = render_to_string(
+                "asset/timeseries_table.html", context, request
+            )
+            details_html = render_to_string(
+                "asset/timeseries_detail_panel.html", context, request
+            )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": timeseries_upload_form},
+                        request=request,
+                    ),
+                    "table_html": table_html,
+                    "details_html": details_html,
+                    "summary_html": summary_html,
+                }
+            )
+        else:
+            timeseries_upload_form = form
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_upload_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
+
+    # GET request (page first render & reload, table refreshs when filtering, detail panel refresh when selecting)
+    context = timeseries_build_context(request)
+    context["timeseries_upload_form"] = timeseries_upload_form
+
+    if ts_id is not None:
+        try:
+            selected_timeseries = context["timeseries_list"].get(
+                pk=ts_id, user=request.user
+            )
+            context["selected_timeseries"] = selected_timeseries
+            context["timeseries_edit_form"] = TimeseriesModelForm(
+                instance=selected_timeseries
+            )
+
+            values = selected_timeseries.values
+            zero_or_missing = sum(
+                1
+                for v in values
+                if v is None or (isinstance(v, float) and math.isnan(v)) or v == 0
+            )
+            if values:
+                context["annual_total"] = sum(values)
+                context["mean"] = round(sum(values) / len(values), 3)
+                context["peak"] = max(values)
+                context["zero_or_missing"] = zero_or_missing
+
+        except Timeseries.DoesNotExist:
+            pass
+
+    if request.headers.get("HX-Request") == "true":
+        table_html = render_to_string("asset/timeseries_table.html", context, request)
+        details_html = render_to_string(
+            "asset/timeseries_detail_panel.html", context, request
+        )
+        summary_html = render_to_string(
+            "asset/timeseries_summary.html", context, request
+        )
+        return HttpResponse(table_html + details_html + summary_html)
+    return render(request, "asset/timeseries_dashboard.html", context)
+
+
+def timeseries_build_context(request, ts_id=None):
+    timeseries_qs = timeseries_sort_and_filter(request)
+    all_timeseries_qs = Timeseries.objects.filter(user=request.user).exclude(
+        ts_type="scalar"
+    )
+
+    if ts_id is not None:
+        try:
+            selected_timeseries = timeseries_qs.get(pk=ts_id, user=request.user)
+        except Timeseries.DoesNotExist:
+            selected_timeseries = None
+    else:
+        selected_timeseries = timeseries_qs.first()
+
+    existing_lengths = sorted(set(len(ts.values) for ts in all_timeseries_qs))
+    existing_asset_types = (
+        all_timeseries_qs.exclude(asset_type__isnull=True)
+        .values_list("asset_type", flat=True)
+        .order_by()
+        .distinct()
+    )
+
+    existing_scenarios = (
+        all_timeseries_qs.exclude(scenario__isnull=True)
+        .values_list("scenario_id", "scenario__name")
+        .order_by()
+        .distinct()
+    )
+    context = {
+        "timeseries_list": timeseries_qs,
+        "selected_timeseries": selected_timeseries,
+        "timeseries_edit_form": TimeseriesModelForm(instance=selected_timeseries),
+        "warning_boxes": {
+            "timeseries_delete": _(
+                "Are you sure? This will delete the selected timeseries from all scenarios it is currently used in."
+            ),
+        },
+        "existing_lengths": existing_lengths,
+        "existing_asset_types": existing_asset_types,
+        "asset_type_options": [
+            (asset_type, ASSET_VERBOSE_NAMES.get(asset_type, asset_type))
+            for asset_type in existing_asset_types
+        ],
+        "existing_scenarios": existing_scenarios,
+        "selected_length": request.GET.get("length"),
+        "selected_asset_type": request.GET.get("asset_type"),
+        "selected_scenario": request.GET.get("scenario"),
+    }
+    return context
+
+
+# Helper for annual total
+HOURS_PER_YEAR = 8760
+
+
+class ArraySum(Func):
+    template = "(SELECT SUM(elem) FROM unnest(%(expressions)s) AS elem)"
+
+
+def timeseries_sort_and_filter(request):
+    """
+    Looks for all the timeseries owned by user and with timeseries type = scalar. Then sorts those
+    for name and id. If the request contains filter parameters, uses these to filter the timeseries.
+    Filter parameters can only be accessed from request.GET since POST requests contain confusing form data.
+
+    Function accessable for all the timeseries views so that sorting and filtering always applies in the same way.
+
+    Args:
+        request: Django HttpRequest (needed for Parameters) either GET or POST
+
+    Returns:
+        QuerySet: timeseries queryset thats sorted and filtered
+    """
+    timeseries_qs = (
+        Timeseries.objects.filter(Q(user=request.user) & ~Q(ts_type="scalar"))
+        .annotate(
+            points_count=Func(
+                F("values"), function="cardinality", output_field=DBIntegerField()
+            )
+        )
+        .annotate(
+            annual_total=ExpressionWrapper(
+                ArraySum(F("values"), output_field=DBFloatField())
+                * HOURS_PER_YEAR
+                / NullIf(F("points_count"), 0),
+                output_field=DBFloatField(),
+            )
+        )
+        .order_by("name", "id")
+    )
+
+    # apply filters if excisting
+    params = request.GET
+
+    selected_length = params.get("length")
+    selected_asset_type = params.get("asset_type")
+    selected_scenario = params.get("scenario")
+
+    if selected_asset_type:
+        timeseries_qs = timeseries_qs.filter(asset_type=selected_asset_type)
+    if selected_length:
+        timeseries_qs = timeseries_qs.filter(values__len=int(selected_length))
+    if selected_scenario:
+        timeseries_qs = timeseries_qs.filter(scenario_id=selected_scenario)
+
+    sort = params.get("sort")
+    direction = params.get("dir")
+
+    sort_fields = {
+        "name": "name",
+        "asset_type": "asset_type",
+        "scenario": "scenario_id",
+        "points": "points_count",
+        "annual_total": "annual_total",
+    }
+
+    if sort in sort_fields:
+        field = F(sort_fields[sort])
+        if direction == "desc":
+            ordering = field.desc(nulls_last=True)
+        else:
+            ordering = field.asc(nulls_first=True)
+        timeseries_qs = timeseries_qs.order_by(ordering, "id")
+
+    return timeseries_qs
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def timeseries_edit(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "GET":
+        form = TimeseriesModelForm(instance=timeseries)
+        return render(request, "asset/timeseries_edit_form.html", {"form": form})
+
+    if request.POST:
+        form = TimeseriesModelForm(request.POST, request.FILES, instance=timeseries)
+        if form.is_valid():
+            updated_timeseries = form.save(commit=False)
+
+            uploaded_file = form.cleaned_data.get("timeseries_file")
+            if uploaded_file:
+                updated_timeseries.values = parse_input_timeseries(uploaded_file)
+
+            updated_timeseries.save()
+
+            context = timeseries_build_context(request, ts_id=ts_id)
+            context["form"] = TimeseriesModelForm(instance=updated_timeseries)
+            table_html = render_to_string(
+                "asset/timeseries_table.html", context, request
+            )
+            details_html = render_to_string(
+                "asset/timeseries_detail_panel.html", context, request
+            )
+            form_html = render_to_string(
+                "asset/timeseries_edit_form.html", context, request
+            )
+            summary_html = render_to_string(
+                "asset/timeseries_summary.html", context, request
+            )
+            return JsonResponse(
+                {
+                    "success": True,
+                    "form_html": form_html,
+                    "table_html": table_html,
+                    "details_html": details_html,
+                    "summary_html": summary_html,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "form_html": render_to_string(
+                        "asset/timeseries_edit_form.html",
+                        {"form": form},
+                        request=request,
+                    ),
+                }
+            )
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_duplicate(request, ts_id):
+    selected_timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if selected_timeseries.user != request.user:
+        raise PermissionDenied
+
+    if not selected_timeseries:
+        messages.error(request, "No timeseries selected.")
+        return HttpResponseRedirect(reverse("timeseries_dashboard"))
+
+    selected_timeseries.pk = None
+    selected_timeseries.name = f"{selected_timeseries.name} (Copy)"
+    selected_timeseries.save()
+
+    messages.success(request, "Timeseries successfully duplicated!")
+    # load updated timeseries list
+
+    context = timeseries_build_context(request, ts_id=selected_timeseries.id)
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_delete(request, ts_id):
+    timeseries = get_object_or_404(Timeseries, id=ts_id)
+
+    if timeseries.user != request.user:
+        raise PermissionDenied
+
+    if request.method == "POST":
+        timeseries.delete()
+        messages.success(request, "Timeseries successfully deleted!")
+
+    # load updated timeseries list
+    timeseries_list = timeseries_sort_and_filter(request)
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    return HttpResponse(table_html + details_html + summary_html)
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_bulk_delete(request):
+    selected = Timeseries.objects.filter(
+        user=request.user, pk__in=request.POST.getlist("ids")
+    )
+    count = selected.count()
+    selected.delete()
+    if count:
+        messages.success(request, f"{count} timeseries successfully deleted!")
+
+    timeseries_list = timeseries_sort_and_filter(request)
+
+    context = {"timeseries_list": timeseries_list, "selected_timeseries": None}
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    return HttpResponse(table_html + summary_html + details_html)
 
 
 @require_http_methods(["GET"])
@@ -958,54 +1330,54 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
     components = {
         "providers": {
-            "dso": _("Electricity DSO"),
-            "gas_dso": _("Fuel DSO"),
-            "h2_dso": _("H2 DSO"),
-            "heat_dso": _("Heat DSO"),
+            "dso": ASSET_VERBOSE_NAMES["dso"],
+            "gas_dso": ASSET_VERBOSE_NAMES["gas_dso"],
+            "h2_dso": ASSET_VERBOSE_NAMES["h2_dso"],
+            "heat_dso": ASSET_VERBOSE_NAMES["heat_dso"],
         },
         "production": {
-            "pv_plant": _("PV Plant"),
-            "wind_plant": _("Wind Plant"),
-            "biogas_plant": _("Biogas Plant"),
-            "geothermal_conversion": _("Geothermal Conversion"),
-            "solar_thermal_plant": _("Solar Thermal Plant"),
-            # "commodity": _("Commodity"),
-            # "shortage": _("Shortage"),
+            "pv_plant": ASSET_VERBOSE_NAMES["pv_plant"],
+            "wind_plant": ASSET_VERBOSE_NAMES["wind_plant"],
+            "biogas_plant": ASSET_VERBOSE_NAMES["biogas_plant"],
+            "geothermal_conversion": ASSET_VERBOSE_NAMES["geothermal_conversion"],
+            "solar_thermal_plant": ASSET_VERBOSE_NAMES["solar_thermal_plant"],
+            # "commodity": ASSET_VERBOSE_NAMES["commodity"],
+            # "shortage": ASSET_VERBOSE_NAMES["shortage"],
         },
         "conversion": {
-            "electrical_transformer": _("Electrical Transformer"),
-            "diesel_generator": _("Diesel Generator"),
-            "fuel_cell": _(" Fuel Cell"),
-            "gas_boiler": _("Gas Boiler"),
-            "electrolyzer": _("Electrolyzer"),
-            "heat_pump": _("Heat Pump"),
-            "chp": _("Combined Heat and Power"),
-            "chp_fixed_ratio": _("CHP fixed ratio"),
-            # "auxiliary_heat": _("Auxiliary Heat"),
+            "electrical_transformer": ASSET_VERBOSE_NAMES["electrical_transformer"],
+            "diesel_generator": ASSET_VERBOSE_NAMES["diesel_generator"],
+            "fuel_cell": ASSET_VERBOSE_NAMES["fuel_cell"],
+            "gas_boiler": ASSET_VERBOSE_NAMES["gas_boiler"],
+            "electrolyzer": ASSET_VERBOSE_NAMES["electrolyzer"],
+            "heat_pump": ASSET_VERBOSE_NAMES["heat_pump"],
+            "chp": ASSET_VERBOSE_NAMES["chp"],
+            "chp_fixed_ratio": ASSET_VERBOSE_NAMES["chp_fixed_ratio"],
+            # "auxiliary_heat": ASSET_VERBOSE_NAMES["auxiliary_heat"],
         },
         "storage": {
-            "bess": _("Electricity Storage"),
-            # "gess": _("Gas Storage"),
-            "h2ess": _("H2 Storage"),
-            "hess": _("Heat Storage"),
+            "bess": ASSET_VERBOSE_NAMES["bess"],
+            # "gess": ASSET_VERBOSE_NAMES["gess"],
+            "h2ess": ASSET_VERBOSE_NAMES["h2ess"],
+            "hess": ASSET_VERBOSE_NAMES["hess"],
         },
         "demand": {
-            "demand": _("Electricity Demand"),
-            # "gas_demand": _("Gas Demand"),
-            "h2_demand": _("H2 Demand"),
-            "heat_demand": _("Heat Demand"),
-            # "sink": _("Sink"),
-            # "excess": _("Excess"),
+            "demand": ASSET_VERBOSE_NAMES["demand"],
+            # "gas_demand": ASSET_VERBOSE_NAMES["gas_demand"],
+            "h2_demand": ASSET_VERBOSE_NAMES["h2_demand"],
+            "heat_demand": ASSET_VERBOSE_NAMES["heat_demand"],
+            # "sink": ASSET_VERBOSE_NAMES["sink"],
+            # "excess": ASSET_VERBOSE_NAMES["excess"],
         },
         "transport": {
-            "heating_network": _("Heating Network"),
-            "heating_pipe": _("Heating pipe"),
+            "heating_network": ASSET_VERBOSE_NAMES["heating_network"],
+            "heating_pipe": ASSET_VERBOSE_NAMES["heating_pipe"],
         },
         "bus": {
-            "bus-electricity": _("Electricity Bus"),
-            "bus-heat": _("Heat Bus"),
-            "bus-gas": _("Fuel Bus"),
-            "bus-h2": _("Hydrogen Bus"),
+            "bus-electricity": ASSET_VERBOSE_NAMES["bus-electricity"],
+            "bus-heat": ASSET_VERBOSE_NAMES["bus-heat"],
+            "bus-gas": ASSET_VERBOSE_NAMES["bus-gas"],
+            "bus-h2": ASSET_VERBOSE_NAMES["bus-h2"],
         },
     }
     group_names = {group: _(group) for group in components}
@@ -1955,7 +2327,7 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
         "heat_demand": create_heat_demand,
     }
 
-    scenario = get_object_or_404(Scenario, id=scen_id)
+    scenario = get_object_or_404(Scenario, id=scen_id) if int(scen_id) else None
     if form.is_valid():
         try:
             cleaned_data = form.cleaned_data
@@ -1970,13 +2342,18 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
                     if key != "outdoor_temperature"
                 }
 
+                num_timesteps = (
+                    scenario.get_num_timesteps
+                    if scenario
+                    else int(request.POST.get("num_timesteps", 8760))
+                )
                 outdoor_temperature = cleaned_data.get("outdoor_temperature")
                 if outdoor_temperature is not None and not isinstance(
                     outdoor_temperature, list
                 ):
                     cleaned_data["outdoor_temperature"] = [
                         outdoor_temperature
-                    ] * scenario.get_num_timesteps
+                    ] * num_timesteps
 
             elif asset_type_name == "pv_plant":
                 # set the generation parameters, neglect timeseries and set only file name as reference
@@ -1997,7 +2374,11 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
 
                 # add latitude and longitude to the generation parameters
                 for attr in ["latitude", "longitude"]:
-                    cleaned_data[attr] = getattr(scenario.project, attr)
+                    if scenario:
+                        cleaned_data[attr] = getattr(scenario.project, attr)
+                    else:
+                        # for the dashboard
+                        cleaned_data[attr] = float(request.POST[attr])
 
             timeseries = custom_ts_fun(**cleaned_data)
             form_prefix = f"{custom_form.__name__}_"
@@ -2038,6 +2419,44 @@ def custom_timeseries_create(request, scen_id=0, asset_type_name="", asset_uuid=
     return JsonResponse(
         {"success": False, "form_html": form_html.render({"form": form})}, status=422
     )
+
+
+@login_required
+@require_http_methods(["POST"])
+def timeseries_save_custom(request):
+    try:
+        payload = json.loads(request.POST.get("payload", ""))
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid payload")
+
+    asset_type_name = payload.get("asset_type_name")
+    values = payload.get("values")
+    if (
+        asset_type_name not in CUSTOM_TIMESERIES_FORMS
+        or not isinstance(values, list)
+        or not values
+        or not all(isinstance(v, (int, float)) for v in values)
+    ):
+        return HttpResponseBadRequest("Invalid timeseries")
+
+    new_timeseries = Timeseries.objects.create(
+        user=request.user,
+        name=payload.get("name") or f"Created timeseries ({asset_type_name})",
+        values=values,
+        ts_type=AssetType.objects.get(asset_type=asset_type_name).mvs_type,
+        asset_type=ASSET_TO_TIMESERIES_ASSET_TYPE.get(asset_type_name, asset_type_name),
+        category=ASSET_TYPE_TO_CATEGORY[asset_type_name],
+        open_source=False,
+        generation_parameters=payload.get("generation_parameters"),
+    )
+
+    context = timeseries_build_context(request, new_timeseries.pk)
+    table_html = render_to_string("asset/timeseries_table.html", context, request)
+    summary_html = render_to_string("asset/timeseries_summary.html", context, request)
+    details_html = render_to_string(
+        "asset/timeseries_detail_panel.html", context, request
+    )
+    return HttpResponse(table_html + summary_html + details_html)
 
 
 @login_required
