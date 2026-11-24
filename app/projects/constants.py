@@ -280,36 +280,6 @@ BOOL_CHOICES = ((True, _("Yes")), (False, _("No")))
 
 FLOW_DIRECTION = (("B2A", "Bus_to_Asset"), ("A2B", "Asset_to_Bus"))
 
-TIMESERIES_UNITS = (
-    ("Wh", "Wh"),
-    ("kWh", "kWh"),
-    ("MWh", "MWh"),
-    ("GWh", "GWh"),
-    ("TWh", "TWh"),
-)
-TIMESERIES_CATEGORIES = (
-    ("other", _("Other")),
-    ("demand", _("Demand")),
-    ("supply", _("Supply")),
-)
-TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
-TIMESERIES_ASSET_TYPES = (
-    ("demand", _("demand")),
-    ("dso", _("dso")),
-    ("dso_heat", _("dso_heat")),
-    ("dso_h2", _("dso_h2")),
-    ("dso_gas", _("dso_gas")),
-    ("gas_demand", _("gas_demand")),
-    ("h2_demand", _("h2_demand")),
-    ("heat_demand", _("heat_demand")),
-    ("pv_plant", _("pv_plant")),
-    ("wind_plant", _("wind_plant")),
-    ("biogas_plant", _("biogas_plant")),
-    ("geothermal_conversion", _("geothermal_conversion")),
-    ("solar_thermal_plant", _("solar_thermal_plant")),
-    ("chp", _("chp")),
-)
-
 ENERGY_VECTOR = (
     ("", "Choose..."),
     ("Electricity", _("Electricity")),
@@ -464,6 +434,36 @@ ASSET_VERBOSE_NAMES = {
 }
 
 ASSET_TO_TIMESERIES_ASSET_TYPE = {}
+
+TIMESERIES_UNITS = (
+    ("Wh", "Wh"),
+    ("kWh", "kWh"),
+    ("MWh", "MWh"),
+    ("GWh", "GWh"),
+    ("TWh", "TWh"),
+)
+TIMESERIES_CATEGORIES = (
+    ("other", _("Other")),
+    ("demand", _("Demand")),
+    ("supply", _("Supply")),
+)
+TIMESERIES_TYPES = (("scalar", "scalar"), ("vector", "vector"))
+TIMESERIES_ASSET_TYPES = (
+    ("demand", ASSET_VERBOSE_NAMES["demand"]),
+    ("dso", ASSET_VERBOSE_NAMES["dso"]),
+    ("dso_heat", ASSET_VERBOSE_NAMES["heat_dso"]),
+    ("dso_h2", ASSET_VERBOSE_NAMES["h2_dso"]),
+    ("dso_gas", ASSET_VERBOSE_NAMES["gas_dso"]),
+    ("gas_demand", ASSET_VERBOSE_NAMES["gas_demand"]),
+    ("h2_demand", ASSET_VERBOSE_NAMES["h2_demand"]),
+    ("heat_demand", ASSET_VERBOSE_NAMES["heat_demand"]),
+    ("pv_plant", ASSET_VERBOSE_NAMES["pv_plant"]),
+    ("wind_plant", ASSET_VERBOSE_NAMES["wind_plant"]),
+    ("biogas_plant", ASSET_VERBOSE_NAMES["biogas_plant"]),
+    ("geothermal_conversion", ASSET_VERBOSE_NAMES["geothermal_conversion"]),
+    ("solar_thermal_plant", ASSET_VERBOSE_NAMES["solar_thermal_plant"]),
+    ("chp", ASSET_VERBOSE_NAMES["chp"]),
+)
 
 RENEWABLE_ASSETS = (
     "electrolyzer",
