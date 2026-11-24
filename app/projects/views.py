@@ -34,7 +34,11 @@ from projects.decorators import (
     user_has_read_rights,
     user_is_owner,
 )
-from projects.helpers import PARAMETERS, format_scenario_for_mvs
+from projects.helpers import (
+    PARAMETERS,
+    format_scenario_for_mvs,
+    get_component_categories,
+)
 from projects.models import (
     ASSET_MAPPING,
     Asset,
@@ -956,58 +960,7 @@ def scenario_create_parameters(request, proj_id, scen_id=None, step_id=1, max_st
 @login_required
 @require_http_methods(["GET", "POST"])
 def scenario_create_topology(request, proj_id, scen_id, step_id=2, max_step=3):
-    components = {
-        "providers": {
-            "dso": _("Electricity DSO"),
-            "gas_dso": _("Fuel DSO"),
-            "h2_dso": _("H2 DSO"),
-            "heat_dso": _("Heat DSO"),
-        },
-        "production": {
-            "pv_plant": _("PV Plant"),
-            "wind_plant": _("Wind Plant"),
-            "biogas_plant": _("Biogas Plant"),
-            "geothermal_conversion": _("Geothermal Conversion"),
-            "solar_thermal_plant": _("Solar Thermal Plant"),
-            # "commodity": _("Commodity"),
-            # "shortage": _("Shortage"),
-        },
-        "conversion": {
-            "electrical_transformer": _("Electrical Transformer"),
-            "diesel_generator": _("Diesel Generator"),
-            "fuel_cell": _(" Fuel Cell"),
-            "gas_boiler": _("Gas Boiler"),
-            "electrolyzer": _("Electrolyzer"),
-            "heat_pump": _("Heat Pump"),
-            "chp": _("Combined Heat and Power"),
-            "chp_fixed_ratio": _("CHP fixed ratio"),
-            # "auxiliary_heat": _("Auxiliary Heat"),
-        },
-        "storage": {
-            "bess": _("Electricity Storage"),
-            # "gess": _("Gas Storage"),
-            "h2ess": _("H2 Storage"),
-            "hess": _("Heat Storage"),
-        },
-        "demand": {
-            "demand": _("Electricity Demand"),
-            # "gas_demand": _("Gas Demand"),
-            "h2_demand": _("H2 Demand"),
-            "heat_demand": _("Heat Demand"),
-            # "sink": _("Sink"),
-            # "excess": _("Excess"),
-        },
-        "transport": {
-            "heating_network": _("Heating Network"),
-            "heating_pipe": _("Heating pipe"),
-        },
-        "bus": {
-            "bus-electricity": _("Electricity Bus"),
-            "bus-heat": _("Heat Bus"),
-            "bus-gas": _("Fuel Bus"),
-            "bus-h2": _("Hydrogen Bus"),
-        },
-    }
+    components = get_component_categories()
     group_names = {group: _(group) for group in components}
 
     # TODO: if the scenario exists, load it, otherwise default form
